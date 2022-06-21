@@ -127,7 +127,10 @@ export class CurrentBranchRefresher {
       const minimalIssues = mr ? await gitLabService.getMrClosingIssues(project, mr.iid) : [];
       const issues = (
         await Promise.all(
-          minimalIssues.map(mi => gitLabService.getSingleProjectIssue(project, mi.iid)),
+          minimalIssues
+            .map(mi => mi.iid)
+            .filter(notNullOrUndefined)
+            .map(iid => gitLabService.getSingleProjectIssue(project, iid)),
         )
       ).filter(notNullOrUndefined);
       return { valid: true, projectInRepository, pipeline, mr, jobs, issues, userInitiated };
