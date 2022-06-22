@@ -1,3 +1,12 @@
+## [3.47.2](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.47.1...v3.47.2) (2022-06-22)
+
+
+### Bug Fixes
+
+* don't fetch closing issue if it's missing iid ([5e846c3](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/5e846c3a23fc64bec7a5e53c914edc9fe60d26f0))
+
+
+
 ## [3.47.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.47.0...v3.47.1) (2022-06-09)
 
 
