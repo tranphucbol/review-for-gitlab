@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { createSnippetPatch } from './create_snippet_patch';
 import { project } from '../test_utils/entities';
 import { asMock } from '../test_utils/as_mock';
-import { openUrl } from '../openers';
+import { openUrl } from './openers';
 import { GitLabProject } from '../gitlab/gitlab_project';
 import { getTrackingBranchName } from '../git/get_tracking_branch_name';
 import { getLastCommitSha } from '../git/get_last_commit_sha';
@@ -10,7 +10,7 @@ import { getGitLabService } from '../gitlab/get_gitlab_service';
 import { ProjectInRepository } from '../gitlab/new_project';
 
 jest.mock('../git/git_extension_wrapper');
-jest.mock('../openers');
+jest.mock('./openers');
 jest.mock('../git/get_tracking_branch_name');
 jest.mock('../git/get_last_commit_sha');
 jest.mock('../gitlab/get_gitlab_service');

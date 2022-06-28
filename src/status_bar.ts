@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import assert = require('assert');
-import * as openers from './openers';
+import * as openers from './commands/openers';
 import { UserFriendlyError } from './errors/user_friendly_error';
 import { log } from './log';
 import { PROGRAMMATIC_COMMANDS, USER_COMMANDS } from './command_names';

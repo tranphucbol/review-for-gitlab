@@ -21,6 +21,12 @@ export interface GitRepository {
   readonly rawRepository: Repository;
 }
 
+/**
+ * GitRemoteUrlPointer represents a git remote URL (e.g. git@gitlab.com:gitlab-org/gitlab-vscode-extension.git)
+ * that comes from a repository.
+ *
+ * This pointer helps us trace where did we get the remote URL from.
+ */
 export interface GitRemoteUrlPointer {
   urlEntry: GitRemoteUrlEntry;
   remote: GitRemote;

@@ -1,6 +1,6 @@
 # Development process
 
-This document describes how we make changes to the extension. For contributing guidelines, please see [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+This document describes how we make changes to the extension. For contributing guidelines, please see [`CONTRIBUTING.md`](../../CONTRIBUTING.md).
 
 ## Who can make changes?
 

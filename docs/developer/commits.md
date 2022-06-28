@@ -28,18 +28,18 @@ C{Is MR set to be squashed?} --no--> D[Every commit must be valid]
 C --yes--> E[MR title must be valid]
 ```
 
-Following these conventions will result in a clear [changelog](./CHANGELOG.md) for every version.
+Following these conventions results in a clear [changelog](../../CHANGELOG.md) for every version.
 
 ## When should my MR's title follow these conventions?
 
-It's always a good idea to follow the conventions for your MR's title as well as for commit messages. This way, if your MR is squashed
-upon merge, the maintainer will be able to use its title as the final commit message, which will result in a properly formatted history.
+It's generally a good idea to follow the conventions for your MR's title as well as for commit messages. This way, if your merge request is squashed
+upon merge, the maintainer can use its title as the final commit message, creating a properly-formatted history.
 
 ## Is it okay that all my commits don't follow the conventions in a single MR?
 
-If your MR contains multiple commits but only one logical change, you can enable the [Squash commits when merge request is accepted](https://gitlab.com/help/user/project/merge_requests/squash_and_merge) option. Then GitLab uses the MR title.
+If your MR contains multiple commits but only one logical change, you can enable the [Squash commits when merge request is accepted](https://gitlab.com/help/user/project/merge_requests/squash_and_merge) option (enabled by default). Then GitLab uses the MR title.
 
-## What types can I use for my commit messages?
+## What types can you use for commit messages?
 
 We use the same types as [Angular's commit guidelines](https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#type):
 
@@ -53,9 +53,9 @@ We use the same types as [Angular's commit guidelines](https://github.com/angula
 - **refactor:** A code change that neither fixes a bug nor adds a feature.
 - **perf:** A code change that improves performance.
 - **test:** Adding missing tests or correcting existing tests.
-- **build:** Changes that affect the build system (changing webpack or Rollup config for example).
-- **ci:** Changes to our CI configuration files and scripts
-  (changing `.gitlab-ci.yml`, adding or changing Danger plugins, etc.).
+- **build:** Changes that affect the build system (changing webpack or Rollup configuration for example).
+- **ci:** Changes to our CI/CD configuration files and scripts
+  (such as changing `.gitlab-ci.yml`, adding or changing Danger plugins).
 - **chore:** Other changes that don't modify source or test files. Use this type when adding or
   updating dev dependencies.
 - **revert:** Reverts a previous commit.
@@ -64,14 +64,12 @@ Each commit type can have an optional scope to specify the place of the commit c
 It is up to you to add or omit a commit's scope. When a commit affects a specific component, use the
 component's PascalCase name as the commit's scope. For example:
 
-```
+```plaintext
 feat(statusbar): automatically switch pipelines
 ```
 
-> If you're introducing a breaking change, the message body should start with [`BREAKING CHANGE:`](https://www.conventionalcommits.org/en/v1.0.0/#commit-message-with-description-and-breaking-change-footer),
+> If you're introducing a breaking change, start the message body with [`BREAKING CHANGE:`](https://www.conventionalcommits.org/en/v1.0.0/#commit-message-with-description-and-breaking-change-footer),
 
 ## Commitizen
 
-https://commitizen.github.io/cz-cli/
-
-Commitizen is a CLI tool that provides an interactive interface to help you write commit messages following conventional commits specifications.
+[Commitizen](https://commitizen.github.io/cz-cli/) is a CLI tool that provides an interactive interface to help you write commit messages following conventional commits specifications.

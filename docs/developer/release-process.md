@@ -1,9 +1,9 @@
 # Release process
 
-You need to perform the following steps to release a new version of the extension.
+You must perform the following steps to release a new version of the extension.
 These examples use version `3.0.0`:
 
-1. Do a quick test of the extension in your local development. At this stage, you
+1. (Optional.) Do a quick test of the extension in your local development. At this stage, you
    are only verifying there is no complete failure of the extension.
 1. Update the package version in `npm version 3.0.0`. This automatically generates a changelog entry.
 1. If there have been community contributions:
@@ -16,15 +16,21 @@ These examples use version `3.0.0`:
 
    1. Add the contributor's entry to `CONTRIBUTORS.md`, if it doesn't exist.
 
-1. `git push origin main` and `git push --tags`
+1. Run the command `git push origin main` and `git push --tags`.
 1. Trigger the **Publish** step on the tag pipeline.
-1. When the extension updates in your VS Code, do another quick check.
+1. When the extension updates in your VS Code, check that the extension works.
+1. Add a message to our `#f_vscode_extension` slack channel:
+
+   ```plaintext
+   :vscode:  [GitLab Workflow](https://marketplace.visualstudio.com/items?itemName=gitlab.gitlab-workflow) `3.0.0` has been released :rocket:
+   See [CHANGELOG.md](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/CHANGELOG.md).
+   ```
 
 ## Access tokens for Marketplaces
 
 _This section applies once a year when the Microsoft VS Code Marketplace token automatically expires._
 
-Our [CI jobs](https://gitlab.com/gitlab-org/gitlab-vscode-extension/blob/e80e5798dbac5944ebaa52dc0dc2cb861509588e/.gitlab-ci.yml#L110-124) use the access tokens for publishing packaged extension to market places.
+Our [CI/CD jobs](https://gitlab.com/gitlab-org/gitlab-vscode-extension/blob/e80e5798dbac5944ebaa52dc0dc2cb861509588e/.gitlab-ci.yml#L110-124) use the access tokens for publishing packaged extension to market places.
 
 ### How to generate tokens
 
@@ -43,6 +49,6 @@ Our [CI jobs](https://gitlab.com/gitlab-org/gitlab-vscode-extension/blob/e80e579
 1. Go to **Personal Access Tokens**.
    ([Official VS Code publishing documentation](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#get-a-personal-access-token)).
 1. You can either:
-   - Extend the expiration date of an existing token. **This is the best solution when you receive token expiration email.**
+   - Extend the expiration date of an existing token. **This solution is the best one when you receive token expiration email.**
    - Generate a new token. Assign it the least privileges possible - it probably only
      needs **Marketplace - publish**.

@@ -1,7 +1,7 @@
 import vscode from 'vscode';
-import { NewProjectCommand } from './commands/run_with_valid_project';
+import { ProjectCommand } from './commands/run_with_valid_project';
 import { GitLabProject } from './gitlab/gitlab_project';
-import * as openers from './openers';
+import * as openers from './commands/openers';
 import { createQueryString } from './utils/create_query_string';
 
 const parseQuery = (query: string, noteableType: string) => {
@@ -100,13 +100,13 @@ async function showSearchInputFor(noteableType: string, project: GitLabProject) 
   await openers.openUrl(`${project.webUrl}/${noteableType}${queryString}`);
 }
 
-export const showIssueSearchInput: NewProjectCommand = async projectInRepository =>
+export const showIssueSearchInput: ProjectCommand = async projectInRepository =>
   showSearchInputFor('issues', projectInRepository.project);
 
-export const showMergeRequestSearchInput: NewProjectCommand = async projectInRepository =>
+export const showMergeRequestSearchInput: ProjectCommand = async projectInRepository =>
   showSearchInputFor('merge_requests', projectInRepository.project);
 
-export const showProjectAdvancedSearchInput: NewProjectCommand = async projectInRepository => {
+export const showProjectAdvancedSearchInput: ProjectCommand = async projectInRepository => {
   const query = await getSearchInput(
     'Project Advanced Search. (Check extension page for Advanced Search)',
   );

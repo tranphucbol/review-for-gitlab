@@ -1,7 +1,7 @@
 import vscode from 'vscode';
 import crypto from 'crypto';
 import assert from 'assert';
-import { openUrl } from '../../openers';
+import { openUrl } from '../../commands/openers';
 import { PromiseAdapter, promiseFromEvent } from '../../utils/promise_from_event';
 import { GitLabUriHandler, gitlabUriHandler } from '../../gitlab_uri_handler';
 import { accountService, AccountService } from '../account_service';

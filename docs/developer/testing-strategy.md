@@ -6,7 +6,7 @@ For practical information on writing tests for this extension, see [Writing test
 
 ## What the extension does
 
-The best way to see the extension's features is to read through the [`README.md`](../README.md).
+The best way to see the extension's features is to read through the [`README.md`](../../README.md).
 
 To understand the codebase architecture, please look at [`architecture.md`](architecture.md).
 
