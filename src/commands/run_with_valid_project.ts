@@ -65,9 +65,8 @@ export const getActiveProjectOrSelectOne: () => Promise<
   return selection?.project;
 };
 
-// TODO rename to ProjectCommand
 /** Command that needs a valid GitLab project to run */
-export type NewProjectCommand = (projectInRepository: ProjectInRepository) => Promise<void>;
+export type ProjectCommand = (projectInRepository: ProjectInRepository) => Promise<void>;
 
 /** Command that needs to be executed on an open file from a valid GitLab project */
 export type ProjectFileCommand = (
@@ -75,7 +74,7 @@ export type ProjectFileCommand = (
 ) => Promise<void>;
 
 export const runWithValidProject =
-  (command: NewProjectCommand): (() => Promise<void>) =>
+  (command: ProjectCommand): (() => Promise<void>) =>
   async () => {
     const projectInRepository = await getActiveProjectOrSelectOne();
     if (!projectInRepository) {

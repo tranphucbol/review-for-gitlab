@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
-import { openCurrentPipeline } from '../openers';
-import { NewProjectCommand } from './run_with_valid_project';
+import { openCurrentPipeline } from './openers';
+import { ProjectCommand } from './run_with_valid_project';
 import { USER_COMMANDS } from '../command_names';
 import { getGitLabService } from '../gitlab/get_gitlab_service';
 import { getTrackingBranchName } from '../git/get_tracking_branch_name';
 
 type PipelineAction = 'view' | 'create' | 'retry' | 'cancel';
 
-export const triggerPipelineAction: NewProjectCommand = async projectInRepository => {
+export const triggerPipelineAction: ProjectCommand = async projectInRepository => {
   const items: { label: string; action: PipelineAction }[] = [
     {
       label: 'View latest pipeline on GitLab',

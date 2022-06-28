@@ -5,7 +5,7 @@ import { promises as fs } from 'fs';
 import { pickSnippet } from './insert_snippet';
 import { PATCH_FILE_SUFFIX } from '../constants';
 import { GqlBlob, GqlSnippet } from '../gitlab/graphql/get_snippets';
-import { NewProjectCommand } from './run_with_valid_project';
+import { ProjectCommand } from './run_with_valid_project';
 import { getGitLabService } from '../gitlab/get_gitlab_service';
 
 const FETCHING_PROJECT_SNIPPETS = 'Fetching all project snippets.';
@@ -15,7 +15,7 @@ export const NO_PATCH_SNIPPETS_MESSAGE =
 const getFirstPatchBlob = (snippet: GqlSnippet): GqlBlob | undefined =>
   snippet.blobs.nodes.find(b => b.name.endsWith(PATCH_FILE_SUFFIX));
 
-export const applySnippetPatch: NewProjectCommand = async projectInRepository => {
+export const applySnippetPatch: ProjectCommand = async projectInRepository => {
   const gitlabService = getGitLabService(projectInRepository);
   const snippets = await vscode.window.withProgress(
     { location: vscode.ProgressLocation.Notification, title: FETCHING_PROJECT_SNIPPETS },

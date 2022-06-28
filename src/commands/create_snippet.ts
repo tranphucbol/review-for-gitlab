@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import * as openers from '../openers';
-import { NewProjectCommand } from './run_with_valid_project';
+import * as openers from './openers';
+import { ProjectCommand } from './run_with_valid_project';
 import { ProjectInRepository } from '../gitlab/new_project';
 import { getGitLabService } from '../gitlab/get_gitlab_service';
 
@@ -66,7 +66,7 @@ async function uploadSnippet(
   await openers.openUrl(snippet.web_url);
 }
 
-export const createSnippet: NewProjectCommand = async projectInRepository => {
+export const createSnippet: ProjectCommand = async projectInRepository => {
   const editor = vscode.window.activeTextEditor;
 
   if (!editor) {

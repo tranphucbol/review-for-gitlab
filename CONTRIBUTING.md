@@ -105,11 +105,15 @@ You can always use debugger when you are running the extension in development mo
 
 #### Step - 6 : Run tests
 
-To run tests, open terminal within the project folder and run following:
+To run tests in the terminal, run the following command from within the project folder:
 
 ```bash
 npm test
 ```
+
+The integration tests might not run if you have a VS Code instance already open. In that case either close all VS Code windows or run the tests from VS Code:
+
+To run tests from the VS Code, use the `Unit Tests` and `Integration Tests` [launch configurations](https://code.visualstudio.com/Docs/editor/debugging#_launch-configurations) in the [Run view](https://code.visualstudio.com/Docs/editor/debugging#_run-view).
 
 See also [how to write automated tests](docs/developer/writing-tests.md).
 

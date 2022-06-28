@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 import assert from 'assert';
 import { doNotAwait } from './utils/do_not_await';
-import { NewProjectCommand } from './commands/run_with_valid_project';
+import { ProjectCommand } from './commands/run_with_valid_project';
 import { getGitLabService } from './gitlab/get_gitlab_service';
 
-export const validate: NewProjectCommand = async projectInRepository => {
+export const validate: ProjectCommand = async projectInRepository => {
   const editor = vscode.window.activeTextEditor;
 
   if (!editor) {

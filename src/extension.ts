@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import { install as installSourceMapSupport } from 'source-map-support';
-import * as openers from './openers';
+import * as openers from './commands/openers';
 import * as tokenInput from './token_input';
 import { accountService } from './accounts/account_service';
 import { extensionState } from './extension_state';

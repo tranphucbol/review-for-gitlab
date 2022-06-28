@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 import assert from 'assert';
-import * as openers from '../openers';
+import * as openers from './openers';
 import { VISIBILITY_OPTIONS } from './create_snippet';
 import { PATCH_FILE_SUFFIX, PATCH_TITLE_PREFIX } from '../constants';
-import { NewProjectCommand } from './run_with_valid_project';
+import { ProjectCommand } from './run_with_valid_project';
 import { getLastCommitSha } from '../git/get_last_commit_sha';
 import { getTrackingBranchName } from '../git/get_tracking_branch_name';
 import { getGitLabService } from '../gitlab/get_gitlab_service';
@@ -30,7 +30,7 @@ Apply this snippet:
 *This snippet was created with the [GitLab Workflow VS Code extension](https://marketplace.visualstudio.com/items?itemName=GitLab.gitlab-workflow).*
 `;
 
-export const createSnippetPatch: NewProjectCommand = async projectInRepository => {
+export const createSnippetPatch: ProjectCommand = async projectInRepository => {
   const { repository } = projectInRepository.pointer;
   assert(getLastCommitSha(repository.rawRepository));
   const patch = await repository.rawRepository.diff();

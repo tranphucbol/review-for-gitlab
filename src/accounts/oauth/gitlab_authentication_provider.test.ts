@@ -3,14 +3,14 @@ import vscode from 'vscode';
 import { URLSearchParams } from 'url';
 import { GitLabService } from '../../gitlab/gitlab_service';
 import { GitLabUriHandler } from '../../gitlab_uri_handler';
-import { openUrl } from '../../openers';
+import { openUrl } from '../../commands/openers';
 import { asMock } from '../../test_utils/as_mock';
 import { createExtensionContext, createOAuthAccount } from '../../test_utils/entities';
 import { AccountService } from '../account_service';
 import { GitLabAuthenticationProvider } from './gitlab_authentication_provider';
 import { TokenExchangeService } from '../../gitlab/token_exchange_service';
 
-jest.mock('../../openers');
+jest.mock('../../commands/openers');
 jest.mock('../../gitlab/gitlab_service');
 jest.useFakeTimers();
 
