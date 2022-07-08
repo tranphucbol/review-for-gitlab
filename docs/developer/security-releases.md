@@ -85,8 +85,8 @@ Validate that the security issue is fixed in production.
 ### Backport the fix to `main`
 
 1. Create an MR to merge the security branch `security-2-2` to `main`. Don't squash commits. Delete source branch.
-1. In MR description, add references to all the reviewed MRs that got merged to `security-2-2`.
-1. Review the MR and merge it. No need for additional reviewer since all the changes have been reviewed.
+1. In the MR description, add references to all the reviewed MRs that were merged into `security-2-2`.
+1. Review the MR and merge it. You don't need an additional reviewer because all of the changes have been reviewed.
 
 Example: https://gitlab.com/gitlab-org/security/gitlab-vscode-extension/-/merge_requests/8
 
