@@ -61,6 +61,7 @@ import { gitlabUriHandler } from './gitlab_uri_handler';
 import { authenticate } from './accounts/authenticate';
 import { GitLabAuthenticationProvider } from './accounts/oauth/gitlab_authentication_provider';
 import { getExtensionConfiguration, GITLAB_DEBUG_MODE } from './utils/extension_configuration';
+import { setupYamlSupport } from './yaml_support';
 
 const wrapWithCatch =
   (command: (...args: unknown[]) => unknown) =>
@@ -187,6 +188,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   });
   selectedProjectStore.init(context);
   registerCiCompletion(context);
+  setupYamlSupport(context);
   vscode.window.registerUriHandler(gitlabUriHandler);
   context.subscriptions.push(gitExtensionWrapper);
   statusBar.init();
