@@ -43,6 +43,7 @@ module.exports = {
   },
   workspace: {
     getConfiguration: jest.fn().mockReturnValue({}),
+    onDidOpenTextDocument: jest.fn(),
   },
   extensions: {
     getExtension: jest.fn(),
