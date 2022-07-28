@@ -1,3 +1,13 @@
+# [3.48.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.47.2...v3.48.0) (2022-07-28)
+
+
+### Features
+
+* Add Yaml file suggestion message ([b813d7e](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/b813d7eda7f8a38b0a75c6888567e31560dbd66f))
+* minimal version check ([ff0c05b](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/ff0c05b8a74a74acb8e6c8437c9e9f90294b3135))
+
+
+
 ## [3.47.2](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.47.1...v3.47.2) (2022-06-22)
 
 
