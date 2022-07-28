@@ -4,6 +4,7 @@
 ### Features
 
 * Add Yaml file suggestion message ([b813d7e](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/b813d7eda7f8a38b0a75c6888567e31560dbd66f))
+  * Thanks to [Tuna Ozkoc](https://gitlab.com/TunaOzk) for initial implementation [MR !466](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/466)
 * minimal version check ([ff0c05b](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/ff0c05b8a74a74acb8e6c8437c9e9f90294b3135))
 
 
