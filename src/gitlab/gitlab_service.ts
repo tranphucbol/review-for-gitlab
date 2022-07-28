@@ -117,7 +117,7 @@ const normalizeAvatarUrl =
   (instanceUrl: string) =>
   (issuable: RestIssuable): RestIssuable => {
     const { author } = issuable;
-    if (!author.avatar_url) {
+    if (!author?.avatar_url) {
       return issuable;
     }
     return {
@@ -876,7 +876,7 @@ export class GitLabService {
       path,
       { ...Object.fromEntries(search), ...queryParams },
       'issuables',
-    )) as RestIssuable[];
+    )) as RestIssuable[]; // FIXME: vulnerabilities don't conform to the RestIssuable interface (they don't have author field) https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/614
     const { instanceUrl } = await this.getCredentials();
     return issuables.map(normalizeAvatarUrl(instanceUrl));
   }
