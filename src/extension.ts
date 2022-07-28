@@ -61,6 +61,7 @@ import { gitlabUriHandler } from './gitlab_uri_handler';
 import { authenticate } from './accounts/authenticate';
 import { GitLabAuthenticationProvider } from './accounts/oauth/gitlab_authentication_provider';
 import { getExtensionConfiguration, GITLAB_DEBUG_MODE } from './utils/extension_configuration';
+import { setupVersionCheck } from './gitlab/check_version';
 import { setupYamlSupport } from './yaml_support';
 
 const wrapWithCatch =
@@ -210,6 +211,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   // we don't want to hold the extension startup by waiting on VS Code and GitLab API
   doNotAwait(
     Promise.all([
+      setupVersionCheck(context),
       setSidebarViewState(SidebarViewState.ListView),
       gitExtensionWrapper.init(),
       gitlabProjectRepository.init(),

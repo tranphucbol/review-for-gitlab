@@ -177,5 +177,6 @@ export const user: RestUser = {
 export const createExtensionContext = (): vscode.ExtensionContext =>
   ({
     globalState: new InMemoryMemento(),
+    workspaceState: new InMemoryMemento(),
     secrets: new SecretStorage(),
   } as unknown as vscode.ExtensionContext);

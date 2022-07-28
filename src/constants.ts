@@ -29,6 +29,9 @@ export const README_SECTIONS = {
   REMOTEFS: 'browse-a-repository-without-cloning',
 };
 
+// NOTE: This needs to _always_ be a 3 digits
+export const MINIMUM_VERSION = '13.6.0';
+
 export const REQUIRED_VERSIONS = {
   // NOTE: This needs to _always_ be a 3 digits
   CI_CONFIG_VALIDATIONS: '13.6.0',
