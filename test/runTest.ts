@@ -13,6 +13,7 @@ async function go() {
     await runTests({
       extensionDevelopmentPath,
       extensionTestsPath,
+      version: '1.69.2',
       launchArgs: ['--disable-extensions', '--disable-workspace-trust', temporaryWorkspace],
     });
   } catch (err) {
