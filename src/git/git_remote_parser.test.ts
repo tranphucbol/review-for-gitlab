@@ -59,6 +59,16 @@ describe('git_remote_parser', () => {
       'https://gitlab.company.com:8443/fatihacet/gitlab-vscode-extension/',
       ['gitlab.company.com:8443', 'fatihacet', 'gitlab-vscode-extension'],
     ],
+    [
+      // For more details see: https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/309
+      '[git@example.com:2222]:fatihacet/gitlab-vscode-extension.git',
+      ['example.com', 'fatihacet', 'gitlab-vscode-extension'],
+    ],
+    [
+      // For more details see: https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/611
+      'git@example.com:2222/fatihacet/gitlab-vscode-extension.git',
+      ['example.com', 'fatihacet', 'gitlab-vscode-extension'],
+    ],
   ])('should parse %s', (remote, parsed) => {
     const [host, namespace, projectPath] = parsed;
     expect(parseGitLabRemote(remote, 'https://gitlab.com')).toEqual({
@@ -90,17 +100,6 @@ describe('git_remote_parser', () => {
         'git@example.com:fatihacet/gitlab-vscode-extension.git',
         'https://example.com/gitlab',
       ),
-    ).toEqual({
-      host: 'example.com',
-      namespace: 'fatihacet',
-      projectPath: 'gitlab-vscode-extension',
-      namespaceWithPath: 'fatihacet/gitlab-vscode-extension',
-    });
-  });
-  // For more details see: https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/309
-  it('should parse remote URLs with ssh and custom port', () => {
-    expect(
-      parseGitLabRemote('[git@example.com:2222]:fatihacet/gitlab-vscode-extension.git'),
     ).toEqual({
       host: 'example.com',
       namespace: 'fatihacet',
