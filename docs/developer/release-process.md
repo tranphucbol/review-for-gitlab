@@ -1,11 +1,13 @@
 # Release process
 
-You must perform the following steps to release a new version of the extension.
-These examples use version `3.0.0`:
+Perform the following steps to release a new version of the extension.
 
 1. (Optional.) Do a quick test of the extension in your local development. At this stage, you
    are only verifying there is no complete failure of the extension.
-1. Update the package version in `npm version 3.0.0`. This automatically generates a changelog entry.
+1. Update the package version in `npm version <type>`. This automatically generates a changelog entry. Specify the `type` as:
+   - `patch` - if you only released bugfixes
+   - `minor` - if you released ane new `feature: `
+   - `major` - we haven't changed major version yet, do this if you introduce severe breaking changes
 1. If there have been community contributions:
 
    1. Manually add attribution to the `CHANGELOG.md` and `CONTRIBUTORS.md`. For example:
@@ -14,10 +16,8 @@ These examples use version `3.0.0`:
       (Implemented|Fixed) by [@flood4life](https://gitlab.com/flood4life) with [MR !90](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/90) 👍
       ```
 
-   1. Add the contributor's entry to `CONTRIBUTORS.md`, if it doesn't exist.
-
 1. Run the command `git push origin main` and `git push --tags`.
-1. Trigger the **Publish** step on the tag pipeline.
+1. Trigger the **Publish** steps (`publish_marketplace` and `publish_open_vsx`) on the tag pipeline that you created by pushing the new tag.
 1. When the extension updates in your VS Code, check that the extension works.
 1. Add a message to our `#f_vscode_extension` slack channel:
 
