@@ -38,7 +38,7 @@ function normalizeSshRemote(remote: string): string {
   // Example: [git@dev.company.com:7999]:group/repo_name.git
   // For more information see:
   // https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/309
-  const sshRemoteWithCustomPort = remote.match(`^\\[([a-zA-Z0-9_-]+@.*?):\\d+\\](.*)$`);
+  const sshRemoteWithCustomPort = remote.match(`^\\[?([a-zA-Z0-9_-]+@.*?):\\d+\\]?(.*)$`);
   if (sshRemoteWithCustomPort) {
     return `ssh://${sshRemoteWithCustomPort[1]}${sshRemoteWithCustomPort[2]}`;
   }
