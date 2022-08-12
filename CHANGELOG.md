@@ -1,3 +1,14 @@
+## [3.48.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.48.0...v3.48.1) (2022-08-12)
+
+
+### Bug Fixes
+
+* downgrade VS Code for integration tests ([9b214c9](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/9b214c905538493539ae2ad955d3e78e245564f1))
+* handle ssh urls with custom ports ([310dcc8](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/310dcc8ff687695fae11160e69b1407981dc14b0))
+* hotfix for vulnerabilities not conforming to the RestIssuable ([c728e10](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/c728e10492b37a2d7e573efbb4c9768cab1b7b35))
+
+
+
 # [3.48.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.47.2...v3.48.0) (2022-07-28)
 
 
