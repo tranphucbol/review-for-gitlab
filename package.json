@@ -899,7 +899,7 @@
     "update-ci-variables": "node ./scripts/update_ci_variables.js"
   },
   "devDependencies": {
-    "@types/jest": "^28.1.7",
+    "@types/jest": "^28.1.8",
     "@types/node": "^13.13.52",
     "@types/request-promise": "^4.1.48",
     "@types/semver": "^7.3.8",
