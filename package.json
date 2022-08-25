@@ -932,7 +932,7 @@
     "source-map-support": "^0.5.20",
     "cross-fetch": "^3.1.5",
     "dayjs": "^1.10.7",
-    "graphql": "^16.5.0",
+    "graphql": "^16.6.0",
     "graphql-request": "^4.3.0",
     "https-proxy-agent": "^5.0.1",
     "semver": "^7.3.5",
