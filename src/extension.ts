@@ -31,6 +31,7 @@ import { changeTypeDecorationProvider } from './review/change_type_decoration_pr
 import { checkoutMrBranch } from './commands/checkout_mr_branch';
 import { cloneWiki } from './commands/clone_wiki';
 import { createSnippetPatch } from './commands/create_snippet_patch';
+import { downloadArtifacts } from './commands/download_artifact';
 import { applySnippetPatch } from './commands/apply_snippet_patch';
 import { openMrFile } from './commands/open_mr_file';
 import { GitLabRemoteFileSystem } from './remotefs/gitlab_remote_file_system';
@@ -135,6 +136,7 @@ const registerCommands = (
     [USER_COMMANDS.SELECT_PROJECT]: selectProjectCommand,
     [USER_COMMANDS.ASSIGN_PROJECT]: assignProject,
     [USER_COMMANDS.CLEAR_SELECTED_PROJECT]: clearSelectedProjects,
+    [USER_COMMANDS.DOWNLOAD_ARTIFACTS]: downloadArtifacts,
     [PROGRAMMATIC_COMMANDS.NO_IMAGE_REVIEW]: () =>
       vscode.window.showInformationMessage("GitLab MR review doesn't support images yet."),
   };

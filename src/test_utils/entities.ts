@@ -94,6 +94,12 @@ export const job: RestJob = {
   web_url: 'https://example.com/foo/bar/jobs/68',
 };
 
+export const artifact: RestArtifact = {
+  file_type: 'junit',
+  filename: 'junit.xml',
+  size: 1024,
+};
+
 export const gqlProject: GqlProject = {
   id: 'gid://gitlab/Project/5261717',
   name: 'gitlab-vscode-extension',

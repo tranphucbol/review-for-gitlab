@@ -6,6 +6,7 @@ import { openInBrowserCommand } from '../../utils/open_in_browser_command';
 import { ItemModel } from './item_model';
 import { StageItemModel } from './stage_item_model';
 import { compareBy } from '../../utils/compare_by';
+import { hasDownloadableArtifacts, JobProvider } from './job_provider';
 
 dayjs.extend(relativeTime);
 /** removes duplicates based on === equality. Can be replaced with lodash. */
@@ -13,9 +14,13 @@ const uniq = <T>(duplicated: T[]): T[] => [...new Set(duplicated)];
 
 const getUniqueStages = (jobs: RestJob[]): string[] => uniq(jobs.map(j => j.stage));
 
-export class PipelineItemModel extends ItemModel {
+export class PipelineItemModel extends ItemModel implements JobProvider {
   constructor(private pipeline: RestPipeline, private jobs: RestJob[]) {
     super();
+  }
+
+  getJobs(): RestJob[] {
+    return this.jobs;
   }
 
   getTreeItem(): vscode.TreeItem {
@@ -27,6 +32,9 @@ export class PipelineItemModel extends ItemModel {
     item.description = statusMetadata.name;
     item.iconPath = statusMetadata.icon;
     item.command = openInBrowserCommand(this.pipeline.web_url);
+    if (hasDownloadableArtifacts(this.getJobs())) {
+      item.contextValue = 'with-artifacts';
+    }
     return item;
   }
 
