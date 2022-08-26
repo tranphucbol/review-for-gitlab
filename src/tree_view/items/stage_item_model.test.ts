@@ -1,12 +1,14 @@
 import * as vscode from 'vscode';
-import { job } from '../../test_utils/entities';
+import { artifact, job } from '../../test_utils/entities';
+import { JobItemModel } from './job_item_model';
 import { StageItemModel } from './stage_item_model';
 
 describe('StageItemModel', () => {
-  const model = new StageItemModel('test', [
+  const jobs: RestJob[] = [
     { ...job, name: 'short task', status: 'failed' },
     { ...job, name: 'long task', status: 'running' },
-  ]);
+  ];
+  const model = new StageItemModel('test', jobs);
   describe('tree item', () => {
     it('has label', () => {
       expect(model.getTreeItem().label).toBe('test');
@@ -18,12 +20,27 @@ describe('StageItemModel', () => {
       expect(item.tooltip).toBe('Running');
       expect((item.iconPath as vscode.ThemeIcon).id).toBe('play');
     });
+
+    it('has no contextValue if no downloadable artifacts exist', () => {
+      expect(model.getTreeItem().contextValue).not.toBe('with-artifacts');
+    });
+
+    it('has a contextValue if downloadable artifacts exist', () => {
+      const modelWithContextValue = new StageItemModel('test', [
+        { ...job, artifacts: [artifact] },
+      ]).getTreeItem();
+      expect(modelWithContextValue.contextValue).toBe('with-artifacts');
+    });
   });
 
   describe('children', () => {
+    it('implements getJobs', () => {
+      expect(model.getJobs()).toBe(jobs);
+    });
+
     it('returns the jobs as children', async () => {
-      const children = (await model.getChildren()) as vscode.TreeItem[];
-      expect(children.map(ch => ch.label)).toEqual(['short task', 'long task']);
+      const children = (await model.getChildren()) as JobItemModel[];
+      expect(children.map(ch => ch.getTreeItem().label)).toEqual(['short task', 'long task']);
     });
   });
 });

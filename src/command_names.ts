@@ -44,6 +44,7 @@ export const USER_COMMANDS = {
   SELECT_PROJECT: 'gl.selectProject',
   ASSIGN_PROJECT: 'gl.assignProject',
   CLEAR_SELECTED_PROJECT: 'gl.clearSelectedProject',
+  DOWNLOAD_ARTIFACTS: 'gl.downloadArtifacts',
   AUTHENTICATE: 'gl.authenticate',
 };
 

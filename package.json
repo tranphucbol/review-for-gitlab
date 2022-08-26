@@ -238,6 +238,11 @@
         "command": "gl.clearSelectedProject",
         "title": "Clear selected project",
         "category": "GitLab"
+      },
+      {
+        "command": "gl.downloadArtifacts",
+        "title": "Download artifacts",
+        "category": "GitLab"
       }
     ],
     "menus": {
@@ -284,6 +289,10 @@
         },
         {
           "command": "gl.checkoutMrBranch",
+          "when": "false"
+        },
+        {
+          "command": "gl.downloadArtifacts",
           "when": "false"
         },
         {
@@ -424,6 +433,10 @@
         {
           "command": "gl.clearSelectedProject",
           "when": "view =~ /issuesAndMrs/ && viewItem == selected-project"
+        },
+        {
+          "command": "gl.downloadArtifacts",
+          "when": "view =~ /currentBranchInfo/ && viewItem == with-artifacts"
         }
       ],
       "comments/comment/title": [

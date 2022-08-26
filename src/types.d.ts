@@ -76,6 +76,12 @@ interface RestPipeline {
   web_url: string;
 }
 
+interface RestArtifact {
+  file_type: string;
+  size: number;
+  filename: string;
+  file_format?: string;
+}
 interface RestJob {
   id: number;
   name: string;
@@ -84,9 +90,11 @@ interface RestJob {
   finished_at?: string;
   status: 'created' | 'pending' | 'running' | 'failed' | 'success' | 'canceled' | 'skipped';
   stage: string;
+  artifacts?: RestArtifact[];
   allow_failure: boolean;
   web_url: string;
 }
+
 // Incomplete reference of the GitLab user model
 interface RestUser {
   id: number;

@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
 import dayjs from 'dayjs';
-import { job, pipeline } from '../../test_utils/entities';
+import { artifact, job, pipeline } from '../../test_utils/entities';
 import { PipelineItemModel } from './pipeline_item_model';
 import { VS_COMMANDS } from '../../command_names';
+import { JobItemModel } from './job_item_model';
 
 const fourYearsAgo = dayjs().subtract(4, 'year');
 
@@ -17,7 +18,7 @@ describe('PipelineItemModel', () => {
           status: 'success',
           updated_at: fourYearsAgo.toString(),
         },
-        [],
+        [{ ...job, artifacts: [artifact] }],
       ).getTreeItem();
     });
 
@@ -42,6 +43,17 @@ describe('PipelineItemModel', () => {
       expect(item.command?.command).toBe(VS_COMMANDS.OPEN);
       expect(item.command?.arguments).toEqual([vscode.Uri.parse(pipeline.web_url)]);
     });
+
+    it('has a contextValue if downloadable artifacts exist', () => {
+      expect(item.contextValue).toBe('with-artifacts');
+    });
+
+    it('has no contextValue if no downloadable artifacts exist', () => {
+      const itemWithoutContextValue = new PipelineItemModel(pipeline, [
+        { ...job, artifacts: [{ ...artifact, file_type: 'trace' }] },
+      ]).getTreeItem();
+      expect(itemWithoutContextValue.contextValue).not.toBe('with-artifacts');
+    });
   });
 
   describe('children', () => {
@@ -49,10 +61,14 @@ describe('PipelineItemModel', () => {
     const unitTestJob = { ...job, stage: 'test', name: 'unit test' };
     const integrationTestJob = { ...job, stage: 'test', name: 'integration test' };
     const packageJob = { ...job, stage: 'package', name: 'package task' };
+    const jobs = [unitTestJob, integrationTestJob, packageJob];
 
     beforeEach(() => {
-      const jobs = [unitTestJob, integrationTestJob, packageJob];
       pipelineItem = new PipelineItemModel(pipeline, jobs);
+    });
+
+    it('implements getJobs', () => {
+      expect(pipelineItem.getJobs()).toBe(jobs);
     });
 
     it('returns unique stages', async () => {
@@ -63,13 +79,13 @@ describe('PipelineItemModel', () => {
     });
 
     it('returns stages based on job order (asc id)', async () => {
-      const jobs = [
+      const jobsWithIds = [
         { ...unitTestJob, id: 3 },
         { ...integrationTestJob, id: 2 },
         { ...packageJob, id: 1 },
       ];
 
-      pipelineItem = new PipelineItemModel(pipeline, jobs);
+      pipelineItem = new PipelineItemModel(pipeline, jobsWithIds);
       const children = await pipelineItem.getChildren();
       const labels = children.map(ch => ch.getTreeItem()).map(i => i.label);
 
@@ -80,10 +96,13 @@ describe('PipelineItemModel', () => {
       const childrenModels = await pipelineItem.getChildren();
 
       const [testStageModel, packageStageModel] = childrenModels;
-      const testJobItems = await testStageModel.getChildren();
-      const packageJobItems = await packageStageModel.getChildren();
-      expect(testJobItems.map((i: any) => i.label)).toEqual(['unit test', 'integration test']);
-      expect(packageJobItems.map((i: any) => i.label)).toEqual(['package task']);
+      const testJobItems = (await testStageModel.getChildren()) as JobItemModel[];
+      const packageJobItems = (await packageStageModel.getChildren()) as JobItemModel[];
+      expect(testJobItems.map(i => i.getTreeItem().label)).toEqual([
+        'unit test',
+        'integration test',
+      ]);
+      expect(packageJobItems.map(i => i.getTreeItem().label)).toEqual(['package task']);
     });
   });
 });
