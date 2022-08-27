@@ -946,7 +946,7 @@
     "cross-fetch": "^3.1.5",
     "dayjs": "^1.10.7",
     "graphql": "^16.6.0",
-    "graphql-request": "^4.3.0",
+    "graphql-request": "^5.0.0",
     "https-proxy-agent": "^5.0.1",
     "semver": "^7.3.5",
     "temp": "^0.9.4",
