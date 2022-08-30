@@ -4,11 +4,13 @@
 ### Bug Fixes
 
 * Show proper error message when add token to existing account fails ([c6a3b8b](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/c6a3b8bce38c9df7e65dc45114e9f7d23f2261af))
+  * Implemented by [Chris Qiang](https://gitlab.com/chez14) with [MR !623](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/623) 👍
 
 
 ### Features
 
 * Add Download Artifacts context button ([b06a1d9](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/b06a1d9fbf2cbc2eb93a541a756cf6c3cc8c316d))
+  * Implemented by [Lennard Sprong](https://gitlab.com/X_Sheep) with [MR !625](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/625) 👍
 
 
 
@@ -19,7 +21,7 @@
 
 * downgrade VS Code for integration tests ([9b214c9](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/9b214c905538493539ae2ad955d3e78e245564f1))
 * handle ssh urls with custom ports ([310dcc8](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/310dcc8ff687695fae11160e69b1407981dc14b0))
-  * Implemented by [Adam Groves ](https://gitlab.com/addywaddy) with [MR !616](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/616) 👍
+  * Implemented by [Adam Groves](https://gitlab.com/addywaddy) with [MR !616](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/616) 👍
 * hotfix for vulnerabilities not conforming to the RestIssuable ([c728e10](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/c728e10492b37a2d7e573efbb4c9768cab1b7b35))
 
 
