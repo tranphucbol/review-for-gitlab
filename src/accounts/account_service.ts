@@ -130,10 +130,9 @@ export class AccountService {
     const { accountMap } = this;
 
     if (accountMap[account.id]) {
-      log.warn(
+      throw new Error(
         `Account for instance ${account.instanceUrl} and user ${account.username} already exists. The extension ignored the request to re-add it. You can remove the account and add it again.`,
       );
-      return;
     }
     const { secret, accountWithoutSecret } = splitAccount(account);
     await this.#storeSecret(account.id, secret);
@@ -173,9 +172,8 @@ export class AccountService {
     this.secrets = secrets;
   }
 
-  getAccount(accountId: string): Account {
+  getAccount(accountId: string): Account | undefined {
     const result = this.getAllAccounts().find(a => a.id === accountId);
-    assert(result, `Account with id ${accountId} doesn't exist.`);
     return result;
   }
 

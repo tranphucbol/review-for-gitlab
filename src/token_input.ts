@@ -5,6 +5,7 @@ import { accountService } from './accounts/account_service';
 import { getUserForCredentialsOrFail } from './accounts/get_user_for_credentials_or_fail';
 import { removeTrailingSlash } from './utils/remove_trailing_slash';
 import { validateInstanceUrl } from './utils/validate_instance_url';
+import { handleError } from './log';
 
 export async function addAccount() {
   const rawInstanceUrl = await vscode.window.showInputBox({
@@ -27,13 +28,18 @@ export async function addAccount() {
 
   if (!token) return;
   const user = await getUserForCredentialsOrFail({ instanceUrl, token });
-  await accountService.addAccount({
-    instanceUrl,
-    token,
-    id: makeAccountId(instanceUrl, user.id),
-    username: user.username,
-    type: 'token',
-  });
+  try {
+    await accountService.addAccount({
+      instanceUrl,
+      token,
+      id: makeAccountId(instanceUrl, user.id),
+      username: user.username,
+      type: 'token',
+    });
+  } catch (e) {
+    handleError(e);
+    return;
+  }
   await vscode.window.showInformationMessage(
     `Added the GitLab account for user ${user.username} on ${instanceUrl}.`,
   );

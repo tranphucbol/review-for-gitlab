@@ -68,6 +68,7 @@ export class TokenExchangeService {
 
   async refreshIfNeeded(accountId: string): Promise<Account> {
     const latestAccount = this.#accountService.getAccount(accountId);
+    assert(latestAccount, `Account with id ${accountId} doesn't exist.`);
     if (!needsRefresh(latestAccount)) {
       log.debug(`Using non-expired account ${latestAccount.id}.`);
       return latestAccount;
@@ -75,6 +76,7 @@ export class TokenExchangeService {
     // before we start refreshing token, let's check if some other VS Code instance already has refreshed it
     await this.#accountService.reloadCache();
     const reloadedAccount = this.#accountService.getAccount(accountId);
+    assert(reloadedAccount, `Account with id ${accountId} doesn't exist.`);
     if (!needsRefresh(reloadedAccount)) {
       // log.debug(`Using non-expired reloaded account ${JSON.stringify(latestAccount)}`);
       return reloadedAccount;

@@ -40,8 +40,10 @@ describe('AccountService', () => {
     const account = createTokenAccount('https://gitlab.com', 1, 'abc');
     await accountService.addAccount(account);
     const duplicateAccount = createTokenAccount('https://gitlab.com', 1, 'def');
-    await accountService.addAccount(duplicateAccount);
 
+    await expect(accountService.addAccount(duplicateAccount)).rejects.toThrowError(
+      /already exists/,
+    );
     expect(accountService.getAllAccounts()).toHaveLength(1);
     expect(accountService.getAllAccounts()).toEqual([account]);
   });
@@ -60,13 +62,13 @@ describe('AccountService', () => {
         accountService.updateAccountSecret(createTokenAccount('https://gitlab.com', 1, 'def')),
       ).rejects.toThrow(/GitLab token .* has changed/);
 
-      expect(accountService.getAccount(account.id).token).toBe('xyz');
+      expect(accountService.getAccount(account.id)?.token).toBe('xyz');
     });
 
     it('reloads the cache', async () => {
       await accountService.reloadCache();
 
-      expect(accountService.getAccount(account.id).token).toBe('xyz');
+      expect(accountService.getAccount(account.id)?.token).toBe('xyz');
     });
   });
 
