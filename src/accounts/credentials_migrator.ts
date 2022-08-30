@@ -42,7 +42,18 @@ export const migrateCredentials = async (
       }),
     )
   ).filter(notNullOrUndefined);
-  await Promise.all(accounts.map(a => accountService.addAccount(a)));
+  await Promise.all(
+    accounts.map(async a => {
+      const account = accountService.getAccount(a.id);
+      if (account) {
+        log.warn(
+          `Account ${account.id}- ${account.username} already exists in DB. Skipping migration.`,
+        );
+        return;
+      }
+      await accountService.addAccount(a);
+    }),
+  );
   await context.globalState.update(MIGRATED_CREDENTIALS, [
     ...migratedCredentials,
     ...accounts.map(a => `${a.instanceUrl}${a.token}`),
