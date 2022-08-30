@@ -29,7 +29,7 @@
   },
   {
     "name": "CI_COMMIT_BEFORE_SHA",
-    "description": "The previous latest commit present on a branch. Is always `0000000000000000000000000000000000000000` in merge request pipelines."
+    "description": "The previous latest commit present on a branch or tag. Is always `0000000000000000000000000000000000000000` in merge request pipelines and for the first commit in pipelines for branches or tags."
   },
   {
     "name": "CI_COMMIT_BRANCH",
@@ -316,6 +316,10 @@
     "description": "The target branch name of the merge request."
   },
   {
+    "name": "CI_MERGE_REQUEST_TARGET_BRANCH_PROTECTED",
+    "description": "The protection status for the target branch of the merge request."
+  },
+  {
     "name": "CI_MERGE_REQUEST_TARGET_BRANCH_SHA",
     "description": "The HEAD SHA of the target branch of the merge request. The variable is empty in merge request pipelines. The SHA is present only in [merged results pipelines](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../pipelines/merged_results_pipelines.md)."
   },
@@ -357,7 +361,7 @@
   },
   {
     "name": "CI_PIPELINE_SOURCE",
-    "description": "How the pipeline was triggered. Can be `push`, `web`, `schedule`, `api`, `external`, `chat`, `webide`, `merge_request_event`, `external_pull_request_event`, `parent_pipeline`, [`trigger`, or `pipeline`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../triggers/index.md#configure-cicd-jobs-to-run-in-triggered-pipelines)."
+    "description": "How the pipeline was triggered. Can be `push`, `web`, `schedule`, `api`, `external`, `chat`, `webide`, `merge_request_event`, `external_pull_request_event`, `parent_pipeline`, [`trigger`, or `pipeline`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../triggers/index.md#configure-cicd-jobs-to-run-in-triggered-pipelines). For a description of each value, see [Common `if` clauses for `rules`](../jobs/job_control.md#common-if-clauses-for-rules), which uses this variable to control when jobs run."
   },
   {
     "name": "CI_PIPELINE_TRIGGERED",
@@ -374,6 +378,10 @@
   {
     "name": "CI_PROJECT_CONFIG_PATH",
     "description": "[Removed](https://gitlab.com/gitlab-org/gitlab/-/issues/322807) in GitLab 14.0. Use `CI_CONFIG_PATH`."
+  },
+  {
+    "name": "CI_PROJECT_DESCRIPTION",
+    "description": "The project description as displayed in the GitLab web interface."
   },
   {
     "name": "CI_PROJECT_DIR",
@@ -401,7 +409,7 @@
   },
   {
     "name": "CI_PROJECT_REPOSITORY_LANGUAGES",
-    "description": "A comma-separated, lowercase list of the languages used in the repository. For example `ruby,javascript,html,css`."
+    "description": "A comma-separated, lowercase list of the languages used in the repository. For example `ruby,javascript,html,css`. The maximum number of languages is limited to 5. An issue [proposes to increase the limit](https://gitlab.com/gitlab-org/gitlab/-/issues/368925)."
   },
   {
     "name": "CI_PROJECT_ROOT_NAMESPACE",
@@ -492,6 +500,18 @@
     "description": "GitLab revision that schedules jobs."
   },
   {
+    "name": "CI_SERVER_TLS_CA_FILE",
+    "description": "File containing the TLS CA certificate to verify the GitLab server when `tls-ca-file` set in [runner settings](https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-runners-section)."
+  },
+  {
+    "name": "CI_SERVER_TLS_CERT_FILE",
+    "description": "File containing the TLS certificate to verify the GitLab server when `tls-cert-file` set in [runner settings](https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-runners-section)."
+  },
+  {
+    "name": "CI_SERVER_TLS_KEY_FILE",
+    "description": "File containing the TLS key to verify the GitLab server when `tls-key-file` set in [runner settings](https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-runners-section)."
+  },
+  {
     "name": "CI_SERVER_URL",
     "description": "The base URL of the GitLab instance, including protocol and port. For example `https://gitlab.example.com:8080`."
   },
@@ -514,6 +534,10 @@
   {
     "name": "CI_SHARED_ENVIRONMENT",
     "description": "Only available if the job is executed in a shared environment (something that is persisted across CI/CD invocations, like the `shell` or `ssh` executor). `true` when available."
+  },
+  {
+    "name": "CI_TEMPLATE_REGISTRY_HOST",
+    "description": "The host of the registry used by CI/CD templates. Defaults to `registry.gitlab.com`."
   },
   {
     "name": "GITLAB_CI",
