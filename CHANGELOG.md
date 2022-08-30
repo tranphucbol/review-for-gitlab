@@ -1,3 +1,17 @@
+# [3.49.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.48.1...v3.49.0) (2022-08-30)
+
+
+### Bug Fixes
+
+* Show proper error message when add token to existing account fails ([c6a3b8b](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/c6a3b8bce38c9df7e65dc45114e9f7d23f2261af))
+
+
+### Features
+
+* Add Download Artifacts context button ([b06a1d9](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/b06a1d9fbf2cbc2eb93a541a756cf6c3cc8c316d))
+
+
+
 ## [3.48.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.48.0...v3.48.1) (2022-08-12)
 
 
