@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
 import dayjs from 'dayjs';
-import { artifact, job } from '../../test_utils/entities';
+import { artifact, job, projectInRepository } from '../../test_utils/entities';
 import { VS_COMMANDS } from '../../command_names';
 import { JobItemModel } from './job_item_model';
 
 const fourYearsAgo = dayjs().subtract(4, 'year').toString();
 describe('JobItemModel', () => {
-  const jobItemModel = new JobItemModel(job);
+  const jobItemModel = new JobItemModel(projectInRepository, job);
 
   it('has a job array with a single item', () => {
     expect(jobItemModel.getJobs()).toHaveLength(1);
@@ -18,7 +18,7 @@ describe('JobItemModel', () => {
 });
 
 describe('item created by JobItemModel', () => {
-  const jobItemModel = new JobItemModel({
+  const jobItemModel = new JobItemModel(projectInRepository, {
     ...job,
     name: 'unit test',
     status: 'failed',
@@ -48,16 +48,20 @@ describe('item created by JobItemModel', () => {
     expect(jobItem.command?.arguments).toEqual([vscode.Uri.parse(job.web_url)]);
   });
 
-  it('has no contextValue if no downloadable artifacts exist', () => {
-    expect(jobItem.contextValue).not.toBe('with-artifacts');
+  it('has contextValue if needs to be started manually', () => {
+    const manualItem = new JobItemModel(projectInRepository, {
+      ...job,
+      status: 'manual',
+    }).getTreeItem();
+    expect(manualItem.contextValue).toBe('executable-job,');
   });
 
-  it('has a contextValue if downloadable artifacts exist', () => {
-    const itemWithContextValue = new JobItemModel({
+  it('has contextValue if downloadable artifacts exist', () => {
+    const itemWithArtifacts = new JobItemModel(projectInRepository, {
       ...job,
       artifacts: [artifact],
     }).getTreeItem();
-    expect(itemWithContextValue.contextValue).toBe('with-artifacts');
+    expect(itemWithArtifacts.contextValue).toBe('retryable-job,with-artifacts');
   });
 
   describe('showing relative time', () => {
@@ -72,18 +76,23 @@ describe('item created by JobItemModel', () => {
     };
 
     it('uses created_at as a last resort', () => {
-      expect(new JobItemModel(testJob).getTreeItem().tooltip).toMatch('4 years ago');
+      expect(new JobItemModel(projectInRepository, testJob).getTreeItem().tooltip).toMatch(
+        '4 years ago',
+      );
     });
 
     it('uses started_at over created_at', () => {
       expect(
-        new JobItemModel({ ...testJob, started_at: threeYearsAgo }).getTreeItem().tooltip,
+        new JobItemModel(projectInRepository, {
+          ...testJob,
+          started_at: threeYearsAgo,
+        }).getTreeItem().tooltip,
       ).toMatch('3 years ago');
     });
 
     it('finished_at has highest priority', () => {
       expect(
-        new JobItemModel({
+        new JobItemModel(projectInRepository, {
           ...testJob,
           finished_at: twoYearsAgo,
           started_at: threeYearsAgo,

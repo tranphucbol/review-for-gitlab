@@ -994,6 +994,17 @@ export class GitLabService {
     );
   }
 
+  async cancelOrRetryJob(
+    action: 'cancel' | 'retry' | 'play',
+    project: GitLabProject,
+    job: RestJob,
+  ): Promise<RestJob> {
+    return this.postFetch(
+      `/projects/${project.restId}/jobs/${job.id}/${action}`,
+      'cancel or retry job',
+    );
+  }
+
   /** This method exchanges code from GitLab OAuth endpoint for an access token. */
   static async exchangeToken(params: TokenExchangeUrlParams): Promise<ExchangeTokenResponse> {
     const fetchOptions = GitLabService.getFetchOptions(params.instanceUrl);

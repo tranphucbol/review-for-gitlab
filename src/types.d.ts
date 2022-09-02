@@ -88,7 +88,15 @@ interface RestJob {
   created_at: string;
   started_at?: string;
   finished_at?: string;
-  status: 'created' | 'pending' | 'running' | 'failed' | 'success' | 'canceled' | 'skipped';
+  status:
+    | 'created'
+    | 'pending'
+    | 'running'
+    | 'failed'
+    | 'success'
+    | 'canceled'
+    | 'skipped'
+    | 'manual';
   stage: string;
   artifacts?: RestArtifact[];
   allow_failure: boolean;

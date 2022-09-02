@@ -248,6 +248,21 @@
         "command": "gl.downloadArtifacts",
         "title": "Download artifacts",
         "category": "GitLab"
+      },
+      {
+        "command": "gl.executeJob",
+        "title": "Execute job",
+        "category": "GitLab"
+      },
+      {
+        "command": "gl.retryJob",
+        "title": "Retry job",
+        "category": "GitLab"
+      },
+      {
+        "command": "gl.cancelJob",
+        "title": "Cancel job",
+        "category": "GitLab"
       }
     ],
     "menus": {
@@ -298,6 +313,18 @@
         },
         {
           "command": "gl.downloadArtifacts",
+          "when": "false"
+        },
+        {
+          "command": "gl.executeJob",
+          "when": "false"
+        },
+        {
+          "command": "gl.retryJob",
+          "when": "false"
+        },
+        {
+          "command": "gl.cancelJob",
           "when": "false"
         },
         {
@@ -444,8 +471,20 @@
           "when": "view =~ /issuesAndMrs/ && viewItem == selected-project"
         },
         {
+          "command": "gl.cancelJob",
+          "when": "view =~ /currentBranchInfo/ && viewItem =~ /cancellable-job/"
+        },
+        {
+          "command": "gl.retryJob",
+          "when": "view =~ /currentBranchInfo/ && viewItem =~ /retryable-job/"
+        },
+        {
+          "command": "gl.executeJob",
+          "when": "view =~ /currentBranchInfo/ && viewItem =~ /executable-job/"
+        },
+        {
           "command": "gl.downloadArtifacts",
-          "when": "view =~ /currentBranchInfo/ && viewItem == with-artifacts"
+          "when": "view =~ /currentBranchInfo/ && viewItem =~ /with-artifacts/"
         }
       ],
       "comments/comment/title": [

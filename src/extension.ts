@@ -64,6 +64,7 @@ import { GitLabAuthenticationProvider } from './accounts/oauth/gitlab_authentica
 import { getExtensionConfiguration, GITLAB_DEBUG_MODE } from './utils/extension_configuration';
 import { setupVersionCheck } from './gitlab/check_version';
 import { setupYamlSupport } from './yaml_support';
+import { cancelJob, executeJob, retryJob } from './commands/job_actions';
 import { MergedYamlContentProvider } from './ci/merged_yaml_content_provider';
 
 const wrapWithCatch =
@@ -139,6 +140,9 @@ const registerCommands = (
     [USER_COMMANDS.ASSIGN_PROJECT]: assignProject,
     [USER_COMMANDS.CLEAR_SELECTED_PROJECT]: clearSelectedProjects,
     [USER_COMMANDS.DOWNLOAD_ARTIFACTS]: downloadArtifacts,
+    [USER_COMMANDS.EXECUTE_JOB]: executeJob,
+    [USER_COMMANDS.RETRY_JOB]: retryJob,
+    [USER_COMMANDS.CANCEL_JOB]: cancelJob,
     [PROGRAMMATIC_COMMANDS.NO_IMAGE_REVIEW]: () =>
       vscode.window.showInformationMessage("GitLab MR review doesn't support images yet."),
   };
