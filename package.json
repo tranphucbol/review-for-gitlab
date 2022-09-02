@@ -129,6 +129,11 @@
         "title": "GitLab: Validate GitLab CI Config"
       },
       {
+        "command": "gl.showMergedCIConfig",
+        "title": "GitLab: Show Merged GitLab CI Config",
+        "icon": "$(open-preview)"
+      },
+      {
         "command": "gl.showOutput",
         "title": "GitLab: Show Extension Logs"
       },
@@ -364,6 +369,10 @@
           "when": "gitlab:validState && editorIsOpen"
         },
         {
+          "command": "gl.showMergedCIConfig",
+          "when": "gitlab:validState && editorIsOpen"
+        },
+        {
           "command": "gl.sidebarViewAsList",
           "when": "false"
         },
@@ -496,6 +505,11 @@
         {
           "command": "gl.openMrFile",
           "when": "resourceScheme == 'gl-review' && resourceFilename != '' && isInDiffEditor",
+          "group": "navigation@-99"
+        },
+        {
+          "command": "gl.showMergedCIConfig",
+          "when": "gitlab:validState && resourceScheme != 'gl-merged-ci-yaml' && resourceFilename == '.gitlab-ci.yml'",
           "group": "navigation@-99"
         }
       ]
