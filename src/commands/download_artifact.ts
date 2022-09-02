@@ -19,7 +19,9 @@ export async function downloadArtifacts(item: JobProvider): Promise<void> {
   );
 
   if (!artifacts.length) {
-    await vscode.window.showWarningMessage('This job does not have downloadable artifacts.');
+    await vscode.window.showWarningMessage(
+      `This ${singleJob ? 'job' : 'pipeline'} does not have downloadable artifacts.`,
+    );
     return;
   }
 
