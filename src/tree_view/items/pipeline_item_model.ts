@@ -7,6 +7,7 @@ import { ItemModel } from './item_model';
 import { StageItemModel } from './stage_item_model';
 import { compareBy } from '../../utils/compare_by';
 import { hasDownloadableArtifacts, JobProvider } from './job_provider';
+import { ProjectInRepository } from '../../gitlab/new_project';
 
 dayjs.extend(relativeTime);
 /** removes duplicates based on === equality. Can be replaced with lodash. */
@@ -15,7 +16,11 @@ const uniq = <T>(duplicated: T[]): T[] => [...new Set(duplicated)];
 const getUniqueStages = (jobs: RestJob[]): string[] => uniq(jobs.map(j => j.stage));
 
 export class PipelineItemModel extends ItemModel implements JobProvider {
-  constructor(private pipeline: RestPipeline, private jobs: RestJob[]) {
+  constructor(
+    private projectInRepository: ProjectInRepository,
+    private pipeline: RestPipeline,
+    private jobs: RestJob[],
+  ) {
     super();
   }
 
@@ -45,6 +50,6 @@ export class PipelineItemModel extends ItemModel implements JobProvider {
       name: stageName,
       jobs: jobsAsc.filter(j => j.stage === stageName),
     }));
-    return stagesWithJobs.map(sj => new StageItemModel(sj.name, sj.jobs));
+    return stagesWithJobs.map(sj => new StageItemModel(this.projectInRepository, sj.name, sj.jobs));
   }
 }

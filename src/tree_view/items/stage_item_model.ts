@@ -4,11 +4,16 @@ import { compareBy } from '../../utils/compare_by';
 import { JobItemModel } from './job_item_model';
 import { ItemModel } from './item_model';
 import { hasDownloadableArtifacts, JobProvider } from './job_provider';
+import { ProjectInRepository } from '../../gitlab/new_project';
 
 const first = <T>(a: T[]): T | undefined => a[0];
 
 export class StageItemModel extends ItemModel implements JobProvider {
-  constructor(private stageName: string, private jobs: RestJob[]) {
+  constructor(
+    private projectInRepository: ProjectInRepository,
+    private stageName: string,
+    private jobs: RestJob[],
+  ) {
     super();
   }
 
@@ -30,6 +35,7 @@ export class StageItemModel extends ItemModel implements JobProvider {
   }
 
   async getChildren(): Promise<vscode.TreeItem[] | ItemModel[]> {
-    return this.jobs.map(j => new JobItemModel(j));
+    const { projectInRepository } = this;
+    return this.jobs.map(j => new JobItemModel(projectInRepository, j));
   }
 }

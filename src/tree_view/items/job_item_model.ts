@@ -5,11 +5,19 @@ import { getJobMetadata } from '../../gitlab/ci_status_metadata';
 import { ItemModel } from './item_model';
 import { openInBrowserCommand } from '../../utils/open_in_browser_command';
 import { hasDownloadableArtifacts, JobProvider } from './job_provider';
+import { ProjectInRepository } from '../../gitlab/new_project';
 
 dayjs.extend(relativeTime);
 
+const getJobItemContextValue = (job: RestJob) => {
+  const { contextAction } = getJobMetadata(job);
+  const actionValue = contextAction && `${contextAction}-job`;
+  const artifactsValue = hasDownloadableArtifacts([job]) ? 'with-artifacts' : '';
+  return `${actionValue},${artifactsValue}`;
+};
+
 export class JobItemModel extends ItemModel implements JobProvider {
-  constructor(private job: RestJob) {
+  constructor(public projectInRepository: ProjectInRepository, public job: RestJob) {
     super();
   }
 
@@ -26,9 +34,7 @@ export class JobItemModel extends ItemModel implements JobProvider {
     item.tooltip = `${job.name} · ${jobStatusMetadata.name} · ${dayjs(displayTime).fromNow()}`;
     item.description = jobStatusMetadata.name;
     item.command = openInBrowserCommand(job.web_url);
-    if (hasDownloadableArtifacts(this.getJobs())) {
-      item.contextValue = 'with-artifacts';
-    }
+    item.contextValue = getJobItemContextValue(job);
     return item;
   }
 

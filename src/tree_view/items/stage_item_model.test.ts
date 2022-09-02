@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { artifact, job } from '../../test_utils/entities';
+import { artifact, job, projectInRepository } from '../../test_utils/entities';
 import { JobItemModel } from './job_item_model';
 import { StageItemModel } from './stage_item_model';
 
@@ -8,7 +8,7 @@ describe('StageItemModel', () => {
     { ...job, name: 'short task', status: 'failed' },
     { ...job, name: 'long task', status: 'running' },
   ];
-  const model = new StageItemModel('test', jobs);
+  const model = new StageItemModel(projectInRepository, 'test', jobs);
   describe('tree item', () => {
     it('has label', () => {
       expect(model.getTreeItem().label).toBe('test');
@@ -26,7 +26,7 @@ describe('StageItemModel', () => {
     });
 
     it('has a contextValue if downloadable artifacts exist', () => {
-      const modelWithContextValue = new StageItemModel('test', [
+      const modelWithContextValue = new StageItemModel(projectInRepository, 'test', [
         { ...job, artifacts: [artifact] },
       ]).getTreeItem();
       expect(modelWithContextValue.contextValue).toBe('with-artifacts');

@@ -6,6 +6,7 @@ import { IssueItem } from './items/issue_item';
 import { PipelineItemModel } from './items/pipeline_item_model';
 import { BranchState, ValidBranchState, InvalidBranchState } from '../current_branch_refresher';
 import { onSidebarViewStateChange } from './sidebar_view_state';
+import { ProjectInRepository } from '../gitlab/new_project';
 
 export class CurrentBranchDataProvider
   implements vscode.TreeDataProvider<ItemModel | vscode.TreeItem>
@@ -24,11 +25,15 @@ export class CurrentBranchDataProvider
     onSidebarViewStateChange(() => this.refresh(this.state), this);
   }
 
-  createPipelineItem(pipeline: RestPipeline | undefined, jobs: RestJob[]) {
+  createPipelineItem(
+    project: ProjectInRepository,
+    pipeline: RestPipeline | undefined,
+    jobs: RestJob[],
+  ) {
     if (!pipeline) {
       return new vscode.TreeItem('No pipeline found');
     }
-    this.pipelineItem = new PipelineItemModel(pipeline, jobs);
+    this.pipelineItem = new PipelineItemModel(project, pipeline, jobs);
     return this.pipelineItem;
   }
 
@@ -53,7 +58,11 @@ export class CurrentBranchDataProvider
   }
 
   renderValidState(state: ValidBranchState) {
-    const pipelineItem = this.createPipelineItem(state.pipeline, state.jobs);
+    const pipelineItem = this.createPipelineItem(
+      state.projectInRepository,
+      state.pipeline,
+      state.jobs,
+    );
     const closingIssuesItems = CurrentBranchDataProvider.createClosingIssueItems(
       state.projectInRepository.pointer.repository.rootFsPath,
       state.issues,

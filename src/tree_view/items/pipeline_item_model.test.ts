@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import dayjs from 'dayjs';
-import { artifact, job, pipeline } from '../../test_utils/entities';
+import { artifact, job, pipeline, projectInRepository } from '../../test_utils/entities';
 import { PipelineItemModel } from './pipeline_item_model';
 import { VS_COMMANDS } from '../../command_names';
 import { JobItemModel } from './job_item_model';
@@ -12,6 +12,7 @@ describe('PipelineItemModel', () => {
     let item: vscode.TreeItem;
     beforeEach(() => {
       item = new PipelineItemModel(
+        projectInRepository,
         {
           ...pipeline,
           id: 123,
@@ -49,7 +50,7 @@ describe('PipelineItemModel', () => {
     });
 
     it('has no contextValue if no downloadable artifacts exist', () => {
-      const itemWithoutContextValue = new PipelineItemModel(pipeline, [
+      const itemWithoutContextValue = new PipelineItemModel(projectInRepository, pipeline, [
         { ...job, artifacts: [{ ...artifact, file_type: 'trace' }] },
       ]).getTreeItem();
       expect(itemWithoutContextValue.contextValue).not.toBe('with-artifacts');
@@ -64,7 +65,7 @@ describe('PipelineItemModel', () => {
     const jobs = [unitTestJob, integrationTestJob, packageJob];
 
     beforeEach(() => {
-      pipelineItem = new PipelineItemModel(pipeline, jobs);
+      pipelineItem = new PipelineItemModel(projectInRepository, pipeline, jobs);
     });
 
     it('implements getJobs', () => {
@@ -85,7 +86,7 @@ describe('PipelineItemModel', () => {
         { ...packageJob, id: 1 },
       ];
 
-      pipelineItem = new PipelineItemModel(pipeline, jobsWithIds);
+      pipelineItem = new PipelineItemModel(projectInRepository, pipeline, jobsWithIds);
       const children = await pipelineItem.getChildren();
       const labels = children.map(ch => ch.getTreeItem()).map(i => i.label);
 
