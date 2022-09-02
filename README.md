@@ -68,6 +68,7 @@ You can use [Command Palette](https://code.visualstudio.com/docs/getstarted/user
 - `GitLab: Compare current branch with master` - Compare your branch with master and view changes on GitLab. [Read more](#compare-with-master).
 - `GitLab: Open active file on GitLab` - View active file on GitLab with highlighting active line number and selected text block. [Read more](#open-active-file).
 - `GitLab: Validate GitLab CI config` - Validate GitLab CI configuration file `.gitlab-ci.yml`. [Read more](#validate-gitlab-ci-configuration).
+- `GitLab: Show Merged GitLab CI Config` - Show a preview of the GitLab CI configuration file `.gitlab-ci.yml` with all includes resolved.
 - `GitLab: Open merge request for current branch`
 - `GitLab: Show issues assigned to me` - Open issues assigned to you on GitLab.
 - `GitLab: Show merge requests assigned to me` - Open MRs assigned to you on GitLab.

@@ -197,8 +197,9 @@ const getProjectDefaultOptions = {
   searchNamespaces: true,
 };
 
-interface ValidationResponse {
+export interface ValidationResponse {
   valid?: boolean;
+  merged_yaml?: string;
   errors: string[];
 }
 

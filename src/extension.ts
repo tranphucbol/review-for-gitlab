@@ -6,13 +6,13 @@ import { accountService } from './accounts/account_service';
 import { extensionState } from './extension_state';
 import { createSnippet } from './commands/create_snippet';
 import { insertSnippet } from './commands/insert_snippet';
-import * as ciConfigValidator from './ci_config_validator';
+import { validateCiConfig, showMergedCiConfig } from './commands/ci_config_lint_commands';
 import { webviewController } from './webview_controller';
 import { issuableDataProvider } from './tree_view/issuable_data_provider';
 import { currentBranchDataProvider } from './tree_view/current_branch_data_provider';
 import { initializeLogging, handleError } from './log';
 import { GitContentProvider } from './review/git_content_provider';
-import { REVIEW_URI_SCHEME, REMOTE_URI_SCHEME } from './constants';
+import { REVIEW_URI_SCHEME, REMOTE_URI_SCHEME, MERGED_YAML_URI_SCHEME } from './constants';
 import { USER_COMMANDS, PROGRAMMATIC_COMMANDS } from './command_names';
 import { CiCompletionProvider } from './completion/ci_completion_provider';
 import { gitExtensionWrapper } from './git/git_extension_wrapper';
@@ -64,6 +64,7 @@ import { GitLabAuthenticationProvider } from './accounts/oauth/gitlab_authentica
 import { getExtensionConfiguration, GITLAB_DEBUG_MODE } from './utils/extension_configuration';
 import { setupVersionCheck } from './gitlab/check_version';
 import { setupYamlSupport } from './yaml_support';
+import { MergedYamlContentProvider } from './ci/merged_yaml_content_provider';
 
 const wrapWithCatch =
   (command: (...args: unknown[]) => unknown) =>
@@ -107,7 +108,8 @@ const registerCommands = (
     [USER_COMMANDS.COMPARE_CURRENT_BRANCH]: runWithValidProject(openers.compareCurrentBranch),
     [USER_COMMANDS.CREATE_SNIPPET]: runWithValidProject(createSnippet),
     [USER_COMMANDS.INSERT_SNIPPET]: runWithValidProject(insertSnippet),
-    [USER_COMMANDS.VALIDATE_CI_CONFIG]: runWithValidProject(ciConfigValidator.validate),
+    [USER_COMMANDS.VALIDATE_CI_CONFIG]: runWithValidProject(validateCiConfig),
+    [USER_COMMANDS.SHOW_MERGED_CI_CONFIG]: runWithValidProject(showMergedCiConfig),
     [PROGRAMMATIC_COMMANDS.SHOW_RICH_CONTENT]: webviewController.open.bind(webviewController),
     [USER_COMMANDS.SHOW_OUTPUT]: () => outputChannel.show(),
     [USER_COMMANDS.RESOLVE_THREAD]: toggleResolved,
@@ -177,6 +179,10 @@ export const activate = async (context: vscode.ExtensionContext) => {
   const outputChannel = vscode.window.createOutputChannel('GitLab Workflow');
   initializeLogging(line => outputChannel.appendLine(line));
   vscode.workspace.registerTextDocumentContentProvider(REVIEW_URI_SCHEME, new GitContentProvider());
+  vscode.workspace.registerTextDocumentContentProvider(
+    MERGED_YAML_URI_SCHEME,
+    new MergedYamlContentProvider(),
+  );
   vscode.workspace.registerFileSystemProvider(
     REMOTE_URI_SCHEME,
     new GitLabRemoteFileSystem(),

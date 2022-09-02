@@ -2,6 +2,7 @@ import vscode from 'vscode';
 
 export const GITLAB_COM_URL = 'https://gitlab.com';
 export const REVIEW_URI_SCHEME = 'gl-review';
+export const MERGED_YAML_URI_SCHEME = 'gl-merged-ci-yaml';
 export const REMOTE_URI_SCHEME = 'gitlab-remote';
 export const CONFIG_NAMESPACE = 'gitlab';
 export const ADDED = 'added';

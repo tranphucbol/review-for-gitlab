@@ -44,6 +44,11 @@ module.exports = {
   workspace: {
     getConfiguration: jest.fn().mockReturnValue({}),
     onDidOpenTextDocument: jest.fn(),
+    onDidCloseTextDocument: jest.fn(),
+    createFileSystemWatcher: jest.fn(),
+    fs: {
+      readFile: jest.fn(),
+    },
   },
   extensions: {
     getExtension: jest.fn(),
@@ -60,7 +65,9 @@ module.exports = {
   Range: function Range(start, end) {
     return { start, end };
   },
-  CancellationTokenSource: jest.fn(),
+  CancellationTokenSource: function CancellationTokenSource() {
+    return { token: { isCancellationRequested: false } };
+  },
   ThemeColor: jest.fn(color => color),
   ProgressLocation: {
     Notification: 'Notification',
