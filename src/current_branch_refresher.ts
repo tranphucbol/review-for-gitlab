@@ -58,6 +58,8 @@ export class CurrentBranchRefresher {
 
   private previousBranchName = '';
 
+  private latestState: BranchState = INVALID_STATE;
+
   init(statusBar: StatusBar, currentBranchProvider: CurrentBranchDataProvider) {
     this.statusBar = statusBar;
     this.currentBranchProvider = currentBranchProvider;
@@ -104,10 +106,17 @@ export class CurrentBranchRefresher {
     assert(this.statusBar);
     assert(this.currentBranchProvider);
     const projectInRepository = getActiveProject();
-    const state = await CurrentBranchRefresher.getState(projectInRepository, userInitiated);
-    await this.statusBar.refresh(state);
-    this.currentBranchProvider.refresh(state);
+    this.latestState = await CurrentBranchRefresher.getState(projectInRepository, userInitiated);
+    await this.statusBar.refresh(this.latestState);
+    this.currentBranchProvider.refresh(this.latestState);
     this.lastRefresh = dayjs();
+  }
+
+  async getOrRetrieveState(): Promise<BranchState> {
+    if (!this.latestState.valid) {
+      await this.refresh(false);
+    }
+    return this.latestState;
   }
 
   static async getState(

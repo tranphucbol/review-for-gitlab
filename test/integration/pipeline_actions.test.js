@@ -41,7 +41,7 @@ describe('Pipeline actions', async () => {
   });
 
   it('creates a new pipeline', async () => {
-    simulateQuickPickChoice(sandbox, 1); // Create a new pipeline from current branch
+    simulateQuickPickChoice(sandbox, 2); // Create a new pipeline from current branch
 
     const originalExecuteCommand = vscode.commands.executeCommand;
     const expectation = sandbox
