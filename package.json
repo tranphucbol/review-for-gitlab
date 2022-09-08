@@ -126,11 +126,11 @@
       },
       {
         "command": "gl.validateCIConfig",
-        "title": "GitLab: Validate GitLab CI Config"
+        "title": "GitLab: Validate GitLab CI/CD Config"
       },
       {
         "command": "gl.showMergedCIConfig",
-        "title": "GitLab: Show Merged GitLab CI Config",
+        "title": "GitLab: Show Merged GitLab CI/CD Config",
         "icon": "$(open-preview)"
       },
       {
