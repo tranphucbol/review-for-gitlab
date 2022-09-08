@@ -68,7 +68,7 @@ You can use [Command Palette](https://code.visualstudio.com/docs/getstarted/user
 - `GitLab: Compare current branch with master` - Compare your branch with master and view changes on GitLab. [Read more](#compare-with-master).
 - `GitLab: Open active file on GitLab` - View active file on GitLab with highlighting active line number and selected text block. [Read more](#open-active-file).
 - `GitLab: Validate GitLab CI config` - Validate GitLab CI configuration file `.gitlab-ci.yml`. [Read more](#validate-gitlab-ci-configuration).
-- `GitLab: Show Merged GitLab CI Config` - Show a preview of the GitLab CI configuration file `.gitlab-ci.yml` with all includes resolved.
+- `GitLab: Show Merged GitLab CI config` - Show a preview of the GitLab CI configuration file `.gitlab-ci.yml` with all includes resolved. [Read more](#show-merged-gitlab-ci-configuration).
 - `GitLab: Open merge request for current branch`
 - `GitLab: Show issues assigned to me` - Open issues assigned to you on GitLab.
 - `GitLab: Show merge requests assigned to me` - Open MRs assigned to you on GitLab.
@@ -282,6 +282,12 @@ This command allows you to see active file on GitLab. Extension sends active lin
 Using this command, you can quickly validate GitLab CI configuration.
 
 ![Validate CI configuration](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/validate-ci-config.gif)
+
+### Show merged GitLab CI configuration
+
+This command displays a preview of your merged CI configuration file, with all includes and references resolved.
+
+![Show merged CI configuration](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/e6492d12bab89d6a726046841fcc0f655e0db113/docs/assets/show-merged-ci-config.gif)
 
 ### CI variable autocompletion
 
