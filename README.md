@@ -19,7 +19,7 @@ This extension integrates GitLab into Visual Studio Code. After you [set up the 
   or build a [custom search](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/custom-queries.md)
   to meet your needs.
 - [**Create and review merge requests**](#merge-request-reviews).
-- [**Validate your GitLab CI/CD configuration**](#validate-gitlab-ci-configuration) locally with a [command](#commands).
+- [**Validate your GitLab CI/CD configuration**](#validate-gitlab-cicd-configuration) locally with a [command](#commands).
 - [**Manage your pipelines**](#pipeline-actions). View your [pipeline status](#status-bar---details)
   and open the related merge request. With [advanced pipeline actions](#pipeline-actions),
   you can create, retry, or cancel a pipeline.
@@ -67,8 +67,8 @@ You can use [Command Palette](https://code.visualstudio.com/docs/getstarted/user
 - `GitLab: Insert snippet` - Insert a project snippet, supports multi-file snippets. [Read more](#insert-snippet).
 - `GitLab: Compare current branch with master` - Compare your branch with master and view changes on GitLab. [Read more](#compare-with-master).
 - `GitLab: Open active file on GitLab` - View active file on GitLab with highlighting active line number and selected text block. [Read more](#open-active-file).
-- `GitLab: Validate GitLab CI config` - Validate GitLab CI configuration file `.gitlab-ci.yml`. [Read more](#validate-gitlab-ci-configuration).
-- `GitLab: Show Merged GitLab CI config` - Show a preview of the GitLab CI configuration file `.gitlab-ci.yml` with all includes resolved. [Read more](#show-merged-gitlab-ci-configuration).
+- `GitLab: Validate GitLab CI/CD config` - Validate GitLab CI/CD configuration file `.gitlab-ci.yml`. [Read more](#validate-gitlab-cicd-configuration).
+- `GitLab: Show Merged GitLab CI/CD config` - Show a preview of the GitLab CI/CD configuration file `.gitlab-ci.yml` with all includes resolved. [Read more](#show-merged-gitlab-cicd-configuration).
 - `GitLab: Open merge request for current branch`
 - `GitLab: Show issues assigned to me` - Open issues assigned to you on GitLab.
 - `GitLab: Show merge requests assigned to me` - Open MRs assigned to you on GitLab.
@@ -277,23 +277,23 @@ This command allows you to see active file on GitLab. Extension sends active lin
 
 ![_open_active_file.gif](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/open_active_file.gif)
 
-### Validate GitLab CI Configuration
+### Validate GitLab CI/CD Configuration
 
-Using this command, you can quickly validate GitLab CI configuration.
+Using this command, you can quickly validate GitLab CI/CD configuration.
 
-![Validate CI configuration](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/validate-ci-config.gif)
+![Validate CI/CD configuration](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/validate-ci-config.gif)
 
-### Show merged GitLab CI configuration
+### Show merged GitLab CI/CD configuration
 
-This command displays a preview of your merged CI configuration file, with all includes and references resolved.
+This command displays a preview of your merged CI/CD configuration file, with all includes and references resolved.
 
-![Show merged CI configuration](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/e6492d12bab89d6a726046841fcc0f655e0db113/docs/assets/show-merged-ci-config.gif)
+![Show merged CI/CD configuration](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/e6492d12bab89d6a726046841fcc0f655e0db113/docs/assets/show-merged-ci-config.gif)
 
-### CI variable autocompletion
+### CI/CD variable autocompletion
 
-Quickly find the CI variable you are looking for with the CI variable autocompletion.
+Quickly find the CI/CD variable you are looking for with the CI/CD variable autocompletion.
 
-![screenshot of the CI variable autocompletion](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/ci_variable_autocomplete.png)
+![screenshot of the CI/CD variable autocompletion](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/ci_variable_autocomplete.png)
 
 ### Clone GitLab projects
 
