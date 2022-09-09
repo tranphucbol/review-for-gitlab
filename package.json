@@ -263,6 +263,16 @@
         "command": "gl.cancelJob",
         "title": "Cancel job",
         "category": "GitLab"
+      },
+      {
+        "command": "gl.retryFailedPipelineJobs",
+        "title": "Retry failed jobs",
+        "category": "GitLab"
+      },
+      {
+        "command": "gl.cancelPipeline",
+        "title": "Cancel pipeline",
+        "category": "GitLab"
       }
     ],
     "menus": {
@@ -325,6 +335,14 @@
         },
         {
           "command": "gl.cancelJob",
+          "when": "false"
+        },
+        {
+          "command": "gl.retryFailedPipelineJobs",
+          "when": "false"
+        },
+        {
+          "command": "gl.cancelPipeline",
           "when": "false"
         },
         {
@@ -477,6 +495,14 @@
         {
           "command": "gl.retryJob",
           "when": "view =~ /currentBranchInfo/ && viewItem =~ /retryable-job/"
+        },
+        {
+          "command": "gl.cancelPipeline",
+          "when": "view =~ /currentBranchInfo/ && viewItem =~ /cancellable-pipeline/"
+        },
+        {
+          "command": "gl.retryFailedPipelineJobs",
+          "when": "view =~ /currentBranchInfo/ && viewItem =~ /retryable-pipeline/"
         },
         {
           "command": "gl.executeJob",

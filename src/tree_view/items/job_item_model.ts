@@ -4,8 +4,9 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { getJobMetadata } from '../../gitlab/ci_status_metadata';
 import { ItemModel } from './item_model';
 import { openInBrowserCommand } from '../../utils/open_in_browser_command';
-import { hasDownloadableArtifacts, JobProvider } from './job_provider';
+import { JobProvider } from './job_provider';
 import { ProjectInRepository } from '../../gitlab/new_project';
+import { hasDownloadableArtifacts } from '../../utils/has_downloadable_artifacts';
 
 dayjs.extend(relativeTime);
 
@@ -21,7 +22,7 @@ export class JobItemModel extends ItemModel implements JobProvider {
     super();
   }
 
-  getJobs(): RestJob[] {
+  get jobs(): RestJob[] {
     return [this.job];
   }
 

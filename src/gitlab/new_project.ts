@@ -28,6 +28,10 @@ export interface ProjectInRepository {
   initializationType?: InitializationType;
 }
 
+export interface ProjectInRepositoryProvider {
+  projectInRepository: ProjectInRepository;
+}
+
 /**
  * SelectedProjectSetting to use specific ProjectInRepository for local Git repository.
  *

@@ -4,8 +4,10 @@ import { ProjectCommand } from './run_with_valid_project';
 import { USER_COMMANDS } from '../command_names';
 import { getGitLabService } from '../gitlab/get_gitlab_service';
 import { getTrackingBranchName } from '../git/get_tracking_branch_name';
-import { JobProvider } from '../tree_view/items/job_provider';
 import { currentBranchRefresher } from '../current_branch_refresher';
+import { JobProvider } from '../tree_view/items/job_provider';
+import { PipelineProvider } from '../tree_view/items/pipeline_provider';
+import { ProjectInRepositoryProvider } from '../gitlab/new_project';
 
 type PipelineAction = 'view' | 'download' | 'create' | 'retry' | 'cancel';
 
@@ -54,25 +56,32 @@ export const triggerPipelineAction: ProjectCommand = async projectInRepository =
 
     const branchState = await currentBranchRefresher.getOrRetrieveState();
 
-    if (!branchState.valid || !branchState.pipeline) {
+    if (!branchState.valid) {
+      await vscode.window.showErrorMessage(
+        "Can't fetch pipeline for current repository. Check that your project is correctly initialized.",
+      );
+      return;
+    }
+
+    const { pipeline } = branchState;
+
+    if (!pipeline) {
       await vscode.window.showErrorMessage('GitLab Workflow: No project or pipeline found.');
       return;
     }
 
-    if (selected.action === 'download') {
-      const jobProvider: JobProvider = {
-        getJobs() {
-          return branchState.jobs;
-        },
-      };
-      await vscode.commands.executeCommand(USER_COMMANDS.DOWNLOAD_ARTIFACTS, jobProvider);
-    } else {
-      const result = await gitlabService.cancelOrRetryPipeline(
-        selected.action,
-        project,
-        branchState.pipeline,
-      );
-      if (result) await vscode.commands.executeCommand(USER_COMMANDS.REFRESH_SIDEBAR);
-    }
+    const command = {
+      download: USER_COMMANDS.DOWNLOAD_ARTIFACTS,
+      retry: USER_COMMANDS.RETRY_FAILED_PIPELINE_JOBS,
+      cancel: USER_COMMANDS.CANCEL_PIPELINE,
+    }[selected.action];
+
+    const pipelineJobsAndProject: PipelineProvider & JobProvider & ProjectInRepositoryProvider = {
+      projectInRepository,
+      pipeline,
+      jobs: branchState.jobs,
+    };
+
+    await vscode.commands.executeCommand(command, pipelineJobsAndProject);
   }
 };

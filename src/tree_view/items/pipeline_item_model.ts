@@ -1,13 +1,15 @@
 import * as vscode from 'vscode';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { getPipelineMetadata } from '../../gitlab/ci_status_metadata';
+import { getJobMetadata, getPipelineMetadata } from '../../gitlab/ci_status_metadata';
 import { openInBrowserCommand } from '../../utils/open_in_browser_command';
 import { ItemModel } from './item_model';
 import { StageItemModel } from './stage_item_model';
 import { compareBy } from '../../utils/compare_by';
-import { hasDownloadableArtifacts, JobProvider } from './job_provider';
-import { ProjectInRepository } from '../../gitlab/new_project';
+import { hasDownloadableArtifacts } from '../../utils/has_downloadable_artifacts';
+import { JobProvider } from './job_provider';
+import { PipelineProvider } from './pipeline_provider';
+import { ProjectInRepository, ProjectInRepositoryProvider } from '../../gitlab/new_project';
 
 dayjs.extend(relativeTime);
 /** removes duplicates based on === equality. Can be replaced with lodash. */
@@ -15,17 +17,30 @@ const uniq = <T>(duplicated: T[]): T[] => [...new Set(duplicated)];
 
 const getUniqueStages = (jobs: RestJob[]): string[] => uniq(jobs.map(j => j.stage));
 
-export class PipelineItemModel extends ItemModel implements JobProvider {
+const getPipelineItemContextValue = (jobs: RestJob[]) => {
+  const contextValue: string[] = [];
+  if (jobs.find(job => getJobMetadata(job).contextAction === 'cancellable')) {
+    contextValue.push('cancellable-pipeline');
+  }
+  if (jobs.find(job => getJobMetadata(job).contextAction === 'retryable')) {
+    contextValue.push('retryable-pipeline');
+  }
+  if (hasDownloadableArtifacts(jobs)) {
+    contextValue.push('with-artifacts');
+  }
+  return contextValue.join(',');
+};
+
+export class PipelineItemModel
+  extends ItemModel
+  implements JobProvider, PipelineProvider, ProjectInRepositoryProvider
+{
   constructor(
-    private projectInRepository: ProjectInRepository,
-    private pipeline: RestPipeline,
-    private jobs: RestJob[],
+    public projectInRepository: ProjectInRepository,
+    public pipeline: RestPipeline,
+    public jobs: RestJob[],
   ) {
     super();
-  }
-
-  getJobs(): RestJob[] {
-    return this.jobs;
   }
 
   getTreeItem(): vscode.TreeItem {
@@ -37,9 +52,7 @@ export class PipelineItemModel extends ItemModel implements JobProvider {
     item.description = statusMetadata.name;
     item.iconPath = statusMetadata.icon;
     item.command = openInBrowserCommand(this.pipeline.web_url);
-    if (hasDownloadableArtifacts(this.getJobs())) {
-      item.contextValue = 'with-artifacts';
-    }
+    item.contextValue = getPipelineItemContextValue(this.jobs);
     return item;
   }
 
