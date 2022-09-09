@@ -8,10 +8,12 @@
 
 ### Features
 
-* Add context menu buttons for retrying/cancelling Job ([2134f78](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/2134f78b9bd640e3efa8e9ce13e710a826a6853c))
-* Add pipeline menu action for downloading artifacts ([f4d027c](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/f4d027c616c884bef9fc42e5f20dfac43b811134))
-* Add retry/cancel pipeline to context menu ([c2caee4](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/c2caee40cfcbfb5d13cc790f9a2d1cfcf6c6a7ab))
-* Display merged CI YAML ([3c3a67a](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/3c3a67ab2ecc0c5270aba5e515919b78f15f2ce5))
+**All features in this release have been implemented by [Lennard Sprong](https://gitlab.com/X_Sheep)** 🚀. Thank you so much for making the extension better 🙇
+
+* Add context menu buttons for retrying/cancelling Job ([2134f78](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/2134f78b9bd640e3efa8e9ce13e710a826a6853c)) [MR !633](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/633)
+* Add pipeline menu action for downloading artifacts ([f4d027c](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/f4d027c616c884bef9fc42e5f20dfac43b811134)) [MR !635](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/635)
+* Add retry/cancel pipeline to context menu ([c2caee4](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/c2caee40cfcbfb5d13cc790f9a2d1cfcf6c6a7ab)) [MR !637](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/637)
+* Display merged CI YAML ([3c3a67a](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/3c3a67ab2ecc0c5270aba5e515919b78f15f2ce5)) [MR !626](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/626)
 
 
 
