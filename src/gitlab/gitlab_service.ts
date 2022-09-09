@@ -907,9 +907,9 @@ export class GitLabService {
     }
   }
 
-  async getJobsForPipeline(pipeline: RestPipeline): Promise<RestJob[]> {
+  async getJobsForPipeline(pipelineId: number, projectId: number): Promise<RestJob[]> {
     return this.fetch(
-      `/projects/${pipeline.project_id}/pipelines/${pipeline.id}/jobs`,
+      `/projects/${projectId}/pipelines/${pipelineId}/jobs`,
       {},
       'jobs for pipeline',
     );
