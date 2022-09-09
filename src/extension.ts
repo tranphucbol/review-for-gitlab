@@ -66,6 +66,7 @@ import { setupVersionCheck } from './gitlab/check_version';
 import { setupYamlSupport } from './yaml_support';
 import { cancelJob, executeJob, retryJob } from './commands/job_actions';
 import { MergedYamlContentProvider } from './ci/merged_yaml_content_provider';
+import { cancelPipeline, retryPipeline } from './commands/pipeline_actions';
 
 const wrapWithCatch =
   (command: (...args: unknown[]) => unknown) =>
@@ -143,6 +144,8 @@ const registerCommands = (
     [USER_COMMANDS.EXECUTE_JOB]: executeJob,
     [USER_COMMANDS.RETRY_JOB]: retryJob,
     [USER_COMMANDS.CANCEL_JOB]: cancelJob,
+    [USER_COMMANDS.RETRY_FAILED_PIPELINE_JOBS]: retryPipeline,
+    [USER_COMMANDS.CANCEL_PIPELINE]: cancelPipeline,
     [PROGRAMMATIC_COMMANDS.NO_IMAGE_REVIEW]: () =>
       vscode.window.showInformationMessage("GitLab MR review doesn't support images yet."),
   };

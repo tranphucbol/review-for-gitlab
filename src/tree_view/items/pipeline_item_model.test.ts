@@ -46,14 +46,34 @@ describe('PipelineItemModel', () => {
     });
 
     it('has a contextValue if downloadable artifacts exist', () => {
-      expect(item.contextValue).toBe('with-artifacts');
+      expect(item.contextValue).toMatch(/with-artifacts/);
     });
 
     it('has no contextValue if no downloadable artifacts exist', () => {
       const itemWithoutContextValue = new PipelineItemModel(projectInRepository, pipeline, [
         { ...job, artifacts: [{ ...artifact, file_type: 'trace' }] },
       ]).getTreeItem();
-      expect(itemWithoutContextValue.contextValue).not.toBe('with-artifacts');
+      expect(itemWithoutContextValue.contextValue).not.toMatch(/with-artifacts/);
+    });
+
+    it('has a contextValue if retryable jobs exist', () => {
+      expect(item.contextValue).toMatch(/retryable-pipeline/);
+    });
+
+    it('has a contextValue if cancellable jobs exist', () => {
+      const itemWithCancellable = new PipelineItemModel(projectInRepository, pipeline, [
+        { ...job, status: 'running' },
+      ]).getTreeItem();
+      expect(itemWithCancellable.contextValue).toMatch(/cancellable-pipeline/);
+    });
+
+    it('has a contextValue if cancellable and retryable jobs exist', () => {
+      const itemWithJobs = new PipelineItemModel(projectInRepository, pipeline, [
+        job,
+        { ...job, status: 'running' },
+      ]).getTreeItem();
+      expect(itemWithJobs.contextValue).toMatch(/retryable-pipeline/);
+      expect(itemWithJobs.contextValue).toMatch(/cancellable-pipeline/);
     });
   });
 
@@ -68,8 +88,8 @@ describe('PipelineItemModel', () => {
       pipelineItem = new PipelineItemModel(projectInRepository, pipeline, jobs);
     });
 
-    it('implements getJobs', () => {
-      expect(pipelineItem.getJobs()).toBe(jobs);
+    it('exposes jobs', () => {
+      expect(pipelineItem.jobs).toBe(jobs);
     });
 
     it('returns unique stages', async () => {

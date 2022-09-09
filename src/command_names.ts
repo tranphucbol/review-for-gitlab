@@ -49,6 +49,8 @@ export const USER_COMMANDS = {
   EXECUTE_JOB: 'gl.executeJob',
   RETRY_JOB: 'gl.retryJob',
   CANCEL_JOB: 'gl.cancelJob',
+  RETRY_FAILED_PIPELINE_JOBS: 'gl.retryFailedPipelineJobs',
+  CANCEL_PIPELINE: 'gl.cancelPipeline',
   AUTHENTICATE: 'gl.authenticate',
 };
 

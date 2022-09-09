@@ -34,8 +34,8 @@ describe('StageItemModel', () => {
   });
 
   describe('children', () => {
-    it('implements getJobs', () => {
-      expect(model.getJobs()).toBe(jobs);
+    it('exposes jobs', () => {
+      expect(model.jobs).toBe(jobs);
     });
 
     it('returns the jobs as children', async () => {

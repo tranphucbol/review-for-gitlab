@@ -980,7 +980,7 @@ export class GitLabService {
     action: 'cancel' | 'retry',
     project: GitLabProject,
     pipeline: RestPipeline,
-  ) {
+  ): Promise<RestPipeline> {
     return this.postFetch(
       `/projects/${project.restId}/pipelines/${pipeline.id}/${action}`,
       'cancel or retry pipeline',

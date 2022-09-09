@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
 import { VS_COMMANDS } from '../command_names';
-import { isArtifactDownloadable, JobProvider } from '../tree_view/items/job_provider';
+import { JobProvider } from '../tree_view/items/job_provider';
+import { isArtifactDownloadable } from '../utils/is_artifact_downloadable';
 
-const first = <T>(a: T[]): T | undefined => a[0];
+const first = <T>(a: readonly T[]): T | undefined => a[0];
 
 interface ArtifactPickItem extends vscode.QuickPickItem {
   job: RestJob;
@@ -12,7 +13,7 @@ interface ArtifactPickItem extends vscode.QuickPickItem {
 export async function downloadArtifacts(item: JobProvider): Promise<void> {
   let result: ArtifactPickItem | undefined;
 
-  const jobs = item.getJobs();
+  const { jobs } = item;
   const singleJob = jobs.length === 1 ? first(jobs) : null;
   const artifacts = jobs.flatMap(
     j => j.artifacts?.filter(isArtifactDownloadable).map(a => ({ artifact: a, job: j })) ?? [],

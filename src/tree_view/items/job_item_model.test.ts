@@ -8,12 +8,8 @@ const fourYearsAgo = dayjs().subtract(4, 'year').toString();
 describe('JobItemModel', () => {
   const jobItemModel = new JobItemModel(projectInRepository, job);
 
-  it('has a job array with a single item', () => {
-    expect(jobItemModel.getJobs()).toHaveLength(1);
-  });
-
   it('returns the provided job', () => {
-    expect(jobItemModel.getJobs()[0]).toBe(job);
+    expect(jobItemModel.jobs).toEqual([job]);
   });
 });
 
