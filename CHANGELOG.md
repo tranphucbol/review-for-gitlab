@@ -1,3 +1,20 @@
+# [3.50.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.49.0...v3.50.0) (2022-09-09)
+
+
+### Bug Fixes
+
+* use project id from the project in repository ([63dbf50](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/63dbf50717ff5b4e25d4e06a0335ec2c30549c7b))
+
+
+### Features
+
+* Add context menu buttons for retrying/cancelling Job ([2134f78](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/2134f78b9bd640e3efa8e9ce13e710a826a6853c))
+* Add pipeline menu action for downloading artifacts ([f4d027c](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/f4d027c616c884bef9fc42e5f20dfac43b811134))
+* Add retry/cancel pipeline to context menu ([c2caee4](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/c2caee40cfcbfb5d13cc790f9a2d1cfcf6c6a7ab))
+* Display merged CI YAML ([3c3a67a](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/3c3a67ab2ecc0c5270aba5e515919b78f15f2ce5))
+
+
+
 # [3.49.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.48.1...v3.49.0) (2022-08-30)
 
 
