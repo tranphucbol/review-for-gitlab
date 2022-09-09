@@ -72,7 +72,11 @@ interface RestPipeline {
     | 'preparing';
   updated_at: string;
   id: number;
-  project_id: number;
+  /**
+   * The project_id is only present in GitLab version 13.10 and later.
+   * https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/553#note_882220438
+   */
+  project_id?: number;
   web_url: string;
 }
 

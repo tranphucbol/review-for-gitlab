@@ -38,7 +38,8 @@ const getJobs = async (
 ): Promise<RestJob[]> => {
   if (!pipeline) return [];
   try {
-    return await getGitLabService(projectInRepository).getJobsForPipeline(pipeline);
+    const projectId = projectInRepository.project.restId;
+    return await getGitLabService(projectInRepository).getJobsForPipeline(pipeline.id, projectId);
   } catch (e) {
     log.error(new UserFriendlyError('Failed to fetch jobs for pipeline.', e));
     return [];
