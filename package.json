@@ -991,7 +991,7 @@
     "update-ci-variables": "node ./scripts/update_ci_variables.js"
   },
   "devDependencies": {
-    "@types/jest": "^29.0.0",
+    "@types/jest": "^29.0.2",
     "@types/node": "^13.13.52",
     "@types/request-promise": "^4.1.48",
     "@types/semver": "^7.3.8",
@@ -1007,7 +1007,7 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
-    "jest": "^29.0.2",
+    "jest": "^29.0.3",
     "jest-junit": "^14.0.1",
     "mocha": "^10.0.0",
     "mocha-junit-reporter": "^2.0.2",
@@ -1015,7 +1015,7 @@
     "prettier": "^2.7.1",
     "simple-git": "^3.0.0",
     "sinon": "^14.0.0",
-    "ts-jest": "^29.0.0",
+    "ts-jest": "^29.0.1",
     "typescript": "^4.4.3",
     "vsce": "^2.0.0",
     "vscode-test": "^1.6.1"
