@@ -8,6 +8,7 @@ import { currentBranchRefresher } from '../current_branch_refresher';
 import { JobProvider } from '../tree_view/items/job_provider';
 import { PipelineProvider } from '../tree_view/items/pipeline_provider';
 import { ProjectInRepositoryProvider } from '../gitlab/new_project';
+import { DetachedHeadError } from '../errors/detached_head_error';
 
 type PipelineAction = 'view' | 'download' | 'create' | 'retry' | 'cancel';
 
@@ -49,6 +50,7 @@ export const triggerPipelineAction: ProjectCommand = async projectInRepository =
 
     if (selected.action === 'create') {
       const branchName = await getTrackingBranchName(repository.rawRepository);
+      if (!branchName) throw new DetachedHeadError();
       const result = await gitlabService.createPipeline(branchName, project);
       if (result) await vscode.commands.executeCommand(USER_COMMANDS.REFRESH_SIDEBAR);
       return;
@@ -56,7 +58,7 @@ export const triggerPipelineAction: ProjectCommand = async projectInRepository =
 
     const branchState = await currentBranchRefresher.getOrRetrieveState();
 
-    if (!branchState.valid) {
+    if (branchState.type === 'invalid') {
       await vscode.window.showErrorMessage(
         "Can't fetch pipeline for current repository. Check that your project is correctly initialized.",
       );

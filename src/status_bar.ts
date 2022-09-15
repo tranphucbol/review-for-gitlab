@@ -4,7 +4,7 @@ import * as openers from './commands/openers';
 import { UserFriendlyError } from './errors/user_friendly_error';
 import { log } from './log';
 import { PROGRAMMATIC_COMMANDS, USER_COMMANDS } from './command_names';
-import { BranchState } from './current_branch_refresher';
+import { TreeState } from './current_branch_refresher';
 import { ProjectInRepository } from './gitlab/new_project';
 
 const MAXIMUM_DISPLAYED_JOBS = 4;
@@ -82,12 +82,16 @@ export class StatusBar {
 
   firstRun = true;
 
-  async refresh(state: BranchState) {
-    if (state.valid) {
+  async refresh(state: TreeState) {
+    if (state.type === 'branch') {
       const { rootFsPath } = state.projectInRepository.pointer.repository;
       await this.updatePipelineItem(state.pipeline, state.jobs, state.projectInRepository);
       this.updateMrItem(state.mr, rootFsPath);
       this.fetchMrClosingIssue(state.mr, state.issues, rootFsPath);
+    } else if (state.type === 'tag') {
+      await this.updatePipelineItem(state.pipeline, state.jobs, state.projectInRepository);
+      this.mrStatusBarItem?.hide();
+      this.mrIssueStatusBarItem?.hide();
     } else {
       this.hideAllItems();
     }

@@ -4,9 +4,9 @@ import { ItemModel } from './items/item_model';
 import { MrItemModel } from './items/mr_item_model';
 import { IssueItem } from './items/issue_item';
 import { PipelineItemModel } from './items/pipeline_item_model';
-import { BranchState, ValidBranchState, InvalidBranchState } from '../current_branch_refresher';
+import { TreeState, BranchState, InvalidState, TagState } from '../current_branch_refresher';
 import { onSidebarViewStateChange } from './sidebar_view_state';
-import { ProjectInRepository } from '../gitlab/new_project';
+import { DetachedHeadError } from '../errors/detached_head_error';
 
 export class CurrentBranchDataProvider
   implements vscode.TreeDataProvider<ItemModel | vscode.TreeItem>
@@ -15,7 +15,7 @@ export class CurrentBranchDataProvider
 
   onDidChangeTreeData = this.eventEmitter.event;
 
-  private state: BranchState = { valid: false };
+  private state: TreeState = { type: 'invalid' };
 
   private pipelineItem?: PipelineItemModel;
 
@@ -25,15 +25,16 @@ export class CurrentBranchDataProvider
     onSidebarViewStateChange(() => this.refresh(this.state), this);
   }
 
-  createPipelineItem(
-    project: ProjectInRepository,
-    pipeline: RestPipeline | undefined,
-    jobs: RestJob[],
-  ) {
-    if (!pipeline) {
+  createPipelineItem(state: BranchState | TagState) {
+    if (!state.pipeline) {
       return new vscode.TreeItem('No pipeline found');
     }
-    this.pipelineItem = new PipelineItemModel(project, pipeline, jobs);
+    this.pipelineItem = new PipelineItemModel(
+      state.projectInRepository,
+      state.pipeline,
+      state.jobs,
+      state.type === 'tag',
+    );
     return this.pipelineItem;
   }
 
@@ -42,7 +43,7 @@ export class CurrentBranchDataProvider
     this.mrState = undefined;
   }
 
-  createMrItem(state: ValidBranchState) {
+  createMrItem(state: BranchState): vscode.TreeItem | ItemModel {
     if (!state.userInitiated && this.mrState && this.mrState.mr.id === state.mr?.id)
       return this.mrState.item;
     this.disposeMrItem();
@@ -57,21 +58,11 @@ export class CurrentBranchDataProvider
     return issues.map(issue => new IssueItem(issue, rootFsPath));
   }
 
-  renderValidState(state: ValidBranchState) {
-    const pipelineItem = this.createPipelineItem(
-      state.projectInRepository,
-      state.pipeline,
-      state.jobs,
-    );
-    const closingIssuesItems = CurrentBranchDataProvider.createClosingIssueItems(
-      state.projectInRepository.pointer.repository.rootFsPath,
-      state.issues,
-    );
-    return { pipelineItem, closingIssuesItems };
-  }
-
-  static renderInvalidState(state: InvalidBranchState): vscode.TreeItem[] {
+  static renderInvalidState(state: InvalidState): vscode.TreeItem[] {
     if (state.error) {
+      if (state.error instanceof DetachedHeadError) {
+        return [new ErrorItem(state.error.message)];
+      }
       return [new ErrorItem()];
     }
     return [];
@@ -81,13 +72,25 @@ export class CurrentBranchDataProvider
     if (item) return item.getChildren();
     this.pipelineItem?.dispose();
     this.pipelineItem = undefined;
-    if (this.state.valid) {
+    if (this.state.type === 'invalid') {
+      this.disposeMrItem();
+      return CurrentBranchDataProvider.renderInvalidState(this.state);
+    }
+    if (this.state.type === 'branch') {
       const mrItem = this.createMrItem(this.state);
-      const { pipelineItem, closingIssuesItems } = this.renderValidState(this.state);
+      const pipelineItem = this.createPipelineItem(this.state);
+      const closingIssuesItems = CurrentBranchDataProvider.createClosingIssueItems(
+        this.state.projectInRepository.pointer.repository.rootFsPath,
+        this.state.issues,
+      );
       return [pipelineItem, mrItem, ...closingIssuesItems];
     }
-    this.disposeMrItem();
-    return CurrentBranchDataProvider.renderInvalidState(this.state);
+    if (this.state.type === 'tag') {
+      this.disposeMrItem();
+      const pipelineItem = this.createPipelineItem(this.state);
+      return [pipelineItem];
+    }
+    throw new Error('Unknown head ref state type');
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -96,7 +99,7 @@ export class CurrentBranchDataProvider
     return item;
   }
 
-  refresh(state: BranchState) {
+  refresh(state: TreeState) {
     this.state = state;
     this.eventEmitter.fire();
   }

@@ -7,13 +7,24 @@ import { ProjectCommand } from './run_with_valid_project';
 import { getLastCommitSha } from '../git/get_last_commit_sha';
 import { getTrackingBranchName } from '../git/get_tracking_branch_name';
 import { getGitLabService } from '../gitlab/get_gitlab_service';
+import { Repository } from '../api/git';
+import { getTagsForHead } from '../git/get_tags_for_head';
 
-const getSnippetPatchDescription = (
-  branch: string,
-  commit: string,
-  patchFileName: string,
-): string => `
-This snippet contains suggested changes for branch ${branch} (commit: ${commit}).
+async function getCommitDescriptor(rawRepository: Repository): Promise<string> {
+  const commit = getLastCommitSha(rawRepository);
+  const branch = await getTrackingBranchName(rawRepository);
+  if (branch) {
+    return `branch ${branch} (commit: ${commit})`;
+  }
+  const tags = await getTagsForHead(rawRepository);
+  if (tags.length) {
+    return `tag ${tags[0]} (commit: ${commit})`;
+  }
+  return `commit ${commit}`;
+}
+
+const getSnippetPatchDescription = (commit: string, patchFileName: string): string => `
+This snippet contains suggested changes for ${commit}.
 
 Apply this snippet:
 
@@ -48,8 +59,7 @@ export const createSnippetPatch: ProjectCommand = async projectInRepository => {
   const data = {
     title: `${PATCH_TITLE_PREFIX}${name}`,
     description: getSnippetPatchDescription(
-      await getTrackingBranchName(repository.rawRepository),
-      getLastCommitSha(repository.rawRepository)!,
+      await getCommitDescriptor(repository.rawRepository),
       patchFileName,
     ),
     file_name: patchFileName,
