@@ -21,7 +21,8 @@ export const createFakeRepository = (options: Partial<FakeRepositoryOptions> = {
     rootUri: vscode.Uri.file(rootUriPath),
     state: {
       remotes: remotes.map(([name, fetchUrl, pushUrl]) => ({ name, fetchUrl, pushUrl })),
-      HEAD: { remote: headRemoteName },
+      HEAD: { remote: headRemoteName, name: headRemoteName },
+      refs: [],
     },
     status: async () => undefined,
   } as unknown as Repository;

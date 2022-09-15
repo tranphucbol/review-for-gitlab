@@ -39,13 +39,14 @@ export class PipelineItemModel
     public projectInRepository: ProjectInRepository,
     public pipeline: RestPipeline,
     public jobs: RestJob[],
+    private isTag: boolean,
   ) {
     super();
   }
 
   getTreeItem(): vscode.TreeItem {
     const timeAgo = dayjs(this.pipeline.updated_at).fromNow();
-    const label = `Pipeline #${this.pipeline.id}`;
+    const label = `${this.isTag ? 'Tag ' : ''}Pipeline #${this.pipeline.id}`;
     const item = new vscode.TreeItem(label, vscode.TreeItemCollapsibleState.Expanded);
     const statusMetadata = getPipelineMetadata(this.pipeline);
     item.tooltip = `${label} · ${statusMetadata.name} · ${timeAgo}`;

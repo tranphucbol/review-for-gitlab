@@ -12,6 +12,8 @@ import { ProjectInRepository } from '../gitlab/new_project';
 import { getGitLabService } from '../gitlab/get_gitlab_service';
 import { getTrackingBranchName } from '../git/get_tracking_branch_name';
 import { getLastCommitSha } from '../git/get_last_commit_sha';
+import { DetachedHeadError } from '../errors/detached_head_error';
+import { Repository } from '../api/git';
 
 export const openUrl = async (url: string): Promise<void> => {
   // workaround for a VS Code open command bug: https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/44
@@ -48,6 +50,12 @@ async function openTemplatedLink(linkTemplate: string, projectInRepository: Proj
   await openUrl(await getLink(linkTemplate, user, projectInRepository.project));
 }
 
+async function getTrackingBranchNameOrThrow(rawRepository: Repository): Promise<string> {
+  const branchName = await getTrackingBranchName(rawRepository);
+  if (!branchName) throw new DetachedHeadError();
+  return branchName;
+}
+
 export const showIssues: ProjectCommand = async projectInRepository => {
   await openTemplatedLink('$projectUrl/issues?assignee_id=$userId', projectInRepository);
 };
@@ -58,7 +66,7 @@ export const showMergeRequests: ProjectCommand = async projectInRepository => {
 
 async function getActiveFile({ projectInRepository, activeEditor }: ProjectInRepositoryAndFile) {
   const { repository } = projectInRepository.pointer;
-  const branchName = await getTrackingBranchName(repository.rawRepository);
+  const branchName = await getTrackingBranchNameOrThrow(repository.rawRepository);
   const filePath = path
     .relative(repository.rootFsPath, activeEditor.document.uri.fsPath)
     .replace(/\\/g, '/');
@@ -91,7 +99,7 @@ export const openCurrentMergeRequest: ProjectCommand = async projectInRepository
   const { repository } = projectInRepository.pointer;
   const mr = await getGitLabService(projectInRepository).getOpenMergeRequestForCurrentBranch(
     projectInRepository.project,
-    await getTrackingBranchName(repository.rawRepository),
+    await getTrackingBranchNameOrThrow(repository.rawRepository),
   );
 
   if (mr) {
@@ -105,7 +113,7 @@ export const openCreateNewIssue: ProjectCommand = async projectInRepository => {
 
 export const openCreateNewMr: ProjectCommand = async projectInRepository => {
   const { project, pointer } = projectInRepository;
-  const branchName = await getTrackingBranchName(pointer.repository.rawRepository);
+  const branchName = await getTrackingBranchNameOrThrow(pointer.repository.rawRepository);
 
   await openUrl(
     `${project.webUrl}/merge_requests/new?merge_request%5Bsource_branch%5D=${encodeURIComponent(
@@ -121,7 +129,7 @@ export const openProjectPage: ProjectCommand = async projectInRepository => {
 export async function openCurrentPipeline(projectInRepository: ProjectInRepository): Promise<void> {
   const { pipeline } = await getGitLabService(projectInRepository).getPipelineAndMrForCurrentBranch(
     projectInRepository.project,
-    await getTrackingBranchName(projectInRepository.pointer.repository.rawRepository),
+    await getTrackingBranchNameOrThrow(projectInRepository.pointer.repository.rawRepository),
   );
 
   if (pipeline) {

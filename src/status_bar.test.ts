@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { pipeline, mr, issue, job, project } from './test_utils/entities';
 import { USER_COMMANDS } from './command_names';
 import { asMock } from './test_utils/as_mock';
-import { ValidBranchState } from './current_branch_refresher';
+import { BranchState } from './current_branch_refresher';
 import { ProjectInRepository } from './gitlab/new_project';
 
 jest.mock('./git/git_extension_wrapper');
@@ -26,8 +26,8 @@ const createFakeItem = (): vscode.StatusBarItem =>
     dispose: jest.fn(),
   } as unknown as vscode.StatusBarItem);
 
-const createBranchInfo = (partialInfo: Partial<ValidBranchState> = {}): ValidBranchState => ({
-  valid: true,
+const createBranchInfo = (partialInfo: Partial<BranchState> = {}): BranchState => ({
+  type: 'branch',
   projectInRepository: { project, pointer: { repository: {} } } as unknown as ProjectInRepository,
   issues: [],
   jobs: [],
@@ -58,7 +58,7 @@ describe('status_bar', () => {
   });
 
   it('hides all items when the state is not valid', async () => {
-    await statusBar.refresh({ valid: false });
+    await statusBar.refresh({ type: 'invalid' });
     expect(getPipelineItem().hide).toHaveBeenCalled();
     expect(getMrItem().hide).toHaveBeenCalled();
     expect(getClosingIssueItem().hide).toHaveBeenCalled();

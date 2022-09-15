@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { USER_COMMANDS } from '../command_names';
-import { currentBranchRefresher, ValidBranchState } from '../current_branch_refresher';
+import { currentBranchRefresher, BranchState } from '../current_branch_refresher';
 import { getGitLabService } from '../gitlab/get_gitlab_service';
 import { GitLabService } from '../gitlab/gitlab_service';
 import { asMock } from '../test_utils/as_mock';
@@ -17,8 +17,8 @@ describe('triggerPipelineAction', () => {
   };
 
   beforeEach(() => {
-    const branchState: ValidBranchState = {
-      valid: true,
+    const branchState: BranchState = {
+      type: 'branch',
       issues: [],
       jobs,
       userInitiated: false,
