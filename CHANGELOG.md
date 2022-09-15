@@ -4,6 +4,7 @@
 ### Features
 
 * Allow retrieving pipelines for tags ([4cdfcc5](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/4cdfcc5540481dd2ecf42ac7a6fff1d5389cf073))
+  * Implemented by [Lennard Sprong](https://gitlab.com/X_Sheep) with [MR !644](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/644) 👍
 
 
 
