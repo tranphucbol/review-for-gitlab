@@ -39,7 +39,7 @@ export async function downloadArtifacts(item: JobProvider): Promise<void> {
     result = first(items);
   } else {
     result = await vscode.window.showQuickPick(items, {
-      title: 'Download artifacts',
+      title: 'Download Artifacts',
     });
   }
 

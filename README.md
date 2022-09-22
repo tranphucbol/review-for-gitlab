@@ -60,22 +60,24 @@ Advanced pipeline actions allow you to view pipeline on GitLab, create a new pip
 
 You can use [Command Palette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette) to run the commands.
 
-- `GitLab: Search project issues (Supports filters)`. [Read more](#search-with-filters)
-- `GitLab: Search project merge requests (Supports filters)`. [Read more](#search-with-filters)
-- `GitLab: Project Advanced Search (Issues, MR's, commits, comments...)`. [Read more](#search-with-advanced-search)
-- `GitLab: Create snippet` - Create public, internal or private snippet from entire file or selection. [Read more](#create-snippet).
-- `GitLab: Insert snippet` - Insert a project snippet, supports multi-file snippets. [Read more](#insert-snippet).
-- `GitLab: Compare current branch with master` - Compare your branch with master and view changes on GitLab. [Read more](#compare-with-master).
-- `GitLab: Open active file on GitLab` - View active file on GitLab with highlighting active line number and selected text block. [Read more](#open-active-file).
-- `GitLab: Validate GitLab CI/CD config` - Validate GitLab CI/CD configuration file `.gitlab-ci.yml`. [Read more](#validate-gitlab-cicd-configuration).
-- `GitLab: Show Merged GitLab CI/CD config` - Show a preview of the GitLab CI/CD configuration file `.gitlab-ci.yml` with all includes resolved. [Read more](#show-merged-gitlab-cicd-configuration).
-- `GitLab: Open merge request for current branch`
-- `GitLab: Show issues assigned to me` - Open issues assigned to you on GitLab.
-- `GitLab: Show merge requests assigned to me` - Open MRs assigned to you on GitLab.
-- `GitLab: Open current project on GitLab`
-- `GitLab: Create new issue on current project`
-- `GitLab: Create new merge request on current project` - Open the merge request page to create a merge request.
+- `GitLab: Search Project Issues (Supports Filters)`. [Read more](#search-with-filters)
+- `GitLab: Search Project Merge Requests (Supports Filters)`. [Read more](#search-with-filters)
+- `GitLab: Project Advanced Search (Issues, Merge Requests, Commits, Comments...)`. [Read more](#search-with-advanced-search)
+- `GitLab: Create Snippet` - Create public, internal or private snippet from entire file or selection. [Read more](#create-snippet).
+- `GitLab: Insert Snippet` - Insert a project snippet, supports multi-file snippets. [Read more](#insert-snippet).
+- `GitLab: Compare Current Branch with Master` - Compare your branch with master and view changes on GitLab. [Read more](#compare-with-master).
+- `GitLab: Open Active File on GitLab` - View active file on GitLab with highlighting active line number and selected text block. [Read more](#open-active-file).
+- `GitLab: Validate GitLab CI/CD Config` - Validate GitLab CI/CD configuration file `.gitlab-ci.yml`. [Read more](#validate-gitlab-cicd-configuration).
+- `GitLab: Show Merged GitLab CI/CD Config` - Show a preview of the GitLab CI/CD configuration file `.gitlab-ci.yml` with all includes resolved. [Read more](#show-merged-gitlab-cicd-configuration).
+- `GitLab: Open Merge Request for Current Branch`
+- `GitLab: Show Issues Assigned to Me` - Open issues assigned to you on GitLab.
+- `GitLab: Show Merge Requests Assigned to Me` - Open MRs assigned to you on GitLab.
+- `GitLab: Open Current Project on GitLab`
+- `GitLab: Create New Issue on Current Project`
+- `GitLab: Create New Merge Request on Current Project` - Open the merge request page to create a merge request.
 - `GitLab: Open Remote Repository` - Browse a remote GitLab repository. [Read more](#browse-a-repository-without-cloning).
+- `GitLab: Open Active File on GitLab`
+- `GitLab: Copy Link to Active File on GitLab`
 - `GitLab: Remove Account from VS Code`
 
 Commands this extension extends or integrates with:

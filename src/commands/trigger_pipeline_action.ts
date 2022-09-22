@@ -15,23 +15,23 @@ type PipelineAction = 'view' | 'download' | 'create' | 'retry' | 'cancel';
 export const triggerPipelineAction: ProjectCommand = async projectInRepository => {
   const items: { label: string; action: PipelineAction }[] = [
     {
-      label: 'View latest pipeline on GitLab',
+      label: 'View Latest Pipeline on GitLab',
       action: 'view',
     },
     {
-      label: 'Download artifacts from latest pipeline',
+      label: 'Download Artifacts from Latest Pipeline',
       action: 'download',
     },
     {
-      label: 'Create a new pipeline from current branch',
+      label: 'Create New Pipeline from Current Branch',
       action: 'create',
     },
     {
-      label: 'Retry last pipeline',
+      label: 'Retry Last Pipeline',
       action: 'retry',
     },
     {
-      label: 'Cancel last pipeline',
+      label: 'Cancel Last Pipeline',
       action: 'cancel',
     },
   ];

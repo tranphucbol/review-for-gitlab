@@ -46,110 +46,136 @@
     "commands": [
       {
         "command": "gl.authenticate",
-        "title": "GitLab: Authenticate to GitLab.com"
+        "title": "Authenticate to GitLab.com",
+        "category": "GitLab"
       },
       {
         "command": "gl.addAccount",
-        "title": "GitLab: Add Account to VS Code"
+        "title": "Add Account to VS Code",
+        "category": "GitLab"
       },
       {
         "command": "gl.removeAccount",
-        "title": "GitLab: Remove Account from VS Code"
+        "title": "Remove Account from VS Code",
+        "category": "GitLab"
       },
       {
         "command": "gl.showIssuesAssignedToMe",
-        "title": "GitLab: Show Issues Assigned To Me"
+        "title": "Show Issues Assigned to Me",
+        "category": "GitLab"
       },
       {
         "command": "gl.showMergeRequestsAssignedToMe",
-        "title": "GitLab: Show Merge Requests Assigned To Me"
+        "title": "Show Merge Requests Assigned to Me",
+        "category": "GitLab"
       },
       {
         "command": "gl.openActiveFile",
-        "title": "GitLab: Open Active File on GitLab"
+        "title": "Open Active File on GitLab",
+        "category": "GitLab"
       },
       {
         "command": "gl.copyLinkToActiveFile",
-        "title": "GitLab: Copy Link To Active File on GitLab"
+        "title": "Copy Link to Active File on GitLab",
+        "category": "GitLab"
       },
       {
         "command": "gl.openCurrentMergeRequest",
-        "title": "GitLab: Open Merge Request For Current Branch"
+        "title": "Open Merge Request for Current Branch",
+        "category": "GitLab"
       },
       {
         "command": "gl.openCreateNewIssue",
-        "title": "GitLab: Create New Issue on Current Project"
+        "title": "Create New Issue on Current Project",
+        "category": "GitLab"
       },
       {
         "command": "gl.openCreateNewMR",
-        "title": "GitLab: Create New Merge Request on Current Project"
+        "title": "Create New Merge Request on Current Project",
+        "category": "GitLab"
       },
       {
         "command": "gl.openProjectPage",
-        "title": "GitLab: Open Current Project on GitLab"
+        "title": "Open Current Project on GitLab",
+        "category": "GitLab"
       },
       {
         "command": "gl.createSnippetPatch",
-        "title": "GitLab: Create Snippet Patch"
+        "title": "Create Snippet Patch",
+        "category": "GitLab"
       },
       {
         "command": "gl.applySnippetPatch",
-        "title": "GitLab: Apply Snippet Patch"
+        "title": "Apply Snippet Patch",
+        "category": "GitLab"
       },
       {
         "command": "gl.pipelineActions",
-        "title": "GitLab: Pipeline Actions - View, Create, Retry or Cancel"
+        "title": "Pipeline Actions - View, Create, Retry, or Cancel",
+        "category": "GitLab"
       },
       {
         "command": "gl.issueSearch",
-        "title": "GitLab: Search Project Issues (Supports Filters)"
+        "title": "Search Project Issues (Supports Filters)",
+        "category": "GitLab"
       },
       {
         "command": "gl.mergeRequestSearch",
-        "title": "GitLab: Search Project Merge Requests (Supports Filters)"
+        "title": "Search Project Merge Requests (Supports Filters)",
+        "category": "GitLab"
       },
       {
         "command": "gl.projectAdvancedSearch",
-        "title": "GitLab: Project Advanced Search (Issues, MR's, Commits, Comments...)"
+        "title": "Project Advanced Search (Issues, Merge Requests, Commits, Comments...)",
+        "category": "GitLab"
       },
       {
         "command": "gl.compareCurrentBranch",
-        "title": "GitLab: Compare Current Branch With Master"
+        "title": "Compare Current Branch with Master",
+        "category": "GitLab"
       },
       {
         "command": "gl.createSnippet",
-        "title": "GitLab: Create Snippet"
+        "title": "Create Snippet",
+        "category": "GitLab"
       },
       {
         "command": "gl.insertSnippet",
-        "title": "GitLab: Insert Snippet"
+        "title": "Insert Snippet",
+        "category": "GitLab"
       },
       {
         "command": "gl.validateCIConfig",
-        "title": "GitLab: Validate GitLab CI/CD Config"
+        "title": "Validate GitLab CI/CD Config",
+        "category": "GitLab"
       },
       {
         "command": "gl.showMergedCIConfig",
-        "title": "GitLab: Show Merged GitLab CI/CD Config",
+        "title": "Show Merged GitLab CI/CD Config",
+        "category": "GitLab",
         "icon": "$(open-preview)"
       },
       {
         "command": "gl.showOutput",
-        "title": "GitLab: Show Extension Logs"
+        "title": "Show Extension Logs",
+        "category": "GitLab"
       },
       {
         "command": "gl.sidebarViewAsList",
-        "title": "GitLab: Sidebar View as List",
+        "title": "View Sidebar as List",
+        "category": "GitLab",
         "icon": "$(list-flat)"
       },
       {
         "command": "gl.sidebarViewAsTree",
-        "title": "GitLab: Sidebar View as Tree",
+        "title": "View Sidebar as Tree",
+        "category": "GitLab",
         "icon": "$(list-tree)"
       },
       {
         "command": "gl.refreshSidebar",
-        "title": "GitLab: Refresh Sidebar",
+        "title": "Refresh Sidebar",
+        "category": "GitLab",
         "icon": {
           "light": "src/assets/images/light/refresh.svg",
           "dark": "src/assets/images/dark/refresh.svg"
@@ -157,7 +183,7 @@
       },
       {
         "command": "gl.openMrFile",
-        "title": "Open Changed File In Local Project",
+        "title": "Open Changed File in Local Project",
         "category": "GitLab",
         "icon": "$(go-to-file)"
       },
@@ -169,7 +195,7 @@
       },
       {
         "command": "gl.unresolveThread",
-        "title": "Unresolve thread",
+        "title": "Unresolve Thread",
         "category": "GitLab",
         "icon": "$(pass-filled)"
       },
@@ -212,7 +238,7 @@
       },
       {
         "command": "gl.checkoutMrBranch",
-        "title": "Checkout MR Branch"
+        "title": "Check out Merge Request Branch"
       },
       {
         "command": "gl.cloneWiki",
@@ -231,47 +257,47 @@
       },
       {
         "command": "gl.selectProject",
-        "title": "Select GitLab project",
+        "title": "Select GitLab Project",
         "category": "GitLab"
       },
       {
         "command": "gl.assignProject",
-        "title": "Manually assign GitLab project",
+        "title": "Manually Assign GitLab Project",
         "category": "GitLab"
       },
       {
         "command": "gl.clearSelectedProject",
-        "title": "Clear selected project",
+        "title": "Clear Selected Project",
         "category": "GitLab"
       },
       {
         "command": "gl.downloadArtifacts",
-        "title": "Download artifacts",
+        "title": "Download Artifacts",
         "category": "GitLab"
       },
       {
         "command": "gl.executeJob",
-        "title": "Execute job",
+        "title": "Execute Job",
         "category": "GitLab"
       },
       {
         "command": "gl.retryJob",
-        "title": "Retry job",
+        "title": "Retry Job",
         "category": "GitLab"
       },
       {
         "command": "gl.cancelJob",
-        "title": "Cancel job",
+        "title": "Cancel Job",
         "category": "GitLab"
       },
       {
         "command": "gl.retryFailedPipelineJobs",
-        "title": "Retry failed jobs",
+        "title": "Retry Failed Jobs",
         "category": "GitLab"
       },
       {
         "command": "gl.cancelPipeline",
-        "title": "Cancel pipeline",
+        "title": "Cancel Pipeline",
         "category": "GitLab"
       }
     ],
