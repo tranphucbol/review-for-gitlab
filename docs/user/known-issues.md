@@ -26,7 +26,7 @@ Check if your SSH URL is on a different host, or if it has extra segments in a p
 
 To assign any Git repository to any GitLab project, manually assign a GitLab project to this repository by right-clicking the failed project in the sidebar:
 
-![Manually assign GitLab project](./manually-assing-gitlab-project.png)
+![Manually Assign GitLab Project](./manually-assing-gitlab-project.png)
 
 ### Open issues
 

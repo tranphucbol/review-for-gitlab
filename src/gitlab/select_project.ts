@@ -61,13 +61,13 @@ const selectProject = async (repository: GitRepository) => {
       isOther: false as const,
     })),
     {
-      label: 'Manually assign GitLab project to the repository',
+      label: 'Manually Assign GitLab Project to Repository',
       detail: 'Use this if your Git remote URL does not have the standard format.',
       isOther: true as const,
     },
   ];
   const selectedProject = await vscode.window.showQuickPick(options, {
-    title: 'Select GitLab project',
+    title: 'Select GitLab Project',
   });
   if (!selectedProject) return;
   if (selectedProject.isOther) {

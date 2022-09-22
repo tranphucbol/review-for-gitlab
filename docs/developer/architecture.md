@@ -52,7 +52,7 @@ When you want to obtain an instance of the `GitLabService`, use the `getGitLabSe
 
 ### Commands (`src/commands`)
 
-[Commands](https://code.visualstudio.com/api/extension-guides/command) are functions that can be invoked either by the user (usually from [command palette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette)) or programmatically. Example commands in this extension would be: **Paste snippet**, **Refresh sidebar**, and **Copy link to active file on GitLab**.
+[Commands](https://code.visualstudio.com/api/extension-guides/command) are functions that can be invoked either by the user (usually from [command palette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette)) or programmatically. Example commands in this extension would be: **Insert Snippet**, **Refresh Sidebar**, and **Copy Link to Active File on GitLab**.
 
 Commands are of two types:
 
