@@ -76,6 +76,7 @@ You can use [Command Palette](https://code.visualstudio.com/docs/getstarted/user
 - `GitLab: Create new issue on current project`
 - `GitLab: Create new merge request on current project` - Open the merge request page to create a merge request.
 - `GitLab: Open Remote Repository` - Browse a remote GitLab repository. [Read more](#browse-a-repository-without-cloning).
+- `GitLab: Remove Account from VS Code`
 
 Commands this extension extends or integrates with:
 

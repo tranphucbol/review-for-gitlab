@@ -131,7 +131,7 @@ export class AccountService {
 
     if (accountMap[account.id]) {
       throw new Error(
-        `Account for instance ${account.instanceUrl} and user ${account.username} already exists. The extension ignored the request to re-add it. You can remove the account and add it again.`,
+        `Account for instance ${account.instanceUrl} and user ${account.username} already exists. The extension ignored the request to re-add it. You can remove the account with the "GitLab: Remove Account from VS Code" command and add it again.`,
       );
     }
     const { secret, accountWithoutSecret } = splitAccount(account);
