@@ -1,3 +1,9 @@
+---
+stage: Create
+group: Editor
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/product/ux/technical-writing/#assignments
+---
+
 # Development process
 
 This document describes how we make changes to the extension. For contributing guidelines, please see [`CONTRIBUTING.md`](../../CONTRIBUTING.md).

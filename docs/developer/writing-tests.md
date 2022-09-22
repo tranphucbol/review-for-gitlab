@@ -1,3 +1,9 @@
+---
+stage: Create
+group: Editor
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/product/ux/technical-writing/#assignments
+---
+
 # Writing tests
 
 This document provides technical details about our automated tests. Read the [Testing strategy](testing-strategy.md) document to understand why we test this way.
