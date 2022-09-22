@@ -15,7 +15,7 @@ default:
   tags:
     - gitlab-org
 
-image: node:14-slim
+image: node:16-slim
 
 stages:
   - test

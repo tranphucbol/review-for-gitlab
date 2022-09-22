@@ -10,7 +10,7 @@
     "url": "https://gitlab.com/gitlab-org/gitlab-vscode-extension"
   },
   "engines": {
-    "vscode": "^1.56.0"
+    "vscode": "^1.66.0"
   },
   "categories": [
     "Other"
@@ -973,7 +973,7 @@
   ],
   "scripts": {
     "vscode:prepublish": "npm run esbuild -- --minify",
-    "esbuild": "esbuild ./src/extension.js --bundle --outfile=out/extension.js --external:vscode --platform=node --target=node14.18 --sourcemap",
+    "esbuild": "esbuild ./src/extension.js --bundle --outfile=out/extension.js --external:vscode --platform=node --target=node16.13 --sourcemap",
     "esbuild-watch": "npm run esbuild -- --watch",
     "compile": "tsc -p ./ && npm run esbuild",
     "watch-compile": "tsc -p ./ && npm run esbuild-watch",
