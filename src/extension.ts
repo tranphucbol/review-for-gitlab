@@ -162,6 +162,7 @@ const registerCiCompletion = (context: vscode.ExtensionContext) => {
     { pattern: '**/*.gitlab-ci*.{yml,yaml}' },
     new CiCompletionProvider(),
     '$',
+    '{',
   );
 
   context.subscriptions.push(subscription);
