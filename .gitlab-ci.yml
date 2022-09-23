@@ -1,8 +1,11 @@
 include:
-  - template: SAST.gitlab-ci.yml
+  - template: Jobs/SAST.latest.gitlab-ci.yml
   - template: Dependency-Scanning.gitlab-ci.yml
   - template: License-Scanning.gitlab-ci.yml
   - template: Secret-Detection.gitlab-ci.yml
+
+variables:
+  SAST_EXCLUDED_ANALYZERS: "eslint"
 
 # run the pipeline only on MRs, tags, and default branch
 workflow:
@@ -112,7 +115,7 @@ test-webview:
 package_release:
   extends: .package
   artifacts:
-      expire_in: 1 year
+    expire_in: 1 year
   only:
     - tags
 
@@ -121,7 +124,7 @@ package_release:
 package_test:
   extends: .package
   artifacts:
-      expire_in: 10 days
+    expire_in: 10 days
   except:
     - tags
 
@@ -155,7 +158,7 @@ gemnasium-dependency_scanning:
 license_scanning:
   <<: *secure-jobs-config
 
-eslint-sast:
+semgrep-sast:
   <<: *secure-jobs-config
 
 nodejs-scan-sast:
