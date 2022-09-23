@@ -1,3 +1,18 @@
+# [3.52.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.51.0...v3.52.0) (2022-09-23)
+
+
+### Bug Fixes
+
+* mention GitLab: Remove Account command in docs and error messages ([382dd76](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/382dd76de21bf6fc494ca60f38244edf1b794588))
+
+
+### Features
+
+* Allow disabling Status bar items through VS Code UI ([542eac7](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/542eac7709b3fd7b7b5e8b89519abbb4872bb64d))
+* YAML Completion with variable names in braces ([1e41b29](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/1e41b2908f1d24afc8ad00b4b0cc745270d7ee3d))
+
+
+
 # [3.51.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.50.0...v3.51.0) (2022-09-15)
 
 
