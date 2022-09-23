@@ -9,7 +9,9 @@
 ### Features
 
 * Allow disabling Status bar items through VS Code UI ([542eac7](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/542eac7709b3fd7b7b5e8b89519abbb4872bb64d))
+  * Implemented by [Lennard Sprong](https://gitlab.com/X_Sheep) with [MR !649](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/649) 👍
 * YAML Completion with variable names in braces ([1e41b29](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/1e41b2908f1d24afc8ad00b4b0cc745270d7ee3d))
+  * Implemented by [Lennard Sprong](https://gitlab.com/X_Sheep) with [MR !650](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/650) 👍
 
 
 
