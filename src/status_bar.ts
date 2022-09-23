@@ -42,9 +42,20 @@ const createStatusTextFromJobs = (jobs: RestJob[], status: string) => {
   return statusText;
 };
 
-const createStatusBarItem = (text: string, command?: string | vscode.Command) => {
-  const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
-  statusBarItem.text = text;
+const createStatusBarItem = (
+  priority: number,
+  id: string,
+  name: string,
+  initialText: string,
+  command?: string | vscode.Command,
+) => {
+  const statusBarItem = vscode.window.createStatusBarItem(
+    id,
+    vscode.StatusBarAlignment.Left,
+    priority,
+  );
+  statusBarItem.name = name;
+  statusBarItem.text = initialText;
   statusBarItem.show();
 
   if (command) {
@@ -189,13 +200,24 @@ export class StatusBar {
     assert(!this.pipelineStatusBarItem, 'The status bar is already initialized');
     if (showStatusBarLinks) {
       this.pipelineStatusBarItem = createStatusBarItem(
+        2,
+        'gl.status.pipeline',
+        'GitLab Workflow: Pipeline',
         '$(info) GitLab: Fetching pipeline...',
         USER_COMMANDS.PIPELINE_ACTIONS,
       );
       if (showMrStatusOnStatusBar) {
-        this.mrStatusBarItem = createStatusBarItem('$(info) GitLab: Finding MR...');
+        this.mrStatusBarItem = createStatusBarItem(
+          1,
+          'gl.status.mr',
+          'GitLab Workflow: Merge Request',
+          '$(info) GitLab: Finding MR...',
+        );
         if (showIssueLinkOnStatusBar) {
           this.mrIssueStatusBarItem = createStatusBarItem(
+            0,
+            'gl.status.issue',
+            'GitLab Workflow: Issue',
             '$(info) GitLab: Fetching closing issue...',
           );
         }

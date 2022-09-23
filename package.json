@@ -645,17 +645,20 @@
         "gitlab.showStatusBarLinks": {
           "type": "boolean",
           "default": true,
-          "description": "Whether to display all GitLab related link in the status bar (Requires restart of VSCode)"
+          "description": "Display all GitLab-related links in the status bar (requires restarting Visual Studio Code)",
+          "deprecationMessage": "To hide an item from the status bar, you should right-click the item in Visual Studio Code."
         },
         "gitlab.showIssueLinkOnStatusBar": {
           "type": "boolean",
           "default": true,
-          "description": "Whether to display the GitLab issue link in the status bar"
+          "description": "Display the GitLab issue link in the status bar",
+          "deprecationMessage": "To hide an item from the status bar, you should right-click the item in Visual Studio Code."
         },
         "gitlab.showMrStatusOnStatusBar": {
           "type": "boolean",
           "default": true,
-          "description": "Whether to display the GitLab Merge Request status in the status bar"
+          "description": "Display the GitLab merge request status in the status bar",
+          "deprecationMessage": "To hide an item from the status bar, you should right-click the item in Visual Studio Code."
         },
         "gitlab.ca": {
           "type": "string",
@@ -1024,7 +1027,7 @@
     "@types/sinon": "^10.0.13",
     "@types/source-map-support": "^0.5.4",
     "@types/temp": "^0.9.0",
-    "@types/vscode": "^1.56.0",
+    "@types/vscode": "^1.66.0",
     "@typescript-eslint/eslint-plugin": "^5.37.0",
     "@typescript-eslint/parser": "^5.37.0",
     "conventional-changelog-cli": "^2.1.1",

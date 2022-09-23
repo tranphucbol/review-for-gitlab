@@ -50,10 +50,7 @@ describe('GitLab status bar', () => {
     refresher.init(statusBar, currentBranchDataProvider);
     await refresher.refresh();
 
-    assert.strictEqual(
-      vscode.window.createStatusBarItem.firstCall.firstArg,
-      vscode.StatusBarAlignment.Left,
-    );
+    assert.strictEqual(vscode.window.createStatusBarItem.firstCall.firstArg, 'gl.status.pipeline');
     const pipelineItem = statusBar.pipelineStatusBarItem;
     assert.strictEqual(pipelineItem.text, '$(check) GitLab: Pipeline passed');
     assert.strictEqual(pipelineItem.show.called, true);

@@ -127,18 +127,6 @@ If you use self-signed certificates to connect to your GitLab instance, read the
 community-contributed
 [settings for self-signed certificates](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/troubleshooting.md#settings-for-self-signed-certificates).
 
-**`gitlab.showStatusBarLinks`** _(default: true)_
-
-If you don't want to see GitLab-related links on the status bar, you can set this option to `false`. If you are using version 1.0.0 or later, you can also find the same links in sidebar. You should restart VS Code after updating this option.
-
-**`gitlab.showIssueLinkOnStatusBar`** _(default: true)_
-
-If you are not using the GitLab issue tracker, you can set this option to `false` to remove related issue links on the status bar. You should restart VS Code after updating this option.
-
-**`gitlab.showMrStatusOnStatusBar`** _(default: true)_
-
-You can toggle visibility of the merge request link in your sidebar. You can always find a merge request link in GitLab Workflow sidebar. You should restart VS Code after updating this option.
-
 **`gitlab.pipelineGitRemoteName`** _(default: null)_
 
 The name of the Git remote name corresponding to the GitLab repository with your pipelines. If set to `null` or missing, then the extension uses the same remote as for the non-pipeline features.
