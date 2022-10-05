@@ -139,6 +139,26 @@ Setting this option to `true` enables debug mode. Debug mode improves error stac
 
 Defines the search queries that retrieves the items shown on the GitLab Panel. See [Custom Queries documentation](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/custom-queries.md) for more details.
 
+**`gitlab.aiassist.server`** _(default: `http://localhost:5000`)_
+
+Host and port of the code completion server.
+
+**`gitlab.aiassist.apiKey`** _(default: null)_
+
+API key used for authentication. Not required for all code completion servers.
+
+**`gitlab.aiassist.engine`** _(default: FauxPilot)_
+
+Engine used for code completion. Available options are `FauxPilot`, `OpenAI`, and `GitLab`.
+
+**`gitlab.aiassist.model`** _(default: null)_
+
+Name of the model used for code completion (for example, `text-davinci-002`). Cannot be specified if `gitlab.aiassist.engine` is set to `FauxPilot` or `GitLab` as these 2 engines only support 1 model.
+
+**`gitlab.aiassist.enabled`** _(default: false)_
+
+Toggle to enable or disable code completion.
+
 ## Features in-depth
 
 ### Issue and Merge Request details and comments in VS Code
@@ -317,10 +337,36 @@ To open and browse a repository, either:
 
 Alternatively, run the **GitLab: Open Remote Repository** command and select "Enter gitlab-remote URL" option or manually add a `gitlab-remote` URL to your [workspace file](https://code.visualstudio.com/docs/editor/multi-root-workspaces#_workspace-file). For information about how to create GitLab remote URL, please see [GitLab remote URL format documentation](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/remote-fs-url-format.md)
 
+### Code completion (Alpha)
+
+The [AI Assist](https://about.gitlab.com/handbook/engineering/incubation/ai-assist/) group is working on a code
+completion tool that supports the following API specification projects:
+
+- Servers that have the `v1/completions` endpoint and support the OpenAPI Specification
+- [FauxPilot](https://github.com/moyix/fauxpilot) with the `v1/engines/codegen/completions` endpoint
+- [OpenAI](http://openai.com)
+
+NOTE:
+Be cautious about what code to submit for completion. Always check the
+terms and conditions of the service you are using to learn
+how your data is stored, used, and analyzed.
+
+#### Configuration examples
+
+FauxPilot:
+
+- Server (for example, `https://localhost:5000`)
+
+OpenAI:
+
+- Server (defaults to `https://api.openai.com`)
+- API key
+- Model name (see [https://beta.openai.com/docs/api-reference/models](https://beta.openai.com/docs/api-reference/models))
+
 ---
 
 ## Contribution
 
-This extension is open source and [hosted on GitLab](https://gitlab.com/gitlab-org/gitlab-vscode-extension). Contributions are more than welcome. Feel free to fork and add new features or submit bug reports.
+This extension is open source and [hosted on GitLab](https://gitlab.com/gitlab-org/gitlab-vscode-extension). Contributions are more than welcome. Feel free to fork and add new features or submit bug reports. See [CONTRIBUTING](CONTRIBUTING.md) for more information.
 
 [A list of the great people](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/CONTRIBUTORS.md) who contributed this project, and made it even more awesome, is available. Thank you all! 🎉

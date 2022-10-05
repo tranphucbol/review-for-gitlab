@@ -1,14 +1,24 @@
 import * as vscode from 'vscode';
-import { CONFIG_NAMESPACE } from '../constants';
+import { CONFIG_NAMESPACE, AIASSIST_CONFIG_NAMESPACE } from '../constants';
 import { CustomQuery } from '../gitlab/custom_query';
 
 export const GITLAB_DEBUG_MODE = 'gitlab.debug';
+export const AI_ASSIST_MODE = 'gitlab.aiassist.enabled';
+export const AI_ASSIST_CONFIG = 'gitlab.aiassist';
 
-interface ExtensionConfiguration {
+export interface ExtensionConfiguration {
   pipelineGitRemoteName?: string;
   debug: boolean;
   featureFlags?: string[];
   customQueries: CustomQuery[];
+}
+
+export interface AiAssistConfiguration {
+  enabled: boolean;
+  engine: string;
+  model: string;
+  server: string;
+  apiKey: string;
 }
 
 // VS Code returns a value or `null` but undefined is better for using default function arguments
@@ -21,5 +31,16 @@ export function getExtensionConfiguration(): ExtensionConfiguration {
     featureFlags: turnNullToUndefined(workspaceConfig.featureFlags),
     debug: workspaceConfig.debug,
     customQueries: workspaceConfig.customQueries || [],
+  };
+}
+
+export function getAiAssistConfiguration(): AiAssistConfiguration {
+  const aiAssistConfig = vscode.workspace.getConfiguration(AIASSIST_CONFIG_NAMESPACE);
+  return {
+    enabled: aiAssistConfig.enabled,
+    engine: aiAssistConfig.engine,
+    model: aiAssistConfig.model,
+    server: aiAssistConfig.server,
+    apiKey: aiAssistConfig.apiKey,
   };
 }

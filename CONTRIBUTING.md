@@ -93,7 +93,10 @@ This command will install all necessary dependencies to run and debug extension 
 
 Open the extension project in VS Code (e.g. by running `code .` in the project folder).
 
-You can run the extension in development mode by running `View: Show Run and Debug` command (using `cmd+shift+p`). And clicking the green play icon to start the extension.
+To run the extension in development mode:
+
+1. Run the `View: Show Run and Debug` command (<kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>).
+1. Select the green play icon, or press <kbd>F5</kbd>.
 
 You can read through the [Running and debugging your extension](https://code.visualstudio.com/api/working-with-extensions/bundling-extension#run-the-extension) section of the official documentation.
 
