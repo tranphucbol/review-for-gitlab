@@ -915,6 +915,19 @@ export class GitLabService {
     );
   }
 
+  async getExternalStatusForCommit(
+    sha: string,
+    ref: string | null,
+    projectId: number,
+  ): Promise<RestJob[]> {
+    const statuses = await this.fetch<RestJob[]>(
+      `/projects/${projectId}/repository/commits/${sha}/statuses`,
+      { stage: 'external', ref },
+      'status for commit',
+    );
+    return statuses.map(s => ({ ...s, stage: 'external' }));
+  }
+
   async getLastPipelineForMr(mr: RestMr): Promise<RestPipeline | undefined> {
     const pipelines = await this.fetch<RestPipeline[]>(
       `/projects/${mr.project_id}/merge_requests/${mr.iid}/pipelines`,

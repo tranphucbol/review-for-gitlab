@@ -72,6 +72,8 @@ interface RestPipeline {
     | 'preparing';
   updated_at: string;
   id: number;
+  ref: string | null;
+  sha: string;
   /**
    * The project_id is only present in GitLab version 13.10 and later.
    * https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/553#note_882220438
@@ -104,7 +106,11 @@ interface RestJob {
   stage: string;
   artifacts?: RestArtifact[];
   allow_failure: boolean;
-  web_url: string;
+  web_url?: string;
+
+  // Used by Commit Status
+  target_url?: string;
+  description?: string;
 }
 
 // Incomplete reference of the GitLab user model

@@ -6,7 +6,7 @@ import { DEFAULT_FETCH_RESPONSE } from '../__mocks__/cross-fetch';
 import { CustomQueryType } from './custom_query_type';
 import { CustomQuery } from './custom_query';
 import { asMock } from '../test_utils/as_mock';
-import { gqlProject, project } from '../test_utils/entities';
+import { externalStatus, gqlProject, project } from '../test_utils/entities';
 import { getExtensionConfiguration } from '../utils/extension_configuration';
 import { getHttpAgentOptions } from './http/get_http_agent_options';
 import { HelpError } from '../errors/help_error';
@@ -499,6 +499,15 @@ describe('gitlab_service', () => {
         text: async () => `{ "error": "invalid_token" }`,
       });
       await expect(service.fetchAllPages(url)).rejects.toThrowError(HelpError);
+    });
+  });
+
+  describe('getExternalStatusForCommit', () => {
+    it('sets the stage', async () => {
+      expect(externalStatus.stage).not.toBe('external');
+      asMock(crossFetch).mockResolvedValue(crossFetchResponse([externalStatus]));
+      const result = await service.getExternalStatusForCommit('aaaaaaaa', null, 1);
+      expect(result[0].stage).toBe('external');
     });
   });
 });
