@@ -1,3 +1,12 @@
+# [3.53.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.52.0...v3.53.0) (2022-10-10)
+
+
+### Features
+
+* Add support for AI-assisted code completion (alpha) ([446cc63](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/446cc63a6034c0d6ef3c9b970015b4be40d64e6e))
+
+
+
 # [3.52.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.51.0...v3.52.0) (2022-09-23)
 
 
