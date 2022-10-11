@@ -28,8 +28,10 @@ stages:
 lint:
   stage: test
   script:
+    - apt-get update && apt-get install -y git
     - npm ci
     - cd src/webview && npm ci && cd ../.. # webview dependencies
+    - git checkout . # the npm install automatically fixes package.json formatting issues, but we need the CI to discover them so we revert any changes
     - npm run lint
 
 lint_commit:
