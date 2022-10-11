@@ -1,6 +1,5 @@
 package-lock.json
 .history
-package.json
 .vscode-test
 src/webview/dist
 out
