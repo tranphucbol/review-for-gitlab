@@ -15,10 +15,19 @@ const getJobItemContextValue = (job: RestJob) => {
     return '';
   }
 
+  const contextValue: string[] = [];
+
   const { contextAction } = getJobMetadata(job);
-  const actionValue = contextAction && `${contextAction}-job`;
-  const artifactsValue = hasDownloadableArtifacts([job]) ? 'with-artifacts' : '';
-  return `${actionValue},${artifactsValue}`;
+  if (contextAction) {
+    contextValue.push(`${contextAction}-job`);
+  }
+  if (hasDownloadableArtifacts([job])) {
+    contextValue.push('with-artifacts');
+  }
+  if (job.finished_at) {
+    contextValue.push('with-trace');
+  }
+  return contextValue.join(',');
 };
 
 export class JobItemModel extends ItemModel implements JobProvider {

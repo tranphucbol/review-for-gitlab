@@ -1018,6 +1018,14 @@ export class GitLabService {
     );
   }
 
+  async getJobTrace(project: GitLabProject, jobId: number): Promise<string> {
+    const { instanceUrl } = await this.getCredentials();
+    const url = `${instanceUrl}/api/v4/projects/${project.restId}/jobs/${jobId}/trace`;
+    const fileResult = await this.crossFetch(url);
+    await handleFetchError(fileResult, 'job trace');
+    return fileResult.text();
+  }
+
   /** This method exchanges code from GitLab OAuth endpoint for an access token. */
   static async exchangeToken(params: TokenExchangeUrlParams): Promise<ExchangeTokenResponse> {
     const fetchOptions = GitLabService.getFetchOptions(params.instanceUrl);
