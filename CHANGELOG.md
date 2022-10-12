@@ -3,8 +3,10 @@
 
 ### Features
 
-* Display external status in pipeline tree ([1278c37](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/1278c37196bd48874ca92e5885b3c52c85e67120))
-* display logs for finished CI jobs ([0c7dcb2](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/0c7dcb2a4ffe782781fb8284061e4ee113a770d9))
+**All features in this release have been implemented by [Lennard Sprong](https://gitlab.com/X_Sheep)** 🚀. Thank you once again for making the extension better 🙇
+
+* Display external status in pipeline tree ([1278c37](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/1278c37196bd48874ca92e5885b3c52c85e67120)) [MR !671](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/671)
+* display logs for finished CI jobs ([0c7dcb2](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/0c7dcb2a4ffe782781fb8284061e4ee113a770d9)) [MR !661](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/661)
 
 
 
