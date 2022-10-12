@@ -79,6 +79,8 @@ export const pipeline: RestPipeline = {
   updated_at: '2021-02-12T12:06:17Z',
   id: 123456,
   project_id: 567890,
+  sha: 'aaaaaaaa',
+  ref: 'main',
   web_url: 'https://example.com/foo/bar/pipelines/46',
 };
 
@@ -92,6 +94,18 @@ export const job: RestJob = {
   finished_at: '2021-07-19T11:44:54.928Z',
   allow_failure: false,
   web_url: 'https://example.com/foo/bar/jobs/68',
+};
+
+export const externalStatus: RestJob = {
+  id: 0,
+  name: 'external:build',
+  status: 'success',
+  stage: '',
+  created_at: '2022-10-08T11:44:54.928Z',
+  started_at: '2022-10-08T11:44:54.928Z',
+  finished_at: '2022-10-08T11:44:54.928Z',
+  allow_failure: false,
+  target_url: 'https://example.com/builds/100',
 };
 
 export const artifact: RestArtifact = {

@@ -11,6 +11,10 @@ import { hasDownloadableArtifacts } from '../../utils/has_downloadable_artifacts
 dayjs.extend(relativeTime);
 
 const getJobItemContextValue = (job: RestJob) => {
+  if (job.stage === 'external') {
+    return '';
+  }
+
   const { contextAction } = getJobMetadata(job);
   const actionValue = contextAction && `${contextAction}-job`;
   const artifactsValue = hasDownloadableArtifacts([job]) ? 'with-artifacts' : '';
@@ -33,8 +37,10 @@ export class JobItemModel extends ItemModel implements JobProvider {
     const displayTime = job.finished_at ?? job.started_at ?? job.created_at;
     item.iconPath = jobStatusMetadata.icon;
     item.tooltip = `${job.name} · ${jobStatusMetadata.name} · ${dayjs(displayTime).fromNow()}`;
+    if (job.description) item.tooltip += `\n${job.description}`;
     item.description = jobStatusMetadata.name;
-    item.command = openInBrowserCommand(job.web_url);
+    if (job.web_url) item.command = openInBrowserCommand(job.web_url);
+    else if (job.target_url) item.command = openInBrowserCommand(job.target_url);
     item.contextValue = getJobItemContextValue(job);
     return item;
   }

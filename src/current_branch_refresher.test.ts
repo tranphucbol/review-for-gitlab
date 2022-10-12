@@ -1,6 +1,13 @@
 import { BranchState, CurrentBranchRefresher, TagState } from './current_branch_refresher';
 import { asMock } from './test_utils/as_mock';
-import { pipeline, mr, issue, job, projectInRepository } from './test_utils/entities';
+import {
+  pipeline,
+  mr,
+  issue,
+  job,
+  projectInRepository,
+  externalStatus,
+} from './test_utils/entities';
 import { getGitLabService } from './gitlab/get_gitlab_service';
 import { getTrackingBranchName } from './git/get_tracking_branch_name';
 import { getTagsForHead } from './git/get_tags_for_head';
@@ -34,6 +41,7 @@ describe('CurrentBranchRefrehser', () => {
         getPipelineAndMrForCurrentBranch: () => ({ pipeline, mr }),
         getLastPipelineForCurrentBranch: () => pipeline,
         getJobsForPipeline: () => [job],
+        getExternalStatusForCommit: () => [externalStatus],
       });
     });
 
@@ -54,6 +62,14 @@ describe('CurrentBranchRefrehser', () => {
 
       expect(state.type).toBe('tag');
       expect((state as TagState).pipeline).toEqual(pipeline);
+    });
+
+    it('returns pipeline jobs and external statuses', async () => {
+      asMock(getTrackingBranchName).mockResolvedValue('branch');
+      const state = await CurrentBranchRefresher.getState(projectInRepository, false);
+
+      expect(state.type).toBe('branch');
+      expect((state as BranchState).jobs).toEqual([job, externalStatus]);
     });
   });
 });

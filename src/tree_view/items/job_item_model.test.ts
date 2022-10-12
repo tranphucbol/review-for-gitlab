@@ -41,7 +41,7 @@ describe('item created by JobItemModel', () => {
 
   it('has "open in a browser" command attached to it', () => {
     expect(jobItem.command?.command).toBe(VS_COMMANDS.OPEN);
-    expect(jobItem.command?.arguments).toEqual([vscode.Uri.parse(job.web_url)]);
+    expect(jobItem.command?.arguments).toEqual([vscode.Uri.parse(job.web_url ?? '')]);
   });
 
   it('has contextValue if needs to be started manually', () => {
