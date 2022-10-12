@@ -216,12 +216,16 @@
     "description": "The name of the job."
   },
   {
+    "name": "CI_JOB_NAME_SLUG",
+    "description": "`CI_JOB_NAME_SLUG` in lowercase, shortened to 63 bytes, and with everything except `0-9` and `a-z` replaced with `-`. No leading / trailing `-`. Use in paths."
+  },
+  {
     "name": "CI_JOB_STAGE",
     "description": "The name of the job's stage."
   },
   {
     "name": "CI_JOB_STARTED_AT",
-    "description": "The UTC datetime when a job started, in [ISO 8601](https://tools.ietf.org/html/rfc3339#appendix-A) format."
+    "description": "The UTC datetime when a job started, in [ISO 8601](https://www.rfc-editor.org/rfc/rfc3339#appendix-A) format."
   },
   {
     "name": "CI_JOB_STATUS",
@@ -349,7 +353,7 @@
   },
   {
     "name": "CI_PIPELINE_CREATED_AT",
-    "description": "The UTC datetime when the pipeline was created, in [ISO 8601](https://tools.ietf.org/html/rfc3339#appendix-A) format."
+    "description": "The UTC datetime when the pipeline was created, in [ISO 8601](https://www.rfc-editor.org/rfc/rfc3339#appendix-A) format."
   },
   {
     "name": "CI_PIPELINE_ID",
