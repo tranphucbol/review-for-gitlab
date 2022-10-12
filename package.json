@@ -299,6 +299,17 @@
         "command": "gl.cancelPipeline",
         "title": "Cancel Pipeline",
         "category": "GitLab"
+      },
+      {
+        "command": "gl.openTraceArtifact",
+        "title": "Display log",
+        "category": "GitLab"
+      },
+      {
+        "command": "gl.saveRawJobTrace",
+        "title": "Save raw job trace",
+        "category": "GitLab",
+        "icon": "$(save-as)"
       }
     ],
     "menus": {
@@ -369,6 +380,14 @@
         },
         {
           "command": "gl.cancelPipeline",
+          "when": "false"
+        },
+        {
+          "command": "gl.openTraceArtifact",
+          "when": "false"
+        },
+        {
+          "command": "gl.saveRawJobTrace",
           "when": "false"
         },
         {
@@ -537,6 +556,10 @@
         {
           "command": "gl.downloadArtifacts",
           "when": "view =~ /currentBranchInfo/ && viewItem =~ /with-artifacts/"
+        },
+        {
+          "command": "gl.openTraceArtifact",
+          "when": "view =~ /currentBranchInfo/ && viewItem =~ /with-trace/"
         }
       ],
       "comments/comment/title": [
@@ -601,6 +624,11 @@
         {
           "command": "gl.showMergedCIConfig",
           "when": "gitlab:validState && resourceScheme != 'gl-merged-ci-yaml' && resourceFilename == '.gitlab-ci.yml'",
+          "group": "navigation@-99"
+        },
+        {
+          "command": "gl.saveRawJobTrace",
+          "when": "resourceScheme == 'gl-job-log'",
           "group": "navigation@-99"
         }
       ]

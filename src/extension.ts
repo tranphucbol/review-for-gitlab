@@ -12,7 +12,12 @@ import { issuableDataProvider } from './tree_view/issuable_data_provider';
 import { currentBranchDataProvider } from './tree_view/current_branch_data_provider';
 import { initializeLogging, handleError, log } from './log';
 import { GitContentProvider } from './review/git_content_provider';
-import { REVIEW_URI_SCHEME, REMOTE_URI_SCHEME, MERGED_YAML_URI_SCHEME } from './constants';
+import {
+  REVIEW_URI_SCHEME,
+  REMOTE_URI_SCHEME,
+  MERGED_YAML_URI_SCHEME,
+  JOB_LOG_URI_SCHEME,
+} from './constants';
 import { USER_COMMANDS, PROGRAMMATIC_COMMANDS } from './command_names';
 import { CiCompletionProvider } from './completion/ci_completion_provider';
 import { gitExtensionWrapper } from './git/git_extension_wrapper';
@@ -74,6 +79,10 @@ import { cancelJob, executeJob, retryJob } from './commands/job_actions';
 import { MergedYamlContentProvider } from './ci/merged_yaml_content_provider';
 import { cancelPipeline, retryPipeline } from './commands/pipeline_actions';
 import { GitLabCodeCompletionProvider } from './completion/gitlab_code_completion_provider';
+import { openTraceArtifact } from './commands/open_trace_artifact';
+import { jobLogContentProvider } from './ci/job_log_content_provider';
+import { saveRawJobTrace } from './commands/save_raw_job_trace';
+import { JobLogFoldingProvider } from './ci/job_log_folding_provider';
 
 const wrapWithCatch =
   (command: (...args: unknown[]) => unknown) =>
@@ -148,6 +157,8 @@ const registerCommands = (
     [USER_COMMANDS.ASSIGN_PROJECT]: assignProject,
     [USER_COMMANDS.CLEAR_SELECTED_PROJECT]: clearSelectedProjects,
     [USER_COMMANDS.DOWNLOAD_ARTIFACTS]: downloadArtifacts,
+    [USER_COMMANDS.OPEN_TRACE_ARTIFACT]: openTraceArtifact,
+    [USER_COMMANDS.SAVE_RAW_JOB_TRACE]: saveRawJobTrace,
     [USER_COMMANDS.EXECUTE_JOB]: executeJob,
     [USER_COMMANDS.RETRY_JOB]: retryJob,
     [USER_COMMANDS.CANCEL_JOB]: cancelJob,
@@ -229,6 +240,11 @@ export const activate = async (context: vscode.ExtensionContext) => {
     MERGED_YAML_URI_SCHEME,
     new MergedYamlContentProvider(),
   );
+  vscode.workspace.registerTextDocumentContentProvider(JOB_LOG_URI_SCHEME, jobLogContentProvider);
+  vscode.languages.registerFoldingRangeProvider(
+    { scheme: JOB_LOG_URI_SCHEME },
+    new JobLogFoldingProvider(),
+  );
   vscode.workspace.registerFileSystemProvider(
     REMOTE_URI_SCHEME,
     new GitLabRemoteFileSystem(),
@@ -251,6 +267,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   context.subscriptions.push(statusBar);
   currentBranchRefresher.init(statusBar, currentBranchDataProvider);
   context.subscriptions.push(currentBranchRefresher);
+  context.subscriptions.push(jobLogContentProvider);
 
   vscode.window.registerFileDecorationProvider(hasCommentsDecorationProvider);
   vscode.window.registerFileDecorationProvider(changeTypeDecorationProvider);

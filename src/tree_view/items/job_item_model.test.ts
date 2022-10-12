@@ -47,9 +47,10 @@ describe('item created by JobItemModel', () => {
   it('has contextValue if needs to be started manually', () => {
     const manualItem = new JobItemModel(projectInRepository, {
       ...job,
+      finished_at: undefined,
       status: 'manual',
     }).getTreeItem();
-    expect(manualItem.contextValue).toBe('executable-job,');
+    expect(manualItem.contextValue).toBe('executable-job');
   });
 
   it('has contextValue if downloadable artifacts exist', () => {
@@ -57,7 +58,7 @@ describe('item created by JobItemModel', () => {
       ...job,
       artifacts: [artifact],
     }).getTreeItem();
-    expect(itemWithArtifacts.contextValue).toBe('retryable-job,with-artifacts');
+    expect(itemWithArtifacts.contextValue).toBe('retryable-job,with-artifacts,with-trace');
   });
 
   describe('showing relative time', () => {

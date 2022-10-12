@@ -36,14 +36,17 @@ module.exports = {
     showQuickPick: jest.fn(),
     withProgress: jest.fn().mockImplementation((opt, callback) => callback()),
     createQuickPick: jest.fn(),
+    onDidChangeVisibleTextEditors: jest.fn(),
   },
   commands: {
     executeCommand: jest.fn(),
     registerCommand: jest.fn(),
   },
   workspace: {
+    openTextDocument: jest.fn(),
     getConfiguration: jest.fn().mockReturnValue({}),
     onDidOpenTextDocument: jest.fn(),
+    onDidChangeTextDocument: jest.fn(),
     onDidCloseTextDocument: jest.fn(),
     createFileSystemWatcher: jest.fn(),
     fs: {
@@ -62,8 +65,14 @@ module.exports = {
   Position: function Position(line, character) {
     return { line, character };
   },
-  Range: function Range(start, end) {
-    return { start, end };
+  Range: function Range(...args) {
+    if (typeof args[0] === 'number') {
+      return {
+        start: { line: args[0], character: args[1] },
+        end: { line: args[2], character: args[3] },
+      };
+    }
+    return { start: args[0], end: args[1] };
   },
   CancellationTokenSource: function CancellationTokenSource() {
     return { token: { isCancellationRequested: false } };
@@ -71,6 +80,12 @@ module.exports = {
   ThemeColor: jest.fn(color => color),
   ProgressLocation: {
     Notification: 'Notification',
+  },
+  FoldingRange: function FoldingRange(start, end, kind) {
+    return { start, end, kind };
+  },
+  FoldingRangeKind: {
+    Region: 3,
   },
   FileType,
   FileSystemError,
