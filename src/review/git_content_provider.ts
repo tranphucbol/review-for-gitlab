@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { fromReviewUri } from './review_uri';
+import assert from 'assert';
+import { fromReviewUri, isEmptyFileUri } from './review_uri';
 import { ApiContentProvider } from './api_content_provider';
 import { gitlabProjectRepository } from '../gitlab/gitlab_project_repository';
 import { getFileContent } from '../git/get_file_content';
@@ -11,7 +12,9 @@ export class GitContentProvider implements vscode.TextDocumentContentProvider {
   // eslint-disable-next-line class-methods-use-this
   async provideTextDocumentContent(uri: vscode.Uri): Promise<string> {
     const params = fromReviewUri(uri);
-    if (!params.path || !params.commit) return '';
+    if (isEmptyFileUri(uri)) return '';
+    assert(params.path);
+    assert(params.commit);
     const projectInRepository = gitlabProjectRepository.getProjectOrFail(params.repositoryRoot);
     const result = await getFileContent(
       projectInRepository.pointer.repository.rawRepository,

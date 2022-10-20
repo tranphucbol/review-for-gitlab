@@ -5,6 +5,7 @@ import { jsonStringifyWithSortedKeys } from '../utils/json_stringify_with_sorted
 export interface ReviewParams {
   path?: string;
   commit?: string;
+  // if the review URI only contains the mandatory params, we treat it as an empty file URI (that's used when showing diff of added/deleted file)
   repositoryRoot: string;
   projectId: number;
   mrId: number;
@@ -33,4 +34,9 @@ export function fromReviewUri(uri: Uri): ReviewParams {
     projectId,
     mrId,
   };
+}
+
+export function isEmptyFileUri(uri: Uri): boolean {
+  const params = fromReviewUri(uri);
+  return !params.path || !params.commit;
 }
