@@ -1,4 +1,4 @@
-import { fromReviewUri, toReviewUri } from './review_uri';
+import { fromReviewUri, isEmptyFileUri, toReviewUri } from './review_uri';
 
 describe('review_uri.ts', () => {
   const reviewUriParams = {
@@ -24,6 +24,18 @@ describe('review_uri.ts', () => {
       const result = fromReviewUri(toReviewUri(reviewUriParams));
 
       expect(result).toEqual(reviewUriParams);
+    });
+  });
+
+  describe('isEmptyFileUri', () => {
+    it('returns true for empty file', () => {
+      const uri = toReviewUri({ ...reviewUriParams, commit: undefined, path: undefined });
+      expect(isEmptyFileUri(uri)).toBe(true);
+    });
+
+    it('returns false for diff file', () => {
+      const uri = toReviewUri(reviewUriParams);
+      expect(isEmptyFileUri(uri)).toBe(false);
     });
   });
 });

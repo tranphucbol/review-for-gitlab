@@ -66,6 +66,10 @@ const getBaseAndHeadUri = (
 };
 
 export class ChangedFileItem extends vscode.TreeItem {
+  headFileUri: vscode.Uri;
+
+  baseFileUri: vscode.Uri;
+
   constructor(
     mr: RestMr,
     mrVersion: RestMrVersion,
@@ -79,8 +83,11 @@ export class ChangedFileItem extends vscode.TreeItem {
       // we don't need the folder information if the item is in tree view
       this.description = path.dirname(`/${file.new_path}`).split('/').slice(1).join('/');
     }
-    const { baseFileUri, headFileUri } = getBaseAndHeadUri(mr, mrVersion, file, repositoryPath);
-    const hasComments = hasComment(baseFileUri) || hasComment(headFileUri);
+    this.contextValue = 'changed-file-item';
+    const uris = getBaseAndHeadUri(mr, mrVersion, file, repositoryPath);
+    this.headFileUri = uris.headFileUri;
+    this.baseFileUri = uris.baseFileUri;
+    const hasComments = hasComment(this.baseFileUri) || hasComment(this.headFileUri);
     const query = new URLSearchParams([
       [CHANGE_TYPE_QUERY_KEY, getChangeType(file)],
       [HAS_COMMENTS_QUERY_KEY, String(hasComments)],
@@ -96,7 +103,11 @@ export class ChangedFileItem extends vscode.TreeItem {
     this.command = {
       title: 'Show changes',
       command: VS_COMMANDS.DIFF,
-      arguments: [baseFileUri, headFileUri, `${path.basename(file.new_path)} (!${mr.iid})`],
+      arguments: [
+        this.baseFileUri,
+        this.headFileUri,
+        `${path.basename(file.new_path)} (!${mr.iid})`,
+      ],
     };
   }
 }
