@@ -2,6 +2,8 @@ import * as openai from 'openai';
 import * as vscode from 'vscode';
 import { log } from '../log';
 import { getAiAssistConfiguration, AiAssistConfiguration } from '../utils/extension_configuration';
+import { getActiveProject } from '../commands/run_with_valid_project';
+import { tokenExchangeService } from '../gitlab/token_exchange_service';
 
 export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItemProvider {
   engine: string;
@@ -16,10 +18,22 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
     this.engine = configuration.engine;
     this.apiKey = configuration.apiKey;
     this.model = configuration.model;
-    this.server = this.getServer(configuration.server);
+    this.server = this.#getServer(configuration.server);
   }
 
-  private getServer(server: string): string {
+  static async #getGitLabApiKey(): Promise<string | undefined> {
+    const activeProject = getActiveProject();
+    if (!activeProject) {
+      log.debug(
+        `AI Assist: Unable to get active project, ensure GitLab extension is properly configured`,
+      );
+      return undefined;
+    }
+    const account = await tokenExchangeService.refreshIfNeeded(activeProject.account.id);
+    return account.token;
+  }
+
+  #getServer(server: string): string {
     const serverUrl = new URL(server);
     serverUrl.pathname = '/v1';
     switch (this.engine) {
@@ -37,32 +51,31 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
       default:
         break;
     }
-    log.debug(`For engine ${this.engine} using server: ${serverUrl.href}`);
+    log.debug(`AI Assist: For engine ${this.engine} using server: ${serverUrl.href}`);
     return serverUrl.href.toString();
   }
 
-  private openAi() {
-    return new openai.OpenAIApi(
-      new openai.Configuration({
-        apiKey: this.apiKey,
-        basePath: this.server,
-      }),
-    );
-  }
-
-  public async provideInlineCompletionItems(
+  async provideInlineCompletionItems(
     document: vscode.TextDocument,
     position: vscode.Position,
   ): Promise<vscode.InlineCompletionItem[]> {
     const prompt = document.getText(new vscode.Range(0, 0, position.line, position.character));
 
     // TODO: Sanitize prompt to prevent exposing sensitive information
-
     if (!prompt) {
-      log.debug('Prompt is empty, probably due to first line');
+      log.debug('AI Assist: Prompt is empty, probably due to first line');
       return Promise.resolve([] as vscode.InlineCompletionItem[]);
     }
-    const response = await this.openAi().createCompletion({
+
+    const oa = new openai.OpenAIApi(
+      new openai.Configuration({
+        apiKey: ['GitLab'].includes(this.engine)
+          ? await GitLabCodeCompletionProvider.#getGitLabApiKey()
+          : this.apiKey,
+        basePath: this.server,
+      }),
+    );
+    const response = await oa.createCompletion({
       model: this.model,
       prompt: prompt as openai.CreateCompletionRequestPrompt,
     });

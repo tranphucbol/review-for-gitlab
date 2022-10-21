@@ -8,6 +8,9 @@ const userResponse = require('../fixtures/rest/user.json');
 const createJsonEndpoint = (path, response) =>
   rest.get(`${API_URL_PREFIX}${path}`, (req, res, ctx) => res(ctx.status(200), ctx.json(response)));
 
+const createJsonPostEndpoint = (path, response, apiUrlPrefix = API_URL_PREFIX) =>
+  rest.post(`${apiUrlPrefix}${path}`, (req, res, ctx) => res(ctx.status(200), ctx.json(response)));
+
 const sortRequestQuery = search =>
   search
     .slice(search.indexOf('?') + 1)
@@ -77,4 +80,5 @@ module.exports = {
   createTextEndpoint,
   createQueryTextEndpoint,
   createPostEndpoint,
+  createJsonPostEndpoint,
 };
