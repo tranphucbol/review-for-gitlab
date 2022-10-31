@@ -1,3 +1,13 @@
+# [3.55.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.54.0...v3.55.0) (2022-10-31)
+
+
+### Features
+
+* Add authentication for AI Assist ([3b5a9fe](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/3b5a9feabf9168336a74691359f5e4303d602a7d))
+* open changed MR file using a context menu in the TreeView ([39937c5](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/39937c53aaca39f1371a6a1e7db438e7628359fa))
+
+
+
 # [3.54.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.53.0...v3.54.0) (2022-10-12)
 
 
