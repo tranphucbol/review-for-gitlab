@@ -4,6 +4,7 @@ import { log } from '../log';
 import { getAiAssistConfiguration, AiAssistConfiguration } from '../utils/extension_configuration';
 import { getActiveProject } from '../commands/run_with_valid_project';
 import { tokenExchangeService } from '../gitlab/token_exchange_service';
+import { getStopSequences } from '../utils/ai_assist/get_stop_sequences';
 
 export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItemProvider {
   engine: string;
@@ -58,7 +59,12 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
   async provideInlineCompletionItems(
     document: vscode.TextDocument,
     position: vscode.Position,
+    context: vscode.InlineCompletionContext,
   ): Promise<vscode.InlineCompletionItem[]> {
+    if (context.triggerKind === 0) {
+      //  TODO: In case of a hover, this will be triggered which is not desired as it calls for a new prediction
+    }
+
     const prompt = document.getText(new vscode.Range(0, 0, position.line, position.character));
 
     // TODO: Sanitize prompt to prevent exposing sensitive information
@@ -78,6 +84,7 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
     const response = await oa.createCompletion({
       model: this.model,
       prompt: prompt as openai.CreateCompletionRequestPrompt,
+      stop: getStopSequences(position.line, document),
     });
 
     const completions =
