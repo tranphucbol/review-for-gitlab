@@ -15,11 +15,19 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
 
   server: string;
 
+  debouncedCall: any;
+
+  debounceTime = 500; // milliseconds
+
+  manualTrigger: boolean;
+
   constructor(configuration: AiAssistConfiguration = getAiAssistConfiguration()) {
     this.engine = configuration.engine;
     this.apiKey = configuration.apiKey;
     this.model = configuration.model;
     this.server = this.#getServer(configuration.server);
+    this.debouncedCall = undefined;
+    this.manualTrigger = configuration.manualTrigger;
   }
 
   static async #getGitLabApiKey(): Promise<string | undefined> {
@@ -56,21 +64,13 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
     return serverUrl.href.toString();
   }
 
-  async provideInlineCompletionItems(
-    document: vscode.TextDocument,
-    position: vscode.Position,
-    context: vscode.InlineCompletionContext,
-  ): Promise<vscode.InlineCompletionItem[]> {
-    if (context.triggerKind === 0) {
-      //  TODO: In case of a hover, this will be triggered which is not desired as it calls for a new prediction
-    }
-
+  async getCompletions(document: vscode.TextDocument, position: vscode.Position) {
     const prompt = document.getText(new vscode.Range(0, 0, position.line, position.character));
 
     // TODO: Sanitize prompt to prevent exposing sensitive information
     if (!prompt) {
       log.debug('AI Assist: Prompt is empty, probably due to first line');
-      return Promise.resolve([] as vscode.InlineCompletionItem[]);
+      return [] as vscode.InlineCompletionItem[];
     }
 
     const oa = new openai.OpenAIApi(
@@ -87,7 +87,7 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
       stop: getStopSequences(position.line, document),
     });
 
-    const completions =
+    return (
       response.data.choices
         ?.map(choice => choice.text)
         .map(
@@ -96,8 +96,27 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
               choiceText as string,
               new vscode.Range(position, position),
             ),
-        ) || [];
+        ) || []
+    );
+  }
 
-    return Promise.resolve(completions);
+  async provideInlineCompletionItems(
+    document: vscode.TextDocument,
+    position: vscode.Position,
+    context: vscode.InlineCompletionContext,
+  ): Promise<vscode.InlineCompletionItem[]> {
+    clearTimeout(this.debouncedCall);
+
+    return new Promise(resolve => {
+      //  In case of a hover, this will be triggered which is not desired as it calls for a new prediction
+      if (
+        context.triggerKind === vscode.InlineCompletionTriggerKind.Automatic ||
+        this.manualTrigger
+      ) {
+        this.debouncedCall = setTimeout(async () => {
+          resolve(this.getCompletions(document, position));
+        }, this.debounceTime);
+      }
+    });
   }
 }

@@ -1048,6 +1048,11 @@
           "description": "Enable code completion",
           "type": "boolean",
           "default": false
+        },
+        "gitlab.aiassist.manualTrigger": {
+          "description": "Allow manual triggering of suggestions. Recommended to leave disabled.",
+          "type": "boolean",
+          "default": false
         }
       }
     },

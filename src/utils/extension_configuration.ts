@@ -19,6 +19,7 @@ export interface AiAssistConfiguration {
   model: string;
   server: string;
   apiKey: string;
+  manualTrigger: boolean;
 }
 
 // VS Code returns a value or `null` but undefined is better for using default function arguments
@@ -42,5 +43,6 @@ export function getAiAssistConfiguration(): AiAssistConfiguration {
     model: aiAssistConfig.model,
     server: aiAssistConfig.server,
     apiKey: aiAssistConfig.apiKey,
+    manualTrigger: aiAssistConfig.manualTrigger,
   };
 }
