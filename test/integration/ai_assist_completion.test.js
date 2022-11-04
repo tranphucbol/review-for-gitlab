@@ -27,6 +27,7 @@ describe('AI Assist code completion', async () => {
       createJsonPostEndpoint('/v1/completions', aiAssistResponse, 'https://ai.gitlab.com'),
     ]);
     config.update('engine', 'GitLab');
+    config.update('manualTrigger', true);
   });
 
   beforeEach(async () => {
@@ -43,6 +44,7 @@ describe('AI Assist code completion', async () => {
   after(async () => {
     server.close();
     config.update('engine', beginEngine);
+    config.update('manualTrigger', false);
   });
 
   it('Insert AI Assist suggestion', async () => {
@@ -51,7 +53,7 @@ describe('AI Assist code completion', async () => {
     await vscode.commands.executeCommand('editor.action.inlineSuggest.trigger');
     // Sleep because otherwise it doesn't work
     // eslint-disable-next-line no-promise-executor-return
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise(r => setTimeout(r, 1500));
 
     // Accept suggestion
     await vscode.commands.executeCommand('editor.action.inlineSuggest.commit');
