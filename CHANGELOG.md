@@ -1,3 +1,12 @@
+## [3.55.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.55.0...v3.55.1) (2022-11-08)
+
+
+### Bug Fixes
+
+* Do not log.debug all account props ([916961a](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/916961a905e1cfb0f6fabaa83a6d366c57aa6814))
+
+
+
 # [3.55.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.54.0...v3.55.0) (2022-10-31)
 
 

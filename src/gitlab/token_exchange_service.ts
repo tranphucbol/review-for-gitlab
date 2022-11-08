@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { Account, makeAccountId, OAuthAccount } from '../accounts/account';
+import { Account, makeAccountId, OAuthAccount, serializeAccountSafe } from '../accounts/account';
 import { accountService, AccountService } from '../accounts/account_service';
 import { GITLAB_COM_URL } from '../constants';
 import { log } from '../log';
@@ -85,7 +85,7 @@ export class TokenExchangeService {
     if (refreshInProgress) return refreshInProgress;
     assert(latestAccount.type === 'oauth');
     log.info(`Refreshing expired token for account ${latestAccount.id}.`);
-    log.debug(`Refreshing expired token for account ${JSON.stringify(latestAccount)}.`);
+    log.debug(`Refreshing expired token for account ${serializeAccountSafe(latestAccount)}.`);
     const refresh = this.#refreshToken(latestAccount).finally(() => {
       delete this.#refreshesInProgress[accountId];
     });
@@ -108,7 +108,7 @@ export class TokenExchangeService {
     };
     await this.#accountService.updateAccountSecret(refreshedAccount);
     log.info(`Saved refreshed token for account ${refreshedAccount.id}.`);
-    log.debug(`Saved refreshed token for account ${JSON.stringify(refreshedAccount)}.`);
+    log.debug(`Saved refreshed token for account ${serializeAccountSafe(refreshedAccount)}.`);
     return refreshedAccount;
   }
 }

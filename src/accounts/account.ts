@@ -19,3 +19,6 @@ export interface OAuthAccount extends AccountBase {
 }
 
 export type Account = TokenAccount | OAuthAccount;
+
+export const serializeAccountSafe = (account: Account) =>
+  JSON.stringify(account, ['instanceUrl', 'id', 'username', 'scopes']);
