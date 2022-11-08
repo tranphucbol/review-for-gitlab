@@ -61,7 +61,15 @@ The main objective is to release the security fix as a patch of the latest produ
 
 #### Patch release branch
 
-Before starting the development of the fix, create a branch from the latest released tag. You can see the latest released tag as [the extension version in the marketplace](https://marketplace.visualstudio.com/items?itemName=fatihacet.gitlab-workflow). For example, if the latest release has a tag `v.2.2.0` create a branch `security-2-2`. This is going to be the target of the security MRs. Push the branch to the security repo.
+Before starting the development of the fix, do the following:
+
+1. Merge `main` from the main repository into the `main` of the
+   [Security Repository](https://gitlab.com/gitlab-org/security/gitlab-vscode-extension).
+1. Check the [extension version in the marketplace](https://marketplace.visualstudio.com/items?itemName=fatihacet.gitlab-workflow) and find the latest released tag.
+1. Create a branch based on the latest released tag. For example, if the latest
+   release is `v.2.2.0`, create a branch `security-2-2`. This new branch is the
+   target of the security MRs.
+1. Push the branch to the security repo.
 
 #### Security fix branch
 
