@@ -1018,12 +1018,26 @@ export class GitLabService {
     );
   }
 
-  async getJobTrace(project: GitLabProject, jobId: number): Promise<string> {
+  async getJobTrace(
+    project: GitLabProject,
+    jobId: number,
+    eTag: string | null = null,
+  ): Promise<{ rawTrace: string; eTag: string } | null> {
     const { instanceUrl } = await this.getCredentials();
     const url = `${instanceUrl}/api/v4/projects/${project.restId}/jobs/${jobId}/trace`;
-    const fileResult = await this.crossFetch(url);
+
+    const headers: HeadersInit = {};
+    if (eTag) headers['If-None-Match'] = eTag;
+    const fileResult = await this.crossFetch(url, { headers });
+
+    if (fileResult.status === 304) return null;
+
     await handleFetchError(fileResult, 'job trace');
-    return fileResult.text();
+    return { rawTrace: await fileResult.text(), eTag: fileResult.headers.get('ETag') ?? '' };
+  }
+
+  async getSingleJob(project: GitLabProject, jobId: number): Promise<RestJob> {
+    return this.fetch(`/projects/${project.restId}/jobs/${jobId}`, {}, 'current job');
   }
 
   /** This method exchanges code from GitLab OAuth endpoint for an access token. */

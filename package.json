@@ -276,6 +276,11 @@
         "category": "GitLab"
       },
       {
+        "command": "gl.openInBrowser",
+        "title": "Open in browser",
+        "category": "GitLab"
+      },
+      {
         "command": "gl.executeJob",
         "title": "Execute Job",
         "category": "GitLab"
@@ -310,6 +315,13 @@
         "title": "Save raw job trace",
         "category": "GitLab",
         "icon": "$(save-as)"
+      },
+      {
+        "command": "gl.scrollToBottom",
+        "title": "Scroll to bottom",
+        "enablement": "gitlab.canScrollToBottom",
+        "category": "GitLab",
+        "icon": "$(fold-down)"
       }
     ],
     "menus": {
@@ -363,6 +375,10 @@
           "when": "false"
         },
         {
+          "command": "gl.openInBrowser",
+          "when": "false"
+        },
+        {
           "command": "gl.executeJob",
           "when": "false"
         },
@@ -388,6 +404,10 @@
         },
         {
           "command": "gl.saveRawJobTrace",
+          "when": "false"
+        },
+        {
+          "command": "gl.scrollToBottom",
           "when": "false"
         },
         {
@@ -539,6 +559,11 @@
           "when": "view =~ /issuesAndMrs/ && viewItem == selected-project"
         },
         {
+          "command": "gl.openInBrowser",
+          "when": "view =~ /currentBranchInfo/ && viewItem =~ /with-url/",
+          "group": "navigation@1"
+        },
+        {
           "command": "gl.cancelJob",
           "when": "view =~ /currentBranchInfo/ && viewItem =~ /cancellable-job/"
         },
@@ -564,7 +589,8 @@
         },
         {
           "command": "gl.openTraceArtifact",
-          "when": "view =~ /currentBranchInfo/ && viewItem =~ /with-trace/"
+          "when": "view =~ /currentBranchInfo/ && viewItem =~ /with-trace/",
+          "group": "navigation@2"
         }
       ],
       "comments/comment/title": [
@@ -635,6 +661,11 @@
           "command": "gl.saveRawJobTrace",
           "when": "resourceScheme == 'gl-job-log'",
           "group": "navigation@-99"
+        },
+        {
+          "command": "gl.scrollToBottom",
+          "when": "resourceScheme == 'gl-job-log'",
+          "group": "navigation"
         }
       ]
     },

@@ -10,10 +10,24 @@ describe('AnsiDecorationProvider', () => {
       'utf-8',
     );
     const provider = new AnsiDecorationProvider();
-    const { decorations } = await provider.provideDecorationsForPrettifiedAnsi(rawTrace);
+    const { decorations } = await provider.provideDecorationsForPrettifiedAnsi(rawTrace, false);
 
     const expected = new vscode.Range(new vscode.Position(26, 0), new vscode.Position(26, 5));
     const values = [...decorations.values()];
     expect(values).toContainEqual([{ range: expected }]);
+  });
+
+  it('includes the running animation', async () => {
+    const provider = new AnsiDecorationProvider();
+    const { decorations } = await provider.provideDecorationsForPrettifiedAnsi('rawTrace', true);
+
+    expect(decorations.get('running')).toHaveLength(1);
+  });
+
+  it('hides the running animation', async () => {
+    const provider = new AnsiDecorationProvider();
+    const { decorations } = await provider.provideDecorationsForPrettifiedAnsi('rawTrace', false);
+
+    expect(decorations.get('running')).toHaveLength(0);
   });
 });

@@ -34,9 +34,13 @@ module.exports = {
     createStatusBarItem: jest.fn(),
     showInputBox: jest.fn(),
     showQuickPick: jest.fn(),
+    showSaveDialog: jest.fn(),
     withProgress: jest.fn().mockImplementation((opt, callback) => callback()),
     createQuickPick: jest.fn(),
+    onDidChangeTextEditorSelection: jest.fn(),
     onDidChangeVisibleTextEditors: jest.fn(),
+    onDidChangeTextEditorVisibleRanges: jest.fn(),
+    onDidChangeActiveTextEditor: jest.fn(),
   },
   commands: {
     executeCommand: jest.fn(),
@@ -51,6 +55,7 @@ module.exports = {
     createFileSystemWatcher: jest.fn(),
     fs: {
       readFile: jest.fn(),
+      writeFile: jest.fn(),
     },
   },
   extensions: {

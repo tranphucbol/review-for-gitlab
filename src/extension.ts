@@ -80,9 +80,10 @@ import { MergedYamlContentProvider } from './ci/merged_yaml_content_provider';
 import { cancelPipeline, retryPipeline } from './commands/pipeline_actions';
 import { GitLabCodeCompletionProvider } from './completion/gitlab_code_completion_provider';
 import { openTraceArtifact } from './commands/open_trace_artifact';
-import { jobLogContentProvider } from './ci/job_log_content_provider';
-import { saveRawJobTrace } from './commands/save_raw_job_trace';
+import { JobLogContentProvider } from './ci/job_log_content_provider';
+import { saveRawJobTrace } from './ci/save_raw_job_trace';
 import { JobLogFoldingProvider } from './ci/job_log_folding_provider';
+import { scrollToBottom } from './ci/scroll_to_bottom_command';
 
 const wrapWithCatch =
   (command: (...args: unknown[]) => unknown) =>
@@ -157,8 +158,10 @@ const registerCommands = (
     [USER_COMMANDS.ASSIGN_PROJECT]: assignProject,
     [USER_COMMANDS.CLEAR_SELECTED_PROJECT]: clearSelectedProjects,
     [USER_COMMANDS.DOWNLOAD_ARTIFACTS]: downloadArtifacts,
+    [USER_COMMANDS.OPEN_IN_BROWSER]: openers.openPipelineUri,
     [USER_COMMANDS.OPEN_TRACE_ARTIFACT]: openTraceArtifact,
     [USER_COMMANDS.SAVE_RAW_JOB_TRACE]: saveRawJobTrace,
+    [USER_COMMANDS.SCROLL_TO_BOTTOM]: scrollToBottom,
     [USER_COMMANDS.EXECUTE_JOB]: executeJob,
     [USER_COMMANDS.RETRY_JOB]: retryJob,
     [USER_COMMANDS.CANCEL_JOB]: cancelJob,
@@ -240,6 +243,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
     MERGED_YAML_URI_SCHEME,
     new MergedYamlContentProvider(),
   );
+  const jobLogContentProvider = new JobLogContentProvider(context);
   vscode.workspace.registerTextDocumentContentProvider(JOB_LOG_URI_SCHEME, jobLogContentProvider);
   vscode.languages.registerFoldingRangeProvider(
     { scheme: JOB_LOG_URI_SCHEME },

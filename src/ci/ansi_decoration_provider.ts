@@ -72,6 +72,8 @@ function parseSectionDirective(
 }
 
 export class AnsiDecorationProvider {
+  constructor(private context?: vscode.ExtensionContext) {}
+
   async provideDecorations(
     document: vscode.TextDocument,
   ): Promise<undefined | Map<string, vscode.DecorationOptions[]>> {
@@ -81,9 +83,10 @@ export class AnsiDecorationProvider {
       if (!cacheItem) return undefined;
 
       if (!cacheItem.decorations) {
-        const { rawTrace } = cacheItem;
+        const { rawTrace, eTag } = cacheItem;
         const { sections, decorations, filtered } = await this.provideDecorationsForPrettifiedAnsi(
           rawTrace,
+          eTag !== null,
         );
 
         jobLogCache.addDecorations(id, sections, decorations, filtered);
@@ -96,12 +99,16 @@ export class AnsiDecorationProvider {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async provideDecorationsForPrettifiedAnsi(rawJobTrace: string): Promise<{
+  async provideDecorationsForPrettifiedAnsi(
+    rawJobTrace: string,
+    isRunning: boolean,
+  ): Promise<{
     sections: Map<string, JobTraceSection>;
     decorations: Map<string, vscode.DecorationOptions[]>;
     filtered: string;
   }> {
     const actualDocument = rawJobTrace.split('\n');
+    const lineCount = actualDocument.length;
 
     const decorations = new Map<string, vscode.DecorationOptions[]>();
     const sections = new Map<string, JobTraceSection>();
@@ -109,7 +116,7 @@ export class AnsiDecorationProvider {
     const parser = new ansi.Parser();
     const textChunks: string[] = [];
 
-    for (let lineNumber = 0; lineNumber < actualDocument.length; lineNumber += 1) {
+    for (let lineNumber = 0; lineNumber < lineCount; lineNumber += 1) {
       let totalEscapeLength = 0;
 
       const rawLine = actualDocument[lineNumber];
@@ -163,9 +170,22 @@ export class AnsiDecorationProvider {
         upsert(decorations, key, []).push({ range });
         textChunks.push(line.substr(offset, length));
       });
-      if (lineNumber < actualDocument.length - 1) {
+
+      // Each file must end with at least one newline, to avoid the decoration
+      // containing the running animation from overlapping other text.
+      if (lineNumber < lineCount - 1 || line.length > 0) {
         textChunks.push('\n');
       }
+    }
+
+    if (isRunning) {
+      const eolRange =
+        actualDocument[lineCount - 1].length > 0
+          ? new vscode.Range(lineCount, 0, lineCount, 0)
+          : new vscode.Range(lineCount - 1, 0, lineCount - 1, 0);
+      decorations.set('running', [{ range: eolRange }]);
+    } else {
+      decorations.set('running', []);
     }
 
     return { sections, decorations, filtered: textChunks.join('') };
@@ -180,18 +200,35 @@ export class AnsiDecorationProvider {
       return decorationType;
     }
 
-    const style: ansi.Style = JSON.parse(key);
+    if (key === 'running') {
+      decorationType = vscode.window.createTextEditorDecorationType({
+        light: {
+          after: {
+            contentIconPath: this.context?.asAbsolutePath(
+              'src/assets/images/light/running-job.svg',
+            ),
+          },
+        },
+        dark: {
+          after: {
+            contentIconPath: this.context?.asAbsolutePath('src/assets/images/dark/running-job.svg'),
+          },
+        },
+      });
+    } else {
+      const style: ansi.Style = JSON.parse(key);
 
-    decorationType = vscode.window.createTextEditorDecorationType({
-      backgroundColor: convertColor(style.backgroundColor),
-      color: convertColor(style.foregroundColor),
+      decorationType = vscode.window.createTextEditorDecorationType({
+        backgroundColor: convertColor(style.backgroundColor),
+        color: convertColor(style.foregroundColor),
 
-      fontWeight: style.attributeFlags & ansi.AttributeFlags.Bold ? 'bold' : undefined,
-      fontStyle: style.attributeFlags & ansi.AttributeFlags.Italic ? 'italic' : undefined,
-      textDecoration:
-        style.attributeFlags & ansi.AttributeFlags.Underline ? 'underline' : undefined,
-      opacity: style.attributeFlags & ansi.AttributeFlags.Faint ? '50%' : undefined,
-    });
+        fontWeight: style.attributeFlags & ansi.AttributeFlags.Bold ? 'bold' : undefined,
+        fontStyle: style.attributeFlags & ansi.AttributeFlags.Italic ? 'italic' : undefined,
+        textDecoration:
+          style.attributeFlags & ansi.AttributeFlags.Underline ? 'underline' : undefined,
+        opacity: style.attributeFlags & ansi.AttributeFlags.Faint ? '50%' : undefined,
+      });
+    }
 
     this.#decorationTypes.set(key, decorationType);
 

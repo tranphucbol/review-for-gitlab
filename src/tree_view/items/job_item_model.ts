@@ -7,6 +7,8 @@ import { openInBrowserCommand } from '../../utils/open_in_browser_command';
 import { JobProvider } from './job_provider';
 import { ProjectInRepository } from '../../gitlab/new_project';
 import { hasDownloadableArtifacts } from '../../utils/has_downloadable_artifacts';
+import { toJobLogUri } from '../../ci/job_log_uri';
+import { VS_COMMANDS } from '../../command_names';
 
 dayjs.extend(relativeTime);
 
@@ -18,14 +20,15 @@ const getJobItemContextValue = (job: RestJob) => {
   const contextValue: string[] = [];
 
   const { contextAction } = getJobMetadata(job);
-  if (contextAction) {
-    contextValue.push(`${contextAction}-job`);
-  }
+  contextValue.push(`${contextAction ?? 'inactive'}-job`);
   if (hasDownloadableArtifacts([job])) {
     contextValue.push('with-artifacts');
   }
-  if (job.finished_at) {
+  if (job.started_at) {
     contextValue.push('with-trace');
+  }
+  if (job.web_url) {
+    contextValue.push('with-url');
   }
   return contextValue.join(',');
 };
@@ -48,9 +51,19 @@ export class JobItemModel extends ItemModel implements JobProvider {
     item.tooltip = `${job.name} · ${jobStatusMetadata.name} · ${dayjs(displayTime).fromNow()}`;
     if (job.description) item.tooltip += `\n${job.description}`;
     item.description = jobStatusMetadata.name;
-    if (job.web_url) item.command = openInBrowserCommand(job.web_url);
-    else if (job.target_url) item.command = openInBrowserCommand(job.target_url);
     item.contextValue = getJobItemContextValue(job);
+
+    if (job.target_url) {
+      item.command = openInBrowserCommand(job.target_url);
+    } else if (item.contextValue.indexOf('with-trace') !== -1) {
+      const uri = toJobLogUri(this.projectInRepository.pointer.repository.rootFsPath, job.id);
+      const options: vscode.TextDocumentShowOptions = { preview: true };
+      item.command = {
+        title: 'Display log',
+        command: VS_COMMANDS.OPEN,
+        arguments: [uri, options],
+      };
+    }
     return item;
   }
 

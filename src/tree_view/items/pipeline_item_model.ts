@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { getJobMetadata, getPipelineMetadata } from '../../gitlab/ci_status_metadata';
-import { openInBrowserCommand } from '../../utils/open_in_browser_command';
 import { ItemModel } from './item_model';
 import { StageItemModel } from './stage_item_model';
 import { compareBy } from '../../utils/compare_by';
@@ -18,7 +17,7 @@ const uniq = <T>(duplicated: T[]): T[] => [...new Set(duplicated)];
 const getUniqueStages = (jobs: RestJob[]): string[] => uniq(jobs.map(j => j.stage));
 
 const getPipelineItemContextValue = (jobs: RestJob[]) => {
-  const contextValue: string[] = [];
+  const contextValue: string[] = ['with-url'];
   if (jobs.find(job => getJobMetadata(job).contextAction === 'cancellable')) {
     contextValue.push('cancellable-pipeline');
   }
@@ -52,7 +51,6 @@ export class PipelineItemModel
     item.tooltip = `${label} · ${statusMetadata.name} · ${timeAgo}`;
     item.description = statusMetadata.name;
     item.iconPath = statusMetadata.icon;
-    item.command = openInBrowserCommand(this.pipeline.web_url);
     item.contextValue = getPipelineItemContextValue(this.jobs);
     return item;
   }
