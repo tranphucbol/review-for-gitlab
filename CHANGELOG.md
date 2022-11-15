@@ -1,3 +1,14 @@
+# [3.57.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.56.0...v3.57.0) (2022-11-15)
+
+
+### Features
+
+**All features in this release have been implemented by [Lennard Sprong](https://gitlab.com/X_Sheep)** 🚀. Thank you once again for making the extension better 🙇
+
+* Display trace for running Jobs ([c5633b1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/c5633b1f3ff8fad7399c44bcad53a0cf893182f1)) [MR !674](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/674)
+
+
+
 # [3.56.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.55.0...v3.56.0) (2022-11-08)
 
 
