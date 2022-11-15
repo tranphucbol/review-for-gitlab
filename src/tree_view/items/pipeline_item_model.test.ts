@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import dayjs from 'dayjs';
 import { artifact, job, pipeline, projectInRepository } from '../../test_utils/entities';
 import { PipelineItemModel } from './pipeline_item_model';
-import { VS_COMMANDS } from '../../command_names';
 import { JobItemModel } from './job_item_model';
 
 const fourYearsAgo = dayjs().subtract(4, 'year');
@@ -53,11 +52,6 @@ describe('PipelineItemModel', () => {
     it('has icon', () => {
       const iconId = (item.iconPath as vscode.ThemeIcon).id;
       expect(iconId).toBe('pass');
-    });
-
-    it('has "open in a browser" command attached to it', () => {
-      expect(item.command?.command).toBe(VS_COMMANDS.OPEN);
-      expect(item.command?.arguments).toEqual([vscode.Uri.parse(pipeline.web_url)]);
     });
 
     it('has a contextValue if downloadable artifacts exist', () => {

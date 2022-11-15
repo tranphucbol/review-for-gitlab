@@ -14,6 +14,8 @@ import { getTrackingBranchName } from '../git/get_tracking_branch_name';
 import { getLastCommitSha } from '../git/get_last_commit_sha';
 import { DetachedHeadError } from '../errors/detached_head_error';
 import { Repository } from '../api/git';
+import { JobItemModel } from '../tree_view/items/job_item_model';
+import { PipelineItemModel } from '../tree_view/items/pipeline_item_model';
 
 export const openUrl = async (url: string): Promise<void> => {
   // workaround for a VS Code open command bug: https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/44
@@ -147,3 +149,15 @@ export const compareCurrentBranch: ProjectCommand = async projectInRepository =>
     );
   }
 };
+
+export async function openPipelineUri(item: JobItemModel | PipelineItemModel) {
+  let uri: string;
+
+  if (item instanceof JobItemModel) {
+    uri = item.job.target_url ?? item.job.web_url ?? '';
+  } else {
+    uri = item.pipeline.web_url;
+  }
+
+  await openUrl(uri);
+}

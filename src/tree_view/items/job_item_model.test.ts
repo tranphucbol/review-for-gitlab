@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { artifact, job, projectInRepository } from '../../test_utils/entities';
 import { VS_COMMANDS } from '../../command_names';
 import { JobItemModel } from './job_item_model';
+import { toJobLogUri } from '../../ci/job_log_uri';
 
 const fourYearsAgo = dayjs().subtract(4, 'year').toString();
 describe('JobItemModel', () => {
@@ -39,18 +40,22 @@ describe('item created by JobItemModel', () => {
     expect(jobItem.tooltip).toBe('unit test · Failed · 4 years ago');
   });
 
-  it('has "open in a browser" command attached to it', () => {
+  it('has a default command for opening the job trace', () => {
     expect(jobItem.command?.command).toBe(VS_COMMANDS.OPEN);
-    expect(jobItem.command?.arguments).toEqual([vscode.Uri.parse(job.web_url ?? '')]);
+    expect(jobItem.command?.arguments).toEqual([
+      toJobLogUri(projectInRepository.pointer.repository.rootFsPath, job.id),
+      { preview: true },
+    ]);
   });
 
   it('has contextValue if needs to be started manually', () => {
     const manualItem = new JobItemModel(projectInRepository, {
       ...job,
+      started_at: undefined,
       finished_at: undefined,
       status: 'manual',
     }).getTreeItem();
-    expect(manualItem.contextValue).toBe('executable-job');
+    expect(manualItem.contextValue).toBe('executable-job,with-url');
   });
 
   it('has contextValue if downloadable artifacts exist', () => {
@@ -58,7 +63,7 @@ describe('item created by JobItemModel', () => {
       ...job,
       artifacts: [artifact],
     }).getTreeItem();
-    expect(itemWithArtifacts.contextValue).toBe('retryable-job,with-artifacts,with-trace');
+    expect(itemWithArtifacts.contextValue).toBe('retryable-job,with-artifacts,with-trace,with-url');
   });
 
   describe('showing relative time', () => {

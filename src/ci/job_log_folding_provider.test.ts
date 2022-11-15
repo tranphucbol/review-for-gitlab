@@ -25,7 +25,7 @@ describe('JobLogFoldingProvider', () => {
     jobLogCache.set(123, rawTrace);
     const ansiProvider = new AnsiDecorationProvider();
     const { sections, decorations, filtered } =
-      await ansiProvider.provideDecorationsForPrettifiedAnsi(rawTrace);
+      await ansiProvider.provideDecorationsForPrettifiedAnsi(rawTrace, false);
 
     jobLogCache.addDecorations(123, sections, decorations, filtered);
 
