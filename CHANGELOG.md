@@ -1,3 +1,12 @@
+## [3.57.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.56.0...v3.57.1) (2022-11-17)
+
+
+### Bug Fixes
+
+* Fetch all jobs in the pipeline instead of just first page ([1becad8](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/1becad88a98ce8023f1d1ed62e2b9fcc6c09688f))
+  * Fixed by [Mikhail Kuryshev](https://gitlab.com/mk9) with [MR !680](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/680) 👍
+
+
 # [3.57.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.56.0...v3.57.0) (2022-11-15)
 
 
