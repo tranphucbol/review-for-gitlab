@@ -908,7 +908,7 @@ export class GitLabService {
   }
 
   async getJobsForPipeline(pipelineId: number, projectId: number): Promise<RestJob[]> {
-    return this.fetch(
+    return this.fetchAllPages(
       `/projects/${projectId}/pipelines/${pipelineId}/jobs`,
       {},
       'jobs for pipeline',
