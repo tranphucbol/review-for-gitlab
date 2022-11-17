@@ -74,7 +74,8 @@ component's PascalCase name as the commit's scope. For example:
 feat(statusbar): automatically switch pipelines
 ```
 
-> If you're introducing a breaking change, start the message body with [`BREAKING CHANGE:`](https://www.conventionalcommits.org/en/v1.0.0/#commit-message-with-description-and-breaking-change-footer),
+If you're introducing a breaking change, start the message body with
+[`BREAKING CHANGE:`](https://www.conventionalcommits.org/en/v1.0.0/#commit-message-with-description-and-breaking-change-footer).
 
 ## Commitizen
 
