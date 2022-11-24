@@ -23,6 +23,7 @@ This extension integrates GitLab into Visual Studio Code. After you [set up the 
 - [**Manage your pipelines**](#pipeline-actions). View your [pipeline status](#status-bar---details)
   and open the related merge request. With [advanced pipeline actions](#pipeline-actions),
   you can create, retry, or cancel a pipeline.
+- [**View the job output**](#view-the-job-output). View the output of a running or finished job in an editor tab.
 - **Manage snippets**. [Create](#create-snippet) and [insert](#insert-snippet)
   snippets, and apply [snippet patches](#create-and-apply-snippet-patch).
 - [**Browse a GitLab repository directly**](#browse-a-repository-without-cloning)
@@ -193,6 +194,12 @@ Extension will add a GitLab Workflow panel to sidebar of VS Code. The dedicated 
 You can see the issue and MR details by clicking on the issue item or by expanding the MR item and clicking on "Description". When you expand the MR, you can see all the changed files. When you click on a changed file, the extension opens the MR diff.
 
 ![_sidebar.gif](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/sidebar.gif)
+
+### View the job output
+
+To view the output of a job directly in VS Code, on the left sidebar, select the job. The output is updated automatically. To view the latest output, select **Scroll to Bottom**.
+
+![view-job-output.png](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/9555acfd02253cb506d2b5e50dee7fde885fbddf/docs/assets/view-job-output.png)
 
 ### Pipeline actions
 
