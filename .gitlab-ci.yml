@@ -1,8 +1,12 @@
 include:
+  # remove the `.latest` from the following templates after 16.0 GitLab release
+  # the `.latest` indicates the "nightly" version of the job definition
+  # when we remove the `.latest`, we'll be using the stable job definition
+  # https://gitlab.com/gitlab-org/gitlab/-/issues/217668#note_1136574790
   - template: Jobs/SAST.latest.gitlab-ci.yml
-  - template: Dependency-Scanning.gitlab-ci.yml
-  - template: License-Scanning.gitlab-ci.yml
-  - template: Secret-Detection.gitlab-ci.yml
+  - template: Jobs/Dependency-Scanning.latest.gitlab-ci.yml
+  - template: Jobs/Secret-Detection.latest.gitlab-ci.yml
+  - template: Jobs/License-Scanning.latest.gitlab-ci.yml
 
 variables:
   SAST_EXCLUDED_ANALYZERS: "eslint"
@@ -145,30 +149,3 @@ publish_open_vsx:
   when: manual
   only:
     - tags
-
-# Override security scanning rules to run every time this pipeline does
-# This potentially can be made obsolete once:
-# https://gitlab.com/gitlab-org/gitlab/-/issues/217668 lands
-.secure-jobs-config: &secure-jobs-config
-  needs: []
-  rules:
-    - when: on_success
-
-gemnasium-dependency_scanning:
-  <<: *secure-jobs-config
-
-license_scanning:
-  <<: *secure-jobs-config
-
-semgrep-sast:
-  <<: *secure-jobs-config
-
-nodejs-scan-sast:
-  <<: *secure-jobs-config
-
-secret_detection:
-  <<: *secure-jobs-config
-  # We can't run the secrets detection on tags: https://gitlab.com/gitlab-org/gitlab/-/issues/254199
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: 'never'
