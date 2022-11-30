@@ -24,7 +24,11 @@ describe('AI Assist code completion', async () => {
   before(async () => {
     server = getServer([
       createQueryJsonEndpoint('/ai/aiassist', { user_is_allowed: true }),
-      createJsonPostEndpoint('/v1/completions', aiAssistResponse, 'https://ai.gitlab.com'),
+      createJsonPostEndpoint(
+        '/v1/completions',
+        aiAssistResponse,
+        'https://codesuggestions.gitlab.com',
+      ),
     ]);
     config.update('engine', 'GitLab');
     config.update('manualTrigger', true);

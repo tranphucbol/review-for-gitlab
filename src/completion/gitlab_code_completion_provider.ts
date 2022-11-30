@@ -54,7 +54,7 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
         serverUrl.href = 'https://api.openai.com/v1';
         break;
       case 'GitLab':
-        serverUrl.href = 'https://ai.gitlab.com/v1';
+        serverUrl.href = 'https://codesuggestions.gitlab.com/v1';
         this.model = 'gitlab';
         break;
       default:
