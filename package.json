@@ -1053,7 +1053,7 @@
         },
         "gitlab.aiassist.apiKey": {
           "name": "API key",
-          "description": "API key",
+          "description": "Optional API key for use with FauxPilot and OpenAI",
           "type": "string",
           "default": null
         },
