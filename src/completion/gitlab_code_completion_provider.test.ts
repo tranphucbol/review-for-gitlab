@@ -15,6 +15,16 @@ describe('GitLabCodeCompletionProvider', () => {
       'https://localhost:8000/v1',
     ],
     [
+      'FauxPilot',
+      '',
+      'gpt-j',
+      'https://localhost:8000',
+      'FauxPilot',
+      'http://localhost:5000/v1',
+      'fastertransformer',
+      'https://localhost:8000/v1',
+    ],
+    [
       'OpenAI',
       'https://api.openai.com/v1',
       'text-davinci-002',
@@ -47,6 +57,16 @@ describe('GitLabCodeCompletionProvider', () => {
     [
       'GitLab',
       'https://localhost:4000',
+      'gitlab',
+      'https://codesuggestions.gitlab.com',
+      'GitLab',
+      'https://codesuggestions.gitlab.com/v1',
+      'gitlab',
+      'https://codesuggestions.gitlab.com/v1',
+    ],
+    [
+      'GitLab',
+      '',
       'gitlab',
       'https://codesuggestions.gitlab.com',
       'GitLab',

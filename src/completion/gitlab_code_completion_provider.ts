@@ -43,21 +43,29 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
   }
 
   #getServer(server: string): string {
-    const serverUrl = new URL(server);
-    serverUrl.pathname = '/v1';
+    let serverUrl;
     switch (this.engine) {
       case 'FauxPilot':
+        if (!server) {
+          log.debug(
+            `AI Assist: The "server" field in configuration is empty. Provide a server URL to enable AI Assist.`,
+          );
+          serverUrl = new URL('http://localhost:5000');
+        } else {
+          serverUrl = new URL(server);
+        }
         serverUrl.pathname = '/v1';
         this.model = 'fastertransformer';
         break;
       case 'OpenAI':
-        serverUrl.href = 'https://api.openai.com/v1';
+        serverUrl = new URL('https://api.openai.com/v1');
         break;
       case 'GitLab':
-        serverUrl.href = 'https://codesuggestions.gitlab.com/v1';
+        serverUrl = new URL('https://codesuggestions.gitlab.com/v1');
         this.model = 'gitlab';
         break;
       default:
+        serverUrl = new URL('http://localhost:5000');
         break;
     }
     log.debug(`AI Assist: For engine ${this.engine} using server: ${serverUrl.href}`);
