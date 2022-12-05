@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import * as vscode from 'vscode';
 import { USER_COMMANDS } from './command_names';
 import { DetailedError, isDetailedError, prettyJson } from './errors/common';
@@ -30,11 +31,14 @@ const LOG_LEVEL = {
   ERROR: 'error',
 } as const;
 
+// pad subsequent lines by 4 spaces
+const PADDING = 4;
+
 type LogLevel = typeof LOG_LEVEL[keyof typeof LOG_LEVEL];
 
 const multilineLog = (line: string, level: LogLevel): void => {
-  const prefix = `[${level}]: `;
-  const padNextLines = (text: string) => text.replace(/\n/g, `\n${' '.repeat(prefix.length)}`);
+  const prefix = `${dayjs().format('YYYY-MM-DDTHH:mm:ss:SSS')} [${level}]: `;
+  const padNextLines = (text: string) => text.replace(/\n/g, `\n${' '.repeat(PADDING)}`);
 
   globalLog(`${prefix}${padNextLines(line)}`);
 };

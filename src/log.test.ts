@@ -30,7 +30,7 @@ describe('logging', () => {
       const message = 'A very bad error occurred';
       log.info(message);
       expect(logFunction).toBeCalledTimes(1);
-      expect(logFunction).toBeCalledWith(`[info]: ${message}`);
+      expect(getLoggedMessage()).toContain(`[info]: ${message}`);
     });
 
     it.each`
@@ -41,7 +41,7 @@ describe('logging', () => {
       ${'error'} | ${'error'}
     `('it handles log level "$logLevel"', ({ methodName, logLevel }) => {
       (log as any)[methodName]('message');
-      expect(logFunction).toBeCalledWith(`[${logLevel}]: message`);
+      expect(getLoggedMessage()).toContain(`[${logLevel}]: message`);
     });
 
     it('does not log debug messages if debug mode is disabled', () => {
@@ -54,8 +54,8 @@ describe('logging', () => {
 
     it('indents multiline messages', () => {
       log.error('error happened\nand the next line\nexplains why');
-      expect(logFunction).toHaveBeenCalledWith(
-        `[error]: error happened\n         and the next line\n         explains why`,
+      expect(getLoggedMessage()).toContain(
+        `[error]: error happened\n    and the next line\n    explains why`,
       );
     });
   });
