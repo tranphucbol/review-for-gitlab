@@ -1057,11 +1057,6 @@
           "type": "string",
           "default": null
         },
-        "gitlab.aiassist.model": {
-          "name": "Model",
-          "description": "Name of the model to be used",
-          "type": "string"
-        },
         "gitlab.aiassist.enabled": {
           "description": "Enable code completion",
           "type": "boolean",
