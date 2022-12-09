@@ -40,7 +40,6 @@ describe('GitLabCodeCompletionProvider', () => {
     ) => {
       const configuration = getAiAssistConfiguration();
       configuration.server = server;
-      configuration.model = model;
 
       let glcp: GitLabCodeCompletionProvider = new GitLabCodeCompletionProvider(configuration);
       expect(glcp.server).toBe(expectedServer);

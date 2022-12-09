@@ -148,10 +148,6 @@ Host and port of the code completion server.
 
 API key used for authentication. Not required for all code completion servers.
 
-**`gitlab.aiassist.model`** _(default: null)_
-
-Name of the model used for code completion.
-
 **`gitlab.aiassist.enabled`** _(default: false)_
 
 Toggle to enable or disable code completion.
