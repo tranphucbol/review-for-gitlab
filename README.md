@@ -148,13 +148,9 @@ Host and port of the code completion server.
 
 API key used for authentication. Not required for all code completion servers.
 
-**`gitlab.aiassist.engine`** _(default: FauxPilot)_
-
-Engine used for code completion. Available options are `FauxPilot`, `OpenAI`, and `GitLab`.
-
 **`gitlab.aiassist.model`** _(default: null)_
 
-Name of the model used for code completion (for example, `text-davinci-002`). Cannot be specified if `gitlab.aiassist.engine` is set to `FauxPilot` or `GitLab` as these 2 engines only support 1 model.
+Name of the model used for code completion.
 
 **`gitlab.aiassist.enabled`** _(default: false)_
 
@@ -347,28 +343,7 @@ Alternatively, run the **GitLab: Open Remote Repository** command and select "En
 ### Code completion (Alpha)
 
 The [AI Assist](https://about.gitlab.com/handbook/engineering/incubation/ai-assist/) group is working on a code
-completion tool that supports the following API specification projects:
-
-- Servers that have the `v1/completions` endpoint and support the OpenAPI Specification
-- [FauxPilot](https://github.com/moyix/fauxpilot) with the `v1/engines/codegen/completions` endpoint
-- [OpenAI](http://openai.com)
-
-NOTE:
-Be cautious about what code to submit for completion. Always check the
-terms and conditions of the service you are using to learn
-how your data is stored, used, and analyzed.
-
-#### Configuration examples
-
-FauxPilot:
-
-- Server (for example, `https://localhost:5000`)
-
-OpenAI:
-
-- Server (defaults to `https://api.openai.com`)
-- API key
-- Model name (see [https://beta.openai.com/docs/api-reference/models](https://beta.openai.com/docs/api-reference/models))
+completion tool that supports the following API specification projects.
 
 ---
 
