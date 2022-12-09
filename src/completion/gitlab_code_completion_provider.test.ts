@@ -5,71 +5,25 @@ import { GitLabCodeCompletionProvider } from './gitlab_code_completion_provider'
 describe('GitLabCodeCompletionProvider', () => {
   it.each([
     [
-      'FauxPilot',
-      'https://localhost:5002',
-      'gpt-j',
-      'https://localhost:8000',
-      'FauxPilot',
-      'https://localhost:5002/v1',
-      'fastertransformer',
-      'https://localhost:8000/v1',
-    ],
-    [
-      'FauxPilot',
-      '',
-      'gpt-j',
-      'https://localhost:8000',
-      'FauxPilot',
-      'http://localhost:5000/v1',
-      'fastertransformer',
-      'https://localhost:8000/v1',
-    ],
-    [
-      'OpenAI',
-      'https://api.openai.com/v1',
-      'text-davinci-002',
-      '',
-      'OpenAI',
-      'https://api.openai.com/v1',
-      'text-davinci-002',
-      '',
-    ],
-    [
-      'OpenAI',
-      'https://localhost:5045',
-      'text-davinci-002',
-      '',
-      'OpenAI',
-      'https://api.openai.com/v1',
-      'text-davinci-002',
-      '',
-    ],
-    [
-      'GitLab',
       'https://codesuggestions.gitlab.com',
       'gitlab',
       '',
-      'GitLab',
       'https://codesuggestions.gitlab.com/v1',
       'gitlab',
       '',
     ],
     [
-      'GitLab',
       'https://localhost:4000',
       'gitlab',
       'https://codesuggestions.gitlab.com',
-      'GitLab',
       'https://codesuggestions.gitlab.com/v1',
       'gitlab',
       'https://codesuggestions.gitlab.com/v1',
     ],
     [
-      'GitLab',
       '',
       'gitlab',
       'https://codesuggestions.gitlab.com',
-      'GitLab',
       'https://codesuggestions.gitlab.com/v1',
       'gitlab',
       'https://codesuggestions.gitlab.com/v1',
@@ -77,22 +31,18 @@ describe('GitLabCodeCompletionProvider', () => {
   ])(
     'Test if config is parsed correctly',
     (
-      engine: string,
       server: string,
       model: string,
       changedServer: string,
-      expectedEngine: string,
       expectedServer: string,
       expectedModel: string,
       expectedChangedServer: string,
     ) => {
       const configuration = getAiAssistConfiguration();
-      configuration.engine = engine;
       configuration.server = server;
       configuration.model = model;
 
       let glcp: GitLabCodeCompletionProvider = new GitLabCodeCompletionProvider(configuration);
-      expect(glcp.engine).toBe(expectedEngine);
       expect(glcp.server).toBe(expectedServer);
       expect(glcp.model).toBe(expectedModel);
 
@@ -100,7 +50,6 @@ describe('GitLabCodeCompletionProvider', () => {
         configuration.server = changedServer;
         glcp = new GitLabCodeCompletionProvider(configuration);
 
-        expect(glcp.engine).toBe(expectedEngine);
         expect(glcp.server).toBe(expectedChangedServer);
         expect(glcp.model).toBe(expectedModel);
       }

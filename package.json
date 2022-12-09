@@ -1057,19 +1057,6 @@
           "type": "string",
           "default": null
         },
-        "gitlab.aiassist.engine": {
-          "name": "Engine name",
-          "description": "Name of the engine, options: OpenAI, FauxPilot, GitLab",
-          "type": [
-            "string"
-          ],
-          "default": "FauxPilot",
-          "enum": [
-            "FauxPilot",
-            "OpenAI",
-            "GitLab"
-          ]
-        },
         "gitlab.aiassist.model": {
           "name": "Model",
           "description": "Name of the model to be used",

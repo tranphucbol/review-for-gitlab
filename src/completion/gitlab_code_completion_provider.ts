@@ -7,8 +7,6 @@ import { tokenExchangeService } from '../gitlab/token_exchange_service';
 import { getStopSequences } from '../utils/ai_assist/get_stop_sequences';
 
 export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItemProvider {
-  engine: string;
-
   apiKey: string;
 
   model: string;
@@ -22,10 +20,9 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
   manualTrigger: boolean;
 
   constructor(configuration: AiAssistConfiguration = getAiAssistConfiguration()) {
-    this.engine = configuration.engine;
     this.apiKey = configuration.apiKey;
-    this.model = configuration.model;
-    this.server = this.#getServer(configuration.server);
+    this.model = 'gitlab';
+    this.server = GitLabCodeCompletionProvider.#getServer();
     this.debouncedCall = undefined;
     this.manualTrigger = configuration.manualTrigger;
   }
@@ -42,33 +39,9 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
     return account.token;
   }
 
-  #getServer(server: string): string {
-    let serverUrl;
-    switch (this.engine) {
-      case 'FauxPilot':
-        if (!server) {
-          log.debug(
-            `AI Assist: The "server" field in configuration is empty. Provide a server URL to enable AI Assist.`,
-          );
-          serverUrl = new URL('http://localhost:5000');
-        } else {
-          serverUrl = new URL(server);
-        }
-        serverUrl.pathname = '/v1';
-        this.model = 'fastertransformer';
-        break;
-      case 'OpenAI':
-        serverUrl = new URL('https://api.openai.com/v1');
-        break;
-      case 'GitLab':
-        serverUrl = new URL('https://codesuggestions.gitlab.com/v1');
-        this.model = 'gitlab';
-        break;
-      default:
-        serverUrl = new URL('http://localhost:5000');
-        break;
-    }
-    log.debug(`AI Assist: For engine ${this.engine} using server: ${serverUrl.href}`);
+  static #getServer(): string {
+    const serverUrl = new URL('https://codesuggestions.gitlab.com/v1');
+    log.debug(`AI Assist: Using server: ${serverUrl.href}`);
     return serverUrl.href.toString();
   }
 
@@ -83,9 +56,7 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
 
     const oa = new openai.OpenAIApi(
       new openai.Configuration({
-        apiKey: ['GitLab'].includes(this.engine)
-          ? await GitLabCodeCompletionProvider.#getGitLabApiKey()
-          : this.apiKey,
+        apiKey: await GitLabCodeCompletionProvider.#getGitLabApiKey(),
         basePath: this.server,
       }),
     );
