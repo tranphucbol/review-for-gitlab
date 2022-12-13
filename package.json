@@ -1046,11 +1046,6 @@
           ],
           "description": "Custom views in the GitLab panel"
         },
-        "gitlab.aiassist.server": {
-          "description": "Host and port of the server, e.g. http://localhost:5000",
-          "type": "string",
-          "default": "http://localhost:5000"
-        },
         "gitlab.aiassist.apiKey": {
           "name": "API key",
           "description": "Optional API key for use with FauxPilot and OpenAI",
