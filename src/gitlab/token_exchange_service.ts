@@ -78,7 +78,7 @@ export class TokenExchangeService {
     const reloadedAccount = this.#accountService.getAccount(accountId);
     assert(reloadedAccount, `Account with id ${accountId} doesn't exist.`);
     if (!needsRefresh(reloadedAccount)) {
-      // log.debug(`Using non-expired reloaded account ${JSON.stringify(latestAccount)}`);
+      log.debug(`Using non-expired reloaded account ${serializeAccountSafe(latestAccount)}`);
       return reloadedAccount;
     }
     const refreshInProgress = this.#refreshesInProgress[accountId];

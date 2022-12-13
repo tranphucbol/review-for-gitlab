@@ -1061,6 +1061,20 @@ export class GitLabService {
       },
       body: [...commonParams, ...grantTypeParams].join('&'),
     });
-    return response.json();
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      if (errorResponse.error === 'invalid_grant') {
+        throw new Error(
+          'Refreshing OAuth token has failed: already refreshed. ' +
+            'The token might have been refreshed in another window. ' +
+            'You can retry the operation. If this error persists, remove and re-add your GitLab account.',
+        );
+      }
+      throw new Error(`Refreshing OAuth token has failed: ${response.status} - ${errorResponse}`);
+    }
+    const result = await response.json();
+    assert(result.access_token, 'Refresh token response is missing access token.');
+    assert(result.refresh_token, 'Refresh token response is missing refresh token.');
+    return result;
   }
 }
