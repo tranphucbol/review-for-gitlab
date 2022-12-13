@@ -510,4 +510,44 @@ describe('gitlab_service', () => {
       expect(result[0].stage).toBe('external');
     });
   });
+
+  describe('exchangeToken', () => {
+    it('fails when the request fails with invalid grant', async () => {
+      asMock(crossFetch).mockResolvedValue({
+        ok: false,
+        status: 400,
+        json: async () => ({
+          error: 'invalid_grant',
+          error_description:
+            'The provided authorization grant is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client.',
+        }),
+      });
+
+      const result = GitLabService.exchangeToken({
+        instanceUrl: 'https://gitlab.com',
+        grantType: 'refresh_token',
+        refreshToken: 'abc',
+      });
+
+      await expect(result).rejects.toThrowError(
+        /Refreshing OAuth token has failed: already refreshed/,
+      );
+    });
+
+    it('fails with generic error when the request fails', async () => {
+      asMock(crossFetch).mockResolvedValue({
+        ok: false,
+        status: 400,
+        json: async () => ({ reason: 'error' }),
+      });
+
+      const result = GitLabService.exchangeToken({
+        instanceUrl: 'https://gitlab.com',
+        grantType: 'refresh_token',
+        refreshToken: 'abc',
+      });
+
+      await expect(result).rejects.toThrowError(/Refreshing OAuth token has failed: 400/);
+    });
+  });
 });
