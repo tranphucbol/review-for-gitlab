@@ -15,7 +15,6 @@ export interface ExtensionConfiguration {
 
 export interface AiAssistConfiguration {
   enabled: boolean;
-  server: string;
   apiKey: string;
   manualTrigger: boolean;
 }
@@ -37,7 +36,6 @@ export function getAiAssistConfiguration(): AiAssistConfiguration {
   const aiAssistConfig = vscode.workspace.getConfiguration(AIASSIST_CONFIG_NAMESPACE);
   return {
     enabled: aiAssistConfig.enabled,
-    server: aiAssistConfig.server,
     apiKey: aiAssistConfig.apiKey,
     manualTrigger: aiAssistConfig.manualTrigger,
   };
