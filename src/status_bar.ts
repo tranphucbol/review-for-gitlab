@@ -4,7 +4,7 @@ import * as openers from './commands/openers';
 import { UserFriendlyError } from './errors/user_friendly_error';
 import { log } from './log';
 import { PROGRAMMATIC_COMMANDS, USER_COMMANDS } from './command_names';
-import { TreeState } from './current_branch_refresher';
+import { currentBranchRefresher, TreeState } from './current_branch_refresher';
 import { ProjectInRepository } from './gitlab/new_project';
 
 const MAXIMUM_DISPLAYED_JOBS = 4;
@@ -90,6 +90,8 @@ export class StatusBar {
   mrStatusBarItem?: vscode.StatusBarItem;
 
   mrIssueStatusBarItem?: vscode.StatusBarItem;
+
+  #refreshSubscription?: vscode.Disposable;
 
   firstRun = true;
 
@@ -199,6 +201,7 @@ export class StatusBar {
   init(): void {
     assert(!this.pipelineStatusBarItem, 'The status bar is already initialized');
     if (showStatusBarLinks) {
+      this.#refreshSubscription = currentBranchRefresher.onStateChanged(e => this.refresh(e));
       this.pipelineStatusBarItem = createStatusBarItem(
         2,
         'gl.status.pipeline',
@@ -227,6 +230,7 @@ export class StatusBar {
 
   dispose(): void {
     if (showStatusBarLinks) {
+      this.#refreshSubscription?.dispose();
       this.pipelineStatusBarItem?.dispose();
 
       if (showIssueLinkOnStatusBar) {

@@ -7,7 +7,6 @@ const { getServer, createQueryJsonEndpoint } = require('./test_infrastructure/mo
 const { USER_COMMANDS } = require('../../src/command_names');
 const { updateRepositoryStatus } = require('./test_infrastructure/helpers');
 const { CurrentBranchRefresher } = require('../../src/current_branch_refresher');
-const { currentBranchDataProvider } = require('../../src/tree_view/current_branch_data_provider');
 
 describe('GitLab status bar', () => {
   let server;
@@ -47,7 +46,8 @@ describe('GitLab status bar', () => {
   it('shows the correct pipeline item', async () => {
     statusBar.init();
     const refresher = new CurrentBranchRefresher();
-    refresher.init(statusBar, currentBranchDataProvider);
+    refresher.onStateChanged(e => statusBar.refresh(e));
+    refresher.init();
     await refresher.refresh();
 
     assert.strictEqual(vscode.window.createStatusBarItem.firstCall.firstArg, 'gl.status.pipeline');
