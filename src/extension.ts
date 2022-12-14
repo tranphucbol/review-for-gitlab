@@ -269,7 +269,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   context.subscriptions.push(gitExtensionWrapper);
   statusBar.init();
   context.subscriptions.push(statusBar);
-  currentBranchRefresher.init(statusBar, currentBranchDataProvider);
+  currentBranchRefresher.init();
   context.subscriptions.push(currentBranchRefresher);
   context.subscriptions.push(jobLogContentProvider);
 

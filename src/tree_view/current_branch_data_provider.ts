@@ -4,7 +4,13 @@ import { ItemModel } from './items/item_model';
 import { MrItemModel } from './items/mr_item_model';
 import { IssueItem } from './items/issue_item';
 import { PipelineItemModel } from './items/pipeline_item_model';
-import { TreeState, BranchState, InvalidState, TagState } from '../current_branch_refresher';
+import {
+  TreeState,
+  BranchState,
+  InvalidState,
+  TagState,
+  currentBranchRefresher,
+} from '../current_branch_refresher';
 import { onSidebarViewStateChange } from './sidebar_view_state';
 import { DetachedHeadError } from '../errors/detached_head_error';
 
@@ -23,6 +29,7 @@ export class CurrentBranchDataProvider
 
   constructor() {
     onSidebarViewStateChange(() => this.refresh(this.state), this);
+    currentBranchRefresher.onStateChanged(e => this.refresh(e));
   }
 
   createPipelineItem(state: BranchState | TagState) {

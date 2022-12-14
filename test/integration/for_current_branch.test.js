@@ -11,7 +11,6 @@ const {
   createJsonEndpoint,
 } = require('./test_infrastructure/mock_server');
 const { CurrentBranchRefresher } = require('../../src/current_branch_refresher');
-const { statusBar } = require('../../src/status_bar');
 
 describe('GitLab tree view for current branch', () => {
   let server;
@@ -45,7 +44,8 @@ describe('GitLab tree view for current branch', () => {
   beforeEach(() => {
     dataProvider = new CurrentBranchDataProvider();
     refresher = new CurrentBranchRefresher();
-    refresher.init(statusBar, dataProvider);
+    refresher.init();
+    refresher.onStateChanged(e => dataProvider.refresh(e));
   });
 
   afterEach(() => {

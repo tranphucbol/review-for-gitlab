@@ -1,10 +1,7 @@
 import * as vscode from 'vscode';
-import assert from 'assert';
 import dayjs from 'dayjs';
 import { log } from './log';
 import { extensionState } from './extension_state';
-import { StatusBar } from './status_bar';
-import { CurrentBranchDataProvider } from './tree_view/current_branch_data_provider';
 import { UserFriendlyError } from './errors/user_friendly_error';
 import { notNullOrUndefined } from './utils/not_null_or_undefined';
 import { getActiveProject } from './commands/run_with_valid_project';
@@ -71,9 +68,9 @@ export class CurrentBranchRefresher {
 
   private branchTrackingTimer?: NodeJS.Timeout;
 
-  private statusBar?: StatusBar;
+  #stateChangedEmitter = new vscode.EventEmitter<TreeState>();
 
-  private currentBranchProvider?: CurrentBranchDataProvider;
+  onStateChanged = this.#stateChangedEmitter.event;
 
   private lastRefresh = dayjs().subtract(1, 'minute');
 
@@ -81,9 +78,7 @@ export class CurrentBranchRefresher {
 
   private latestState: TreeState = INVALID_STATE;
 
-  init(statusBar: StatusBar, currentBranchProvider: CurrentBranchDataProvider) {
-    this.statusBar = statusBar;
-    this.currentBranchProvider = currentBranchProvider;
+  init() {
     this.clearAndSetInterval();
     extensionState.onDidChangeValid(() => this.clearAndSetIntervalAndRefresh());
     vscode.window.onDidChangeWindowState(async state => {
@@ -124,12 +119,9 @@ export class CurrentBranchRefresher {
   }
 
   async refresh(userInitiated = false) {
-    assert(this.statusBar);
-    assert(this.currentBranchProvider);
     const projectInRepository = getActiveProject();
     this.latestState = await CurrentBranchRefresher.getState(projectInRepository, userInitiated);
-    await this.statusBar.refresh(this.latestState);
-    this.currentBranchProvider.refresh(this.latestState);
+    this.#stateChangedEmitter.fire(this.latestState);
     this.lastRefresh = dayjs();
   }
 
@@ -210,6 +202,7 @@ export class CurrentBranchRefresher {
 
   dispose() {
     this.stopTimers();
+    this.#stateChangedEmitter.dispose();
   }
 }
 
