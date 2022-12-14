@@ -7,8 +7,6 @@ import { tokenExchangeService } from '../gitlab/token_exchange_service';
 import { getStopSequences } from '../utils/ai_assist/get_stop_sequences';
 
 export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItemProvider {
-  apiKey: string;
-
   model: string;
 
   server: string;
@@ -20,7 +18,6 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
   manualTrigger: boolean;
 
   constructor(configuration: AiAssistConfiguration = getAiAssistConfiguration()) {
-    this.apiKey = configuration.apiKey;
     this.model = 'gitlab';
     this.server = GitLabCodeCompletionProvider.#getServer();
     this.debouncedCall = undefined;

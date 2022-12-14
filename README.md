@@ -140,10 +140,6 @@ Setting this option to `true` enables debug mode. Debug mode improves error stac
 
 Defines the search queries that retrieves the items shown on the GitLab Panel. See [Custom Queries documentation](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/custom-queries.md) for more details.
 
-**`gitlab.aiassist.apiKey`** _(default: null)_
-
-API key used for authentication. Not required for all code completion servers.
-
 **`gitlab.aiassist.enabled`** _(default: false)_
 
 Toggle to enable or disable code completion.
