@@ -1046,12 +1046,6 @@
           ],
           "description": "Custom views in the GitLab panel"
         },
-        "gitlab.aiassist.apiKey": {
-          "name": "API key",
-          "description": "Optional API key for use with FauxPilot and OpenAI",
-          "type": "string",
-          "default": null
-        },
         "gitlab.aiassist.enabled": {
           "description": "Enable code completion",
           "type": "boolean",
