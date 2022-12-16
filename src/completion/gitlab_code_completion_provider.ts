@@ -1,10 +1,13 @@
 import * as openai from 'openai';
 import * as vscode from 'vscode';
 import { log } from '../log';
-import { getAiAssistConfiguration, AiAssistConfiguration } from '../utils/extension_configuration';
+import {
+  getAiAssistedCodeSuggestionsConfiguration,
+  AiAssistedCodeSuggestionsConfiguration,
+} from '../utils/extension_configuration';
 import { getActiveProject } from '../commands/run_with_valid_project';
 import { tokenExchangeService } from '../gitlab/token_exchange_service';
-import { getStopSequences } from '../utils/ai_assist/get_stop_sequences';
+import { getStopSequences } from '../utils/ai_assisted_code_suggestions/get_stop_sequences';
 
 export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItemProvider {
   model: string;
@@ -17,7 +20,9 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
 
   manualTrigger: boolean;
 
-  constructor(configuration: AiAssistConfiguration = getAiAssistConfiguration()) {
+  constructor(
+    configuration: AiAssistedCodeSuggestionsConfiguration = getAiAssistedCodeSuggestionsConfiguration(),
+  ) {
     this.model = 'gitlab';
     this.server = GitLabCodeCompletionProvider.#getServer();
     this.debouncedCall = undefined;

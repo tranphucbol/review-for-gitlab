@@ -1046,13 +1046,13 @@
           ],
           "description": "Custom views in the GitLab panel"
         },
-        "gitlab.aiassist.enabled": {
+        "gitlab.aiAssistedCodeSuggestions.enabled": {
           "description": "Enable code completion",
           "type": "boolean",
           "default": false
         },
-        "gitlab.aiassist.manualTrigger": {
-          "description": "Allow manual triggering of suggestions. Recommended to leave disabled.",
+        "gitlab.aiAssistedCodeSuggestions.manualTrigger": {
+          "description": "Allow manual triggering of AI assisted code suggestions. Recommended to leave disabled.",
           "type": "boolean",
           "default": false
         }

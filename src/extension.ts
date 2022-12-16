@@ -68,10 +68,10 @@ import { authenticate } from './accounts/authenticate';
 import { GitLabAuthenticationProvider } from './accounts/oauth/gitlab_authentication_provider';
 import {
   getExtensionConfiguration,
-  getAiAssistConfiguration,
+  getAiAssistedCodeSuggestionsConfiguration,
   GITLAB_DEBUG_MODE,
-  AI_ASSIST_MODE,
-  AI_ASSIST_CONFIG,
+  AI_ASSISTED_CODE_SUGGESTIONS_MODE,
+  AI_ASSISTED_CODE_SUGGESTIONS_CONFIG,
 } from './utils/extension_configuration';
 import { setupVersionCheck } from './gitlab/check_version';
 import { setupYamlSupport } from './yaml_support';
@@ -200,20 +200,20 @@ const registerGitLabCodeCompletion = (context: vscode.ExtensionContext) => {
       new GitLabCodeCompletionProvider(),
     );
   };
-  if (getAiAssistConfiguration().enabled) {
+  if (getAiAssistedCodeSuggestionsConfiguration().enabled) {
     register();
   }
 
   vscode.workspace.onDidChangeConfiguration(e => {
-    if (e.affectsConfiguration(AI_ASSIST_MODE)) {
-      if (!getAiAssistConfiguration().enabled) {
+    if (e.affectsConfiguration(AI_ASSISTED_CODE_SUGGESTIONS_MODE)) {
+      if (!getAiAssistedCodeSuggestionsConfiguration().enabled) {
         log.debug('Disabling code completion');
         dispose();
       } else {
         log.debug('Enabling code completion');
         register();
       }
-    } else if (e.affectsConfiguration(AI_ASSIST_CONFIG)) {
+    } else if (e.affectsConfiguration(AI_ASSISTED_CODE_SUGGESTIONS_CONFIG)) {
       dispose();
       register();
     }

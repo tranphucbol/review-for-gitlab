@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
-import { CONFIG_NAMESPACE, AIASSIST_CONFIG_NAMESPACE } from '../constants';
+import { CONFIG_NAMESPACE, AI_ASSISTED_CODE_SUGGESTIONS_CONFIG_NAMESPACE } from '../constants';
 import { CustomQuery } from '../gitlab/custom_query';
 
 export const GITLAB_DEBUG_MODE = 'gitlab.debug';
-export const AI_ASSIST_MODE = 'gitlab.aiassist.enabled';
-export const AI_ASSIST_CONFIG = 'gitlab.aiassist';
+export const AI_ASSISTED_CODE_SUGGESTIONS_MODE = 'gitlab.aiAssistedCodeSuggestions.enabled';
+export const AI_ASSISTED_CODE_SUGGESTIONS_CONFIG = 'gitlab.aiAssistedCodeSuggestions';
 
 export interface ExtensionConfiguration {
   pipelineGitRemoteName?: string;
@@ -13,7 +13,7 @@ export interface ExtensionConfiguration {
   customQueries: CustomQuery[];
 }
 
-export interface AiAssistConfiguration {
+export interface AiAssistedCodeSuggestionsConfiguration {
   enabled: boolean;
   manualTrigger: boolean;
 }
@@ -31,10 +31,12 @@ export function getExtensionConfiguration(): ExtensionConfiguration {
   };
 }
 
-export function getAiAssistConfiguration(): AiAssistConfiguration {
-  const aiAssistConfig = vscode.workspace.getConfiguration(AIASSIST_CONFIG_NAMESPACE);
+export function getAiAssistedCodeSuggestionsConfiguration(): AiAssistedCodeSuggestionsConfiguration {
+  const aiAssistedCodeSuggestionsConfig = vscode.workspace.getConfiguration(
+    AI_ASSISTED_CODE_SUGGESTIONS_CONFIG_NAMESPACE,
+  );
   return {
-    enabled: aiAssistConfig.enabled,
-    manualTrigger: aiAssistConfig.manualTrigger,
+    enabled: aiAssistedCodeSuggestionsConfig.enabled,
+    manualTrigger: aiAssistedCodeSuggestionsConfig.manualTrigger,
   };
 }

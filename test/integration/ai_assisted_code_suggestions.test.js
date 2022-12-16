@@ -1,7 +1,7 @@
 const assert = require('assert');
 const sinon = require('sinon');
 const vscode = require('vscode');
-const aiAssistResponse = require('./fixtures/rest/ai_assist_response.json');
+const aiAssistedCodeSuggestionsResponse = require('./fixtures/rest/ai_assisted_code_suggestions_response.json');
 const {
   getServer,
   createQueryJsonEndpoint,
@@ -18,7 +18,7 @@ describe('AI Assist code completion', async () => {
   let server;
   let testFileUri;
   const sandbox = sinon.createSandbox();
-  const config = vscode.workspace.getConfiguration('gitlab.aiassist');
+  const config = vscode.workspace.getConfiguration('gitlab.aiAssistedCodeSuggestions');
   const beginEngine = config.get('engine');
 
   before(async () => {
@@ -26,7 +26,7 @@ describe('AI Assist code completion', async () => {
       createQueryJsonEndpoint('/ai/aiassist', { user_is_allowed: true }),
       createJsonPostEndpoint(
         '/v1/completions',
-        aiAssistResponse,
+        aiAssistedCodeSuggestionsResponse,
         'https://codesuggestions.gitlab.com',
       ),
     ]);
