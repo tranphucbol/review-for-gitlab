@@ -328,10 +328,9 @@ To open and browse a repository, either:
 
 Alternatively, run the **GitLab: Open Remote Repository** command and select "Enter gitlab-remote URL" option or manually add a `gitlab-remote` URL to your [workspace file](https://code.visualstudio.com/docs/editor/multi-root-workspaces#_workspace-file). For information about how to create GitLab remote URL, please see [GitLab remote URL format documentation](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/remote-fs-url-format.md)
 
-### Code completion (Alpha)
+### Code suggestions (Alpha)
 
-The [AI Assist](https://about.gitlab.com/handbook/engineering/incubation/ai-assist/) group is working on a code
-completion tool that supports the following API specification projects.
+Code completions within the GitLab WebIDE and VS Code Extension as you type. See the [AI Assisted Group](https://about.gitlab.com/handbook/product/categories/#ai-assisted-group) for more info.
 
 ---
 
