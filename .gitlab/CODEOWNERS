@@ -3,4 +3,4 @@
 # As described in https://docs.gitlab.com/ee/user/project/code_owners.html
 
 [Documentation]
-*.md @aqualls
+*.md @ashrafkhamis
