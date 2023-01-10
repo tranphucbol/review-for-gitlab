@@ -64,7 +64,7 @@ These properties can be applied to any query type.
 | `milestone`     | no       | n/a | The milestone title. `None` lists all GitLab items with no milestone. `Any` lists all GitLab items that have an assigned milestone. Not applicable for epics and vulnerabilities. |
 | `excludeMilestone` | no    | n/a | The milestone title to exclude. Works only with issues. |
 | `author`        | no       | n/a | Return GitLab items created by the given username. |
-| `reviewer`      | no       | n/a | Return GitLab merge requests assigned for review to the given username. When set to `<current_user>`, the extension uses the current user's username. |
+| `reviewer`      | no       | n/a | Return GitLab merge requests assigned for review to the given username. When set to `<current_user>`, the extension uses the current user's username. `None` returns GitLab items without a reviewer. `Any` returns GitLab items with a areviewer. |
 | `excludeAuthor` | no       | n/a | Return GitLab items not created by the given username. Works only with issues. When set to `<current_user>`, the extension uses the current user's username. |
 | `assignee`      | no       | n/a | Return GitLab items assigned to the given username. `None` returns unassigned GitLab items. `Any` returns GitLab items with an assignee. Not applicable for epics and vulnerabilities. |
 | `excludeAssignee` | no     | n/a | Return GitLab items not assigned to the given username. Works only with issues. When set to `<current_user>`, the extension uses the current user's username. |

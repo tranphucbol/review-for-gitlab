@@ -816,7 +816,9 @@ export class GitLabService {
     /**
      * Reviewer parameters
      */
-    if (reviewer) {
+    if (reviewer === 'Any' || reviewer === 'None') {
+      search.set('reviewer_id', reviewer);
+    } else if (reviewer) {
       search.set('reviewer_username', await this.handleCurrentUser(reviewer));
     }
 
