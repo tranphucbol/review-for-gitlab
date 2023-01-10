@@ -10,16 +10,21 @@ import { ProjectInRepository } from '../../gitlab/new_project';
 const first = <T>(a: T[]): T | undefined => a[0];
 
 export class StageItemModel extends ItemModel implements JobProvider {
-  constructor(
-    private projectInRepository: ProjectInRepository,
-    private stageName: string,
-    public jobs: RestJob[],
-  ) {
+  #projectInRepository: ProjectInRepository;
+
+  #stageName: string;
+
+  jobs: RestJob[];
+
+  constructor(projectInRepository: ProjectInRepository, stageName: string, jobs: RestJob[]) {
     super();
+    this.#projectInRepository = projectInRepository;
+    this.#stageName = stageName;
+    this.jobs = jobs;
   }
 
   getTreeItem(): vscode.TreeItem {
-    const item = new vscode.TreeItem(this.stageName, vscode.TreeItemCollapsibleState.Expanded);
+    const item = new vscode.TreeItem(this.#stageName, vscode.TreeItemCollapsibleState.Expanded);
     const mostSevereStatusMetadata = first(
       this.jobs.map(getJobMetadata).sort(compareBy('priority')).reverse(),
     );
@@ -32,7 +37,6 @@ export class StageItemModel extends ItemModel implements JobProvider {
   }
 
   async getChildren(): Promise<vscode.TreeItem[] | ItemModel[]> {
-    const { projectInRepository } = this;
-    return this.jobs.map(j => new JobItemModel(projectInRepository, j));
+    return this.jobs.map(j => new JobItemModel(this.#projectInRepository, j));
   }
 }

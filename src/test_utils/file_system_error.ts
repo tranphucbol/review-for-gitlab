@@ -1,6 +1,8 @@
 import { Uri } from 'vscode';
 
 export class FileSystemError extends Error {
+  readonly code: string;
+
   static FileNotFound(messageOrUri?: string | Uri): FileSystemError {
     return new this('file-not-found', `File not found: ${messageOrUri}`);
   }
@@ -25,7 +27,8 @@ export class FileSystemError extends Error {
     return new this('unavailable', `Unavailable: ${messageOrUri}`);
   }
 
-  private constructor(readonly code: string, messageOrUri?: string | Uri) {
+  private constructor(code: string, messageOrUri?: string | Uri) {
     super(typeof messageOrUri === 'string' ? messageOrUri : messageOrUri?.toString());
+    this.code = code;
   }
 }

@@ -92,7 +92,11 @@ export interface ParserOptions {
 }
 
 export class Parser {
-  public constructor(public options: ParserOptions = { doubleUnderline: false }) {}
+  #options: ParserOptions;
+
+  public constructor(options: ParserOptions = { doubleUnderline: false }) {
+    this.#options = options;
+  }
 
   #finalStyle: Style = { ...DefaultStyle };
 
@@ -236,7 +240,7 @@ export class Parser {
           break;
 
         case 21:
-          if (this.options.doubleUnderline) {
+          if (this.#options.doubleUnderline) {
             style.attributeFlags |= AttributeFlags.DoubleUnderline;
             style.attributeFlags &= ~AttributeFlags.Underline;
             break;

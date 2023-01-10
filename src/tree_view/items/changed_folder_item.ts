@@ -17,28 +17,31 @@ const relativePath = (parentFolderName: string) => (p: FolderTreeItem) => ({
 const isRoot = (folderName: string) => folderName === '';
 
 export class ChangedFolderItem extends TreeItem {
-  private subfolderNames: string[];
+  #subfolderNames: string[];
 
-  private subfolders: FolderTreeItem[];
+  #subfolders: FolderTreeItem[];
 
-  private files: FolderTreeItem[];
+  #files: FolderTreeItem[];
 
-  constructor(folderName: string, allFilesInFolder: FolderTreeItem[], private folderPath = '') {
+  #folderPath: string;
+
+  constructor(folderName: string, allFilesInFolder: FolderTreeItem[], folderPath = '') {
     super(folderName, TreeItemCollapsibleState.Expanded);
+    this.#folderPath = folderPath;
     this.iconPath = ThemeIcon.Folder;
 
-    this.files = allFilesInFolder.filter(isFileItem);
-    this.subfolders = allFilesInFolder.filter(isFolderItem);
-    this.subfolderNames = uniq(this.subfolders.map(getFolderName));
+    this.#files = allFilesInFolder.filter(isFileItem);
+    this.#subfolders = allFilesInFolder.filter(isFolderItem);
+    this.#subfolderNames = uniq(this.#subfolders.map(getFolderName));
 
     // concatenate folder names
-    if (!isRoot(folderName) && this.files.length === 0 && this.subfolderNames.length === 1) {
-      const subfolderName = this.subfolderNames[0];
+    if (!isRoot(folderName) && this.#files.length === 0 && this.#subfolderNames.length === 1) {
+      const subfolderName = this.#subfolderNames[0];
       // FIXME: this constructor return was introduced before the rule
       // eslint-disable-next-line no-constructor-return
       return new ChangedFolderItem(
         path.join(folderName, subfolderName),
-        this.subfolders.map(relativePath(subfolderName)),
+        this.#subfolders.map(relativePath(subfolderName)),
         path.join(folderPath, subfolderName),
       );
     }
@@ -48,15 +51,15 @@ export class ChangedFolderItem extends TreeItem {
 
   getChildren(): TreeItem[] {
     return [
-      ...this.subfolderNames.map(
+      ...this.#subfolderNames.map(
         name =>
           new ChangedFolderItem(
             name,
-            this.subfolders.filter(isInFolder(name)).map(relativePath(name)),
-            path.join(this.folderPath, name),
+            this.#subfolders.filter(isInFolder(name)).map(relativePath(name)),
+            path.join(this.#folderPath, name),
           ),
       ),
-      ...this.files.map(file => file.item),
+      ...this.#files.map(file => file.item),
     ];
   }
 }

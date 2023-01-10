@@ -5,7 +5,10 @@ import { doNotAwait } from '../utils/do_not_await';
 import { jobLogCache } from './job_log_cache';
 
 export class JobLogRefresher {
-  constructor(public readonly jobId: number) {
+  readonly #jobId: number;
+
+  constructor(jobId: number) {
+    this.#jobId = jobId;
     this.#timer = setTimeout(() => this.#onTimer(), 10);
   }
 
@@ -19,7 +22,7 @@ export class JobLogRefresher {
   async #onTimer() {
     if (this.#isDisposed) return;
 
-    const cacheItem = jobLogCache.get(this.jobId);
+    const cacheItem = jobLogCache.get(this.#jobId);
     if (!cacheItem?.repositoryRoot) {
       this.dispose();
       return;
@@ -33,21 +36,24 @@ export class JobLogRefresher {
 
       const newResult = await gitlabService.getJobTrace(
         projectInRepository.project,
-        this.jobId,
+        this.#jobId,
         eTag,
       );
 
       if (newResult) {
         this.#shouldRefreshStatus = true;
         const { rawTrace, eTag: newETag } = newResult;
-        jobLogCache.setForRunning(repositoryRoot, this.jobId, rawTrace, newETag);
+        jobLogCache.setForRunning(repositoryRoot, this.#jobId, rawTrace, newETag);
       } else if (this.#shouldRefreshStatus) {
         this.#shouldRefreshStatus = false;
 
-        const jobStatus = await gitlabService.getSingleJob(projectInRepository.project, this.jobId);
+        const jobStatus = await gitlabService.getSingleJob(
+          projectInRepository.project,
+          this.#jobId,
+        );
         if (jobStatus.status !== 'running') {
           doNotAwait(currentBranchRefresher.refresh(false));
-          jobLogCache.set(this.jobId, oldTrace);
+          jobLogCache.set(this.#jobId, oldTrace);
         }
       }
     } finally {
