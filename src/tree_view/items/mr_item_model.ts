@@ -52,8 +52,14 @@ const uriForDiscussion = (
 export class MrItemModel extends ItemModel {
   private allUrisWithComments?: string[];
 
-  constructor(readonly mr: RestMr, readonly projectInRepository: ProjectInRepository) {
+  readonly mr: RestMr;
+
+  readonly projectInRepository: ProjectInRepository;
+
+  constructor(mr: RestMr, projectInRepository: ProjectInRepository) {
     super();
+    this.mr = mr;
+    this.projectInRepository = projectInRepository;
   }
 
   getTreeItem(): vscode.TreeItem {

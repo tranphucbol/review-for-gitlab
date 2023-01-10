@@ -2,49 +2,53 @@ import { getRestIdFromGraphQLId } from './get_rest_id_from_graphql_id';
 import { GqlProject } from './graphql/shared';
 
 export class GitLabProject {
-  constructor(private readonly gqlProject: GqlProject) {}
+  #gqlProject: GqlProject;
+
+  constructor(gqlProject: GqlProject) {
+    this.#gqlProject = gqlProject;
+  }
 
   get gqlId(): string {
-    return this.gqlProject.id;
+    return this.#gqlProject.id;
   }
 
   get restId(): number {
-    return getRestIdFromGraphQLId(this.gqlProject.id);
+    return getRestIdFromGraphQLId(this.#gqlProject.id);
   }
 
   get name(): string {
-    return this.gqlProject.name;
+    return this.#gqlProject.name;
   }
 
   get description(): string {
-    return this.gqlProject.description;
+    return this.#gqlProject.description;
   }
 
   get httpUrlToRepo(): string {
-    return this.gqlProject.httpUrlToRepo;
+    return this.#gqlProject.httpUrlToRepo;
   }
 
   get sshUrlToRepo(): string {
-    return this.gqlProject.sshUrlToRepo;
+    return this.#gqlProject.sshUrlToRepo;
   }
 
   get namespaceWithPath(): string {
-    return this.gqlProject.fullPath;
+    return this.#gqlProject.fullPath;
   }
 
   get webUrl(): string {
-    return this.gqlProject.webUrl;
+    return this.#gqlProject.webUrl;
   }
 
   get groupRestId(): number | undefined {
-    return this.gqlProject.group && getRestIdFromGraphQLId(this.gqlProject.group.id);
+    return this.#gqlProject.group && getRestIdFromGraphQLId(this.#gqlProject.group.id);
   }
 
   get wikiEnabled(): boolean {
-    return this.gqlProject.wikiEnabled;
+    return this.#gqlProject.wikiEnabled;
   }
 
   get empty(): boolean {
-    return Boolean(this.gqlProject.repository?.empty);
+    return Boolean(this.#gqlProject.repository?.empty);
   }
 }

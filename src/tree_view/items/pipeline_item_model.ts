@@ -34,18 +34,30 @@ export class PipelineItemModel
   extends ItemModel
   implements JobProvider, PipelineProvider, ProjectInRepositoryProvider
 {
+  projectInRepository: ProjectInRepository;
+
+  pipeline: RestPipeline;
+
+  jobs: RestJob[];
+
+  #isTag: boolean;
+
   constructor(
-    public projectInRepository: ProjectInRepository,
-    public pipeline: RestPipeline,
-    public jobs: RestJob[],
-    private isTag: boolean,
+    projectInRepository: ProjectInRepository,
+    pipeline: RestPipeline,
+    jobs: RestJob[],
+    isTag: boolean,
   ) {
     super();
+    this.projectInRepository = projectInRepository;
+    this.pipeline = pipeline;
+    this.jobs = jobs;
+    this.#isTag = isTag;
   }
 
   getTreeItem(): vscode.TreeItem {
     const timeAgo = dayjs(this.pipeline.updated_at).fromNow();
-    const label = `${this.isTag ? 'Tag ' : ''}Pipeline #${this.pipeline.id}`;
+    const label = `${this.#isTag ? 'Tag ' : ''}Pipeline #${this.pipeline.id}`;
     const item = new vscode.TreeItem(label, vscode.TreeItemCollapsibleState.Expanded);
     const statusMetadata = getPipelineMetadata(this.pipeline);
     item.tooltip = `${label} · ${statusMetadata.name} · ${timeAgo}`;

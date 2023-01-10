@@ -20,12 +20,25 @@ const renderSuggestions = (body: string, noteUrl: string): string =>
   );
 
 export class GitLabComment implements vscode.Comment {
+  readonly gqlNote: GqlTextDiffNote;
+
+  readonly thread: GitLabCommentThread;
+
+  mode: vscode.CommentMode;
+
+  body: string | vscode.MarkdownString;
+
   protected constructor(
-    readonly gqlNote: GqlTextDiffNote,
-    public mode: vscode.CommentMode,
-    readonly thread: GitLabCommentThread,
-    public body: string | vscode.MarkdownString,
-  ) {}
+    gqlNote: GqlTextDiffNote,
+    mode: vscode.CommentMode,
+    thread: GitLabCommentThread,
+    body: string | vscode.MarkdownString,
+  ) {
+    this.gqlNote = gqlNote;
+    this.mode = mode;
+    this.thread = thread;
+    this.body = body;
+  }
 
   get id(): string {
     return this.gqlNote.id;

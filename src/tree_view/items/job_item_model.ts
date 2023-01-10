@@ -34,8 +34,14 @@ const getJobItemContextValue = (job: RestJob) => {
 };
 
 export class JobItemModel extends ItemModel implements JobProvider {
-  constructor(public projectInRepository: ProjectInRepository, public job: RestJob) {
+  projectInRepository: ProjectInRepository;
+
+  job: RestJob;
+
+  constructor(projectInRepository: ProjectInRepository, job: RestJob) {
     super();
+    this.projectInRepository = projectInRepository;
+    this.job = job;
   }
 
   get jobs(): RestJob[] {

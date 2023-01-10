@@ -14,7 +14,10 @@ export class GitLabRemoteSourceProviderRepository implements Disposable {
 
   private accountServiceListener: Disposable;
 
-  constructor(private gitAPI: API) {
+  #gitAPI: API;
+
+  constructor(gitAPI: API) {
+    this.#gitAPI = gitAPI;
     this.update();
     this.accountServiceListener = accountService.onDidChange(this.update, this);
   }
@@ -25,7 +28,7 @@ export class GitLabRemoteSourceProviderRepository implements Disposable {
     accounts.forEach(account => {
       if (!this.remoteSourceProviders.has(account.id)) {
         const provider = new GitLabRemoteSourceProvider(account);
-        const disposable = this.gitAPI.registerRemoteSourceProvider(provider);
+        const disposable = this.#gitAPI.registerRemoteSourceProvider(provider);
         this.remoteSourceProviders.set(account.id, { provider, disposable });
       }
     });

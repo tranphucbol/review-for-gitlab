@@ -72,7 +72,11 @@ function parseSectionDirective(
 }
 
 export class AnsiDecorationProvider {
-  constructor(private context?: vscode.ExtensionContext) {}
+  #context?: vscode.ExtensionContext;
+
+  constructor(context?: vscode.ExtensionContext) {
+    this.#context = context;
+  }
 
   async provideDecorations(
     document: vscode.TextDocument,
@@ -204,14 +208,16 @@ export class AnsiDecorationProvider {
       decorationType = vscode.window.createTextEditorDecorationType({
         light: {
           after: {
-            contentIconPath: this.context?.asAbsolutePath(
+            contentIconPath: this.#context?.asAbsolutePath(
               'src/assets/images/light/running-job.svg',
             ),
           },
         },
         dark: {
           after: {
-            contentIconPath: this.context?.asAbsolutePath('src/assets/images/dark/running-job.svg'),
+            contentIconPath: this.#context?.asAbsolutePath(
+              'src/assets/images/dark/running-job.svg',
+            ),
           },
         },
       });
