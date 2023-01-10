@@ -322,12 +322,22 @@ describe('gitlab_service', () => {
       });
     });
 
-    it('sets reviewer parameter', async () => {
-      await service.getIssuables(
-        { ...defaultParams, type: CustomQueryType.ISSUE, reviewer: 'reviewer' },
-        project,
-      );
-      expect(getFetchedParams().get('reviewer_username')).toEqual('reviewer');
+    describe('reviewer parameters', () => {
+      it('sets reviewer_username parameter', async () => {
+        await service.getIssuables(
+          { ...defaultParams, type: CustomQueryType.ISSUE, reviewer: 'reviewer' },
+          project,
+        );
+        expect(getFetchedParams().get('reviewer_username')).toEqual('reviewer');
+      });
+
+      it.each(['Any', 'None'])('Uses %s directly', async param => {
+        await service.getIssuables(
+          { ...defaultParams, type: CustomQueryType.MR, reviewer: param },
+          project,
+        );
+        expect(getFetchedParams().get('reviewer_id')).toEqual(param);
+      });
     });
 
     describe('searchIn parameters', () => {
