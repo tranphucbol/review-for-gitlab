@@ -4,6 +4,12 @@
 ### Features
 
 * Allow custom query reviewer Any and None ([1319283](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/13192830c28bf8da647326ea7126a1820b2d93e9))
+  * Fixed by [Raul Reyes](https://gitlab.com/mk/raul-reclique) with [MR !713](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/713) 👍
+
+### Refactoring
+
+* [refactor: Add EventEmitter to CurrentBranchRefresher](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/703)
+  * Implemented by [Lennard Sprong](https://gitlab.com/X_Sheep) 🎉🔥
 
 
 
