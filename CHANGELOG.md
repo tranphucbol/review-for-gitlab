@@ -1,3 +1,12 @@
+# [3.58.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.57.3...v3.58.0) (2023-01-12)
+
+
+### Features
+
+* Allow custom query reviewer Any and None ([1319283](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/13192830c28bf8da647326ea7126a1820b2d93e9))
+
+
+
 ## [3.57.3](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.57.2...v3.57.3) (2022-12-13)
 
 
