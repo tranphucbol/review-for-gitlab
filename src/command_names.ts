@@ -47,6 +47,7 @@ export const USER_COMMANDS = {
   CLEAR_SELECTED_PROJECT: 'gl.clearSelectedProject',
   DOWNLOAD_ARTIFACTS: 'gl.downloadArtifacts',
   OPEN_TRACE_ARTIFACT: 'gl.openTraceArtifact',
+  WAIT_FOR_PENDING_JOB: 'gl.waitForPendingJob',
   SAVE_RAW_JOB_TRACE: 'gl.saveRawJobTrace',
   OPEN_IN_BROWSER: 'gl.openInBrowser',
   SCROLL_TO_BOTTOM: 'gl.scrollToBottom',

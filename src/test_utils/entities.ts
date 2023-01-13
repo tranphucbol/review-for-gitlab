@@ -199,4 +199,5 @@ export const createExtensionContext = (): vscode.ExtensionContext =>
     globalState: new InMemoryMemento(),
     workspaceState: new InMemoryMemento(),
     secrets: new SecretStorage(),
+    extensionPath: '',
   } as unknown as vscode.ExtensionContext);

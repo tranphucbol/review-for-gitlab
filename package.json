@@ -311,6 +311,11 @@
         "category": "GitLab"
       },
       {
+        "command": "gl.waitForPendingJob",
+        "title": "Display log",
+        "category": "GitLab"
+      },
+      {
         "command": "gl.saveRawJobTrace",
         "title": "Save raw job trace",
         "category": "GitLab",
@@ -400,6 +405,10 @@
         },
         {
           "command": "gl.openTraceArtifact",
+          "when": "false"
+        },
+        {
+          "command": "gl.waitForPendingJob",
           "when": "false"
         },
         {
@@ -590,6 +599,11 @@
         {
           "command": "gl.openTraceArtifact",
           "when": "view =~ /currentBranchInfo/ && viewItem =~ /with-trace/",
+          "group": "navigation@2"
+        },
+        {
+          "command": "gl.waitForPendingJob",
+          "when": "view =~ /currentBranchInfo/ && viewItem =~ /pending-job/",
           "group": "navigation@2"
         }
       ],

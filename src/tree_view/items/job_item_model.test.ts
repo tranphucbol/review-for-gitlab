@@ -55,7 +55,7 @@ describe('item created by JobItemModel', () => {
       finished_at: undefined,
       status: 'manual',
     }).getTreeItem();
-    expect(manualItem.contextValue).toBe('executable-job,with-url');
+    expect(manualItem.contextValue).toBe('executable-job,pending-job,with-url');
   });
 
   it('has contextValue if downloadable artifacts exist', () => {

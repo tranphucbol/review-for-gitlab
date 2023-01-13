@@ -84,6 +84,8 @@ import { JobLogContentProvider } from './ci/job_log_content_provider';
 import { saveRawJobTrace } from './ci/save_raw_job_trace';
 import { JobLogFoldingProvider } from './ci/job_log_folding_provider';
 import { scrollToBottom } from './ci/scroll_to_bottom_command';
+import { pendingWebviewController } from './ci/pending_job_webview_controller';
+import { JobItemModel } from './tree_view/items/job_item_model';
 
 const wrapWithCatch =
   (command: (...args: unknown[]) => unknown) =>
@@ -160,6 +162,9 @@ const registerCommands = (
     [USER_COMMANDS.DOWNLOAD_ARTIFACTS]: downloadArtifacts,
     [USER_COMMANDS.OPEN_IN_BROWSER]: openers.openPipelineUri,
     [USER_COMMANDS.OPEN_TRACE_ARTIFACT]: openTraceArtifact,
+    [USER_COMMANDS.WAIT_FOR_PENDING_JOB]: async (item: JobItemModel) => {
+      await pendingWebviewController.waitForPendingJob(item);
+    },
     [USER_COMMANDS.SAVE_RAW_JOB_TRACE]: saveRawJobTrace,
     [USER_COMMANDS.SCROLL_TO_BOTTOM]: scrollToBottom,
     [USER_COMMANDS.EXECUTE_JOB]: executeJob,
@@ -292,6 +297,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
       gitExtensionWrapper.init(),
       gitlabProjectRepository.init(),
       currentBranchRefresher.refresh(),
+      pendingWebviewController.init(context),
     ]).catch(e => handleError(e)),
   );
 };

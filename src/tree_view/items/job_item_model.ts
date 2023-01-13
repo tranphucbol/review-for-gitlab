@@ -8,7 +8,7 @@ import { JobProvider } from './job_provider';
 import { ProjectInRepository } from '../../gitlab/new_project';
 import { hasDownloadableArtifacts } from '../../utils/has_downloadable_artifacts';
 import { toJobLogUri } from '../../ci/job_log_uri';
-import { VS_COMMANDS } from '../../command_names';
+import { USER_COMMANDS, VS_COMMANDS } from '../../command_names';
 
 dayjs.extend(relativeTime);
 
@@ -26,6 +26,8 @@ const getJobItemContextValue = (job: RestJob) => {
   }
   if (job.started_at) {
     contextValue.push('with-trace');
+  } else {
+    contextValue.push('pending-job');
   }
   if (job.web_url) {
     contextValue.push('with-url');
@@ -68,6 +70,12 @@ export class JobItemModel extends ItemModel implements JobProvider {
         title: 'Display log',
         command: VS_COMMANDS.OPEN,
         arguments: [uri, options],
+      };
+    } else if (item.contextValue.indexOf('pending-job') !== -1) {
+      item.command = {
+        title: 'Display log',
+        command: USER_COMMANDS.WAIT_FOR_PENDING_JOB,
+        arguments: [this],
       };
     }
     return item;
