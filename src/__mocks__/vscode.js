@@ -41,6 +41,8 @@ module.exports = {
     onDidChangeVisibleTextEditors: jest.fn(),
     onDidChangeTextEditorVisibleRanges: jest.fn(),
     onDidChangeActiveTextEditor: jest.fn(),
+    createWebviewPanel: jest.fn(),
+    showTextDocument: jest.fn(),
   },
   commands: {
     executeCommand: jest.fn(),
@@ -94,4 +96,7 @@ module.exports = {
   },
   FileType,
   FileSystemError,
+  ViewColumn: {
+    Active: -1,
+  },
 };
