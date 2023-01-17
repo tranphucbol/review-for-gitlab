@@ -34,7 +34,7 @@ const LOG_LEVEL = {
 // pad subsequent lines by 4 spaces
 const PADDING = 4;
 
-type LogLevel = typeof LOG_LEVEL[keyof typeof LOG_LEVEL];
+type LogLevel = (typeof LOG_LEVEL)[keyof typeof LOG_LEVEL];
 
 const multilineLog = (line: string, level: LogLevel): void => {
   const prefix = `${dayjs().format('YYYY-MM-DDTHH:mm:ss:SSS')} [${level}]: `;
