@@ -97,7 +97,7 @@
   },
   {
     "name": "CI_DEBUG_TRACE",
-    "description": "`true` if [debug logging (tracing)](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/index.md#debug-logging) is enabled."
+    "description": "`true` if [debug logging (tracing)](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/index.md#enable-debug-logging) is enabled."
   },
   {
     "name": "CI_DEFAULT_BRANCH",
@@ -238,6 +238,10 @@
   {
     "name": "CI_JOB_STATUS",
     "description": "The status of the job as each runner stage is executed. Use with [`after_script`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../yaml/index.md#after_script). Can be `success`, `failed`, or `canceled`."
+  },
+  {
+    "name": "CI_JOB_TIMEOUT",
+    "description": "The job timeout value."
   },
   {
     "name": "CI_JOB_TOKEN",
@@ -408,6 +412,10 @@
     "description": "The project namespace (username or group name) of the job."
   },
   {
+    "name": "CI_PROJECT_NAMESPACE_ID",
+    "description": "The project namespace ID of the job."
+  },
+  {
     "name": "CI_PROJECT_PATH",
     "description": "The project namespace with the project name included."
   },
@@ -561,19 +569,19 @@
   },
   {
     "name": "GITLAB_USER_EMAIL",
-    "description": "The email of the user who started the job."
+    "description": "The email of the user who started the pipeline, unless the job is a manual job. In manual jobs, the value is the email of the user who started the job."
   },
   {
     "name": "GITLAB_USER_ID",
-    "description": "The ID of the user who started the job."
+    "description": "The ID of the user who started the pipeline, unless the job is a manual job. In manual jobs, the value is the ID of the user who started the job."
   },
   {
     "name": "GITLAB_USER_LOGIN",
-    "description": "The username of the user who started the job."
+    "description": "The username of the user who started the pipeline, unless the job is a manual job. In manual jobs, the value is the username of the user who started the job."
   },
   {
     "name": "GITLAB_USER_NAME",
-    "description": "The name of the user who started the job."
+    "description": "The name of the user who started the pipeline, unless the job is a manual job. In manual jobs, the value is the name of the user who started the job."
   },
   {
     "name": "TRIGGER_PAYLOAD",
