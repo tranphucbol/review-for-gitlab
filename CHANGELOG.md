@@ -1,3 +1,12 @@
+# [3.59.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.58.0...v3.59.0) (2023-01-18)
+
+
+### Features
+
+* View Pending CI jobs ([0f2ab11](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/0f2ab11562ad42a938710472d09087e070676566))
+
+
+
 # [3.58.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.57.3...v3.58.0) (2023-01-12)
 
 
