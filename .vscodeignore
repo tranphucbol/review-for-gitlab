@@ -12,6 +12,7 @@ reports
 src
 !src/webview/dist
 !src/webview/public/index.html
+!src/webview/public/pendingjob.html
 !src/assets/images/**
 !src/assets/logo.png
 out/**
