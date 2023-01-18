@@ -1,3 +1,12 @@
+## [3.59.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.59.0...v3.59.1) (2023-01-18)
+
+
+### Bug Fixes
+
+* remove SVG badges from README to fix publishing ([82e2248](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/82e2248e53391dd2f5336c17ed8694a476945abc))
+
+
+
 # [3.59.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.58.0...v3.59.0) (2023-01-18)
 
 
