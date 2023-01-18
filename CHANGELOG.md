@@ -4,6 +4,7 @@
 ### Features
 
 * View Pending CI jobs ([0f2ab11](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/0f2ab11562ad42a938710472d09087e070676566))
+  * Implemented by [Lennard Sprong](https://gitlab.com/X_Sheep) with [MR !705](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/705) 👍
 
 
 
