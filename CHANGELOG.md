@@ -4,6 +4,7 @@
 ### Bug Fixes
 
 * Exclude pendingjob.html in vscodeignore ([456c203](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/456c20359565af4d821c647596fb53a8b6351b3e))
+  * Fixed by [Lennard Sprong](https://gitlab.com/X_Sheep) with [MR !718](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/718) 👍
 
 
 
