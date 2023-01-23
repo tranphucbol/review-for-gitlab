@@ -51,7 +51,9 @@ describe('AI Assist code completion', async () => {
     config.update('manualTrigger', false);
   });
 
-  it('Insert AI Assist suggestion', async () => {
+  // This test relies on timeout and is regularly failing integration tests
+  // See https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/677
+  xit('Insert AI Assist suggestion', async () => {
     await insertTextIntoActiveEditor('import pandas as pd');
 
     await vscode.commands.executeCommand('editor.action.inlineSuggest.trigger');
