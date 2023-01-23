@@ -9,6 +9,7 @@ import { ProjectInRepository } from '../../gitlab/new_project';
 import { hasDownloadableArtifacts } from '../../utils/has_downloadable_artifacts';
 import { toJobLogUri } from '../../ci/job_log_uri';
 import { USER_COMMANDS, VS_COMMANDS } from '../../command_names';
+import { hasTraceAvailable } from '../../utils/has_trace_available';
 
 dayjs.extend(relativeTime);
 
@@ -24,7 +25,7 @@ const getJobItemContextValue = (job: RestJob) => {
   if (hasDownloadableArtifacts([job])) {
     contextValue.push('with-artifacts');
   }
-  if (job.started_at) {
+  if (hasTraceAvailable(job)) {
     contextValue.push('with-trace');
   } else {
     contextValue.push('pending-job');

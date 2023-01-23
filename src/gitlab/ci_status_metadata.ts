@@ -145,9 +145,26 @@ const FAILED_ALLOWED: CiStatusMetadata = {
   contextAction: 'retryable',
 };
 
+const ERASED: Partial<CiStatusMetadata> = {
+  illustration: {
+    image: 'src/assets/images/erased-log_empty.svg',
+    title: 'Job has been erased',
+    description: '',
+  },
+};
+
 export const getJobMetadata = (job: RestJob): CiStatusMetadata => {
-  if (job.status === 'failed' && job.allow_failure) return FAILED_ALLOWED;
-  return STATUS_METADATA[job.status] || UNKNOWN_STATUS;
+  let data: CiStatusMetadata;
+  if (job.status === 'failed' && job.allow_failure) {
+    data = FAILED_ALLOWED;
+  } else {
+    data = STATUS_METADATA[job.status] || UNKNOWN_STATUS;
+  }
+
+  if (job.erased_at) {
+    data = { ...data, ...ERASED };
+  }
+  return data;
 };
 
 export const getPipelineMetadata = (pipeline: RestPipeline): CiStatusMetadata =>

@@ -66,6 +66,14 @@ describe('item created by JobItemModel', () => {
     expect(itemWithArtifacts.contextValue).toBe('retryable-job,with-artifacts,with-trace,with-url');
   });
 
+  it('has contextValue if log is erased', () => {
+    const itemWithArtifacts = new JobItemModel(projectInRepository, {
+      ...job,
+      erased_at: dayjs().toString(),
+    }).getTreeItem();
+    expect(itemWithArtifacts.contextValue).toBe('retryable-job,pending-job,with-url');
+  });
+
   describe('showing relative time', () => {
     const threeYearsAgo = dayjs().subtract(3, 'year').toString();
     const twoYearsAgo = dayjs().subtract(2, 'year').toString();
