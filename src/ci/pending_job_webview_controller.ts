@@ -8,6 +8,7 @@ import { JobItemModel } from '../tree_view/items/job_item_model';
 import { cancelJob, executeJob, retryJob } from '../commands/job_actions';
 import { toJobLogUri } from './job_log_uri';
 import { log } from '../log';
+import { hasTraceAvailable } from '../utils/has_trace_available';
 
 const buttonTexts = {
   executable: 'Trigger this manual action',
@@ -72,7 +73,7 @@ export class PendingJobWebviewController {
     const updatedPanelJob = state.jobs.find(j => j.id === panel.jobItemModel.job.id);
     if (updatedPanelJob && panel.jobItemModel.job.status !== updatedPanelJob.status) {
       const jobItemModel = new JobItemModel(state.projectInRepository, updatedPanelJob);
-      if (updatedPanelJob.started_at) {
+      if (hasTraceAvailable(updatedPanelJob)) {
         await replaceWebviewWithTraceview(jobItemModel, panel);
       } else {
         await this.createOrUpdateWebview(jobItemModel, panel);
@@ -132,7 +133,7 @@ export class PendingJobWebviewController {
       if (!panel.visible) return;
 
       const { job: newJob } = panel.jobItemModel;
-      if (newJob.started_at) {
+      if (hasTraceAvailable(newJob)) {
         await replaceWebviewWithTraceview(panel.jobItemModel, panel);
       }
     });

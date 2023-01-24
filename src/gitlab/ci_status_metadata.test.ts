@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { job, pipeline } from '../test_utils/entities';
 import { getJobMetadata, getPipelineMetadata } from './ci_status_metadata';
 
@@ -43,6 +44,12 @@ describe('CI Status Metadata', () => {
 
       expect(result.icon.id).toBe('gear');
       expect(result.name).toBe('Manual');
+    });
+
+    it('returns erased job metadata', () => {
+      const result = getJobMetadata({ ...job, erased_at: dayjs().toString() });
+      expect(result.name).toBe('Passed');
+      expect(result.illustration?.title).toContain('erased');
     });
   });
 

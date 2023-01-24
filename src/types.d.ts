@@ -94,6 +94,7 @@ interface RestJob {
   created_at: string;
   started_at?: string;
   finished_at?: string;
+  erased_at?: string;
   status:
     | 'created'
     | 'pending'
