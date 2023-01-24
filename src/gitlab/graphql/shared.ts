@@ -10,6 +10,9 @@ export const fragmentProjectDetails = gql`
     fullPath
     webUrl
     wikiEnabled
+    repository {
+      rootRef
+    }
     group {
       id
     }
@@ -91,8 +94,10 @@ export interface GqlProject {
   webUrl: string;
   group?: GqlGroup;
   wikiEnabled: boolean;
+  // This property and its nested properties are conditionally requested.
   repository?: {
-    empty: boolean;
+    empty?: boolean;
+    rootRef?: string;
   };
 }
 

@@ -131,7 +131,7 @@
       },
       {
         "command": "gl.compareCurrentBranch",
-        "title": "Compare Current Branch with Master",
+        "title": "Compare Current Branch with Default Branch",
         "category": "GitLab"
       },
       {
