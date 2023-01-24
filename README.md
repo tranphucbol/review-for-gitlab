@@ -64,7 +64,7 @@ You can use [Command Palette](https://code.visualstudio.com/docs/getstarted/user
 - `GitLab: Project Advanced Search (Issues, Merge Requests, Commits, Comments...)`. [Read more](#search-with-advanced-search)
 - `GitLab: Create Snippet` - Create public, internal or private snippet from entire file or selection. [Read more](#create-snippet).
 - `GitLab: Insert Snippet` - Insert a project snippet, supports multi-file snippets. [Read more](#insert-snippet).
-- `GitLab: Compare Current Branch with Master` - Compare your branch with master and view changes on GitLab. [Read more](#compare-with-master).
+- `GitLab: Compare Current Branch with Default Branch` - Compare your branch with the repository's default branch and view changes on GitLab. [Read more](#compare-with-default-branch).
 - `GitLab: Open Active File on GitLab` - View active file on GitLab with highlighting active line number and selected text block. [Read more](#open-active-file).
 - `GitLab: Validate GitLab CI/CD Config` - Validate GitLab CI/CD configuration file `.gitlab-ci.yml`. [Read more](#validate-gitlab-cicd-configuration).
 - `GitLab: Show Merged GitLab CI/CD Config` - Show a preview of the GitLab CI/CD configuration file `.gitlab-ci.yml` with all includes resolved. [Read more](#show-merged-gitlab-cicd-configuration).
@@ -263,13 +263,11 @@ Creating a snippet patch is a great way to suggest a multi-file change during MR
 
 ![Create and apply snippet patch](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/snippet-patch.mp4)
 
-### Compare with master
+### Compare with default branch
 
-You can see changes in your branch by comparing with `master` and see them on GitLab.
+You can see changes on GitLab by comparing your branch with the repository's default branch.
 
 ![_compare-with-master.gif](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/compare-with-master.gif)
-
-> Soon, the extension will support comparing your current branch with other branches.
 
 ### Open active file
 

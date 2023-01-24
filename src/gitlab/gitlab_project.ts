@@ -51,4 +51,8 @@ export class GitLabProject {
   get empty(): boolean {
     return Boolean(this.#gqlProject.repository?.empty);
   }
+
+  get rootRef(): string | undefined {
+    return this.#gqlProject.repository?.rootRef;
+  }
 }
