@@ -11,7 +11,8 @@
       "stopOnEntry": false,
       "preLaunchTask": "${defaultBuildTask}",
       "env": {
-        "NODE_ENV": "development"
+        "NODE_ENV": "development",
+        "GITLAB_VSCODE_ENV": "development"
       }
     },
 
