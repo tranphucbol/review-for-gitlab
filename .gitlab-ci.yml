@@ -42,7 +42,7 @@ lint_commit:
   stage: test
   script:
     - apt-get update && apt-get install -y git
-    - git fetch origin $CI_MERGE_REQUEST_TARGET_BRANCH_NAME && git checkout $CI_MERGE_REQUEST_TARGET_BRANCH_NAME && git checkout $CI_COMMIT_SHA
+    - git fetch origin $CI_MERGE_REQUEST_TARGET_BRANCH_NAME $CI_COMMIT_SHA
     - cd scripts/commit-lint && npm ci
     - node lint.js
   rules:

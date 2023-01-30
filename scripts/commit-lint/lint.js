@@ -36,7 +36,7 @@ async function getMr() {
 }
 
 async function getCommitsInMr() {
-  const targetBranch = CI_MERGE_REQUEST_TARGET_BRANCH_NAME;
+  const targetBranch = `origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}`;
   const sourceCommit = CI_COMMIT_SHA;
   const messages = await read({ from: targetBranch, to: sourceCommit });
   return messages;
