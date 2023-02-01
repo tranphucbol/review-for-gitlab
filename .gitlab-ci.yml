@@ -7,6 +7,9 @@ include:
   - template: Jobs/Dependency-Scanning.latest.gitlab-ci.yml
   - template: Jobs/Secret-Detection.latest.gitlab-ci.yml
   - template: Jobs/License-Scanning.latest.gitlab-ci.yml
+  - project: 'gitlab-org/quality/pipeline-common'
+    file: '/ci/danger-review.yml'  # danger-review job below
+
 
 variables:
   SAST_EXCLUDED_ANALYZERS: "eslint"
