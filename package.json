@@ -1061,7 +1061,7 @@
           "description": "Custom views in the GitLab panel"
         },
         "gitlab.aiAssistedCodeSuggestions.enabled": {
-          "description": "Enable code completion",
+          "description": "Enable code completion (Beta)",
           "type": "boolean",
           "default": false
         },
