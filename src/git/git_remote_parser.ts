@@ -38,10 +38,29 @@ function normalizeSshRemote(remote: string): string {
   // Example: [git@dev.company.com:7999]:group/repo_name.git
   // For more information see:
   // https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/309
-  const sshRemoteWithCustomPort = remote.match(`^\\[?([a-zA-Z0-9_-]+@.*?):\\d+\\]?(.*)$`);
+  const sshRemoteWithCustomPort = remote.match(`^\\[([a-zA-Z0-9_-]+@.*?):\\d+\\](.*)$`);
   if (sshRemoteWithCustomPort) {
     return `ssh://${sshRemoteWithCustomPort[1]}${sshRemoteWithCustomPort[2]}`;
   }
+
+  // Regex to match git SSH remotes with URL scheme and a custom port
+  // Example: ssh://git@example.com:2222/fatihacet/gitlab-vscode-extension.git
+  // For more information see:
+  // https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/644
+  const sshRemoteWithSchemeAndCustomPort = remote.match(`^ssh://([a-zA-Z0-9_-]+@.*?):\\d+(.*)$`);
+  if (sshRemoteWithSchemeAndCustomPort) {
+    return `ssh://${sshRemoteWithSchemeAndCustomPort[1]}${sshRemoteWithSchemeAndCustomPort[2]}`;
+  }
+
+  // Regex to match git SSH remotes without URL scheme and no custom port
+  // Example: git@example.com:2222/fatihacet/gitlab-vscode-extension.git
+  // For more information see this comment:
+  // https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/611#note_1154175809
+  const sshRemoteWithPath = remote.match(`([a-zA-Z0-9_-]+@.*?):(.*)`);
+  if (sshRemoteWithPath) {
+    return `ssh://${sshRemoteWithPath[1]}/${sshRemoteWithPath[2]}`;
+  }
+
   if (remote.match(`^[a-zA-Z0-9_-]+@`)) {
     // Regex to match gitlab potential starting names for ssh remotes.
     return `ssh://${remote}`;
