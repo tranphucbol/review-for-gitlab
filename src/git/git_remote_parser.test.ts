@@ -67,6 +67,11 @@ describe('git_remote_parser', () => {
     [
       // For more details see: https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/611
       'git@example.com:2222/fatihacet/gitlab-vscode-extension.git',
+      ['example.com', '2222/fatihacet', 'gitlab-vscode-extension'],
+    ],
+    [
+      // For more details see: https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/644
+      'ssh://git@example.com:2222/fatihacet/gitlab-vscode-extension.git',
       ['example.com', 'fatihacet', 'gitlab-vscode-extension'],
     ],
   ])('should parse %s', (remote, parsed) => {
