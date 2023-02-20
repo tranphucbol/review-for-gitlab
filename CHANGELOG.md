@@ -4,12 +4,17 @@
 ### Bug Fixes
 
 * Don't use NODE_ENV for selecting webview ([e04abce](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/e04abce24ec94278240d0d56e6441f8906360ad5))
+  * Fixed by [Lennard Sprong](https://gitlab.com/X_Sheep) with [MR !727](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/727) 👍
+* Properly handle SSH URLs with custom ports ([23e851d9](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/23e851d9ac836bb2bca455d541c29762bccbb37d))
+  * Fixed by [Johannes May](https://gitlab.com/johannesmay) with [MR !736](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/736) 👍
 
 
 ### Features
 
 * Change Compare command to use default branch ([179aa19](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/179aa19afb0b2508e9daf8701954a40d73403d2e))
+  * Implemented by [Lennard Sprong](https://gitlab.com/X_Sheep) with [MR !723](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/723) 👍
 * Display message when job is erased ([7c69a84](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/7c69a849c0ba7736cd8edfeed952575c7371ccb3))
+  * Implemented by [Lennard Sprong](https://gitlab.com/X_Sheep) with [MR !725](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/725) 👍
 
 
 
