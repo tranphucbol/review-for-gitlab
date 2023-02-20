@@ -1,3 +1,18 @@
+# [3.60.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.59.2...v3.60.0) (2023-02-20)
+
+
+### Bug Fixes
+
+* Don't use NODE_ENV for selecting webview ([e04abce](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/e04abce24ec94278240d0d56e6441f8906360ad5))
+
+
+### Features
+
+* Change Compare command to use default branch ([179aa19](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/179aa19afb0b2508e9daf8701954a40d73403d2e))
+* Display message when job is erased ([7c69a84](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/7c69a849c0ba7736cd8edfeed952575c7371ccb3))
+
+
+
 ## [3.59.2](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.59.1...v3.59.2) (2023-01-19)
 
 
