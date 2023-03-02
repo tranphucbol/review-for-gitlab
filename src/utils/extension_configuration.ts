@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { CONFIG_NAMESPACE, AI_ASSISTED_CODE_SUGGESTIONS_CONFIG_NAMESPACE } from '../constants';
 import { CustomQuery } from '../gitlab/custom_query';
 
+// These constants represent `settings.json` keys. Other constants belong to `constants.ts`.
 export const GITLAB_DEBUG_MODE = 'gitlab.debug';
 export const AI_ASSISTED_CODE_SUGGESTIONS_MODE = 'gitlab.aiAssistedCodeSuggestions.enabled';
 export const AI_ASSISTED_CODE_SUGGESTIONS_CONFIG = 'gitlab.aiAssistedCodeSuggestions';

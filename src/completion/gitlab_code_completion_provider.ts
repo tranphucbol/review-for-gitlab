@@ -1,6 +1,7 @@
 import * as openai from 'openai';
 import * as vscode from 'vscode';
 import { log } from '../log';
+import { AI_ASSISTED_CODE_SUGGESTIONS_API_URL } from '../constants';
 import {
   getAiAssistedCodeSuggestionsConfiguration,
   AiAssistedCodeSuggestionsConfiguration,
@@ -42,15 +43,20 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
   }
 
   static #getServer(): string {
-    const serverUrl = new URL('https://codesuggestions.gitlab.com/v1');
+    const serverUrl = new URL(AI_ASSISTED_CODE_SUGGESTIONS_API_URL);
     log.debug(`AI Assist: Using server: ${serverUrl.href}`);
     return serverUrl.href.toString();
   }
 
+  static #getPrompt(document: vscode.TextDocument, position: vscode.Position) {
+    return document.getText(new vscode.Range(0, 0, position.line, position.character));
+  }
+
   async getCompletions(document: vscode.TextDocument, position: vscode.Position) {
-    const prompt = document.getText(new vscode.Range(0, 0, position.line, position.character));
+    const prompt = GitLabCodeCompletionProvider.#getPrompt(document, position);
 
     // TODO: Sanitize prompt to prevent exposing sensitive information
+    // Issue https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/692
     if (!prompt) {
       log.debug('AI Assist: Prompt is empty, probably due to first line');
       return [] as vscode.InlineCompletionItem[];
