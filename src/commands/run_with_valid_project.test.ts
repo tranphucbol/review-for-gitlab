@@ -1,8 +1,10 @@
 import { asMock } from '../test_utils/as_mock';
 import { getExtensionConfiguration } from '../utils/extension_configuration';
 import { projectInRepository } from '../test_utils/entities';
-import { runWithValidProject } from './run_with_valid_project';
+import { getRepositoryRootForUri, runWithValidProject } from './run_with_valid_project';
 import { gitlabProjectRepository } from '../gitlab/gitlab_project_repository';
+import { toJobLogUri } from '../ci/job_log_uri';
+import { toMergedYamlUri } from '../ci/merged_yaml_uri';
 
 jest.mock('../gitlab/gitlab_project_repository');
 jest.mock('../utils/extension_configuration');
@@ -26,6 +28,23 @@ describe('runWithValidProject', () => {
       await runWithValidProject(command)();
 
       expect(command).toHaveBeenCalledWith(projectInRepository);
+    });
+
+    describe('getRepositoryRootForUri', () => {
+      it('returns the root for Job Log uri', () => {
+        const uri = toJobLogUri('repository root', 1);
+        const root = getRepositoryRootForUri(uri);
+        expect(root).toEqual('repository root');
+      });
+      it('returns the root for Merged YAML uri', () => {
+        const uri = toMergedYamlUri({
+          repositoryRoot: 'repository root',
+          path: 'path',
+          initial: 'initial',
+        });
+        const root = getRepositoryRootForUri(uri);
+        expect(root).toEqual('repository root');
+      });
     });
   });
 

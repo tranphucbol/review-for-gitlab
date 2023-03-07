@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
+import { fromJobLogUri } from '../ci/job_log_uri';
+import { fromMergedYamlUri } from '../ci/merged_yaml_uri';
+import { JOB_LOG_URI_SCHEME, MERGED_YAML_URI_SCHEME } from '../constants';
 import { gitExtensionWrapper } from '../git/git_extension_wrapper';
-import { GitRepository } from '../git/new_git';
 import { gitlabProjectRepository } from '../gitlab/gitlab_project_repository';
 import { ProjectInRepository } from '../gitlab/new_project';
 
@@ -9,13 +11,24 @@ export interface ProjectInRepositoryAndFile {
   activeEditor: vscode.TextEditor;
 }
 
-function getRepositoryForActiveEditor(): GitRepository | undefined {
+export function getRepositoryRootForUri(uri: vscode.Uri): string | undefined {
+  switch (uri.scheme) {
+    case JOB_LOG_URI_SCHEME:
+      return fromJobLogUri(uri).repositoryRoot;
+    case MERGED_YAML_URI_SCHEME:
+      return fromMergedYamlUri(uri).repositoryRoot;
+    default:
+      return gitExtensionWrapper.getRepositoryForFile(uri)?.rootFsPath;
+  }
+}
+
+function getRepositoryRootForActiveEditor(): string | undefined {
   const editor = vscode.window.activeTextEditor;
   if (!editor?.document.uri) {
     return undefined;
   }
 
-  return gitExtensionWrapper.getRepositoryForFile(editor.document.uri);
+  return getRepositoryRootForUri(editor.document.uri);
 }
 
 /**
@@ -24,12 +37,10 @@ function getRepositoryForActiveEditor(): GitRepository | undefined {
  * (i.e. there's multiple repositories and no open editor) we return undefined.
  */
 export const getActiveProject: () => ProjectInRepository | undefined = () => {
-  const activeEditorRepository = getRepositoryForActiveEditor();
+  const activeEditorRootFsPath = getRepositoryRootForActiveEditor();
 
-  if (activeEditorRepository) {
-    return gitlabProjectRepository.getSelectedOrDefaultForRepository(
-      activeEditorRepository.rootFsPath,
-    );
+  if (activeEditorRootFsPath) {
+    return gitlabProjectRepository.getSelectedOrDefaultForRepository(activeEditorRootFsPath);
   }
 
   const projects = gitlabProjectRepository.getDefaultAndSelectedProjects();
