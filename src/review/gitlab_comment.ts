@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import { SYNCED_COMMENT_CONTEXT } from '../constants';
 import { GqlTextDiffNote } from '../gitlab/graphql/shared';
-import { GitLabCommentThread } from './gitlab_comment_thread';
+// FIXME: Remove this cyclic dependency
+import { GitLabCommentThread } from './gitlab_comment_thread'; // eslint-disable-line import/no-cycle
 
 interface CommentOptions {
   mode?: vscode.CommentMode;

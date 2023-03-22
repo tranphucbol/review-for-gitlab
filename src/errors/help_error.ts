@@ -1,4 +1,5 @@
-import { HelpOptions } from '../utils/help';
+// FIXME: Remove this cyclic dependency
+import { HelpOptions } from '../utils/help'; // eslint-disable-line import/no-cycle
 
 export class HelpError extends Error {
   readonly options?: HelpOptions;

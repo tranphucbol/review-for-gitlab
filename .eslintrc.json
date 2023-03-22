@@ -41,7 +41,7 @@
       "parserOptions": {
         "project": "./tsconfig.json"
       },
-      "extends": ["plugin:@typescript-eslint/recommended", "prettier"],
+      "extends": ["plugin:@typescript-eslint/recommended", "plugin:import/typescript", "prettier"],
       "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"

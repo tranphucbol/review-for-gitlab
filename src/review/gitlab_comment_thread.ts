@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import assert from 'assert';
 import { GitLabService } from '../gitlab/gitlab_service';
-import { GitLabComment } from './gitlab_comment';
+// FIXME: Remove this cyclic dependency
+import { GitLabComment } from './gitlab_comment'; // eslint-disable-line import/no-cycle
 import { GqlTextDiffDiscussion } from '../gitlab/graphql/get_discussions';
 import { GqlNote, GqlTextDiffNote } from '../gitlab/graphql/shared';
 
