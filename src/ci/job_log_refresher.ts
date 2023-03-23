@@ -2,7 +2,8 @@ import { currentBranchRefresher } from '../current_branch_refresher';
 import { getGitLabService } from '../gitlab/get_gitlab_service';
 import { gitlabProjectRepository } from '../gitlab/gitlab_project_repository';
 import { doNotAwait } from '../utils/do_not_await';
-import { jobLogCache } from './job_log_cache';
+// FIXME: Remove this cyclic dependency
+import { jobLogCache } from './job_log_cache'; // eslint-disable-line import/no-cycle
 
 export class JobLogRefresher {
   readonly #jobId: number;

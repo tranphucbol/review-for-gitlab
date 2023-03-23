@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { JobLogRefresher } from './job_log_refresher';
+// FIXME: Remove this cyclic dependency
+import { JobLogRefresher } from './job_log_refresher'; // eslint-disable-line import/no-cycle
 
 export type JobTraceSection = {
   startLine: number;

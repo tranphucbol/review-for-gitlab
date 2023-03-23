@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { VS_COMMANDS } from '../command_names';
-import { HelpError } from '../errors/help_error';
+// FIXME: Remove this cyclic dependency
+import { HelpError } from '../errors/help_error'; // eslint-disable-line import/no-cycle
 import { contextUtils } from './context_utils';
 
 export type HelpOptions = { section: string };
