@@ -27,10 +27,10 @@ export const queryGetSnippets = gql`
   }
 `;
 
-export interface GetSnippetsQueryOptions {
+export type GetSnippetsQueryOptions = {
   namespaceWithPath: string;
   afterCursor?: string;
-}
+};
 
 export interface GqlBlob {
   name: string;

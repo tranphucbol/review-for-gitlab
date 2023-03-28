@@ -50,11 +50,11 @@ export const getIssueDiscussionsQuery = gql`
   }
 `;
 
-export interface GetDiscussionsQueryOptions {
+export type GetDiscussionsQueryOptions = {
   namespaceWithPath: string;
   iid: string;
   afterCursor?: string;
-}
+};
 
 interface GqlGenericDiscussion<T extends GqlNote> {
   replyId: string;

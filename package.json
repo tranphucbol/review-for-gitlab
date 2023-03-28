@@ -1140,14 +1140,14 @@
     "vscode-test": "^1.6.1"
   },
   "dependencies": {
-    "source-map-support": "^0.5.20",
     "cross-fetch": "^3.1.5",
     "dayjs": "^1.10.7",
     "graphql": "^16.6.0",
-    "graphql-request": "^5.1.0",
+    "graphql-request": "^5.2.0",
     "https-proxy-agent": "^5.0.1",
     "openai": "^3.0.0",
     "semver": "^7.3.5",
+    "source-map-support": "^0.5.20",
     "temp": "^0.9.4",
     "url": "^0.11.0"
   }
