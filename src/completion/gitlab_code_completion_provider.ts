@@ -5,6 +5,8 @@ import { AI_ASSISTED_CODE_SUGGESTIONS_API_URL } from '../constants';
 import {
   getAiAssistedCodeSuggestionsConfiguration,
   AiAssistedCodeSuggestionsConfiguration,
+  AI_ASSISTED_CODE_SUGGESTIONS_MODE,
+  AI_ASSISTED_CODE_SUGGESTIONS_CONFIG,
 } from '../utils/extension_configuration';
 import { getActiveProject } from '../commands/run_with_valid_project';
 import { tokenExchangeService } from '../gitlab/token_exchange_service';
@@ -28,6 +30,37 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
     this.server = GitLabCodeCompletionProvider.#getServer();
     this.debouncedCall = undefined;
     this.manualTrigger = configuration.manualTrigger;
+  }
+
+  static registerGitLabCodeCompletion(context: vscode.ExtensionContext) {
+    let subscription: vscode.Disposable | undefined;
+    const dispose = () => subscription?.dispose();
+    context.subscriptions.push({ dispose });
+
+    const register = () => {
+      subscription = vscode.languages.registerInlineCompletionItemProvider(
+        { pattern: '**' },
+        new GitLabCodeCompletionProvider(),
+      );
+    };
+    if (getAiAssistedCodeSuggestionsConfiguration().enabled) {
+      register();
+    }
+
+    vscode.workspace.onDidChangeConfiguration(e => {
+      if (e.affectsConfiguration(AI_ASSISTED_CODE_SUGGESTIONS_MODE)) {
+        if (!getAiAssistedCodeSuggestionsConfiguration().enabled) {
+          log.debug('Disabling code completion');
+          dispose();
+        } else {
+          log.debug('Enabling code completion');
+          register();
+        }
+      } else if (e.affectsConfiguration(AI_ASSISTED_CODE_SUGGESTIONS_CONFIG)) {
+        dispose();
+        register();
+      }
+    });
   }
 
   static async #getGitLabApiKey(): Promise<string | undefined> {
