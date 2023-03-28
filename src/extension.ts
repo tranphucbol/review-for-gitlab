@@ -1,4 +1,4 @@
-import vscode, { Disposable } from 'vscode';
+import vscode from 'vscode';
 import { install as installSourceMapSupport } from 'source-map-support';
 import * as openers from './commands/openers';
 import * as tokenInput from './token_input';
@@ -10,7 +10,7 @@ import { validateCiConfig, showMergedCiConfig } from './commands/ci_config_lint_
 import { webviewController } from './webview_controller';
 import { issuableDataProvider } from './tree_view/issuable_data_provider';
 import { currentBranchDataProvider } from './tree_view/current_branch_data_provider';
-import { initializeLogging, handleError, log } from './log';
+import { initializeLogging, handleError } from './log';
 import { GitContentProvider } from './review/git_content_provider';
 import {
   REVIEW_URI_SCHEME,
@@ -66,13 +66,7 @@ import { migrateSelectedProjects } from './gitlab/migrate_selected_projects';
 import { gitlabUriHandler } from './gitlab_uri_handler';
 import { authenticate } from './accounts/authenticate';
 import { GitLabAuthenticationProvider } from './accounts/oauth/gitlab_authentication_provider';
-import {
-  getExtensionConfiguration,
-  getAiAssistedCodeSuggestionsConfiguration,
-  GITLAB_DEBUG_MODE,
-  AI_ASSISTED_CODE_SUGGESTIONS_MODE,
-  AI_ASSISTED_CODE_SUGGESTIONS_CONFIG,
-} from './utils/extension_configuration';
+import { getExtensionConfiguration, GITLAB_DEBUG_MODE } from './utils/extension_configuration';
 import { setupVersionCheck } from './gitlab/check_version';
 import { setupYamlSupport } from './yaml_support';
 import { cancelJob, executeJob, retryJob } from './commands/job_actions';
@@ -194,37 +188,6 @@ const registerCiCompletion = (context: vscode.ExtensionContext) => {
   context.subscriptions.push(subscription);
 };
 
-const registerGitLabCodeCompletion = (context: vscode.ExtensionContext) => {
-  let subscription: Disposable | undefined;
-  const dispose = () => subscription?.dispose();
-  context.subscriptions.push({ dispose });
-
-  const register = () => {
-    subscription = vscode.languages.registerInlineCompletionItemProvider(
-      { pattern: '**' },
-      new GitLabCodeCompletionProvider(),
-    );
-  };
-  if (getAiAssistedCodeSuggestionsConfiguration().enabled) {
-    register();
-  }
-
-  vscode.workspace.onDidChangeConfiguration(e => {
-    if (e.affectsConfiguration(AI_ASSISTED_CODE_SUGGESTIONS_MODE)) {
-      if (!getAiAssistedCodeSuggestionsConfiguration().enabled) {
-        log.debug('Disabling code completion');
-        dispose();
-      } else {
-        log.debug('Enabling code completion');
-        register();
-      }
-    } else if (e.affectsConfiguration(AI_ASSISTED_CODE_SUGGESTIONS_CONFIG)) {
-      dispose();
-      register();
-    }
-  });
-};
-
 const activateDebugMode = () => {
   const installSourceMapsIfDebug = () => {
     if (getExtensionConfiguration().debug) installSourceMapSupport();
@@ -268,7 +231,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   });
   selectedProjectStore.init(context);
   registerCiCompletion(context);
-  registerGitLabCodeCompletion(context);
+  GitLabCodeCompletionProvider.registerGitLabCodeCompletion(context);
   setupYamlSupport(context);
   vscode.window.registerUriHandler(gitlabUriHandler);
   context.subscriptions.push(gitExtensionWrapper);
