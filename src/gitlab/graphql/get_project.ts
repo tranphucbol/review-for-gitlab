@@ -10,8 +10,8 @@ export const queryGetProject = gql`
   }
 `;
 
-export interface GetProjectQueryOptions {
+export type GetProjectQueryOptions = {
   namespaceWithPath: string;
-}
+};
 
 export type GetProjectQueryResult = GqlProjectResult<GqlProject>;

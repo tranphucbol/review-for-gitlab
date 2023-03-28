@@ -16,9 +16,9 @@ export const getSnippetContentQuery = gql`
   }
 `;
 
-export interface GetSnippetContentQueryOptions {
+export type GetSnippetContentQueryOptions = {
   snippetId: string;
-}
+};
 
 export interface GqlContentBlob {
   path: string;

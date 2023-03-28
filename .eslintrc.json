@@ -19,7 +19,9 @@
     "import/no-unresolved": [
       2,
       {
-        "ignore": ["vscode"]
+        // ignoring `graphql-request` due to a bug in eslint-plugin-import
+        // https://github.com/import-js/eslint-plugin-import/issues/2703
+        "ignore": ["vscode", "graphql-request"]
       }
     ],
     "import/extensions": [

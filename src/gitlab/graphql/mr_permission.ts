@@ -12,7 +12,7 @@ export const getMrPermissionsQuery = gql`
   }
 `;
 
-export interface MrPermissionsQueryOptions {
+export type MrPermissionsQueryOptions = {
   namespaceWithPath: string;
   iid: string;
-}
+};

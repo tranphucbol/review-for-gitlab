@@ -219,7 +219,7 @@ export class GitLabService {
     this.#credentials = credentials;
   }
 
-  async graphqlRequest<T = any, V = Variables>(
+  async graphqlRequest<T = any, V extends Variables = Variables>(
     document: RequestDocument,
     variables?: V,
   ): Promise<T> {
