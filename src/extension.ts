@@ -44,7 +44,11 @@ import { openRepository } from './commands/open_repository';
 import { contextUtils } from './utils/context_utils';
 import { currentBranchRefresher } from './current_branch_refresher';
 import { statusBar } from './status_bar';
-import { runWithValidProject, runWithValidProjectFile } from './commands/run_with_valid_project';
+import {
+  registerRepositoryRootProvider,
+  runWithValidProject,
+  runWithValidProjectFile,
+} from './commands/run_with_valid_project';
 import { triggerPipelineAction } from './commands/trigger_pipeline_action';
 import { setSidebarViewState, SidebarViewState } from './tree_view/sidebar_view_state';
 import { doNotAwait } from './utils/do_not_await';
@@ -250,8 +254,10 @@ export const activate = async (context: vscode.ExtensionContext) => {
   );
   await extensionState.init(accountService);
   registerSidebarTreeDataProviders();
+  registerRepositoryRootProvider(webviewController, pendingWebviewController);
   await migrateCredentials(context, accountService).catch(e => handleError(e));
   await migrateSelectedProjects(selectedProjectStore, accountService).catch(e => handleError(e));
+
   // we don't want to hold the extension startup by waiting on VS Code and GitLab API
   doNotAwait(
     Promise.all([

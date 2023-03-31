@@ -9,6 +9,8 @@ import { cancelJob, executeJob, retryJob } from '../commands/job_actions';
 import { toJobLogUri } from './job_log_uri';
 import { log } from '../log';
 import { hasTraceAvailable } from '../utils/has_trace_available';
+import { WEBVIEW_PENDING_JOB } from '../constants';
+import { RepositoryRootWebviewProvider } from '../commands/run_with_valid_project';
 
 const buttonTexts = {
   executable: 'Trigger this manual action',
@@ -16,7 +18,7 @@ const buttonTexts = {
   cancellable: 'Cancel this job',
 };
 
-type WebViewPanelWithData = vscode.WebviewPanel & {
+export type PendingJobWebviewPanel = vscode.WebviewPanel & {
   jobItemModel: JobItemModel;
 };
 
@@ -33,7 +35,7 @@ const openAndShowTextDocument = async (
 
 const replaceWebviewWithTraceview = async (
   jobItemModel: JobItemModel,
-  existingPanel: WebViewPanelWithData,
+  existingPanel: PendingJobWebviewPanel,
 ) => {
   if (!existingPanel.visible) {
     // eslint-disable-next-line no-param-reassign
@@ -47,7 +49,7 @@ const replaceWebviewWithTraceview = async (
   existingPanel.dispose();
 };
 
-export class PendingJobWebviewController {
+export class PendingJobWebviewController implements RepositoryRootWebviewProvider {
   async init(context: vscode.ExtensionContext) {
     this.#context = context;
 
@@ -62,7 +64,7 @@ export class PendingJobWebviewController {
 
   #context?: vscode.ExtensionContext;
 
-  #panel?: WebViewPanelWithData;
+  #panel?: PendingJobWebviewPanel;
 
   #htmlContent = '';
 
@@ -81,13 +83,13 @@ export class PendingJobWebviewController {
     }
   }
 
-  async #createEmptyPanel(): Promise<WebViewPanelWithData> {
+  async #createEmptyPanel(): Promise<PendingJobWebviewPanel> {
     const panel = vscode.window.createWebviewPanel(
-      'gitlab.waitForPendingJob',
+      WEBVIEW_PENDING_JOB,
       '',
       vscode.ViewColumn.Active,
       { enableScripts: true },
-    ) as WebViewPanelWithData;
+    ) as PendingJobWebviewPanel;
 
     this.#panel = panel;
     panel.webview.onDidReceiveMessage(async () => {
@@ -143,8 +145,8 @@ export class PendingJobWebviewController {
 
   async createOrUpdateWebview(
     jobItemModel: JobItemModel,
-    existingPanel?: WebViewPanelWithData,
-  ): Promise<WebViewPanelWithData> {
+    existingPanel?: PendingJobWebviewPanel,
+  ): Promise<PendingJobWebviewPanel> {
     assert(this.#context);
     const { job } = jobItemModel;
     const existingPanelStatus = existingPanel?.jobItemModel.job.status;
@@ -178,10 +180,20 @@ export class PendingJobWebviewController {
     return panel;
   }
 
-  async waitForPendingJob(item: JobItemModel): Promise<WebViewPanelWithData> {
+  async waitForPendingJob(item: JobItemModel): Promise<PendingJobWebviewPanel> {
     const panel = await this.createOrUpdateWebview(item, this.#panel);
     panel.reveal();
     return panel;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  matchesViewType(viewType: string): boolean {
+    return viewType === `mainThreadWebview-${WEBVIEW_PENDING_JOB}`;
+  }
+
+  get repositoryRootForActiveTab(): string | undefined {
+    if (!this.#panel?.active) return undefined;
+    return this.#panel.jobItemModel.projectInRepository.pointer.repository.rootFsPath;
   }
 }
 

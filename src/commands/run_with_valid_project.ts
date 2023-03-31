@@ -1,14 +1,20 @@
 import * as vscode from 'vscode';
 import { fromJobLogUri } from '../ci/job_log_uri';
 import { fromMergedYamlUri } from '../ci/merged_yaml_uri';
-import { JOB_LOG_URI_SCHEME, MERGED_YAML_URI_SCHEME } from '../constants';
+import { JOB_LOG_URI_SCHEME, MERGED_YAML_URI_SCHEME, REVIEW_URI_SCHEME } from '../constants';
 import { gitExtensionWrapper } from '../git/git_extension_wrapper';
 import { gitlabProjectRepository } from '../gitlab/gitlab_project_repository';
 import { ProjectInRepository } from '../gitlab/new_project';
+import { fromReviewUri } from '../review/review_uri';
 
 export interface ProjectInRepositoryAndFile {
   projectInRepository: ProjectInRepository;
   activeEditor: vscode.TextEditor;
+}
+
+export interface RepositoryRootWebviewProvider {
+  matchesViewType(viewType: string): boolean;
+  get repositoryRootForActiveTab(): string | undefined;
 }
 
 export function getRepositoryRootForUri(uri: vscode.Uri): string | undefined {
@@ -17,18 +23,40 @@ export function getRepositoryRootForUri(uri: vscode.Uri): string | undefined {
       return fromJobLogUri(uri).repositoryRoot;
     case MERGED_YAML_URI_SCHEME:
       return fromMergedYamlUri(uri).repositoryRoot;
+    case REVIEW_URI_SCHEME:
+      return fromReviewUri(uri).repositoryRoot;
     default:
       return gitExtensionWrapper.getRepositoryForFile(uri)?.rootFsPath;
   }
 }
 
+const webviewControllers: Array<RepositoryRootWebviewProvider> = [];
+
+export function registerRepositoryRootProvider(...providers: Array<RepositoryRootWebviewProvider>) {
+  webviewControllers.push(...providers);
+}
+
 function getRepositoryRootForActiveEditor(): string | undefined {
-  const editor = vscode.window.activeTextEditor;
-  if (!editor?.document.uri) {
-    return undefined;
+  const tab = vscode.window.tabGroups.activeTabGroup.activeTab?.input;
+
+  if (!tab) return undefined;
+
+  if (
+    tab instanceof vscode.TabInputText ||
+    tab instanceof vscode.TabInputCustom ||
+    tab instanceof vscode.TabInputNotebook
+  ) {
+    return getRepositoryRootForUri(tab.uri);
+  }
+  if (tab instanceof vscode.TabInputTextDiff || tab instanceof vscode.TabInputNotebookDiff) {
+    return getRepositoryRootForUri(tab.original);
+  }
+  if (tab instanceof vscode.TabInputWebview) {
+    return webviewControllers.find(w => w.matchesViewType(tab.viewType))
+      ?.repositoryRootForActiveTab;
   }
 
-  return getRepositoryRootForUri(editor.document.uri);
+  return undefined;
 }
 
 /**

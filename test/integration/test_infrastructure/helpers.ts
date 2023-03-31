@@ -49,3 +49,13 @@ export const updateRepositoryStatus = async (): Promise<void> => {
   assert(api, 'Failed to retrieve Git Extension');
   return api.getRepository(vscode.Uri.file(getRepositoryRoot()))?.status();
 };
+
+export const waitForActiveTabChange = () =>
+  new Promise(resolve => {
+    const sub = vscode.window.tabGroups.onDidChangeTabs(e => {
+      if (e.changed.find(tab => tab.isActive)) {
+        sub.dispose();
+        resolve(undefined);
+      }
+    });
+  });
