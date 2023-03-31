@@ -43,6 +43,9 @@ module.exports = {
     onDidChangeActiveTextEditor: jest.fn(),
     createWebviewPanel: jest.fn(),
     showTextDocument: jest.fn(),
+    tabGroups: {
+      activeTabGroup: {},
+    },
   },
   commands: {
     executeCommand: jest.fn(),

@@ -10,6 +10,8 @@ import { gitlabProjectRepository } from './gitlab/gitlab_project_repository';
 import { ProjectInRepository } from './gitlab/new_project';
 import { getGitLabService } from './gitlab/get_gitlab_service';
 import { generateSecret } from './utils/generate_secret';
+import { WEBVIEW_WORKFLOW } from './constants';
+import { RepositoryRootWebviewProvider } from './commands/run_with_valid_project';
 
 const webviewResourcePaths = {
   appScriptUri: 'src/webview/dist/js/app.js',
@@ -19,6 +21,10 @@ const webviewResourcePaths = {
 } as const;
 
 type WebviewResources = Record<keyof typeof webviewResourcePaths, vscode.Uri>;
+
+export type IssuableWebviewPanel = vscode.WebviewPanel & {
+  repositoryRoot?: string;
+};
 
 async function initPanelIfActive(
   panel: vscode.WebviewPanel,
@@ -50,12 +56,12 @@ async function initPanelIfActive(
   });
 }
 
-class WebviewController {
+class WebviewController implements RepositoryRootWebviewProvider {
   context?: vscode.ExtensionContext;
 
   isDev = false;
 
-  openedPanels: Record<string, vscode.WebviewPanel | undefined> = {};
+  openedPanels: Record<string, IssuableWebviewPanel | undefined> = {};
 
   init(context: vscode.ExtensionContext, isDev: boolean) {
     this.context = context;
@@ -92,11 +98,11 @@ class WebviewController {
     assert(this.context);
     const title = `${issuable.title.slice(0, 20)}...`;
 
-    return vscode.window.createWebviewPanel('glWorkflow', title, vscode.ViewColumn.One, {
+    return vscode.window.createWebviewPanel(WEBVIEW_WORKFLOW, title, vscode.ViewColumn.One, {
       enableScripts: true,
       localResourceRoots: [vscode.Uri.file(path.join(this.context.extensionPath, 'src'))],
       retainContextWhenHidden: true,
-    });
+    }) as IssuableWebviewPanel;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -155,15 +161,13 @@ class WebviewController {
   }
 
   async open(issuable: RestIssuable, repositoryRoot: string) {
-    const projectInRepository = gitlabProjectRepository.getProjectOrFail(repositoryRoot);
-
     const panelKey = `${repositoryRoot}-${issuable.id}`;
     const openedPanel = this.openedPanels[panelKey];
     if (openedPanel) {
       openedPanel.reveal();
       return openedPanel;
     }
-    const newPanel = await this.create(issuable, projectInRepository);
+    const newPanel = await this.create(issuable, repositoryRoot);
     this.openedPanels[panelKey] = newPanel;
     newPanel.onDidDispose(() => {
       this.openedPanels[panelKey] = undefined;
@@ -171,12 +175,15 @@ class WebviewController {
     return newPanel;
   }
 
-  private async create(issuable: RestIssuable, projectInRepository: ProjectInRepository) {
+  private async create(issuable: RestIssuable, repositoryRoot: string) {
     assert(this.context);
+    const projectInRepository = gitlabProjectRepository.getProjectOrFail(repositoryRoot);
+
     const panel = this.createPanel(issuable);
     const html = this.replaceResources(panel);
     panel.webview.html = html;
     panel.iconPath = this.getIconPathForIssuable(issuable);
+    panel.repositoryRoot = repositoryRoot;
 
     await initPanelIfActive(panel, issuable, getGitLabService(projectInRepository));
     panel.onDidChangeViewState(async () => {
@@ -187,6 +194,16 @@ class WebviewController {
       this.createMessageHandler(panel, issuable, projectInRepository),
     );
     return panel;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  matchesViewType(viewType: string): boolean {
+    return viewType === `mainThreadWebview-${WEBVIEW_WORKFLOW}`;
+  }
+
+  get repositoryRootForActiveTab(): string | undefined {
+    const panel = Object.values(this.openedPanels).find(p => p?.active);
+    return panel?.repositoryRoot;
   }
 }
 
