@@ -16,6 +16,7 @@ import { DetachedHeadError } from '../errors/detached_head_error';
 import { Repository } from '../api/git';
 import { JobItemModel } from '../tree_view/items/job_item_model';
 import { PipelineItemModel } from '../tree_view/items/pipeline_item_model';
+import { WarningError } from '../errors/warning_error';
 
 export const openUrl = async (url: string): Promise<void> => {
   // workaround for a VS Code open command bug: https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/44
@@ -66,14 +67,25 @@ export const showMergeRequests: ProjectCommand = async projectInRepository => {
   await openTemplatedLink('$projectUrl/merge_requests?assignee_id=$userId', projectInRepository);
 };
 
-async function getActiveFile({ projectInRepository, activeEditor }: ProjectInRepositoryAndFile) {
+async function getActiveFile({
+  projectInRepository,
+  activeEditor,
+}: ProjectInRepositoryAndFile): Promise<string> {
   const { repository } = projectInRepository.pointer;
-  const branchName = await getTrackingBranchNameOrThrow(repository.rawRepository);
+
   const filePath = path
     .relative(repository.rootFsPath, activeEditor.document.uri.fsPath)
     .replace(/\\/g, '/');
+
+  const log = await repository.rawRepository.log({ maxEntries: 1, path: filePath });
+
+  if (log.length === 0) {
+    throw new WarningError(
+      'No link exists for the current file. Commit the current file to the repository.',
+    );
+  }
   const { project } = projectInRepository;
-  const fileUrl = `${project.webUrl}/blob/${encodeURIComponent(branchName)}/${filePath}`;
+  const fileUrl = `${project.webUrl}/blob/${encodeURIComponent(log[0].hash)}/${filePath}`;
   let anchor = '';
 
   if (activeEditor.selection) {

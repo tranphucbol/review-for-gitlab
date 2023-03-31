@@ -25,6 +25,8 @@ export const createFakeRepository = (options: Partial<FakeRepositoryOptions> = {
       refs: [],
     },
     status: async () => undefined,
+    getConfig: async () => '',
+    log: async () => [],
   } as unknown as Repository;
 };
 
