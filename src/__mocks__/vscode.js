@@ -68,6 +68,9 @@ module.exports = {
   },
   env: {
     uriScheme: 'vscode',
+    clipboard: {
+      writeText: jest.fn(),
+    },
   },
   CommentMode: { Editing: 0, Preview: 1 },
   StatusBarAlignment: { Left: 0 },

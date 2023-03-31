@@ -4,6 +4,7 @@ import { handleError, initializeLogging, log } from './log';
 import { USER_COMMANDS } from './command_names';
 import { asMock } from './test_utils/as_mock';
 import { getExtensionConfiguration } from './utils/extension_configuration';
+import { WarningError } from './errors/warning_error';
 
 jest.mock('./utils/extension_configuration');
 
@@ -111,6 +112,12 @@ describe('logging', () => {
       await handleError(new Error(message)).onlyForTesting;
 
       expect(executeCommand).toBeCalledWith(USER_COMMANDS.SHOW_OUTPUT);
+    });
+
+    it('shows WarningError as warning', async () => {
+      await handleError(new WarningError(message)).onlyForTesting;
+
+      expect(vscode.window.showWarningMessage).toBeCalledWith(message);
     });
   });
 });
