@@ -1,6 +1,7 @@
 import vscode from 'vscode';
 import path from 'path';
 import { GitRepository } from '../../git/new_git';
+import { USER_COMMANDS } from '../../command_names';
 
 export class NoProjectItem extends vscode.TreeItem {
   repository: GitRepository;
@@ -11,5 +12,10 @@ export class NoProjectItem extends vscode.TreeItem {
     this.repository = repository;
     this.iconPath = new vscode.ThemeIcon('error');
     this.contextValue = 'no-project-detected';
+    this.command = {
+      command: USER_COMMANDS.SELECT_PROJECT,
+      title: 'Select GitLab Project',
+      arguments: [this],
+    };
   }
 }
