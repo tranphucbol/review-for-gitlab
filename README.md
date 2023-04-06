@@ -61,7 +61,7 @@ You can use [Command Palette](https://code.visualstudio.com/docs/getstarted/user
 
 - `GitLab: Search Project Issues (Supports Filters)`. [Read more](#search-with-filters)
 - `GitLab: Search Project Merge Requests (Supports Filters)`. [Read more](#search-with-filters)
-- `GitLab: Project Advanced Search (Issues, Merge Requests, Commits, Comments...)`. [Read more](#search-with-advanced-search)
+- `GitLab: Advanced Search (Issues, Merge Requests, Commits, Comments...)`. [Read more](#search-with-advanced-search)
 - `GitLab: Create Snippet` - Create public, internal or private snippet from entire file or selection. [Read more](#create-snippet).
 - `GitLab: Insert Snippet` - Insert a project snippet, supports multi-file snippets. [Read more](#insert-snippet).
 - `GitLab: Compare Current Branch with Default Branch` - Compare your branch with the repository's default branch and view changes on GitLab. [Read more](#compare-with-default-branch).
@@ -237,7 +237,7 @@ It can become more powerful by allowing you to filter issues/MRs by author, assi
 
 #### Search with Advanced Search
 
-GitLab provides [Advanced Search feature which is backed by Elasticsearch](https://docs.gitlab.com/ee/integration/elasticsearch.html). Please see [Advanced Search syntax](https://docs.gitlab.com/ee/user/search/advanced_search_syntax.html) for more details.
+GitLab provides [Advanced Search feature which is backed by Elasticsearch](https://docs.gitlab.com/ee/integration/elasticsearch.html). Please see [Advanced Search syntax](https://docs.gitlab.com/ee/user/search/advanced_search.html#syntax) for more details.
 
 ### Create snippet
 

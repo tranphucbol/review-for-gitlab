@@ -3,6 +3,57 @@ import { ProjectCommand } from './commands/run_with_valid_project';
 import { GitLabProject } from './gitlab/gitlab_project';
 import * as openers from './commands/openers';
 import { createQueryString } from './utils/create_query_string';
+import { GITLAB_COM_URL } from './constants';
+
+type SearchLevel = 'project' | 'instance';
+
+interface SearchLevelItem extends vscode.QuickPickItem {
+  searchLevel: SearchLevel;
+}
+
+const SELF_MANAGED_INSTANCE_SEARCH_SCOPES: Record<string, string> = {
+  Code: 'blobs',
+  Issues: 'issues',
+  'Merge Requests': 'merge_requests',
+  Wiki: 'wiki_blobs',
+  Commits: 'commits',
+  Comments: 'notes',
+  Milestones: 'milestones',
+  Users: 'users',
+  Projects: 'projects',
+};
+
+const GITLAB_COM_SEARCH_SCOPES: Record<string, string> = {
+  Issues: 'issues',
+  'Merge Requests': 'merge_requests',
+  Comments: 'notes',
+  Milestones: 'milestones',
+  Users: 'users',
+  Projects: 'projects',
+};
+
+const ALL_PROJECT_SEARCH_SCOPES: Record<string, string> = {
+  Code: 'blobs',
+  Issues: 'issues',
+  'Merge Requests': 'merge_requests',
+  Wiki: 'wiki_blobs',
+  Commits: 'commits',
+  Comments: 'notes',
+  Milestones: 'milestones',
+  Users: 'users',
+};
+
+const PROJECT_SEARCH_LEVEL: SearchLevelItem = {
+  label: 'Project',
+  searchLevel: 'project',
+  description: 'The search includes only the current project in results',
+};
+
+const INSTANCE_SEARCH_LEVEL: SearchLevelItem = {
+  label: 'Instance',
+  searchLevel: 'instance',
+  description: 'The search includes all projects in results',
+};
 
 const parseQuery = (query: string, noteableType: string) => {
   const params: Record<string, any> = {};
@@ -83,17 +134,27 @@ const parseQuery = (query: string, noteableType: string) => {
   return createQueryString(params);
 };
 
-function getSearchInput(description: string): Thenable<string | undefined> {
-  return vscode.window.showInputBox({
-    ignoreFocusOut: true,
-    placeHolder: description,
-  });
+function getSearchScope(possibleSearchCopes: {
+  [key: string]: string;
+}): Thenable<string | undefined> {
+  return vscode.window
+    .showQuickPick(Object.keys(possibleSearchCopes), { title: 'Search scope' })
+    .then(item => (item ? possibleSearchCopes[item] : undefined));
+}
+
+function getSearchLevel(): Thenable<SearchLevel | undefined> {
+  return vscode.window
+    .showQuickPick([PROJECT_SEARCH_LEVEL, INSTANCE_SEARCH_LEVEL], {
+      title: 'Search this project or the whole GitLab instance?',
+    })
+    .then(item => item?.searchLevel);
 }
 
 async function showSearchInputFor(noteableType: string, project: GitLabProject) {
-  const query = await getSearchInput(
-    'Search in title or description. (Check extension page for search with filters)',
-  );
+  const query = await vscode.window.showInputBox({
+    ignoreFocusOut: true,
+    placeHolder: 'Search in title or description. (Check extension page for search with filters)',
+  });
   if (!query) return;
   const queryString = parseQuery(query, noteableType);
 
@@ -106,18 +167,37 @@ export const showIssueSearchInput: ProjectCommand = async projectInRepository =>
 export const showMergeRequestSearchInput: ProjectCommand = async projectInRepository =>
   showSearchInputFor('merge_requests', projectInRepository.project);
 
-export const showProjectAdvancedSearchInput: ProjectCommand = async projectInRepository => {
-  const query = await getSearchInput(
-    'Project Advanced Search. (Check extension page for Advanced Search)',
-  );
-  if (!query) return;
+export const showAdvancedSearchInput: ProjectCommand = async projectInRepository => {
   const { instanceUrl } = projectInRepository.account;
   const { project } = projectInRepository;
 
+  const query = await vscode.window.showInputBox({
+    ignoreFocusOut: true,
+    placeHolder: 'Advanced Search. (Check extension page for Advanced Search)',
+  });
+  if (!query) return;
+
+  const searchLevel = await getSearchLevel();
+
+  // Assume project search
+  let possibleSearchScopes = ALL_PROJECT_SEARCH_SCOPES;
+
+  if (searchLevel === 'instance') {
+    possibleSearchScopes =
+      instanceUrl === GITLAB_COM_URL
+        ? GITLAB_COM_SEARCH_SCOPES
+        : SELF_MANAGED_INSTANCE_SEARCH_SCOPES;
+  }
+
+  const searchScope = await getSearchScope(possibleSearchScopes);
+  if (!searchScope) return;
+
+  const projectRestId: number | null = searchLevel === 'project' ? project.restId : null;
+
   const queryString = createQueryString({
     search: query,
-    project_id: project.restId,
-    scope: 'issues',
+    project_id: projectRestId,
+    scope: searchScope,
   });
   // Select issues tab by default for Advanced Search
   await openers.openUrl(`${instanceUrl}/search${queryString}`);

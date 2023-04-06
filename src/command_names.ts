@@ -16,7 +16,7 @@ export const USER_COMMANDS = {
   PIPELINE_ACTIONS: 'gl.pipelineActions',
   ISSUE_SEARCH: 'gl.issueSearch',
   MERGE_REQUEST_SEARCH: 'gl.mergeRequestSearch',
-  PROJECT_ADVANCED_SEARCH: 'gl.projectAdvancedSearch',
+  ADVANCED_SEARCH: 'gl.advancedSearch',
   COMPARE_CURRENT_BRANCH: 'gl.compareCurrentBranch',
   CREATE_SNIPPET: 'gl.createSnippet',
   INSERT_SNIPPET: 'gl.insertSnippet',
