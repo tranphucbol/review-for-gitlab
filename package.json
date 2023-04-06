@@ -125,8 +125,8 @@
         "category": "GitLab"
       },
       {
-        "command": "gl.projectAdvancedSearch",
-        "title": "Project Advanced Search (Issues, Merge Requests, Commits, Comments...)",
+        "command": "gl.advancedSearch",
+        "title": "Advanced Search (Issues, Merge Requests, Commits, Comments...)",
         "category": "GitLab"
       },
       {
@@ -468,7 +468,7 @@
           "when": "gitlab:validState"
         },
         {
-          "command": "gl.projectAdvancedSearch",
+          "command": "gl.advancedSearch",
           "when": "gitlab:validState"
         },
         {
@@ -1110,7 +1110,8 @@
     "update-ci-variables": "node ./scripts/update_ci_variables.js"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.0",
+    "@jest/globals": "^29.5.0",
+    "@types/jest": "^29.4.0",
     "@types/node": "^13.13.52",
     "@types/request-promise": "^4.1.48",
     "@types/semver": "^7.3.8",

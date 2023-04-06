@@ -63,7 +63,7 @@ import { selectedProjectStore } from './gitlab/selected_project_store';
 import {
   showIssueSearchInput,
   showMergeRequestSearchInput,
-  showProjectAdvancedSearchInput,
+  showAdvancedSearchInput,
 } from './search_input';
 import { migrateCredentials } from './accounts/credentials_migrator';
 import { migrateSelectedProjects } from './gitlab/migrate_selected_projects';
@@ -123,7 +123,7 @@ const registerCommands = (
     [USER_COMMANDS.PIPELINE_ACTIONS]: runWithValidProject(triggerPipelineAction),
     [USER_COMMANDS.ISSUE_SEARCH]: runWithValidProject(showIssueSearchInput),
     [USER_COMMANDS.MERGE_REQUEST_SEARCH]: runWithValidProject(showMergeRequestSearchInput),
-    [USER_COMMANDS.PROJECT_ADVANCED_SEARCH]: runWithValidProject(showProjectAdvancedSearchInput),
+    [USER_COMMANDS.ADVANCED_SEARCH]: runWithValidProject(showAdvancedSearchInput),
     [USER_COMMANDS.COMPARE_CURRENT_BRANCH]: runWithValidProject(openers.compareCurrentBranch),
     [USER_COMMANDS.CREATE_SNIPPET]: runWithValidProject(createSnippet),
     [USER_COMMANDS.INSERT_SNIPPET]: runWithValidProject(insertSnippet),
