@@ -4,13 +4,16 @@
 ### Bug Fixes
 
 * Retrieve active project for custom text editors ([3230bde](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/3230bde31bc9eabce1b52c846e77e9574948ca6b))
+  * Fixed by [Lennard Sprong](https://gitlab.com/X_Sheep) with [MR !742](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/742) 👍
 
 
 ### Features
 
 * add scope and search level to advance search prompt ([d64984b](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/d64984b939f595ee4d7d81ae96e2b108de89f15b))
-* clicking ambigous project item lets user select a project ([8313ba4](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/8313ba4ae4ae65bf3a7bf345b7b1b3ac53d207ce))
+  * Implemented by [Paul Marshall](https://gitlab.com/shnaru) with [MR !749](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/749) 👍
+* clicking ambiguous project item lets user select a project ([8313ba4](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/8313ba4ae4ae65bf3a7bf345b7b1b3ac53d207ce))
 * refreshing current branch info works when webviews are open ([112958c](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/112958c1cdc20e4e707ba43e54c95f8a826aa182))
+  * Fixed by [Lennard Sprong](https://gitlab.com/X_Sheep) with [MR !745](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/745) 👍
 * use permalinks in Copy Link to Active File command ([4e6f9be](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/4e6f9bee23870f9e26ed3e2ed0a5ec67fedb0034))
 
 
