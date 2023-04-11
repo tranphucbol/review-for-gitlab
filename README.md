@@ -324,9 +324,22 @@ To open and browse a repository, either:
 
 Alternatively, run the **GitLab: Open Remote Repository** command and select "Enter gitlab-remote URL" option or manually add a `gitlab-remote` URL to your [workspace file](https://code.visualstudio.com/docs/editor/multi-root-workspaces#_workspace-file). For information about how to create GitLab remote URL, please see [GitLab remote URL format documentation](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/remote-fs-url-format.md)
 
-### Code suggestions (Alpha)
+### Code Suggestions (Beta)
 
-Code completions within the GitLab WebIDE and VS Code Extension as you type. See the [AI Assisted Group](https://about.gitlab.com/handbook/product/categories/#ai-assisted-group) for more info.
+Use Code Suggestions to write code more efficiently by viewing code
+suggestions as you type. To learn more about this feature, see the
+[Code Suggestions documentation](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html#enable-code-suggestions-in-vs-code).
+
+This feature is in
+[Open Beta](/ee/policy/alpha-beta-support.md#open-beta-features).
+Code Suggestions use generative AI to suggest code while you're developing.
+Due to high demand, this feature will have unscheduled downtime and
+suggestions in VS Code may be delayed. Code Suggestions may produce
+[low-quality or incomplete suggestions](#model-accuracy-and-quality).
+Beta users should read about the [known limitations](#known-limitations).
+
+Report issues in the
+[feedback issue](https://gitlab.com/gitlab-org/gitlab/-/issues/405152).
 
 ---
 
