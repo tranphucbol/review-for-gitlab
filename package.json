@@ -241,6 +241,10 @@
         "title": "Check out Merge Request Branch"
       },
       {
+        "command": "gl.openInGitLab",
+        "title": "Open in GitLab"
+      },
+      {
         "command": "gl.cloneWiki",
         "title": "Clone Wiki",
         "category": "GitLab"
@@ -548,12 +552,16 @@
       "view/item/context": [
         {
           "command": "gl.openMrFile",
-          "when": "view =~ /issuesAndMrs/ && viewItem == changed-file-item",
+          "when": "viewItem == changed-file-item",
           "group": "inline"
         },
         {
           "command": "gl.checkoutMrBranch",
-          "when": "view =~ /issuesAndMrs/ && viewItem == mr-item-from-same-project"
+          "when": "view =~ /issuesAndMrs/ && viewItem =~ /mr-item-from-same-project/"
+        },
+        {
+          "command": "gl.openInGitLab",
+          "when": "viewItem =~ /web-openable/"
         },
         {
           "command": "gl.assignProject",

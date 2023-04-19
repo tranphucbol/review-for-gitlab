@@ -34,6 +34,7 @@ import {
 import { hasCommentsDecorationProvider } from './review/has_comments_decoration_provider';
 import { changeTypeDecorationProvider } from './review/change_type_decoration_provider';
 import { checkoutMrBranch } from './commands/checkout_mr_branch';
+import { openInGitLab } from './commands/open_in_gitlab';
 import { cloneWiki } from './commands/clone_wiki';
 import { createSnippetPatch } from './commands/create_snippet_patch';
 import { downloadArtifacts } from './commands/download_artifact';
@@ -139,6 +140,7 @@ const registerCommands = (
     [USER_COMMANDS.SUBMIT_COMMENT_EDIT]: submitEdit,
     [USER_COMMANDS.CREATE_COMMENT]: createComment,
     [USER_COMMANDS.CHECKOUT_MR_BRANCH]: checkoutMrBranch,
+    [USER_COMMANDS.OPEN_IN_GITLAB]: openInGitLab,
     [USER_COMMANDS.CLONE_WIKI]: cloneWiki,
     [USER_COMMANDS.CREATE_SNIPPET_PATCH]: runWithValidProject(createSnippetPatch),
     [USER_COMMANDS.APPLY_SNIPPET_PATCH]: runWithValidProject(applySnippetPatch),

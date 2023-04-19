@@ -57,7 +57,7 @@ describe('MrItemModel', () => {
         { ...mr, source_project_id: 1234, target_project_id: 1234 },
         projectInRepository,
       );
-      expect(item.getTreeItem().contextValue).toBe('mr-item-from-same-project');
+      expect(item.getTreeItem().contextValue).toBe('web-openable;mr-item-from-same-project');
     });
 
     it('should return return correct context when MR comes from a fork', () => {
@@ -65,7 +65,7 @@ describe('MrItemModel', () => {
         { ...mr, source_project_id: 5678, target_project_id: 1234 },
         projectInRepository,
       );
-      expect(item.getTreeItem().contextValue).toBe('mr-item-from-fork');
+      expect(item.getTreeItem().contextValue).toBe('web-openable;mr-item-from-fork');
     });
   });
 
