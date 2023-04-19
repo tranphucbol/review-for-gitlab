@@ -71,7 +71,7 @@ export class MrItemModel extends ItemModel {
     if (author.avatar_url) {
       item.iconPath = vscode.Uri.parse(author.avatar_url);
     }
-    item.contextValue = `mr-item-from-${this.isFromFork ? 'fork' : 'same-project'}`;
+    item.contextValue = `web-openable;mr-item-from-${this.isFromFork ? 'fork' : 'same-project'}`;
     return item;
   }
 
