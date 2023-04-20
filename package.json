@@ -1154,7 +1154,6 @@
     "graphql": "^16.6.0",
     "graphql-request": "^6.0.0",
     "https-proxy-agent": "^5.0.1",
-    "openai": "^3.0.0",
     "semver": "^7.3.5",
     "source-map-support": "^0.5.20",
     "temp": "^0.9.4",

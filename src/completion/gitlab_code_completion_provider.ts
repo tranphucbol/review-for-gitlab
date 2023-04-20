@@ -1,7 +1,11 @@
-import * as openai from 'openai';
 import * as vscode from 'vscode';
+import * as path from 'path';
+import crossFetch from 'cross-fetch';
 import { log } from '../log';
-import { AI_ASSISTED_CODE_SUGGESTIONS_API_URL } from '../constants';
+import {
+  AI_ASSISTED_CODE_SUGGESTIONS_API_URL,
+  AI_ASSISTED_CODE_SUGGESTIONS_LINES_BELOW_CURSOR,
+} from '../constants';
 import {
   getAiAssistedCodeSuggestionsConfiguration,
   AiAssistedCodeSuggestionsConfiguration,
@@ -10,7 +14,34 @@ import {
 } from '../utils/extension_configuration';
 import { getActiveProject } from '../commands/run_with_valid_project';
 import { tokenExchangeService } from '../gitlab/token_exchange_service';
-import { getStopSequences } from '../utils/ai_assisted_code_suggestions/get_stop_sequences';
+import { getUserAgentHeader } from '../gitlab/http/get_user_agent_header';
+
+interface Choice {
+  text: string;
+  index: number;
+  finish_reason: string;
+}
+
+interface CodeSuggestionResponse {
+  id: string;
+  model: string;
+  object: string;
+  created: number;
+  choices: Choice[];
+  usage: null;
+}
+
+interface CurrentFile {
+  content_above_cursor: string;
+  content_below_cursor: string;
+  file_name: string;
+}
+interface CodeSuggestionPrompt {
+  current_file: CurrentFile;
+  prompt_version: number;
+  project_id: number | unknown;
+  project_path: string;
+}
 
 export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItemProvider {
   model: string;
@@ -78,15 +109,45 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
   static #getServer(): string {
     const serverUrl = new URL(AI_ASSISTED_CODE_SUGGESTIONS_API_URL);
     log.debug(`AI Assist: Using server: ${serverUrl.href}`);
-    return serverUrl.href.toString();
+    return serverUrl.href;
   }
 
-  static #getPrompt(document: vscode.TextDocument, position: vscode.Position) {
-    return document.getText(new vscode.Range(0, 0, position.line, position.character));
+  static #getPrompt(
+    document: vscode.TextDocument,
+    position: vscode.Position,
+  ): CodeSuggestionPrompt {
+    const contentAboveCursor = document.getText(
+      new vscode.Range(0, 0, position.line, position.character),
+    );
+
+    const linesBelowCursor = AI_ASSISTED_CODE_SUGGESTIONS_LINES_BELOW_CURSOR;
+    const contentBelowCursor = document.getText(
+      new vscode.Range(position.line, position.character, position.line + linesBelowCursor, 0),
+    );
+
+    const projectPath = getActiveProject()?.project.namespaceWithPath || '';
+    const projectId = getActiveProject()?.project.restId || -1;
+    const fileName = path.basename(document.fileName) || '';
+
+    const payload = {
+      prompt_version: 1,
+      project_path: projectPath,
+      project_id: projectId,
+      current_file: {
+        file_name: fileName,
+        content_above_cursor: contentAboveCursor,
+        content_below_cursor: contentBelowCursor,
+      },
+    };
+
+    return payload;
   }
 
   async getCompletions(document: vscode.TextDocument, position: vscode.Position) {
-    const prompt = GitLabCodeCompletionProvider.#getPrompt(document, position);
+    const prompt: CodeSuggestionPrompt = GitLabCodeCompletionProvider.#getPrompt(
+      document,
+      position,
+    );
 
     // TODO: Sanitize prompt to prevent exposing sensitive information
     // Issue https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/692
@@ -95,20 +156,25 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
       return [] as vscode.InlineCompletionItem[];
     }
 
-    const oa = new openai.OpenAIApi(
-      new openai.Configuration({
-        apiKey: await GitLabCodeCompletionProvider.#getGitLabApiKey(),
-        basePath: this.server,
-      }),
-    );
-    const response = await oa.createCompletion({
-      model: this.model,
-      prompt: prompt as openai.CreateCompletionRequestPrompt,
-      stop: getStopSequences(position.line, document),
-    });
+    const gitlabApiKey = await GitLabCodeCompletionProvider.#getGitLabApiKey();
+
+    const requestHeaders = {
+      ...getUserAgentHeader(),
+      Authorization: `Bearer ${gitlabApiKey}`,
+      'Content-Type': 'application/json',
+    };
+
+    const requestConfig = {
+      method: `POST`,
+      headers: requestHeaders,
+      body: JSON.stringify(prompt),
+    };
+
+    const fetchResponse = await crossFetch(this.server, requestConfig);
+    const response: CodeSuggestionResponse = await fetchResponse.json();
 
     return (
-      response.data.choices
+      response.choices
         ?.map(choice => choice.text)
         .map(
           choiceText =>
