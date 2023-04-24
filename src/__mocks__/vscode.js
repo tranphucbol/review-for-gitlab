@@ -105,4 +105,7 @@ module.exports = {
   ViewColumn: {
     Active: -1,
   },
+  InlineCompletionTriggerKind: {
+    Automatic: true,
+  },
 };

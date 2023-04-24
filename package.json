@@ -1072,12 +1072,6 @@
           "description": "Enable code completion (Beta)",
           "type": "boolean",
           "default": false
-        },
-        "gitlab.aiAssistedCodeSuggestions.manualTrigger": {
-          "description": "Allow manual triggering of AI assisted code suggestions. Recommended to leave disabled.",
-          "deprecationMessage": "Only used for testing",
-          "type": "boolean",
-          "default": false
         }
       }
     },

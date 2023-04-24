@@ -1,26 +1,15 @@
 import * as vscode from 'vscode';
 import crossFetch from 'cross-fetch';
 
-import { getAiAssistedCodeSuggestionsConfiguration } from '../utils/extension_configuration';
 import { GitLabCodeCompletionProvider } from './gitlab_code_completion_provider';
 
 jest.mock('cross-fetch');
 const crossFetchCallArgument = () => JSON.parse((crossFetch as jest.Mock).mock.calls[0][1].body);
 
 describe('GitLabCodeCompletionProvider', () => {
-  it('parses configuration correctly', () => {
-    const expectedServer = 'https://codesuggestions.gitlab.com/v2/completions';
-    const expectedModel = 'gitlab';
-    const configuration = getAiAssistedCodeSuggestionsConfiguration();
-    const glcp: GitLabCodeCompletionProvider = new GitLabCodeCompletionProvider(configuration);
-    expect(glcp.server).toBe(expectedServer);
-    expect(glcp.model).toBe(expectedModel);
-  });
-
   describe('getCompletions', () => {
     it('should construct a payload with line above, line below, file name, and prompt version', async () => {
-      const configuration = getAiAssistedCodeSuggestionsConfiguration();
-      const glcp: GitLabCodeCompletionProvider = new GitLabCodeCompletionProvider(configuration);
+      const glcp: GitLabCodeCompletionProvider = new GitLabCodeCompletionProvider();
 
       const testDocument = {
         getText(range: vscode.Range): string {
@@ -44,6 +33,39 @@ describe('GitLabCodeCompletionProvider', () => {
       expect(inputBody.current_file.content_below_cursor).toBe('after');
       expect(inputBody.current_file.file_name).toBe('test.js');
       expect(inputBody.prompt_version).toBe(1);
+    });
+  });
+
+  describe('provideInlineCompletionItems', () => {
+    const mockPrompt = 'const areaOfCube = ';
+    const mockDocument: Partial<vscode.TextDocument> = {
+      getText: () => mockPrompt,
+      lineAt: () => ({ text: mockPrompt } as vscode.TextLine),
+    };
+    const mockPosition = {
+      line: 0,
+      character: mockPrompt.length,
+    } as vscode.Position;
+    const mockInlineCompletions = [] as vscode.InlineCompletionItem[];
+    const mockContext = {
+      triggerKind: vscode.InlineCompletionTriggerKind.Automatic,
+    } as vscode.InlineCompletionContext;
+    jest.useFakeTimers();
+
+    it('provides inline completions', async () => {
+      const glcp: GitLabCodeCompletionProvider = new GitLabCodeCompletionProvider(true);
+      glcp.getCompletions = jest.fn().mockResolvedValue(mockInlineCompletions);
+
+      jest.runAllTimers();
+      await glcp.provideInlineCompletionItems(
+        mockDocument as unknown as vscode.TextDocument,
+        mockPosition,
+        mockContext,
+      );
+      jest.runAllTimers();
+
+      expect(glcp.getCompletions).toHaveBeenCalled();
+      jest.runAllTimers();
     });
   });
 });
