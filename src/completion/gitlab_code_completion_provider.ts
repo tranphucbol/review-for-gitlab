@@ -8,7 +8,6 @@ import {
 } from '../constants';
 import {
   getAiAssistedCodeSuggestionsConfiguration,
-  AiAssistedCodeSuggestionsConfiguration,
   AI_ASSISTED_CODE_SUGGESTIONS_MODE,
   AI_ASSISTED_CODE_SUGGESTIONS_CONFIG,
 } from '../utils/extension_configuration';
@@ -44,23 +43,21 @@ interface CodeSuggestionPrompt {
 }
 
 export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItemProvider {
-  model: string;
+  private model: string;
 
-  server: string;
+  private server: string;
 
-  debouncedCall: any;
+  private debouncedCall: any;
 
-  debounceTime = 500; // milliseconds
+  private debounceTimeMs = 500;
 
-  manualTrigger: boolean;
+  private noDebounce: boolean;
 
-  constructor(
-    configuration: AiAssistedCodeSuggestionsConfiguration = getAiAssistedCodeSuggestionsConfiguration(),
-  ) {
+  constructor(noDebounce = false) {
     this.model = 'gitlab';
     this.server = GitLabCodeCompletionProvider.#getServer();
     this.debouncedCall = undefined;
-    this.manualTrigger = configuration.manualTrigger;
+    this.noDebounce = noDebounce;
   }
 
   static registerGitLabCodeCompletion(context: vscode.ExtensionContext) {
@@ -195,13 +192,14 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
 
     return new Promise(resolve => {
       //  In case of a hover, this will be triggered which is not desired as it calls for a new prediction
-      if (
-        context.triggerKind === vscode.InlineCompletionTriggerKind.Automatic ||
-        this.manualTrigger
-      ) {
-        this.debouncedCall = setTimeout(async () => {
+      if (context.triggerKind === vscode.InlineCompletionTriggerKind.Automatic) {
+        if (this.noDebounce) {
           resolve(this.getCompletions(document, position));
-        }, this.debounceTime);
+        } else {
+          this.debouncedCall = setTimeout(() => {
+            resolve(this.getCompletions(document, position));
+          }, this.debounceTimeMs);
+        }
       }
     });
   }

@@ -31,7 +31,6 @@ describe('AI Assist code completion', async () => {
       ),
     ]);
     config.update('engine', 'GitLab');
-    config.update('manualTrigger', true);
   });
 
   beforeEach(async () => {
@@ -48,7 +47,6 @@ describe('AI Assist code completion', async () => {
   after(async () => {
     server.close();
     config.update('engine', beginEngine);
-    config.update('manualTrigger', false);
   });
 
   // This test relies on timeout and is regularly failing integration tests
