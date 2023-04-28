@@ -1,3 +1,13 @@
+# [3.62.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.61.0...v3.62.0) (2023-04-28)
+
+
+### Features
+
+* add context menu to open issue/mr in browser ([eb21b46](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/eb21b46cb65ff645bff70de53ad4069b1171c0ff))
+* Ai Assisted Code Suggestions: Prompt Collection V1 ([9d3886e](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/9d3886ef4c3707183ba6ed710af184371e3f2728))
+
+
+
 # [3.61.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.60.0...v3.61.0) (2023-04-11)
 
 
