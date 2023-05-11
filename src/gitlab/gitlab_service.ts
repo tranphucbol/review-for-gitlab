@@ -59,6 +59,7 @@ import { HelpError } from '../errors/help_error';
 import { Credentials } from '../accounts/credentials';
 import { newCreateNoteMutation, oldCreateNoteMutation } from './graphql/create_note';
 import { createQueryString, QueryValue } from '../utils/create_query_string';
+import { sort } from '../utils/sort';
 
 interface CreateNoteResult {
   createNote: {
@@ -936,7 +937,9 @@ export class GitLabService {
       {},
       'pipelines for MR',
     );
-    return pipelines[0];
+    // the sort is a fix for an ordering issue https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/569
+    // the sort can be removed once https://gitlab.com/gitlab-org/gitlab/-/issues/344853 is fixed
+    return sort(pipelines, (p1, p2) => p2.iid - p1.iid)[0];
   }
 
   async getOpenMergeRequestForCurrentBranch(

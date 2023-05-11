@@ -72,6 +72,7 @@ interface RestPipeline {
     | 'preparing';
   updated_at: string;
   id: number;
+  iid: number;
   ref: string | null;
   sha: string;
   /**
