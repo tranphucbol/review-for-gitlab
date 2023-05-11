@@ -6,7 +6,7 @@ import { DEFAULT_FETCH_RESPONSE } from '../__mocks__/cross-fetch';
 import { CustomQueryType } from './custom_query_type';
 import { CustomQuery } from './custom_query';
 import { asMock } from '../test_utils/as_mock';
-import { externalStatus, gqlProject, project } from '../test_utils/entities';
+import { externalStatus, gqlProject, mr, pipeline, project } from '../test_utils/entities';
 import { getExtensionConfiguration } from '../utils/extension_configuration';
 import { getHttpAgentOptions } from './http/get_http_agent_options';
 import { HelpError } from '../errors/help_error';
@@ -131,6 +131,21 @@ describe('gitlab_service', () => {
         'https://gitlab.example.com/api/v4/projects/5261717/pipelines?ref=feature%2F123',
         expect.anything(),
       );
+    });
+  });
+
+  describe('getLastPipelineForMr', () => {
+    it('returns pipeline with largest iid', async () => {
+      asMock(crossFetch).mockReturnValue(
+        crossFetchResponse([
+          { ...pipeline, iid: 1 },
+          { ...pipeline, iid: 2 },
+        ]),
+      );
+
+      const result = await service.getLastPipelineForMr(mr);
+
+      expect(result!.iid).toBe(2);
     });
   });
 
