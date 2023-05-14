@@ -1143,7 +1143,7 @@
     "vscode-test": "^1.6.1"
   },
   "dependencies": {
-    "cross-fetch": "^3.1.5",
+    "cross-fetch": "^3.1.6",
     "dayjs": "^1.10.7",
     "graphql": "^16.6.0",
     "graphql-request": "^6.0.0",
