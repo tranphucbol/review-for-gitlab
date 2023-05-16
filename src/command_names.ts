@@ -37,6 +37,7 @@ export const USER_COMMANDS = {
   CREATE_COMMENT: 'gl.createComment',
   CHECKOUT_MR_BRANCH: 'gl.checkoutMrBranch',
   OPEN_IN_GITLAB: 'gl.openInGitLab',
+  COPY_LINK_TO_CLIPBOARD: 'gl.copyLinkToClipboard',
   CLONE_WIKI: 'gl.cloneWiki',
   CREATE_SNIPPET_PATCH: 'gl.createSnippetPatch',
   APPLY_SNIPPET_PATCH: 'gl.applySnippetPatch',
