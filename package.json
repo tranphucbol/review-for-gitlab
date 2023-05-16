@@ -245,6 +245,10 @@
         "title": "Open in GitLab"
       },
       {
+        "command": "gl.copyLinkToClipboard",
+        "title": "Copy link to clipboard"
+      },
+      {
         "command": "gl.cloneWiki",
         "title": "Clone Wiki",
         "category": "GitLab"
@@ -561,6 +565,10 @@
         },
         {
           "command": "gl.openInGitLab",
+          "when": "viewItem =~ /web-openable/"
+        },
+        {
+          "command": "gl.copyLinkToClipboard",
           "when": "viewItem =~ /web-openable/"
         },
         {
