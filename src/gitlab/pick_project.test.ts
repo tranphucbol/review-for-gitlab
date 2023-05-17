@@ -14,12 +14,16 @@ describe('pickProject', () => {
     createProject('c/d'),
     createProject('e/f'),
   ];
-  const partialGitLabService: Partial<GitLabService> = {
-    getProjects: async ({ search }) => {
-      if (!search) return projects;
-      return projects.filter(p => p.namespaceWithPath.indexOf(search) >= 0);
+  const partialGitLabService = {
+    execute: async (r: any) => {
+      if (r.options.namespaceWithPath) {
+        return projects.find(p => p.namespaceWithPath === r.options.namespaceWithPath);
+      }
+      if (r.options.search) {
+        return projects.filter(p => p.namespaceWithPath.indexOf(r.options.search) >= 0);
+      }
+      return projects;
     },
-    getProject: async path => projects.find(p => p.namespaceWithPath === path),
   };
   const gitLabService = partialGitLabService as GitLabService;
 

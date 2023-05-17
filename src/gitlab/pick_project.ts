@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import { pickWithQuery } from '../utils/pick_with_query';
+import { getProject } from './api/get_project';
+import { getProjects } from './api/get_projects';
 import { GitLabProject } from './gitlab_project';
 import { GitLabService } from './gitlab_service';
 
@@ -18,7 +20,7 @@ export async function pickProject(
 
   // Return the user's projects which match the query
   async function getItems(query?: string): Promise<ItemOrOther[]> {
-    const projects = await gitlabService.getProjects({ search: query });
+    const projects = await gitlabService.execute(getProjects({ search: query }));
     const items = projects.map(project => ({
       // We have to use `namespaceWithPath`. `project.name` can be arbitrary text and VS Code filters the items based on `query`
       // For example, we search for `test`, API returns project {name: 'Project', namespaceWithPath: 'group/test'}, if we use `project.name`
@@ -32,7 +34,7 @@ export async function pickProject(
 
   // Lookup a specific project by path
   async function lookupItem(path: string): Promise<GitLabProject | undefined> {
-    const project = await gitlabService.getProject(path);
+    const project = await gitlabService.execute(getProject(path));
 
     if (!project) await vscode.window.showWarningMessage(`Cannot find project with path '${path}'`);
     return project;
