@@ -17,37 +17,42 @@ function upsert<K, V>(map: Map<K, V>, key: K, value: V): V {
   return map.get(key) ?? (map.set(key, value), value);
 }
 
-const ansiThemeColors: Record<ansi.NamedColor, vscode.ThemeColor | undefined> = {
-  [ansi.NamedColor.DefaultBackground]: undefined,
-  [ansi.NamedColor.DefaultForeground]: undefined,
+const ansiThemeColors: Map<ansi.NamedColor, vscode.ThemeColor | undefined> = new Map();
+ansiThemeColors.set(ansi.NamedColor.DefaultBackground, undefined);
+ansiThemeColors.set(ansi.NamedColor.DefaultForeground, undefined);
 
-  [ansi.NamedColor.Black]: new vscode.ThemeColor('terminal.ansiBlack'),
-  [ansi.NamedColor.BrightBlack]: new vscode.ThemeColor('terminal.ansiBrightBlack'),
+ansiThemeColors.set(ansi.NamedColor.Black, new vscode.ThemeColor('terminal.ansiBlack'));
+ansiThemeColors.set(ansi.NamedColor.BrightBlack, new vscode.ThemeColor('terminal.ansiBrightBlack'));
 
-  [ansi.NamedColor.White]: new vscode.ThemeColor('terminal.ansiWhite'),
-  [ansi.NamedColor.BrightWhite]: new vscode.ThemeColor('terminal.ansiBrightWhite'),
+ansiThemeColors.set(ansi.NamedColor.White, new vscode.ThemeColor('terminal.ansiWhite'));
+ansiThemeColors.set(ansi.NamedColor.BrightWhite, new vscode.ThemeColor('terminal.ansiBrightWhite'));
 
-  [ansi.NamedColor.Red]: new vscode.ThemeColor('terminal.ansiRed'),
-  [ansi.NamedColor.BrightRed]: new vscode.ThemeColor('terminal.ansiBrightRed'),
+ansiThemeColors.set(ansi.NamedColor.Red, new vscode.ThemeColor('terminal.ansiRed'));
+ansiThemeColors.set(ansi.NamedColor.BrightRed, new vscode.ThemeColor('terminal.ansiBrightRed'));
 
-  [ansi.NamedColor.Green]: new vscode.ThemeColor('terminal.ansiGreen'),
-  [ansi.NamedColor.BrightGreen]: new vscode.ThemeColor('terminal.ansiBrightGreen'),
+ansiThemeColors.set(ansi.NamedColor.Green, new vscode.ThemeColor('terminal.ansiGreen'));
+ansiThemeColors.set(ansi.NamedColor.BrightGreen, new vscode.ThemeColor('terminal.ansiBrightGreen'));
 
-  [ansi.NamedColor.Yellow]: new vscode.ThemeColor('terminal.ansiYellow'),
-  [ansi.NamedColor.BrightYellow]: new vscode.ThemeColor('terminal.ansiBrightYellow'),
+ansiThemeColors.set(ansi.NamedColor.Yellow, new vscode.ThemeColor('terminal.ansiYellow'));
+ansiThemeColors.set(
+  ansi.NamedColor.BrightYellow,
+  new vscode.ThemeColor('terminal.ansiBrightYellow'),
+);
 
-  [ansi.NamedColor.Blue]: new vscode.ThemeColor('terminal.ansiBlue'),
-  [ansi.NamedColor.BrightBlue]: new vscode.ThemeColor('terminal.ansiBrightBlue'),
+ansiThemeColors.set(ansi.NamedColor.Blue, new vscode.ThemeColor('terminal.ansiBlue'));
+ansiThemeColors.set(ansi.NamedColor.BrightBlue, new vscode.ThemeColor('terminal.ansiBrightBlue'));
 
-  [ansi.NamedColor.Magenta]: new vscode.ThemeColor('terminal.ansiMagenta'),
-  [ansi.NamedColor.BrightMagenta]: new vscode.ThemeColor('terminal.ansiBrightMagenta'),
+ansiThemeColors.set(ansi.NamedColor.Magenta, new vscode.ThemeColor('terminal.ansiMagenta'));
+ansiThemeColors.set(
+  ansi.NamedColor.BrightMagenta,
+  new vscode.ThemeColor('terminal.ansiBrightMagenta'),
+);
 
-  [ansi.NamedColor.Cyan]: new vscode.ThemeColor('terminal.ansiCyan'),
-  [ansi.NamedColor.BrightCyan]: new vscode.ThemeColor('terminal.ansiBrightCyan'),
-};
+ansiThemeColors.set(ansi.NamedColor.Cyan, new vscode.ThemeColor('terminal.ansiCyan'));
+ansiThemeColors.set(ansi.NamedColor.BrightCyan, new vscode.ThemeColor('terminal.ansiBrightCyan'));
 
 function convertColor(color: ansi.Color): vscode.ThemeColor | string | undefined {
-  if (color & ansi.ColorFlags.Named) return ansiThemeColors[color];
+  if (color & ansi.ColorFlags.Named) return ansiThemeColors.get(color);
   return `#${color.toString(16).padStart(6, '0')}`;
 }
 

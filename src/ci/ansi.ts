@@ -43,6 +43,7 @@ export type RgbColor = number;
 export type Color = NamedColor | RgbColor;
 
 export enum AttributeFlags {
+  Default = 0,
   Bold = 1 << 0,
   Faint = 1 << 1,
   Italic = 1 << 2,
