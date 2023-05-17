@@ -3,6 +3,8 @@ import { GitLabService } from '../gitlab_service';
 import { GitLabProject } from '../gitlab_project';
 import { Account } from '../../accounts/account';
 import { getGitLabServiceForAccount } from '../get_gitlab_service';
+import { getProject } from '../api/get_project';
+import { getProjects } from '../api/get_projects';
 
 export function convertUrlToWikiUrl(url: string): string {
   return url.replace(/\.git$/, '.wiki.git');
@@ -41,16 +43,18 @@ export class GitLabRemoteSourceProvider implements RemoteSourceProvider {
   }
 
   async lookupByPath(path: string): Promise<GitLabRemote | undefined> {
-    const project = await this.gitlabService.getProject(path);
+    const project = await this.gitlabService.execute(getProject(path));
     if (!project) return undefined;
 
     return remoteForProject(project);
   }
 
   async getRemoteSources(query?: string): Promise<GitLabRemote[]> {
-    const projects = await this.gitlabService.getProjects({
-      search: query,
-    });
+    const projects = await this.gitlabService.execute(
+      getProjects({
+        search: query,
+      }),
+    );
 
     return projects.filter(project => !project.empty).map(project => remoteForProject(project));
   }

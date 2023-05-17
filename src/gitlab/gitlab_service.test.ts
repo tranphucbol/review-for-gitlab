@@ -11,6 +11,7 @@ import { getExtensionConfiguration } from '../utils/extension_configuration';
 import { getHttpAgentOptions } from './http/get_http_agent_options';
 import { HelpError } from '../errors/help_error';
 import { testCredentials } from '../test_utils/test_credentials';
+import { getProject } from './api/get_project';
 
 jest.mock('graphql-request');
 jest.mock('../accounts/account_service');
@@ -47,7 +48,7 @@ describe('gitlab_service', () => {
         request: async () => ({ project: gqlProject }),
       });
 
-      await service.getProject('group/project');
+      await service.execute(getProject('group/project'));
 
       expect(GraphQLClient).toHaveBeenCalledWith(endpointUrl, expect.anything());
     });

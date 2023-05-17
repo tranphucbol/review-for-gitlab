@@ -15,7 +15,6 @@ import { getRestIdFromGraphQLId } from './get_rest_id_from_graphql_id';
 import { UserFriendlyError } from '../errors/user_friendly_error';
 import { getMrPermissionsQuery, MrPermissionsQueryOptions } from './graphql/mr_permission';
 import { GqlBasePosition, GqlGenericNote, GqlNote, Node } from './graphql/shared';
-import { GetProjectsOptions, GqlProjectsResult, queryGetProjects } from './graphql/get_projects';
 import {
   getIssueDiscussionsQuery,
   getMrDiscussionsQuery,
@@ -31,11 +30,6 @@ import {
   GqlSnippet,
   queryGetSnippets,
 } from './graphql/get_snippets';
-import {
-  GetProjectQueryOptions,
-  GetProjectQueryResult,
-  queryGetProject,
-} from './graphql/get_project';
 import { createDiffNoteMutation, GqlDiffPositionInput } from './graphql/create_diff_comment';
 import { removeLeadingSlash } from '../utils/remove_leading_slash';
 import { log } from '../log';
@@ -60,6 +54,7 @@ import { Credentials } from '../accounts/credentials';
 import { newCreateNoteMutation, oldCreateNoteMutation } from './graphql/create_note';
 import { createQueryString, QueryValue } from '../utils/create_query_string';
 import { sort } from '../utils/sort';
+import { GraphQLQuery } from './api/graphql_query';
 
 interface CreateNoteResult {
   createNote: {
@@ -190,13 +185,6 @@ const getTotalPages = (response: Response): number =>
 
 const getCurrentPage = (query: Record<string, QueryValue>): number =>
   query.page && typeof query.page === 'number' ? query.page : 1;
-
-const SEARCH_LIMIT = 30;
-const getProjectDefaultOptions = {
-  membership: true,
-  limit: SEARCH_LIMIT,
-  searchNamespaces: true,
-};
 
 export interface ValidationResponse {
   valid?: boolean;
@@ -334,19 +322,9 @@ export class GitLabService {
     }
   }
 
-  async getProject(namespaceWithPath: string): Promise<GitLabProject | undefined> {
-    const options: GetProjectQueryOptions = { namespaceWithPath };
-    const result = await this.graphqlRequest<GetProjectQueryResult>(queryGetProject, options);
-    return result.project && new GitLabProject(result.project);
-  }
-
-  async getProjects(options: Partial<GetProjectsOptions>): Promise<GitLabProject[]> {
-    const optionsWithDefaults = { ...getProjectDefaultOptions, ...options };
-    const results = await this.graphqlRequest<GqlProjectsResult>(
-      queryGetProjects,
-      optionsWithDefaults,
-    );
-    return results.projects?.nodes?.map(project => new GitLabProject(project)) || [];
+  async execute<T>(request: GraphQLQuery<T>): Promise<T> {
+    const result = await this.graphqlRequest(request.query, request.options);
+    return request.processResult(result);
   }
 
   async getSnippets(namespaceWithPath: string, afterCursor?: string): Promise<GqlSnippet[]> {
