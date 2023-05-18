@@ -44,7 +44,7 @@ describe('openers', () => {
     await copyLinkToActiveFile({ projectInRepository: pir, activeEditor });
 
     expect(vscode.env.clipboard.writeText).toHaveBeenCalledWith(
-      `https://gitlab.com/gitlab-org/gitlab-vscode-extension/blob/${TEST_HASH}/file#L2-3`,
+      `https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/${TEST_HASH}/file#L2-3`,
     );
   });
 

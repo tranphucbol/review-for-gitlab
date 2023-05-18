@@ -60,11 +60,11 @@ async function getTrackingBranchNameOrThrow(rawRepository: Repository): Promise<
 }
 
 export const showIssues: ProjectCommand = async projectInRepository => {
-  await openTemplatedLink('$projectUrl/issues?assignee_id=$userId', projectInRepository);
+  await openTemplatedLink('$projectUrl/-/issues?assignee_id=$userId', projectInRepository);
 };
 
 export const showMergeRequests: ProjectCommand = async projectInRepository => {
-  await openTemplatedLink('$projectUrl/merge_requests?assignee_id=$userId', projectInRepository);
+  await openTemplatedLink('$projectUrl/-/merge_requests?assignee_id=$userId', projectInRepository);
 };
 
 async function getActiveFile({
@@ -85,7 +85,7 @@ async function getActiveFile({
     );
   }
   const { project } = projectInRepository;
-  const fileUrl = `${project.webUrl}/blob/${encodeURIComponent(log[0].hash)}/${filePath}`;
+  const fileUrl = `${project.webUrl}/-/blob/${encodeURIComponent(log[0].hash)}/${filePath}`;
   let anchor = '';
 
   if (activeEditor.selection) {
@@ -122,7 +122,7 @@ export const openCurrentMergeRequest: ProjectCommand = async projectInRepository
 };
 
 export const openCreateNewIssue: ProjectCommand = async projectInRepository => {
-  await openTemplatedLink('$projectUrl/issues/new', projectInRepository);
+  await openTemplatedLink('$projectUrl/-/issues/new', projectInRepository);
 };
 
 export const openCreateNewMr: ProjectCommand = async projectInRepository => {
@@ -130,7 +130,7 @@ export const openCreateNewMr: ProjectCommand = async projectInRepository => {
   const branchName = await getTrackingBranchNameOrThrow(pointer.repository.rawRepository);
 
   await openUrl(
-    `${project.webUrl}/merge_requests/new?merge_request%5Bsource_branch%5D=${encodeURIComponent(
+    `${project.webUrl}/-/merge_requests/new?merge_request%5Bsource_branch%5D=${encodeURIComponent(
       branchName,
     )}`,
   );
@@ -157,7 +157,7 @@ export const compareCurrentBranch: ProjectCommand = async projectInRepository =>
 
   if (getLastCommitSha(repository.rawRepository) && project.rootRef) {
     await openUrl(
-      `${project.webUrl}/compare/${project.rootRef}...${getLastCommitSha(
+      `${project.webUrl}/-/compare/${project.rootRef}...${getLastCommitSha(
         repository.rawRepository,
       )}`,
     );
