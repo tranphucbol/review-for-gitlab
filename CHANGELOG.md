@@ -10,6 +10,7 @@
 ### Features
 
 * add context menu to open issue/mr in browser ([14e8012](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/14e801235329a186ad19fa87cf61e4577a995854))
+  * Implemented by [@busybox](https://gitlab.com/busybox11) with [MR !782](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/782) 👍
 
 
 
