@@ -1,3 +1,18 @@
+# [3.63.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.62.0...v3.63.0) (2023-05-19)
+
+
+### Bug Fixes
+
+* create issue and MR commands are broken thanks to deprecated URL ([47c2c80](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/47c2c80a47f77c62c751dfca74ca53e5aa5a5db2))
+* reorder pipelines to fix GitLab ordering issue ([cb3988a](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/cb3988aea1f384819599752dcc1afaee6e1d8798))
+
+
+### Features
+
+* add context menu to open issue/mr in browser ([14e8012](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/14e801235329a186ad19fa87cf61e4577a995854))
+
+
+
 # [3.62.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.61.0...v3.62.0) (2023-04-28)
 
 
