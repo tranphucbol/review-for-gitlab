@@ -33,7 +33,7 @@
     "onFileSystem:gitlab-remote"
   ],
   "bugs": {
-    "url": "https://gitlab.com/gitlab-org/gitlab-vscode-extension/issues",
+    "url": "https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues",
     "email": "incoming+gitlab-org-gitlab-vscode-extension-5261717-issue-@incoming.gitlab.com"
   },
   "galleryBanner": {

@@ -572,7 +572,7 @@ The following settings are no longer used:
 
 ### Features
 
-* add 'view as tree' option ([#407](https://gitlab.com/gitlab-org/gitlab-vscode-extension/issues/407)) ([dc11640](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/dc116408dbe67759091ce2fc8c1a24af0bd5d81c))
+* add 'view as tree' option ([#407](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/407)) ([dc11640](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/dc116408dbe67759091ce2fc8c1a24af0bd5d81c))
   * Implemented by [Liming Jin](https://gitlab.com/jinliming2) with [MR !346](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/346) 👍
 
 
@@ -959,7 +959,7 @@ The following settings are no longer used:
 
 ### Bug Fixes
 
-* **status bar:** hide all status items when there is no GitLab project ([6a5537e](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/6a5537ee9ac61abdd9b39e5d0944c282244c339d)), closes [#71](https://gitlab.com/gitlab-org/gitlab-vscode-extension/issues/71)
+* **status bar:** hide all status items when there is no GitLab project ([6a5537e](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/6a5537ee9ac61abdd9b39e5d0944c282244c339d)), closes [#71](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/71)
 * use project_id from the pipeline instead of the workspace project ([7b6f1ba](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/7b6f1babd097ad994f08aceda6380b8cd805bddd))
 * when fetching pipeline jobs fails, only log error, no notification ([fb75deb](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/fb75debbfce0f4a3e1f598b7dae5d401287bbd10))
 
@@ -995,7 +995,7 @@ The following settings are no longer used:
 
 ### Bug Fixes
 
-* **instanceurl:** subpath in self-managed GitLab is not used [#319](https://gitlab.com/gitlab-org/gitlab-vscode-extension/issues/319) ([7b0cba0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/7b0cba0358a31e61776acc55aef08e75b418c7c5))
+* **instanceurl:** subpath in self-managed GitLab is not used [#319](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/319) ([7b0cba0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/7b0cba0358a31e61776acc55aef08e75b418c7c5))
   * Implemented by [@amohoban](https://gitlab.com/amohoban) with [MR !206](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/206) 👍
 * elliptic and y18n have vulnerabilities ([ba067e1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/ba067e1b73b8a065a5fd82d9aa54303bebe14d9b))
   * Implemented by [@KevSlashNull](https://gitlab.com/KevSlashNull) with [MR !214](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/214) 👍
@@ -1046,7 +1046,7 @@ The following settings are no longer used:
 
 ### Features
 
-* **git:** implement git clone command ([eeedd25](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/eeedd25bffae50e5f60151753cfbcf5b95a50d84)), closes [#222](https://gitlab.com/gitlab-org/gitlab-vscode-extension/issues/222)
+* **git:** implement git clone command ([eeedd25](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/eeedd25bffae50e5f60151753cfbcf5b95a50d84)), closes [#222](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/222)
   * Implemented by [@haasef](https://gitlab.com/haasef) with [MR !172](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/172) 👍
 * **mr review:** deleting comments on MR diff ([d1d7446](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/d1d744624080dea35d6a5d61b28239aafb67747a))
 * **mr review:** display whether discussion is resolved or not ([89da179](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/89da17934ebeb560bf494b35c297a9cccc65a260))
@@ -1157,7 +1157,7 @@ The following settings are no longer used:
 
 ### Features
 
-* **statusbar:** create merge request when none exist for current branch ([33822ff](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/33822ff2a2a23d22a446d2fff3856fa1943aa47a)), closes [#291](https://gitlab.com/gitlab-org/gitlab-vscode-extension/issues/291)
+* **statusbar:** create merge request when none exist for current branch ([33822ff](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/33822ff2a2a23d22a446d2fff3856fa1943aa47a)), closes [#291](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/291)
   * Implemented by [@jotoho](https://gitlab.com/jotoho) with [MR !155](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/155) 👍
 
 
@@ -1342,14 +1342,14 @@ The following settings are no longer used:
 ### Fixed
 
 - Ensure that WebView is fully loaded before sending message
-  - Fixed by [@Grafexy](https://gitlab.com/Grafexy) with [MR !39](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/39) 👍
+  - Fixed by [@Grafexy](https://gitlab.com/Grafexy) with [MR !39](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/39) 👍
 - Create public snippet when there is no GitLab project in open workspace
-  - Fixed by [@ttilberg](https://gitlab.com/ttilberg) with [MR !38](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/38) 👍
+  - Fixed by [@ttilberg](https://gitlab.com/ttilberg) with [MR !38](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/38) 👍
 
 ### Documentation updates
 
-- [@renestalder](https://gitlab.com/renestalder) improved documentation for additional custom domain information with [MR !35](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/35) 👍
-- [@jparkrr](https://gitlab.com/jparkrr) fixed some typos with [MR !36](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/36) 👍
+- [@renestalder](https://gitlab.com/renestalder) improved documentation for additional custom domain information with [MR !35](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/35) 👍
+- [@jparkrr](https://gitlab.com/jparkrr) fixed some typos with [MR !36](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/36) 👍
 
 # v2.0.0 - 2019-02-14
 
@@ -1360,47 +1360,47 @@ The following settings are no longer used:
 ### Fixed
 
 - Fix broken v1.9.2 by including require package
-  - Fixed by [@swiffer](https://gitlab.com/swiffer) with [MR !33](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/33) 👍
+  - Fixed by [@swiffer](https://gitlab.com/swiffer) with [MR !33](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/33) 👍
 
 ## v1.9.2 - 2019-02-05 (Please skip this version and upgrade to v1.9.3)
 
 ### Fixed
 
 - Node 8.5/8.6 request bug, moved vscode to devDependencies and upgraded npm packages
-  - Fixed by [@swiffer](https://gitlab.com/swiffer) with [MR !32](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/32) 👍
+  - Fixed by [@swiffer](https://gitlab.com/swiffer) with [MR !32](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/32) 👍
 
 ### Changed
 
-- [#85](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/85) Print URLs in "No token found" warning
+- [#85](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/85) Print URLs in "No token found" warning
   - This was done for troubleshooting purposes. A lot of people are having hard time to configure the instance url and hopefully this will give them a clue to understand what's going wrong.
 
 ## v1.9.1 - 2019-01-18
 
 ### Fixed
 
-- [#28](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/28) Creating a snippet doesn't work when only 2 lines selected
-  - Fixed by by [@joshanne](https://gitlab.com/joshanne) with [MR !30](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/30) 👍
+- [#28](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/28) Creating a snippet doesn't work when only 2 lines selected
+  - Fixed by by [@joshanne](https://gitlab.com/joshanne) with [MR !30](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/30) 👍
 
 # v1.9.0 - 2019-01-17
 
 ### Added
 
 - Support for crt/key pair certificates for users that may use a \*.p12 certificate
-  - Implemented by [@joshanne](https://gitlab.com/joshanne) with [MR !29](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/29) 👍
+  - Implemented by [@joshanne](https://gitlab.com/joshanne) with [MR !29](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/29) 👍
 
 # v1.8.0 - 2019-01-02
 
 ### Added
 
 - A new panel in the GitLab sidebar to show all MRs in the current project
-  - Implemented by [@jkdufair](https://gitlab.com/jkdufair) with [MR !27](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/27) 👍
+  - Implemented by [@jkdufair](https://gitlab.com/jkdufair) with [MR !27](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/27) 👍
 
 # v1.7.0 - 2018-12-13
 
 ### Added
 
 - Ability to work with the non-root domains for self hosted GitLab instances.
-  - Implemented by [@tuomoa](https://gitlab.com/tuomoa) with [MR !11](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/11) 👍
+  - Implemented by [@tuomoa](https://gitlab.com/tuomoa) with [MR !11](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/11) 👍
   - Special thanks to [@Turmio](https://gitlab.com/Turmio) for helping to test this. 👍
 
 # v1.6.0 - 2018-12-12
@@ -1412,26 +1412,26 @@ The following settings are no longer used:
 ### Added
 
 - Pipeline notification on the status bar will now include the list of running and failed jobs
-  - Implemented by [@jduponchelle](https://gitlab.com/jduponchelle) with [MR !23](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/23) 👍
+  - Implemented by [@jduponchelle](https://gitlab.com/jduponchelle) with [MR !23](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/23) 👍
 
 ### Fixed
 
 - Refresh buttons on the sidebar were visible for all panes and even for other extensions.
-  - Fixed by [@Logerfo](https://gitlab.com/Logerfo) with [MR !26](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/26) 👍
+  - Fixed by [@Logerfo](https://gitlab.com/Logerfo) with [MR !26](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/26) 👍
 
 ## v1.5.1 - 2018-11-28
 
 ### Fixed
 
 - View in GitLab button in the pipeline updated notification was not visible
-  - Fixed by [@Clapfire](https://gitlab.com/Clapfire) with [MR !24](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/24) 👍
+  - Fixed by [@Clapfire](https://gitlab.com/Clapfire) with [MR !24](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/24) 👍
 
 # v1.5.0 - 2018-11-08
 
 ### Added
 
 - A new config option to fetch pipeline data from a different Git remote [Read more](https://gitlab.com/fatihacet/gitlab-vscode-extension#configuration-options)
-  - Implemented by [@jduponchelle](https://gitlab.com/jduponchelle) with [MR !22](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/22) and closes [Issue #59](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/59) 👍
+  - Implemented by [@jduponchelle](https://gitlab.com/jduponchelle) with [MR !22](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/22) and closes [Issue #59](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/59) 👍
 
 # v1.4.0 - 2018-11-06
 
@@ -1448,21 +1448,21 @@ The following settings are no longer used:
 ### Added
 
 - A new config option to set remote name manually [Read more](https://gitlab.com/fatihacet/gitlab-vscode-extension#configuration-options)
-  - Implemented by [@jduponchelle](https://gitlab.com/jduponchelle) with [MR !18](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/18) 👍
+  - Implemented by [@jduponchelle](https://gitlab.com/jduponchelle) with [MR !18](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/18) 👍
 - Extension will show a notification after pipeline status changed
-  - Implemented by [@Clapfire](https://gitlab.com/Clapfire) with [MR !21](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/21) and closes [Issue #32](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/32) 👍
+  - Implemented by [@Clapfire](https://gitlab.com/Clapfire) with [MR !21](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/21) and closes [Issue #32](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/32) 👍
 
 ### Changed
 
 - Pipeline action will not open the pipeline on the default browser
-  - Changed by [@Clapfire](https://gitlab.com/Clapfire) with [MR !20](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/20) and closes [#31](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/31) 👍
+  - Changed by [@Clapfire](https://gitlab.com/Clapfire) with [MR !20](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/20) and closes [#31](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/31) 👍
 
 # v1.2.0 - 2018-10-03
 
 ### Added
 
 - A new config option to toggle MR status on status bar [Read more](https://gitlab.com/fatihacet/gitlab-vscode-extension#configuration-options)
-  - Implemented by [@robinvoor](https://gitlab.com/robinvoor) with [MR !15](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/15) 👍
+  - Implemented by [@robinvoor](https://gitlab.com/robinvoor) with [MR !15](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/15) 👍
 
 ## v1.1.1 - 2018-10-03
 
@@ -1475,11 +1475,11 @@ The following settings are no longer used:
 ### Added
 
 - A new config option to toggle GitLab related links on the status bar [Read more](https://gitlab.com/fatihacet/gitlab-vscode-extension#configuration-options)
-  - Implemented with [this commit](https://gitlab.com/fatihacet/gitlab-vscode-extension/commit/6318028f1d3959ee0f70d22bb31b68bcbc4a998c) closes [#58](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/58)
+  - Implemented with [this commit](https://gitlab.com/fatihacet/gitlab-vscode-extension/commit/6318028f1d3959ee0f70d22bb31b68bcbc4a998c) closes [#58](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/58)
 
 ### Fixed
 
-- [#57](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/57) Can't use extension with self-hosted gitlab - scope validity
+- [#57](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/57) Can't use extension with self-hosted gitlab - scope validity
   - Fixed with [this commit](https://gitlab.com/fatihacet/gitlab-vscode-extension/commit/cf2fafec91df042ada35609848f251b6ebb02aeb)
 
 # v1.0.0 - 2018-09-26
@@ -1490,10 +1490,10 @@ The following settings are no longer used:
 
 ### Fixed
 
-- [#41](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/41) Extension not opening the pipeline from command pallete
+- [#41](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/41) Extension not opening the pipeline from command pallete
   - Fixed with [this commit](https://gitlab.com/fatihacet/gitlab-vscode-extension/commit/080a8c609f57df19b093dcfd0ec44cf89e7f5790)
 - Respect VSCode http.proxy settings
-  - Implemented by [@martianboy](https://gitlab.com/martianboy) with [MR !13](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/13) 👍
+  - Implemented by [@martianboy](https://gitlab.com/martianboy) with [MR !13](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/13) 👍
 
 # v0.6.0 - 2018-03-02
 
@@ -1504,19 +1504,19 @@ The following settings are no longer used:
 
 ### Fixed
 
-- [#26](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/26) Support for on-premises GitLab instances with self-signed
-  - Fixed by [@piec](https://gitlab.com/piec) with [MR !8](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/8) 👍
-  - Possibily fixes [#23](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/23) and [#10](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/10)
-- [#29](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/29) Support for on-premises GitLab instances with no certification (http)
+- [#26](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/26) Support for on-premises GitLab instances with self-signed
+  - Fixed by [@piec](https://gitlab.com/piec) with [MR !8](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/8) 👍
+  - Possibily fixes [#23](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/23) and [#10](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/10)
+- [#29](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/29) Support for on-premises GitLab instances with no certification (http)
 
 ## v0.5.2 - 2018-03-01
 
 ### Added
 
 - GitLab Workflow now supports multiple instances.
-  - Implemented by [@csvn](https://gitlab.com/csvn) with [MR !5](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/5) 👍
+  - Implemented by [@csvn](https://gitlab.com/csvn) with [MR !5](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/5) 👍
 - ESLint and Prettier integration for dev environment.
-  - Added by [@alpcanaydin](https://gitlab.com/alpcanaydin) with [MR !6](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/6) 👍
+  - Added by [@alpcanaydin](https://gitlab.com/alpcanaydin) with [MR !6](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/6) 👍
 
 ### Changed
 
@@ -1532,15 +1532,15 @@ The following settings are no longer used:
 
 ### Added
 
-- [#25](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/25) Create snippet from selection or entire file.
-- [#22](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/22) Add support for .gitlab-ci.yml lint-ing
-- [#20](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/20) Added Read more and Set token now buttons to token ask notification.
+- [#25](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/25) Create snippet from selection or entire file.
+- [#22](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/22) Add support for .gitlab-ci.yml lint-ing
+- [#20](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/20) Added Read more and Set token now buttons to token ask notification.
 
 ## v0.4.3 - 2018-02-19
 
 ### Fixed
 
-- [#19](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/19) Can't add token
+- [#19](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/19) Can't add token
 
 ## v0.4.2 - 2018-02-18
 
@@ -1550,16 +1550,16 @@ The following settings are no longer used:
 
 ### Fixed
 
-- [#14](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/14) GitLab: Open active file on GitLab - workspace path not filtered out
-  - Fixed by [@swiffer](https://gitlab.com/swiffer) with [MR !1](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/1) 👍
-- [#16](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/16) Does not work witch projects in subgroup
-  - Fixed by [@AmandaCameron](https://gitlab.com/AmandaCameron) with [MR !3](https://gitlab.com/fatihacet/gitlab-vscode-extension/merge_requests/3) 👍
+- [#14](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/14) GitLab: Open active file on GitLab - workspace path not filtered out
+  - Fixed by [@swiffer](https://gitlab.com/swiffer) with [MR !1](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/1) 👍
+- [#16](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/16) Does not work witch projects in subgroup
+  - Fixed by [@AmandaCameron](https://gitlab.com/AmandaCameron) with [MR !3](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/merge_requests/3) 👍
 
 ## v0.4.1 - 2018-02-10
 
 ### Fixed
 
-- [#17](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/17) Cross project closing issue goes to wrong URL.
+- [#17](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/17) Cross project closing issue goes to wrong URL.
 
 # v0.4.0 - 2018-02-02
 
@@ -1584,7 +1584,7 @@ The following settings are no longer used:
 
 ### Fixed
 
-- [#12](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/12) Fix fetching git remote and tracking branch names.
+- [#12](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/12) Fix fetching git remote and tracking branch names.
 
 ## v0.3.3 - 2018-02-01
 
@@ -1624,7 +1624,7 @@ The following settings are no longer used:
 
 ### Fixed
 
-- [#9](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/9) Branch names with slashes appear to break URL generation
+- [#9](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/9) Branch names with slashes appear to break URL generation
 
 ## v0.2.1 - 2018-01-28
 
@@ -1654,13 +1654,13 @@ The following settings are no longer used:
 
 ### Fixed
 
-- [#7](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/7) Remove hardcoded origin in fetchGitRemote method.
-- [#3](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/3) Assigned MR and issues openers should be project specific
-- [#1](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/1) Local branch name and tracking remote branch name may not be the same
-- [#8](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/8) API URL is hardcoded
-- [#4](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/4) Remove pipes `|` from git commands
-- [#5](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/5) Pipeline info won't be visible in status bar if there is no MR
-- [#2](https://gitlab.com/fatihacet/gitlab-vscode-extension/issues/4) Remove own MR requirement to find branch MR
+- [#7](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/7) Remove hardcoded origin in fetchGitRemote method.
+- [#3](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/3) Assigned MR and issues openers should be project specific
+- [#1](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/1) Local branch name and tracking remote branch name may not be the same
+- [#8](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/8) API URL is hardcoded
+- [#4](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/4) Remove pipes `|` from git commands
+- [#5](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/5) Pipeline info won't be visible in status bar if there is no MR
+- [#2](https://gitlab.com/fatihacet/gitlab-vscode-extension/-/issues/4) Remove own MR requirement to find branch MR
 
 ## v0.1.1 - 2018-01-25
 
