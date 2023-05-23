@@ -37,8 +37,8 @@ export const openUrl = async (url: string): Promise<void> => {
  * $projectUrl
  * $userId
  *
- * An example link is `$projectUrl/issues?assignee_id=$userId` which will be
- * `gitlab.com/gitlab-org/gitlab-ce/issues?assignee_id=502136`.
+ * An example link is `$projectUrl/-/issues?assignee_id=$userId` which will be
+ * `gitlab.com/gitlab-org/gitlab-ce/-/issues?assignee_id=502136`.
  *
  * @param {string} linkTemplate
  * @param {RestUser} user current user
