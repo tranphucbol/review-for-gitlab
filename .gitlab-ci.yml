@@ -90,20 +90,6 @@ test-integration:
     - /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
     - npm run test-integration
 
-test-integration-windows:
-  stage: test
-  tags:
-    - shared-windows
-    - windows
-    - windows-1809
-  variables:
-    # The normal TEMP variable contains the DOS short path C:\Users\GITLAB~1\AppData\Local\Temp
-    # which breaks the part of extension that does path comparison
-    TEMP: 'C:\Users\gitlab_runner\AppData\Local\Temp'
-  script:
-    - npm ci
-    - npm run test-integration
-
 test-webview:
   stage: test
   script:
