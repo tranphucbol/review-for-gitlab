@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import crossFetch from 'cross-fetch';
+import fetch from '../gitlab/fetch_logged';
 import { log } from '../log';
 import {
   AI_ASSISTED_CODE_SUGGESTIONS_API_URL,
@@ -167,7 +167,7 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
       body: JSON.stringify(prompt),
     };
 
-    const fetchResponse = await crossFetch(this.server, requestConfig);
+    const fetchResponse = await fetch(this.server, requestConfig);
     const response: CodeSuggestionResponse = await fetchResponse.json();
 
     return (

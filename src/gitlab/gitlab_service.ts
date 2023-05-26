@@ -1,9 +1,9 @@
 import * as https from 'https';
 import { GraphQLClient, gql, Variables, RequestDocument } from 'graphql-request';
-import crossFetch from 'cross-fetch';
 import { URL } from 'url';
 import createHttpProxyAgent from 'https-proxy-agent';
 import assert from 'assert';
+import fetch from './fetch_logged';
 import { FetchError } from '../errors/fetch_error';
 import { getUserAgentHeader } from './http/get_user_agent_header';
 import { ensureAbsoluteAvatarUrl } from './ensure_absolute_avatar_url';
@@ -223,7 +223,7 @@ export class GitLabService {
 
   async crossFetch(input: RequestInfo, init: RequestInit = {}): Promise<Response> {
     const fetchOptions = await this.#getFetchOptions();
-    return crossFetch(input, {
+    return fetch(input, {
       ...fetchOptions,
       ...init,
       headers: { ...fetchOptions.headers, ...init.headers },
@@ -1035,7 +1035,7 @@ export class GitLabService {
       params.grantType === 'authorization_code'
         ? [`code=${params.code}`, `code_verifier=${params.codeVerifier}`]
         : [`refresh_token=${params.refreshToken}`];
-    const response = await crossFetch(`${params.instanceUrl}/oauth/token`, {
+    const response = await fetch(`${params.instanceUrl}/oauth/token`, {
       ...fetchOptions,
       method: 'POST',
       headers: {

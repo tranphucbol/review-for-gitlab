@@ -1,8 +1,8 @@
 import { GraphQLClient } from 'graphql-request';
-import crossFetch from 'cross-fetch';
+import fetch from './fetch_logged';
 import { GitLabService } from './gitlab_service';
 import { testSnippet1 } from '../../test/integration/fixtures/graphql/snippets.js';
-import { DEFAULT_FETCH_RESPONSE } from '../__mocks__/cross-fetch';
+import { DEFAULT_FETCH_RESPONSE } from './__mocks__/fetch_logged';
 import { CustomQueryType } from './custom_query_type';
 import { CustomQuery } from './custom_query';
 import { asMock } from '../test_utils/as_mock';
@@ -15,11 +15,11 @@ import { getProject } from './api/get_project';
 
 jest.mock('graphql-request');
 jest.mock('../accounts/account_service');
-jest.mock('cross-fetch');
+jest.mock('./fetch_logged');
 jest.mock('../utils/extension_configuration');
 jest.mock('./http/get_http_agent_options');
 
-const crossFetchCallArgument = () => (crossFetch as jest.Mock).mock.calls[0][0];
+const crossFetchCallArgument = () => (fetch as jest.Mock).mock.calls[0][0];
 const crossFetchResponse = (response?: unknown, headers?: Record<string, unknown>) => ({
   ok: true,
   headers: new Map(Object.entries(headers ?? {})),
@@ -85,7 +85,7 @@ describe('gitlab_service', () => {
         const service = new GitLabService(testCredentials());
         const result = await service.getFileContent('README.md', ref, EXAMPLE_PROJECT_ID);
 
-        expect(crossFetch).toHaveBeenCalledWith(`${baseUrl}${encodedRef}`, expect.anything());
+        expect(fetch).toHaveBeenCalledWith(`${baseUrl}${encodedRef}`, expect.anything());
 
         expect(result).toBe(DEFAULT_FETCH_RESPONSE);
       });
@@ -99,8 +99,8 @@ describe('gitlab_service', () => {
         const url = `https://gitlab.example.com/api/v4/projects/12345/repository/files/${encodedFile}/raw?ref=main`;
         const result = await service.getFileContent(file, 'main', EXAMPLE_PROJECT_ID);
 
-        expect(crossFetch).toBeCalledTimes(1);
-        expect((crossFetch as jest.Mock).mock.calls[0][0]).toBe(url);
+        expect(fetch).toBeCalledTimes(1);
+        expect((fetch as jest.Mock).mock.calls[0][0]).toBe(url);
 
         expect(result).toBe(DEFAULT_FETCH_RESPONSE);
       });
@@ -108,7 +108,7 @@ describe('gitlab_service', () => {
 
     it('encodes the project path', async () => {
       await service.getFileContent('foo', 'bar', 'baz/bat');
-      expect(crossFetch).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         'https://gitlab.example.com/api/v4/projects/baz%2Fbat/repository/files/foo/raw?ref=bar',
         expect.anything(),
       );
@@ -118,7 +118,7 @@ describe('gitlab_service', () => {
   describe('getOpenMergeRequestForCurrentBranch', () => {
     it('constructs URL and encodes the source branch', async () => {
       await service.getOpenMergeRequestForCurrentBranch(project, 'feature/123');
-      expect(crossFetch).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         'https://gitlab.example.com/api/v4/projects/5261717/merge_requests?state=opened&source_branch=feature%2F123',
         expect.anything(),
       );
@@ -128,7 +128,7 @@ describe('gitlab_service', () => {
   describe('getLastPipelineForCurrentBranch', () => {
     it('constructs URL and encodes the source branch', async () => {
       await service.getLastPipelineForCurrentBranch(project, 'feature/123');
-      expect(crossFetch).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         'https://gitlab.example.com/api/v4/projects/5261717/pipelines?ref=feature%2F123',
         expect.anything(),
       );
@@ -137,7 +137,7 @@ describe('gitlab_service', () => {
 
   describe('getLastPipelineForMr', () => {
     it('returns pipeline with largest iid', async () => {
-      asMock(crossFetch).mockReturnValue(
+      asMock(fetch).mockReturnValue(
         crossFetchResponse([
           { ...pipeline, iid: 1 },
           { ...pipeline, iid: 2 },
@@ -153,7 +153,7 @@ describe('gitlab_service', () => {
   describe('getFile', () => {
     it('constructs the correct URL', async () => {
       await service.getFile('foo', 'bar', 12345);
-      expect(crossFetch).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         'https://gitlab.example.com/api/v4/projects/12345/repository/files/foo?ref=bar',
         expect.anything(),
       );
@@ -161,7 +161,7 @@ describe('gitlab_service', () => {
 
     it('encodes the project, path, and ref', async () => {
       await service.getFile('path/to/file', 'feat/123', 'group/project');
-      expect(crossFetch).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         'https://gitlab.example.com/api/v4/projects/group%2Fproject/repository/files/path%2Fto%2Ffile?ref=feat%2F123',
         expect.anything(),
       );
@@ -170,11 +170,11 @@ describe('gitlab_service', () => {
 
   describe('getTree', () => {
     beforeEach(() => {
-      asMock(crossFetch).mockResolvedValue(crossFetchResponse([]));
+      asMock(fetch).mockResolvedValue(crossFetchResponse([]));
     });
     it('constructs the correct URL', async () => {
       await service.getTree('foo', 'bar', 12345);
-      expect(crossFetch).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         'https://gitlab.example.com/api/v4/projects/12345/repository/tree?ref=bar&path=foo',
         expect.anything(),
       );
@@ -182,7 +182,7 @@ describe('gitlab_service', () => {
 
     it('encodes the project, path, and ref', async () => {
       await service.getTree('path/to/file', 'feat/123', 'group/project');
-      expect(crossFetch).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         'https://gitlab.example.com/api/v4/projects/group%2Fproject/repository/tree?ref=feat%2F123&path=path%2Fto%2Ffile',
         expect.anything(),
       );
@@ -191,7 +191,7 @@ describe('gitlab_service', () => {
 
   describe('fetchIssueables', () => {
     beforeEach(() => {
-      asMock(crossFetch).mockResolvedValue(crossFetchResponse([]));
+      asMock(fetch).mockResolvedValue(crossFetchResponse([]));
       asMock(getExtensionConfiguration).mockReturnValue({});
     });
 
@@ -229,8 +229,8 @@ describe('gitlab_service', () => {
       confidenceLevels: undefined,
     };
 
-    const getFetchedUrl = () => asMock(crossFetch).mock.calls[0][0];
-    const getFetchedParams = () => new URLSearchParams(asMock(crossFetch).mock.calls[0][0]);
+    const getFetchedUrl = () => asMock(fetch).mock.calls[0][0];
+    const getFetchedParams = () => new URLSearchParams(asMock(fetch).mock.calls[0][0]);
 
     describe('handles types', () => {
       it.each`
@@ -432,12 +432,12 @@ describe('gitlab_service', () => {
 
   describe('fetch', () => {
     beforeEach(() => {
-      asMock(crossFetch).mockResolvedValue(crossFetchResponse());
+      asMock(fetch).mockResolvedValue(crossFetchResponse());
     });
 
     it('handles an empty query', async () => {
       await service.fetch('/project');
-      expect(crossFetch).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         'https://gitlab.example.com/api/v4/project',
         expect.anything(),
       );
@@ -445,7 +445,7 @@ describe('gitlab_service', () => {
 
     it('handles a non-empty query', async () => {
       await service.fetch('/project', { foo: 'bar' });
-      expect(crossFetch).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         'https://gitlab.example.com/api/v4/project?foo=bar',
         expect.anything(),
       );
@@ -453,7 +453,7 @@ describe('gitlab_service', () => {
 
     it('escapes query parameters', async () => {
       await service.fetch('/project', { foo: 'bar/123' });
-      expect(crossFetch).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         'https://gitlab.example.com/api/v4/project?foo=bar%2F123',
         expect.anything(),
       );
@@ -461,7 +461,7 @@ describe('gitlab_service', () => {
 
     it('ignores an undefined query value', async () => {
       await service.fetch('/project', { foo: undefined });
-      expect(crossFetch).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         'https://gitlab.example.com/api/v4/project',
         expect.anything(),
       );
@@ -469,7 +469,7 @@ describe('gitlab_service', () => {
 
     it('ignores a null query value', async () => {
       await service.fetch('/project', { foo: null });
-      expect(crossFetch).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         'https://gitlab.example.com/api/v4/project',
         expect.anything(),
       );
@@ -477,7 +477,7 @@ describe('gitlab_service', () => {
 
     it('does not ignore a falsy value', async () => {
       await service.fetch('/project', { foo: '' });
-      expect(crossFetch).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         'https://gitlab.example.com/api/v4/project?foo=',
         expect.anything(),
       );
@@ -485,7 +485,7 @@ describe('gitlab_service', () => {
 
     it('throws a HelpError if the token is expired', async () => {
       const url = '/project';
-      asMock(crossFetch).mockResolvedValue({
+      asMock(fetch).mockResolvedValue({
         ok: false,
         url: 'https://example.com/api/v4/project',
         status: 401,
@@ -497,16 +497,16 @@ describe('gitlab_service', () => {
 
   describe('fetchAllPages', () => {
     it('handles a non-empty query', async () => {
-      asMock(crossFetch).mockResolvedValue(crossFetchResponse());
+      asMock(fetch).mockResolvedValue(crossFetchResponse());
       await service.fetchAllPages('/project', { foo: 'bar' });
-      expect(crossFetch).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         'https://gitlab.example.com/api/v4/project?foo=bar',
         expect.anything(),
       );
     });
 
     it('handles pagination', async () => {
-      asMock(crossFetch).mockImplementation(url => {
+      asMock(fetch).mockImplementation(url => {
         if (url === 'https://gitlab.example.com/api/v4/project')
           return crossFetchResponse(['a', 'b'], { 'x-total-pages': 2 });
         if (url === 'https://gitlab.example.com/api/v4/project?page=2')
@@ -518,7 +518,7 @@ describe('gitlab_service', () => {
 
     it('throws a HelpError if the token is expired', async () => {
       const url = '/project';
-      asMock(crossFetch).mockResolvedValue({
+      asMock(fetch).mockResolvedValue({
         ok: false,
         url: 'https://example.com/api/v4/project',
         status: 401,
@@ -531,7 +531,7 @@ describe('gitlab_service', () => {
   describe('getExternalStatusForCommit', () => {
     it('sets the stage', async () => {
       expect(externalStatus.stage).not.toBe('external');
-      asMock(crossFetch).mockResolvedValue(crossFetchResponse([externalStatus]));
+      asMock(fetch).mockResolvedValue(crossFetchResponse([externalStatus]));
       const result = await service.getExternalStatusForCommit('aaaaaaaa', null, 1);
       expect(result[0].stage).toBe('external');
     });
@@ -539,7 +539,7 @@ describe('gitlab_service', () => {
 
   describe('exchangeToken', () => {
     it('fails when the request fails with invalid grant', async () => {
-      asMock(crossFetch).mockResolvedValue({
+      asMock(fetch).mockResolvedValue({
         ok: false,
         status: 400,
         json: async () => ({
@@ -561,7 +561,7 @@ describe('gitlab_service', () => {
     });
 
     it('fails with generic error when the request fails', async () => {
-      asMock(crossFetch).mockResolvedValue({
+      asMock(fetch).mockResolvedValue({
         ok: false,
         status: 400,
         json: async () => ({ reason: 'error' }),
