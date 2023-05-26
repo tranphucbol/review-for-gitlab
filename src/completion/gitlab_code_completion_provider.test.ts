@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
-import crossFetch from 'cross-fetch';
+import fetch from '../gitlab/fetch_logged';
 
 import { GitLabCodeCompletionProvider } from './gitlab_code_completion_provider';
 
-jest.mock('cross-fetch');
-const crossFetchCallArgument = () => JSON.parse((crossFetch as jest.Mock).mock.calls[0][1].body);
+jest.mock('../gitlab/fetch_logged');
+const crossFetchCallArgument = () => JSON.parse((fetch as jest.Mock).mock.calls[0][1].body);
 
 describe('GitLabCodeCompletionProvider', () => {
   describe('getCompletions', () => {
