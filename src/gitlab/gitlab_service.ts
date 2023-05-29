@@ -23,6 +23,8 @@ import {
   GetDiscussionsQueryResult,
   GqlTextDiffDiscussion,
 } from './graphql/get_discussions';
+import { GqlSecurityFindingReport } from './graphql/get_security_finding_report';
+import { securityReport } from '../test_utils/entities';
 import {
   GetSnippetsQueryOptions,
   GetSnippetsQueryResult,
@@ -478,6 +480,13 @@ export class GitLabService {
         nodes: discussion.notes.nodes.map(prependHost),
       },
     } as GqlDiscussion;
+  }
+
+  // eslint-disable-next-line class-methods-use-this,  @typescript-eslint/no-unused-vars
+  async getSecurityFindingReport(mr: RestMr): Promise<GqlSecurityFindingReport> {
+    // TODO - Implement actual graphql query https://gitlab.com/gitlab-org/gitlab/-/issues/408353
+    // GraphQl Spec - https://gitlab.com/gitlab-org/gitlab/-/issues/408350
+    return Promise.resolve(securityReport);
   }
 
   async getDiscussions({ issuable, endCursor }: GetDiscussionsOptions): Promise<GqlDiscussion[]> {

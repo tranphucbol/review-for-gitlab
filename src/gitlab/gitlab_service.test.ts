@@ -6,7 +6,14 @@ import { DEFAULT_FETCH_RESPONSE } from './__mocks__/fetch_logged';
 import { CustomQueryType } from './custom_query_type';
 import { CustomQuery } from './custom_query';
 import { asMock } from '../test_utils/as_mock';
-import { externalStatus, gqlProject, mr, pipeline, project } from '../test_utils/entities';
+import {
+  externalStatus,
+  gqlProject,
+  mr,
+  pipeline,
+  project,
+  securityReport,
+} from '../test_utils/entities';
 import { getExtensionConfiguration } from '../utils/extension_configuration';
 import { getHttpAgentOptions } from './http/get_http_agent_options';
 import { HelpError } from '../errors/help_error';
@@ -122,6 +129,13 @@ describe('gitlab_service', () => {
         'https://gitlab.example.com/api/v4/projects/5261717/merge_requests?state=opened&source_branch=feature%2F123',
         expect.anything(),
       );
+    });
+  });
+
+  describe('getSecurityFindingReport', () => {
+    it('returns the security report', async () => {
+      const report = await service.getSecurityFindingReport(mr);
+      expect(report).toEqual(securityReport);
     });
   });
 

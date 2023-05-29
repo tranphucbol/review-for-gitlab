@@ -9,6 +9,7 @@ import { makeAccountId, OAuthAccount, TokenAccount } from '../accounts/account';
 import { createFakeRepository } from './fake_git_extension';
 import { InMemoryMemento } from '../../test/integration/test_infrastructure/in_memory_memento';
 import { SecretStorage } from './secret_storage';
+import { GqlSecurityFindingReport } from '../gitlab/graphql/get_security_finding_report';
 
 export const issue: RestIssuable = {
   id: 1,
@@ -202,3 +203,125 @@ export const createExtensionContext = (): vscode.ExtensionContext =>
     secrets: new SecretStorage(),
     extensionPath: '',
   } as unknown as vscode.ExtensionContext);
+
+export const securityReport: GqlSecurityFindingReport = {
+  baseReportCreatedAt: '2023-04-18T02:10:10.460Z',
+  baseReportOutOfDate: '2023-04-18T02:10:10.460Z',
+  headReportCreatedAt: '2023-04-18T02:10:10.460Z',
+  added: {
+    nodes: [
+      {
+        uuid: '6ae0b693-2b75-5724-92cf-6b35f53a53fd',
+        name: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
+        state: 'detected',
+        severity: 'medium',
+        scanner: { name: 'Trivy' },
+        scan: { type: 'container_scanning' },
+        identifiers: {
+          nodes: [
+            {
+              externalId: 'CVE-2022-22576',
+              externalType: 'cve',
+              name: 'CVE-2022-22576',
+              url: 'https://access.redhat.com/security/cve/CVE-2022-22576',
+            },
+          ],
+        },
+      },
+      {
+        uuid: '6ae0b693-2b75-5724-92cf-6b35f53a53fd',
+        name: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
+        state: 'detected',
+        severity: 'low',
+        scanner: { name: 'Trivy' },
+        scan: { type: 'container_scanning' },
+        identifiers: {
+          nodes: [
+            {
+              externalId: 'CVE-2022-22576',
+              externalType: 'cve',
+              name: 'CVE-2022-22576',
+              url: 'https://access.redhat.com/security/cve/CVE-2022-22576',
+            },
+          ],
+        },
+      },
+      {
+        uuid: '6ae0b693-2b75-5724-92cf-6b35f53a53fd',
+        name: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
+        state: 'detected',
+        severity: 'high',
+        scanner: { name: 'Trivy' },
+        scan: { type: 'container_scanning' },
+        identifiers: {
+          nodes: [
+            {
+              externalId: 'CVE-2022-22576',
+              externalType: 'cve',
+              name: 'CVE-2022-22576',
+              url: 'https://access.redhat.com/security/cve/CVE-2022-22576',
+            },
+          ],
+        },
+      },
+    ],
+  },
+  fixed: {
+    nodes: [
+      {
+        uuid: '6ae0b693-2b75-5724-92cf-6b35f53a53fd',
+        name: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
+        state: 'detected',
+        severity: 'medium',
+        scanner: { name: 'Trivy' },
+        scan: { type: 'container_scanning' },
+        identifiers: {
+          nodes: [
+            {
+              externalId: 'CVE-2022-22576',
+              externalType: 'cve',
+              name: 'CVE-2022-22576',
+              url: 'https://access.redhat.com/security/cve/CVE-2022-22576',
+            },
+          ],
+        },
+      },
+      {
+        uuid: '6ae0b693-2b75-5724-92cf-6b35f53a53fd',
+        name: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
+        state: 'detected',
+        severity: 'low',
+        scanner: { name: 'Trivy' },
+        scan: { type: 'container_scanning' },
+        identifiers: {
+          nodes: [
+            {
+              externalId: 'CVE-2022-22576',
+              externalType: 'cve',
+              name: 'CVE-2022-22576',
+              url: 'https://access.redhat.com/security/cve/CVE-2022-22576',
+            },
+          ],
+        },
+      },
+      {
+        uuid: '6ae0b693-2b75-5724-92cf-6b35f53a53fd',
+        name: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
+        state: 'detected',
+        severity: 'high',
+        scanner: { name: 'Trivy' },
+        scan: { type: 'container_scanning' },
+        identifiers: {
+          nodes: [
+            {
+              externalId: 'CVE-2022-22576',
+              externalType: 'cve',
+              name: 'CVE-2022-22576',
+              url: 'https://access.redhat.com/security/cve/CVE-2022-22576',
+            },
+          ],
+        },
+      },
+    ],
+  },
+};
