@@ -11,7 +11,7 @@ jest.mock('../commands/run_with_valid_project', () => ({
 
 jest.mock('./get_gitlab_service', () => ({
   getGitLabService: jest.fn().mockReturnValue({
-    makeApiRequest: jest.fn().mockResolvedValue('test_result'),
+    fetchFromApi: jest.fn().mockResolvedValue('test_result'),
   }),
 }));
 

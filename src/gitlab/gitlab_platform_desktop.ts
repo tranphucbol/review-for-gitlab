@@ -43,6 +43,6 @@ export const gitlabPlatformDesktop: GitLabPlatform = {
       throw new Error('unsupported project type');
     }
 
-    return getGitLabService(project.projectInRepository).makeApiRequest(req);
+    return getGitLabService(project.projectInRepository).fetchFromApi(req);
   },
 };

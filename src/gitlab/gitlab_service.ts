@@ -334,7 +334,7 @@ export class GitLabService {
     return request.processResult(result);
   }
 
-  async makeApiRequest<T>(request: ApiRequest<T>): Promise<T> {
+  async fetchFromApi<T>(request: ApiRequest<T>): Promise<T> {
     switch (request.method) {
       case 'GET':
         return this.fetch(request.path, request.searchParams);
