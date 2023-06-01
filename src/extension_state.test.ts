@@ -25,12 +25,12 @@ describe('extension_state', () => {
   });
 
   it.each`
-    scenario                             | accounts                  | repositories        | validState | noToken  | noRepository
-    ${'is invalid'}                      | ${[]}                     | ${[]}               | ${false}   | ${true}  | ${true}
-    ${'is invalid without tokens'}       | ${[]}                     | ${['repository']}   | ${false}   | ${true}  | ${false}
-    ${'is invalid without repositories'} | ${[createTokenAccount()]} | ${[]}               | ${false}   | ${false} | ${true}
-    ${'is valid'}                        | ${[createTokenAccount()]} | ${[['repository']]} | ${true}    | ${false} | ${false}
-  `('$scenario', async ({ accounts, repositories, validState, noToken, noRepository }) => {
+    scenario                             | accounts                  | repositories        | validState | noToken  | openRepositoryCount
+    ${'is invalid'}                      | ${[]}                     | ${[]}               | ${false}   | ${true}  | ${0}
+    ${'is invalid without tokens'}       | ${[]}                     | ${['repository']}   | ${false}   | ${true}  | ${1}
+    ${'is invalid without repositories'} | ${[createTokenAccount()]} | ${[]}               | ${false}   | ${false} | ${0}
+    ${'is valid'}                        | ${[createTokenAccount()]} | ${[['repository']]} | ${true}    | ${false} | ${1}
+  `('$scenario', async ({ accounts, repositories, validState, noToken, openRepositoryCount }) => {
     mockedAccounts = accounts;
     mockedRepositories = repositories;
     await extensionState.init(accountService);
@@ -38,7 +38,11 @@ describe('extension_state', () => {
     const { executeCommand } = vscode.commands;
     expect(executeCommand).toBeCalledWith('setContext', 'gitlab:validState', validState);
     expect(executeCommand).toBeCalledWith('setContext', 'gitlab:noAccount', noToken);
-    expect(executeCommand).toBeCalledWith('setContext', 'gitlab:noRepository', noRepository);
+    expect(executeCommand).toBeCalledWith(
+      'setContext',
+      'gitlab:openRepositoryCount',
+      openRepositoryCount,
+    );
   });
 
   it('fires event when valid state changes', async () => {
