@@ -730,7 +730,7 @@
       {
         "view": "issuesAndMrs",
         "contents": "No Git repository available. To learn how to fix this, check the Source Control tab.\n[Open Source Control](command:workbench.view.scm)",
-        "when": "gitlab:noRepository"
+        "when": "gitlab:openRepositoryCount == 0"
       }
     ],
     "configuration": {

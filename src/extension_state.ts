@@ -3,7 +3,7 @@ import assert from 'assert';
 import { AccountService } from './accounts/account_service';
 import { gitExtensionWrapper } from './git/git_extension_wrapper';
 
-const hasOpenRepositories = (): boolean => gitExtensionWrapper.gitRepositories.length > 0;
+const openRepositoryCount = (): number => gitExtensionWrapper.gitRepositories.length;
 export class ExtensionState {
   private changeValidEmitter = new vscode.EventEmitter<void>();
 
@@ -27,15 +27,15 @@ export class ExtensionState {
   }
 
   isValid(): boolean {
-    return this.hasAnyAccounts() && hasOpenRepositories();
+    return this.hasAnyAccounts() && openRepositoryCount() > 0;
   }
 
   async updateExtensionStatus(): Promise<void> {
     await vscode.commands.executeCommand('setContext', 'gitlab:noAccount', !this.hasAnyAccounts());
     await vscode.commands.executeCommand(
       'setContext',
-      'gitlab:noRepository',
-      !hasOpenRepositories(),
+      'gitlab:openRepositoryCount',
+      openRepositoryCount(),
     );
     await vscode.commands.executeCommand('setContext', 'gitlab:validState', this.isValid());
     if (this.lastValid !== this.isValid()) {
