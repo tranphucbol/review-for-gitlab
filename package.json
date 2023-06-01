@@ -1119,7 +1119,7 @@
   },
   "devDependencies": {
     "@jest/globals": "^29.5.0",
-    "@types/jest": "^29.5.1",
+    "@types/jest": "^29.5.2",
     "@types/node": "^13.13.52",
     "@types/request-promise": "^4.1.48",
     "@types/semver": "^7.3.8",
