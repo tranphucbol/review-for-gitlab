@@ -2,14 +2,25 @@ import * as vscode from 'vscode';
 import fetch from '../gitlab/fetch_logged';
 
 import { GitLabCodeCompletionProvider } from './gitlab_code_completion_provider';
+import { GitLabPlatform, GitLabPlatformProject } from '../gitlab/gitlab_platform';
 
 jest.mock('../gitlab/fetch_logged');
 const crossFetchCallArgument = () => JSON.parse((fetch as jest.Mock).mock.calls[0][1].body);
 
+const platform: GitLabPlatform = {
+  getProject: async () => ({ project: 'gitlab' } as GitLabPlatformProject),
+  fetchFromApi: async <T>(): Promise<T> =>
+    ({
+      access_token: '123',
+      expires_in: 0,
+      created_at: 0,
+    } as unknown as T),
+};
+
 describe('GitLabCodeCompletionProvider', () => {
   describe('getCompletions', () => {
     it('should construct a payload with line above, line below, file name, and prompt version', async () => {
-      const glcp: GitLabCodeCompletionProvider = new GitLabCodeCompletionProvider();
+      const glcp: GitLabCodeCompletionProvider = new GitLabCodeCompletionProvider(platform);
 
       const testDocument = {
         getText(range: vscode.Range): string {
@@ -53,7 +64,7 @@ describe('GitLabCodeCompletionProvider', () => {
     jest.useFakeTimers();
 
     it('provides inline completions', async () => {
-      const glcp: GitLabCodeCompletionProvider = new GitLabCodeCompletionProvider(true);
+      const glcp: GitLabCodeCompletionProvider = new GitLabCodeCompletionProvider(platform, true);
       glcp.getCompletions = jest.fn().mockResolvedValue(mockInlineCompletions);
 
       jest.runAllTimers();

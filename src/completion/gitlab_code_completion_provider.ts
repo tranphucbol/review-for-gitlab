@@ -12,8 +12,8 @@ import {
   AI_ASSISTED_CODE_SUGGESTIONS_CONFIG,
 } from '../utils/extension_configuration';
 import { getActiveProject } from '../commands/run_with_valid_project';
-import { tokenExchangeService } from '../gitlab/token_exchange_service';
-import { getUserAgentHeader } from '../gitlab/http/get_user_agent_header';
+import { GitLabPlatform } from '../gitlab/gitlab_platform';
+import { CodeCompletionTokenManager } from './token_manager';
 
 interface Choice {
   text: string;
@@ -53,14 +53,17 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
 
   private noDebounce: boolean;
 
-  constructor(noDebounce = false) {
+  private tokenManager: CodeCompletionTokenManager;
+
+  constructor(platform: GitLabPlatform, noDebounce = false) {
     this.model = 'gitlab';
     this.server = GitLabCodeCompletionProvider.#getServer();
     this.debouncedCall = undefined;
     this.noDebounce = noDebounce;
+    this.tokenManager = new CodeCompletionTokenManager(platform);
   }
 
-  static registerGitLabCodeCompletion(context: vscode.ExtensionContext) {
+  static registerGitLabCodeCompletion(context: vscode.ExtensionContext, platform: GitLabPlatform) {
     let subscription: vscode.Disposable | undefined;
     const dispose = () => subscription?.dispose();
     context.subscriptions.push({ dispose });
@@ -68,7 +71,7 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
     const register = () => {
       subscription = vscode.languages.registerInlineCompletionItemProvider(
         { pattern: '**' },
-        new GitLabCodeCompletionProvider(),
+        new GitLabCodeCompletionProvider(platform),
       );
     };
     if (getAiAssistedCodeSuggestionsConfiguration().enabled) {
@@ -89,18 +92,6 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
         register();
       }
     });
-  }
-
-  static async #getGitLabApiKey(): Promise<string | undefined> {
-    const activeProject = getActiveProject();
-    if (!activeProject) {
-      log.debug(
-        `AI Assist: Unable to get active project, ensure GitLab extension is properly configured`,
-      );
-      return undefined;
-    }
-    const account = await tokenExchangeService.refreshIfNeeded(activeProject.account.id);
-    return account.token;
   }
 
   static #getServer(): string {
@@ -153,17 +144,19 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
       return [] as vscode.InlineCompletionItem[];
     }
 
-    const gitlabApiKey = await GitLabCodeCompletionProvider.#getGitLabApiKey();
-
-    const requestHeaders = {
-      ...getUserAgentHeader(),
-      Authorization: `Bearer ${gitlabApiKey}`,
-      'Content-Type': 'application/json',
-    };
+    const token = await this.tokenManager.getToken();
+    if (!token) {
+      log.error('AI Assist: Could not fetch token');
+      return [] as vscode.InlineCompletionItem[];
+    }
 
     const requestConfig = {
-      method: `POST`,
-      headers: requestHeaders,
+      method: 'POST',
+      headers: {
+        'X-Gitlab-Authentication-Type': 'oidc',
+        Authorization: `Bearer ${token.access_token}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(prompt),
     };
 
