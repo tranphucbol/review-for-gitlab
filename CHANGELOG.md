@@ -1,3 +1,17 @@
+# [3.64.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.63.0...v3.64.0) (2023-06-01)
+
+
+### Bug Fixes
+
+* remove all mentions of the old issue/MR URL format ([a53c169](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/a53c169d01eb2e66671716ff9a575a7c0a491fec))
+
+
+### Features
+
+* debug log all http fetches ([dfc369d](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/dfc369d81bb22a5bdddd0ae6dd3ce4e540dc88e2))
+
+
+
 # [3.63.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.62.0...v3.63.0) (2023-05-19)
 
 
