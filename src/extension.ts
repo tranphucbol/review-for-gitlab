@@ -85,6 +85,7 @@ import { JobLogFoldingProvider } from './ci/job_log_folding_provider';
 import { scrollToBottom } from './ci/scroll_to_bottom_command';
 import { pendingWebviewController } from './ci/pending_job_webview_controller';
 import { JobItemModel } from './tree_view/items/job_item_model';
+import { gitlabPlatformDesktop } from './gitlab/gitlab_platform_desktop';
 
 const wrapWithCatch =
   (command: (...args: unknown[]) => unknown) =>
@@ -211,6 +212,7 @@ const activateDebugMode = () => {
 export const activate = async (context: vscode.ExtensionContext) => {
   activateDebugMode();
   contextUtils.init(context);
+
   const outputChannel = vscode.window.createOutputChannel('GitLab Workflow');
   initializeLogging(line => outputChannel.appendLine(line));
   vscode.workspace.registerTextDocumentContentProvider(REVIEW_URI_SCHEME, new GitContentProvider());
@@ -238,7 +240,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   });
   selectedProjectStore.init(context);
   registerCiCompletion(context);
-  GitLabCodeCompletionProvider.registerGitLabCodeCompletion(context);
+  GitLabCodeCompletionProvider.registerGitLabCodeCompletion(context, gitlabPlatformDesktop);
   setupYamlSupport(context);
   vscode.window.registerUriHandler(gitlabUriHandler);
   context.subscriptions.push(gitExtensionWrapper);

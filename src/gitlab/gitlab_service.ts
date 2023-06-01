@@ -57,6 +57,7 @@ import { newCreateNoteMutation, oldCreateNoteMutation } from './graphql/create_n
 import { createQueryString, QueryValue } from '../utils/create_query_string';
 import { sort } from '../utils/sort';
 import { GraphQLQuery } from './api/graphql_query';
+import { ApiRequest } from './gitlab_platform';
 
 interface CreateNoteResult {
   createNote: {
@@ -293,7 +294,9 @@ export class GitLabService {
     resourceName = 'resource',
   ): Promise<T> {
     const { instanceUrl } = await this.getCredentials();
+
     const url = `${instanceUrl}/api/v4${apiResourcePath}${createQueryString(query)}`;
+
     const result = await this.crossFetch(url);
     await handleFetchError(result, resourceName);
     return result.json() as Promise<T>;
@@ -305,7 +308,9 @@ export class GitLabService {
     body?: unknown,
   ): Promise<T> {
     const { instanceUrl } = await this.getCredentials();
-    const response = await this.crossFetch(`${instanceUrl}/api/v4${apiResourcePath}`, {
+    const url = `${instanceUrl}/api/v4${apiResourcePath}`;
+
+    const response = await this.crossFetch(url, {
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
       body: JSON.stringify(body),
@@ -327,6 +332,18 @@ export class GitLabService {
   async execute<T>(request: GraphQLQuery<T>): Promise<T> {
     const result = await this.graphqlRequest(request.query, request.options);
     return request.processResult(result);
+  }
+
+  async makeApiRequest<T>(request: ApiRequest<T>): Promise<T> {
+    switch (request.method) {
+      case 'GET':
+        return this.fetch(request.path, request.searchParams);
+      case 'POST':
+        return this.postFetch(request.path, 'resource', request.body);
+      default:
+        // the type assertion is necessary because TS doesn't expect any other types
+        throw new Error(`Unknown request type ${(request as ApiRequest<unknown>).type}`);
+    }
   }
 
   async getSnippets(namespaceWithPath: string, afterCursor?: string): Promise<GqlSnippet[]> {
