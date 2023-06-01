@@ -40,8 +40,8 @@
     "color": "#171321",
     "theme": "dark"
   },
-  "main": "out/extension",
-  "icon": "src/assets/logo.png",
+  "main": "extension",
+  "icon": "assets/logo.png",
   "contributes": {
     "commands": [
       {
@@ -177,8 +177,8 @@
         "title": "Refresh Sidebar",
         "category": "GitLab",
         "icon": {
-          "light": "src/assets/images/light/refresh.svg",
-          "dark": "src/assets/images/dark/refresh.svg"
+          "light": "assets/images/light/refresh.svg",
+          "dark": "assets/images/dark/refresh.svg"
         }
       },
       {
@@ -704,7 +704,7 @@
         {
           "id": "gitlab-workflow",
           "title": "GitLab Workflow",
-          "icon": "src/assets/images/light/gitlab-logo.svg"
+          "icon": "assets/images/light/gitlab-logo.svg"
         }
       ]
     },
@@ -1100,24 +1100,22 @@
     "vscode.git"
   ],
   "scripts": {
-    "vscode:prepublish": "npm run esbuild -- --minify",
-    "esbuild": "esbuild ./src/extension.js --bundle --outfile=out/extension.js --external:vscode --platform=node --target=node16.13 --sourcemap",
-    "esbuild-watch": "npm run esbuild -- --watch",
-    "compile": "tsc -p ./ && npm run esbuild",
-    "watch-compile": "tsc -p ./ && npm run esbuild-watch",
-    "postinstall": "cd src/webview && npm install && cd ../.. && npm run prettier-package-json",
-    "test-unit": "jest",
-    "test-integration": "npm run compile && node ./out/test/runTest.js",
-    "create-test-workspace": "npm run compile && node ./scripts/create_workspace_for_test_debugging.js",
-    "test": "npm run test-unit && npm run test-integration",
-    "lint": "eslint --ext .js --ext .ts . && prettier --check '**/*.{js,ts,vue,json,md}' && cd src/webview && npm run lint",
-    "clean": "rm -rf out",
-    "prettier-package-json": "prettier --write package.json",
-    "autofix": "npm run clean && eslint --fix . && prettier --write '**/*.{js,ts,vue,json,md}' && cd src/webview && npm run autofix",
+    "watch:desktop": "node scripts/watch_desktop.mjs",
+    "build:desktop": "node scripts/build_desktop.mjs",
+    "package": "node scripts/package.mjs",
     "publish": "vsce publish",
-    "webview": "cd src/webview && npm run watch",
+    "clean": "node scripts/clean.mjs",
+    "lint": "eslint --ext .js --ext .ts --ext .mjs . && prettier --check '**/*.{js,ts,mjs,vue,json,md}' && npm run --prefix webviews/issuable lint",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "jest",
+    "prepare:test:integration": "npm run build:desktop && cp -R node_modules dist-desktop/",
+    "test:integration": "npm run prepare:test:integration && node ./dist-desktop/test/runTest.js",
+    "prettier-package-json": "prettier --write package.json",
+    "autofix": "npm run clean && eslint --fix . && prettier --write '**/*.{js,ts,mjs,vue,json,md}' && cd webviews/issuable && npm run autofix",
+    "update-ci-variables": "node ./scripts/update_ci_variables.js",
+    "create-test-workspace": "npm run build:desktop && node ./scripts/create_workspace_for_test_debugging.js",
     "version": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md",
-    "update-ci-variables": "node ./scripts/update_ci_variables.js"
+    "postinstall": "npm install --prefix webviews/issuable && npm run prettier-package-json"
   },
   "devDependencies": {
     "@jest/globals": "^29.5.0",
@@ -1137,6 +1135,8 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-import": "^2.27.5",
+    "execa": "^7.1.1",
+    "fs-extra": "^11.1.1",
     "jest": "^29.5.0",
     "jest-junit": "^16.0.0",
     "mocha": "^10.2.0",

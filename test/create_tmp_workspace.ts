@@ -25,8 +25,8 @@ async function addFile(folderPath: string, relativePath: string, content: string
 const isMac = () => Boolean(process.platform.match(/darwin/));
 
 // `autoCleanUp = true` means that the directory gets deleted on process exit
-export default async function createTmpWorkspace(): Promise<string> {
-  temp.track();
+export default async function createTmpWorkspace(autoCleanUp = true): Promise<string> {
+  if (autoCleanUp) temp.track();
   const dirPath = await createTempFolder();
   const git = simpleGit(dirPath, { binary: 'git' });
 

@@ -7,7 +7,8 @@
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
-      "args": ["--disable-extensions", "--extensionDevelopmentPath=${workspaceRoot}"],
+      "args": ["--disable-extensions", "--extensionDevelopmentPath=${workspaceRoot}/dist-desktop"],
+      "outFiles": ["${workspaceFolder}/dist-desktop/**/*.js"],
       "stopOnEntry": false,
       "preLaunchTask": "${defaultBuildTask}",
       "env": {
@@ -32,11 +33,12 @@
       "args": [
         "--disable-extensions",
         "--disable-workspace-trust",
-        "--extensionDevelopmentPath=${workspaceRoot}",
-        "--extensionTestsPath=${workspaceRoot}/out/test/integration/",
+        "--extensionDevelopmentPath=${workspaceRoot}/dist-desktop",
+        "--extensionTestsPath=${workspaceRoot}/dist-desktop/test/integration/",
         "<run `npm run create-test-workspace` to generate a test folder>"
       ],
-      "preLaunchTask": "npm: compile",
+      "outFiles": ["${workspaceFolder}/dist-desktop/**/*.js"],
+      "preLaunchTask": "npm: prepare:test:integration",
       "stopOnEntry": false
     }
   ]

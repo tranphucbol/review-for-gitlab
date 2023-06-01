@@ -20,7 +20,7 @@ function getHashForFilepath(filePath) {
   });
 }
 
-const hookSourcePath = path.resolve(__dirname, './security-harness-hook.sh');
+const hookSourcePath = path.resolve(__dirname, './security_harness_hook.sh');
 const hookPath = path.resolve(__dirname, '../.git/hooks/pre-push');
 
 (async () => {

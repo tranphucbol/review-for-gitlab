@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "ES2019",
-    "outDir": "out",
+    "outDir": "dist-desktop",
     // we need to include dom library for msw to work, see https://github.com/mswjs/msw/issues/408
     "lib": ["ES2019", "dom"],
     "allowJs": true,
@@ -16,6 +16,5 @@
     // TODO migrate catching to the unknown type
     "useUnknownInCatchVariables": false
   },
-  "exclude": ["src/webview"],
   "include": ["src/**/*", "test/**/*"]
 }

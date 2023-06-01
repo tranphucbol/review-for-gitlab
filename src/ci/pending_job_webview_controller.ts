@@ -57,7 +57,7 @@ export class PendingJobWebviewController implements RepositoryRootWebviewProvide
       this.refresh(state).catch(err => log.error(err)),
     );
     this.#htmlContent = await fs.readFile(
-      path.join(this.#context.extensionPath, 'src/webview/public/pendingjob.html'),
+      path.join(this.#context.extensionPath, 'webviews/pendingjob.html'),
       'utf-8',
     );
   }

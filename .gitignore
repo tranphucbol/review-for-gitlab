@@ -1,10 +1,9 @@
 node_modules
 .vscode-test/
-*.vsix
 .history
 .DS_Store
-src/webview/dist/*.hot-update.js*
-out
+webviews/issuable/dist
+dist-desktop
 /coverage/
 /reports/
 .idea/

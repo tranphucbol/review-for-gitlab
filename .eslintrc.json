@@ -8,11 +8,11 @@
   "settings": {
     "import/resolver": {
       "node": {
-        "extensions": [".js", ".ts"]
+        "extensions": [".js", ".mjs", ".ts"]
       }
     }
   },
-  "ignorePatterns": ["node_modules/", "src/webview/", "out"],
+  "ignorePatterns": ["node_modules/", "webviews/", "out", "dist-desktop/"],
   "rules": {
     "no-console": "off",
     "no-return-await": "off",
@@ -33,9 +33,18 @@
       }
     ],
     "no-shadow": "warn",
-    "no-use-before-define": "warn"
+    "no-use-before-define": "warn",
+    "import/no-extraneous-dependencies": [
+      "error",
+      { "devDependencies": ["scripts/**/*", "**/*.test.js", "test/**/*"] }
+    ]
   },
   "reportUnusedDisableDirectives": true,
+  "parserOptions": {
+    // adding this to support import.meta
+    // https://github.com/eslint/eslint/discussions/16037#discussioncomment-2998062
+    "ecmaVersion": "latest"
+  },
   "overrides": [
     {
       "files": ["**/*.ts"],
@@ -72,7 +81,7 @@
       "settings": {
         "import/resolver": {
           "node": {
-            "extensions": [".js", ".ts"]
+            "extensions": [".js", ".mjs", ".ts"]
           }
         }
       },

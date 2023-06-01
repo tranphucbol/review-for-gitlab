@@ -65,7 +65,7 @@ The status bar is the last row at the bottom of the editor. We add multiple [Sta
 
 We periodically check for changes (every 30 seconds). [`CurrentBranchRefresher`](../../src/current_branch_refresher.ts) is responsible for refreshing the information. [`StatusBar`](../../src/status_bar.ts) is then responsible for adding the items to the status bar.
 
-### Webview (`src/webview/`)
+### Webview (`webviews/issuable/`)
 
 [Webview](https://code.visualstudio.com/api/extension-guides/webview) is an API that allows extensions to show a custom web page into an editor tab.
 

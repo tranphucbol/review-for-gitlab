@@ -14,10 +14,11 @@ import { WEBVIEW_WORKFLOW } from './constants';
 import { RepositoryRootWebviewProvider } from './commands/run_with_valid_project';
 
 const webviewResourcePaths = {
-  appScriptUri: 'src/webview/dist/js/app.js',
-  vendorUri: 'src/webview/dist/js/chunk-vendors.js',
-  styleUri: 'src/webview/dist/css/app.css',
-  devScriptUri: 'src/webview/dist/app.js',
+  appScriptUri: 'webviews/issuable/js/app.js',
+  vendorUri: 'webviews/issuable/js/chunk-vendors.js',
+  styleUri: 'webviews/issuable/css/app.css',
+  // TODO: remove the devScriptUri since it's not used
+  devScriptUri: 'webviews/issuable/js/app.js',
 } as const;
 
 type WebviewResources = Record<keyof typeof webviewResourcePaths, vscode.Uri>;
@@ -77,7 +78,7 @@ class WebviewController implements RepositoryRootWebviewProvider {
   }
 
   private getIndexPath() {
-    return this.isDev ? 'src/webview/public/dev.html' : 'src/webview/public/index.html';
+    return this.isDev ? 'webviews/issuable/dev.html' : 'webviews/issuable/index.html';
   }
 
   private replaceResources(panel: vscode.WebviewPanel) {
@@ -100,7 +101,10 @@ class WebviewController implements RepositoryRootWebviewProvider {
 
     return vscode.window.createWebviewPanel(WEBVIEW_WORKFLOW, title, vscode.ViewColumn.One, {
       enableScripts: true,
-      localResourceRoots: [vscode.Uri.file(path.join(this.context.extensionPath, 'src'))],
+      localResourceRoots: [
+        vscode.Uri.file(path.join(this.context.extensionPath, 'webviews/issuable')),
+        vscode.Uri.file(path.join(this.context.extensionPath, 'assets')),
+      ],
       retainContextWhenHidden: true,
     }) as IssuableWebviewPanel;
   }

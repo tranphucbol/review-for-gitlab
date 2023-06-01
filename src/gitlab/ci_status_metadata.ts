@@ -41,7 +41,7 @@ const STATUS_METADATA: Record<string, CiStatusMetadata> = {
     priority: 0,
     contextAction: 'executable',
     illustration: {
-      image: 'src/assets/images/manual_action.svg',
+      image: 'assets/images/manual_action.svg',
       title: 'This job requires a manual action',
       description: 'This job requires manual intervention to start.',
     },
@@ -58,7 +58,7 @@ const STATUS_METADATA: Record<string, CiStatusMetadata> = {
     priority: 3,
     contextAction: 'cancellable',
     illustration: {
-      image: 'src/assets/images/job_not_triggered.svg',
+      image: 'assets/images/job_not_triggered.svg',
       title: 'This job has not been triggered yet',
       description:
         'This job depends on upstream jobs that need to succeed in order for this job to be triggered',
@@ -76,7 +76,7 @@ const STATUS_METADATA: Record<string, CiStatusMetadata> = {
     priority: 5,
     contextAction: 'cancellable',
     illustration: {
-      image: 'src/assets/images/job_not_triggered.svg',
+      image: 'assets/images/job_not_triggered.svg',
       title: 'This job is preparing to start',
       description: 'This job is performing tasks that must complete before it can start',
     },
@@ -87,7 +87,7 @@ const STATUS_METADATA: Record<string, CiStatusMetadata> = {
     priority: 6,
     contextAction: 'cancellable',
     illustration: {
-      image: 'src/assets/images/pending_job_empty.svg',
+      image: 'assets/images/pending_job_empty.svg',
       title: 'This job has not started yet',
       description: 'This job is in pending state and is waiting to be picked by a runner',
     },
@@ -98,7 +98,7 @@ const STATUS_METADATA: Record<string, CiStatusMetadata> = {
     priority: 7,
     contextAction: 'cancellable',
     illustration: {
-      image: 'src/assets/images/illustrations_scheduled-job_countdown.svg',
+      image: 'assets/images/illustrations_scheduled-job_countdown.svg',
       title: 'This is a delayed job',
       description:
         'This job will automatically run after its timer finishes. Often they are used for incremental roll-out deploys to production environments. When unscheduled it converts into a manual action.',
@@ -109,7 +109,7 @@ const STATUS_METADATA: Record<string, CiStatusMetadata> = {
     icon: icon('debug-step-over', grayColor),
     priority: 8,
     illustration: {
-      image: 'src/assets/images/skipped-job_empty.svg',
+      image: 'assets/images/skipped-job_empty.svg',
       title: 'This job has been skipped',
     },
   },
@@ -119,7 +119,7 @@ const STATUS_METADATA: Record<string, CiStatusMetadata> = {
     priority: 9,
     contextAction: 'retryable',
     illustration: {
-      image: 'src/assets/images/canceled-job_empty.svg',
+      image: 'assets/images/canceled-job_empty.svg',
       title: 'This job has been canceled',
     },
   },
@@ -147,7 +147,7 @@ const FAILED_ALLOWED: CiStatusMetadata = {
 
 const ERASED: Partial<CiStatusMetadata> = {
   illustration: {
-    image: 'src/assets/images/erased-log_empty.svg',
+    image: 'assets/images/erased-log_empty.svg',
     title: 'Job has been erased',
     description: '',
   },
