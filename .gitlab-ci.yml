@@ -37,7 +37,7 @@ lint:
   script:
     - apt-get update && apt-get install -y git
     - npm ci
-    - cd src/webview && npm ci && cd ../.. # webview dependencies
+    - cd webviews/issuable && npm ci && cd ../.. # webview dependencies
     - git checkout . # the npm install automatically fixes package.json formatting issues, but we need the CI to discover them so we revert any changes
     - npm run lint
 
@@ -71,7 +71,7 @@ test-unit:
   script:
     - apt-get update && apt-get install -y git
     - npm ci
-    - npm run test-unit -- --coverage
+    - npm run test:unit -- --coverage
   artifacts:
     when: always
     reports:
@@ -88,12 +88,12 @@ test-integration:
     - npm ci
     - echo $DISPLAY
     - /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-    - npm run test-integration
+    - npm run test:integration
 
 test-webview:
   stage: test
   script:
-    - cd src/webview
+    - cd webviews/issuable
     - npm ci
     - npm run test
 
@@ -101,11 +101,10 @@ test-webview:
   stage: package
   script:
     - npm ci
-    - cd src/webview && npm install && npm run build && cd ../.. # build webview
-    - npx vsce package
+    - npm run package
   artifacts:
     paths:
-      - '*.vsix'
+      - 'dist-desktop/*.vsix'
 
 package_release:
   extends: .package
@@ -126,7 +125,7 @@ package_test:
 publish_marketplace:
   stage: publish
   script:
-    - npx vsce publish --packagePath *.vsix -p $AZURE_ACCESS_TOKEN
+    - npx vsce publish --packagePath dist-desktop/*.vsix -p $AZURE_ACCESS_TOKEN
   when: manual
   only:
     - tags
@@ -134,7 +133,7 @@ publish_marketplace:
 publish_open_vsx:
   stage: publish
   script:
-    - npx ovsx publish *.vsix -p $OPENVSX_ACCESS_TOKEN
+    - npx ovsx publish dist-desktop/*.vsix -p $OPENVSX_ACCESS_TOKEN
   when: manual
   only:
     - tags

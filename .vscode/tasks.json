@@ -3,30 +3,39 @@
   "tasks": [
     {
       "type": "npm",
-      "script": "watch-compile",
+      "script": "watch:desktop",
       "isBackground": true,
       "group": {
         "kind": "build",
         "isDefault": true
       },
       "problemMatcher": ["$esbuild-watch"],
-      "label": "npm: watch-compile"
+      "label": "npm: watch:desktop"
     },
     {
       "type": "npm",
-      "script": "compile",
+      "script": "build:desktop",
       "group": {
         "kind": "build"
       },
       "problemMatcher": ["$tsc"],
-      "label": "npm: compile"
+      "label": "npm: build:desktop"
+    },
+    {
+      "type": "npm",
+      "script": "prepare:test:integration",
+      "group": {
+        "kind": "build"
+      },
+      "problemMatcher": ["$tsc"],
+      "label": "npm: prepare:test:integration"
     },
     {
       "type": "npm",
       "script": "lint",
       "problemMatcher": ["$eslint-stylish"],
       "label": "npm: lint",
-      "detail": "eslint --ext .js --ext .ts . && prettier --check '**/*.{js,ts,vue,json}' && cd src/webview && npm run lint"
+      "detail": "eslint --ext .js --ext .ts . && prettier --check '**/*.{js,ts,vue,json}' && npm run --prefix webviews/issuable lint"
     }
   ]
 }

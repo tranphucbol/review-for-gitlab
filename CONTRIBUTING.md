@@ -84,7 +84,6 @@ Once project is cloned, open terminal within the project folder and run followin
 
 ```bash
 npm install
-npm run webview
 ```
 
 This command will install all necessary dependencies to run and debug extension in developer mode.

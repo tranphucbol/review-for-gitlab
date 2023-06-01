@@ -109,9 +109,9 @@ describe('GitLab webview', () => {
 
   it('substitutes the resource URLs in the HTML markup', () => {
     const resources = [
-      'src/webview/dist/js/app\\.js',
-      'src/webview/dist/js/chunk-vendors\\.js',
-      'src/webview/dist/css/app\\.css',
+      'webviews/issuable/js/app\\.js',
+      'webviews/issuable/js/chunk-vendors\\.js',
+      'webviews/issuable/css/app\\.css',
     ];
     resources.forEach(r => {
       assert.match(webviewPanel.webview.html, new RegExp(r, 'gm'));

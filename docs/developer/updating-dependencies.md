@@ -26,4 +26,4 @@ The npm package dependencies of the main project are automatically updated using
 
 ### Issuable webview
 
-The issuable webview lives in the `src/webview` folder. The npm package dependencies here are updated manually with `npm upgrade` and `npm audit`.
+The issuable webview lives in the `webviews/issuable` folder. The npm package dependencies here are updated manually with `npm upgrade` and `npm audit`.
