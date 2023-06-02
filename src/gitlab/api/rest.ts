@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface PostRequest<T> {
-  type: 'api';
+  type: 'rest';
   method: 'POST';
   path: string;
   body?: unknown;
@@ -8,7 +8,7 @@ export interface PostRequest<T> {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface GetRequest<T> {
-  type: 'api';
+  type: 'rest';
   method: 'GET';
   path: string;
   searchParams?: Record<string, string>;

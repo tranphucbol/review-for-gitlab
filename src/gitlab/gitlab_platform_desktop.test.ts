@@ -70,7 +70,7 @@ describe('gitlabPlatformDesktop', () => {
 
   describe('fetchFromApi', () => {
     const req: GetRequest<string> = {
-      type: 'api',
+      type: 'rest',
       method: 'GET',
       path: '/test',
     };
