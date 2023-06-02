@@ -5,6 +5,11 @@
 
 * code suggestions use the new JWT authentication flow ([98b9aaa](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/98b9aaa3309cd41db8bf126b00145efb2deb8027))
 
+### Refactoring
+
+* [refactor: Rename `noRepository` state to `openRepositoryCount`](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/798)
+  * Implemented by [Anatoli Babenia](https://gitlab.com/abitrolly) 🎉🔥
+
 
 
 # [3.64.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.63.0...v3.64.0) (2023-06-01)
