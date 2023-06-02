@@ -10,7 +10,7 @@ export interface CompletionToken {
 }
 
 const tokenRequest: PostRequest<CompletionToken> = {
-  type: 'api',
+  type: 'rest',
   method: 'POST',
   path: '/code_suggestions/tokens',
 };
