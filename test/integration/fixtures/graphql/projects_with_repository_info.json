@@ -7,12 +7,10 @@
         "fullPath": "gitlab-org/gitlab",
         "httpUrlToRepo": "https://test.gitlab.com/gitlab-org/gitlab.git",
         "sshUrlToRepo": "git@test.gitlab.com:gitlab-org/gitlab.git",
-        "group": {
-          "id": "gid://gitlab/Group/9970"
-        },
         "description": "The Gitlab Project",
         "repository": {
-          "empty": false
+          "empty": false,
+          "rootRef": "master"
         }
       },
       {
@@ -26,7 +24,8 @@
         },
         "description": "empty project",
         "repository": {
-          "empty": true
+          "empty": true,
+          "rootRef": "master"
         }
       }
     ]

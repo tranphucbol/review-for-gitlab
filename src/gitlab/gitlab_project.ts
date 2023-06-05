@@ -1,5 +1,17 @@
 import { getRestIdFromGraphQLId } from './get_rest_id_from_graphql_id';
-import { GqlProject } from './graphql/shared';
+
+interface GqlGroup {
+  id: string;
+}
+
+export interface GqlProject {
+  id: string;
+  name: string;
+  description: string;
+  fullPath: string;
+  webUrl: string;
+  group: GqlGroup;
+}
 
 export class GitLabProject {
   #gqlProject: GqlProject;
@@ -24,14 +36,7 @@ export class GitLabProject {
     return this.#gqlProject.description;
   }
 
-  get httpUrlToRepo(): string {
-    return this.#gqlProject.httpUrlToRepo;
-  }
-
-  get sshUrlToRepo(): string {
-    return this.#gqlProject.sshUrlToRepo;
-  }
-
+  // TODO rename this property to fullPath
   get namespaceWithPath(): string {
     return this.#gqlProject.fullPath;
   }
@@ -40,19 +45,8 @@ export class GitLabProject {
     return this.#gqlProject.webUrl;
   }
 
-  get groupRestId(): number | undefined {
+  // TODO: This is used only in one spot, probably a good idea to remove it from this main class
+  get groupRestId(): number {
     return this.#gqlProject.group && getRestIdFromGraphQLId(this.#gqlProject.group.id);
-  }
-
-  get wikiEnabled(): boolean {
-    return this.#gqlProject.wikiEnabled;
-  }
-
-  get empty(): boolean {
-    return Boolean(this.#gqlProject.repository?.empty);
-  }
-
-  get rootRef(): string | undefined {
-    return this.#gqlProject.repository?.rootRef;
   }
 }

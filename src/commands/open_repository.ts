@@ -5,6 +5,7 @@ import { pickAccount } from '../gitlab/pick_account';
 import { pickProject } from '../gitlab/pick_project';
 import { pickGitRef } from '../gitlab/pick_git_ref';
 import { getGitLabServiceForAccount } from '../gitlab/get_gitlab_service';
+import { getRestIdFromGraphQLId } from '../gitlab/get_rest_id_from_graphql_id';
 
 // eslint-disable-next-line no-shadow
 enum Action {
@@ -56,7 +57,7 @@ async function chooseProject(action: Action) {
   const project = await pickProject(gitlabService);
   if (!project) return;
 
-  const ref = await pickGitRef(gitlabService, project.restId);
+  const ref = await pickGitRef(gitlabService, getRestIdFromGraphQLId(project.id));
   if (!ref) return;
 
   const label = await vscode.window.showInputBox({
@@ -70,7 +71,7 @@ async function chooseProject(action: Action) {
   const instanceUri = vscode.Uri.parse(account.instanceUrl);
   const remoteUri = vscode.Uri.joinPath(instanceUri, label).with({
     scheme: REMOTE_URI_SCHEME,
-    query: `project=${project.restId}&ref=${ref.name}`,
+    query: `project=${getRestIdFromGraphQLId(project.id)}&ref=${ref.name}`,
   });
   await openUrl(remoteUri, action);
 }

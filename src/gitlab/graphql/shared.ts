@@ -1,24 +1,5 @@
 import { gql } from 'graphql-request';
 
-export const fragmentProjectDetails = gql`
-  fragment projectDetails on Project {
-    id
-    name
-    description
-    httpUrlToRepo
-    sshUrlToRepo
-    fullPath
-    webUrl
-    wikiEnabled
-    repository {
-      rootRef
-    }
-    group {
-      id
-    }
-  }
-`;
-
 const positionFragment = gql`
   fragment position on Note {
     position {
@@ -80,26 +61,6 @@ export const discussionDetailsFragment = gql`
     }
   }
 `;
-
-interface GqlGroup {
-  id: string;
-}
-export interface GqlProject {
-  id: string;
-  name: string;
-  description: string;
-  httpUrlToRepo: string;
-  sshUrlToRepo: string;
-  fullPath: string;
-  webUrl: string;
-  group?: GqlGroup;
-  wikiEnabled: boolean;
-  // This property and its nested properties are conditionally requested.
-  repository?: {
-    empty?: boolean;
-    rootRef?: string;
-  };
-}
 
 export interface GqlProjectResult<T> {
   project?: T;

@@ -17,6 +17,7 @@ import { Repository } from '../api/git';
 import { JobItemModel } from '../tree_view/items/job_item_model';
 import { PipelineItemModel } from '../tree_view/items/pipeline_item_model';
 import { WarningError } from '../errors/warning_error';
+import { getProjectWithRepositoryInfo } from '../gitlab/api/get_projects_with_repository_info';
 
 export const openUrl = async (url: string): Promise<void> => {
   // workaround for a VS Code open command bug: https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/44
@@ -155,9 +156,18 @@ export const compareCurrentBranch: ProjectCommand = async projectInRepository =>
   const { project } = projectInRepository;
   const { repository } = projectInRepository.pointer;
 
-  if (getLastCommitSha(repository.rawRepository) && project.rootRef) {
+  const projectWithRepoInfo = await getGitLabService(projectInRepository).execute(
+    getProjectWithRepositoryInfo(project.namespaceWithPath),
+  );
+  if (!projectWithRepoInfo) {
+    throw new Error(
+      `Could not load project ${project.namespaceWithPath} from API, please try again.`,
+    );
+  }
+
+  if (getLastCommitSha(repository.rawRepository) && projectWithRepoInfo.repository.rootRef) {
     await openUrl(
-      `${project.webUrl}/-/compare/${project.rootRef}...${getLastCommitSha(
+      `${project.webUrl}/-/compare/${projectWithRepoInfo.repository.rootRef}...${getLastCommitSha(
         repository.rawRepository,
       )}`,
     );
