@@ -3,6 +3,7 @@ import { GraphQLClient, gql, Variables, RequestDocument } from 'graphql-request'
 import { URL } from 'url';
 import createHttpProxyAgent from 'https-proxy-agent';
 import assert from 'assert';
+import get from 'lodash/get';
 import fetch from './fetch_logged';
 import { FetchError } from '../errors/fetch_error';
 import { getUserAgentHeader } from './http/get_user_agent_header';
@@ -56,7 +57,6 @@ import { Credentials } from '../accounts/credentials';
 import { newCreateNoteMutation, oldCreateNoteMutation } from './graphql/create_note';
 import { createQueryString, QueryValue } from '../utils/create_query_string';
 import { sort } from '../utils/sort';
-import { GraphQLQuery } from './api/graphql_query';
 import { ApiRequest } from './gitlab_platform';
 
 interface CreateNoteResult {
@@ -329,12 +329,11 @@ export class GitLabService {
     }
   }
 
-  async execute<T>(request: GraphQLQuery<T>): Promise<T> {
-    const result = await this.graphqlRequest(request.query, request.options);
-    return request.processResult(result);
-  }
-
   async fetchFromApi<T>(request: ApiRequest<T>): Promise<T> {
+    if (request.type === 'graphql') {
+      const result = await this.graphqlRequest(request.query, request.options);
+      return request.resultPath ? get(result, request.resultPath) : result;
+    }
     switch (request.method) {
       case 'GET':
         return this.fetch(request.path, request.searchParams);

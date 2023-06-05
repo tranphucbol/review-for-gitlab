@@ -1120,6 +1120,7 @@
   "devDependencies": {
     "@jest/globals": "^29.5.0",
     "@types/jest": "^29.5.2",
+    "@types/lodash": "^4.14.195",
     "@types/node": "^13.13.52",
     "@types/request-promise": "^4.1.48",
     "@types/semver": "^7.3.8",
@@ -1156,6 +1157,7 @@
     "graphql": "^16.6.0",
     "graphql-request": "^6.1.0",
     "https-proxy-agent": "^5.0.1",
+    "lodash": "^4.17.21",
     "semver": "^7.3.5",
     "source-map-support": "^0.5.20",
     "temp": "^0.9.4",

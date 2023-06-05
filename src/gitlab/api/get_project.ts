@@ -1,7 +1,18 @@
 import { gql } from 'graphql-request';
-import { GqlProject, GitLabProject } from '../gitlab_project';
-import { GraphQLQuery } from './graphql_query';
-import { GqlProjectResult } from '../graphql/shared';
+import { GraphQLRequest } from './graphql_request';
+
+interface GqlGroup {
+  id: string;
+}
+
+export interface GqlProject {
+  id: string;
+  name: string;
+  description: string;
+  fullPath: string;
+  webUrl: string;
+  group: GqlGroup;
+}
 
 const fragmentProjectDetails = gql`
   fragment projectDetails on Project {
@@ -24,13 +35,11 @@ const queryGetProject = gql`
   }
 `;
 
-type GetProjectQueryResult = GqlProjectResult<GqlProject>;
-
 export const getProject: (
   namespaceWithPath: string,
-) => GraphQLQuery<GitLabProject | undefined> = namespaceWithPath => ({
+) => GraphQLRequest<GqlProject | undefined> = namespaceWithPath => ({
+  type: 'graphql',
   query: queryGetProject,
-  processResult: (result: GetProjectQueryResult) =>
-    result.project && new GitLabProject(result.project),
   options: { namespaceWithPath },
+  resultPath: 'project',
 });

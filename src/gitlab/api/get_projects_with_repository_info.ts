@@ -1,6 +1,5 @@
 import { gql } from 'graphql-request';
-import { GraphQLQuery } from './graphql_query';
-import { GqlProjectResult } from '../graphql/shared';
+import { GraphQLRequest } from './graphql_request';
 
 const fragmentProjectDetails = gql`
   fragment projectDetails on Project {
@@ -60,14 +59,6 @@ const queryGetProject = gql`
   }
 `;
 
-interface GqlProjectsResult {
-  projects?: {
-    nodes?: GqlProjectWithRepoInfo[];
-  };
-}
-
-type GetProjectQueryResult = GqlProjectResult<GqlProjectWithRepoInfo>;
-
 export interface GetProjectsOptions {
   search?: string;
   membership: boolean;
@@ -85,16 +76,18 @@ const getProjectsDefaultOptions = {
 
 export const getProjectsWithRepositoryInfo: (
   options: Partial<GetProjectsOptions>,
-) => GraphQLQuery<GqlProjectWithRepoInfo[]> = options => ({
+) => GraphQLRequest<GqlProjectWithRepoInfo[] | undefined> = options => ({
+  type: 'graphql',
   query: queryGetProjects,
-  processResult: (result: GqlProjectsResult) => result.projects?.nodes || [],
   options: { ...getProjectsDefaultOptions, ...options },
+  resultPath: 'projects.nodes',
 });
 
 export const getProjectWithRepositoryInfo: (
   namespaceWithPath: string,
-) => GraphQLQuery<GqlProjectWithRepoInfo | undefined> = namespaceWithPath => ({
+) => GraphQLRequest<GqlProjectWithRepoInfo | undefined> = namespaceWithPath => ({
+  type: 'graphql',
   query: queryGetProject,
-  processResult: (result: GetProjectQueryResult) => result.project,
   options: { namespaceWithPath },
+  resultPath: 'project',
 });

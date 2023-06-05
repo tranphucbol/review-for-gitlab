@@ -156,7 +156,7 @@ export const compareCurrentBranch: ProjectCommand = async projectInRepository =>
   const { project } = projectInRepository;
   const { repository } = projectInRepository.pointer;
 
-  const projectWithRepoInfo = await getGitLabService(projectInRepository).execute(
+  const projectWithRepoInfo = await getGitLabService(projectInRepository).fetchFromApi(
     getProjectWithRepositoryInfo(project.namespaceWithPath),
   );
   if (!projectWithRepoInfo) {
