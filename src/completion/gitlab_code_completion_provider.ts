@@ -14,8 +14,12 @@ import {
 } from '../utils/extension_configuration';
 import { getActiveProject } from '../commands/run_with_valid_project';
 import { GitLabPlatform } from '../gitlab/gitlab_platform';
-import { CodeCompletionTokenManager } from './token_manager';
+import { CodeCompletionTokenManager, CompletionToken } from './token_manager';
 import { getUserAgentHeader } from '../gitlab/http/get_user_agent_header';
+import { CircuitBreaker } from './circuit_breaker';
+
+export const CIRCUIT_BREAK_INTERVAL_MS = 10000;
+export const MAX_ERRORS_BEFORE_CIRCUIT_BREAK = 4;
 
 interface Choice {
   text: string;
@@ -56,6 +60,11 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
   private noDebounce: boolean;
 
   private tokenManager: CodeCompletionTokenManager;
+
+  private circuitBreaker = new CircuitBreaker(
+    MAX_ERRORS_BEFORE_CIRCUIT_BREAK,
+    CIRCUIT_BREAK_INTERVAL_MS,
+  );
 
   constructor(platform: GitLabPlatform, noDebounce = false) {
     this.model = 'gitlab';
@@ -136,6 +145,10 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
     document: vscode.TextDocument,
     position: vscode.Position,
   ): Promise<vscode.InlineCompletionItem[]> {
+    if (this.circuitBreaker.isBreaking()) {
+      return [];
+    }
+
     const prompt: CodeSuggestionPrompt = GitLabCodeCompletionProvider.#getPrompt(
       document,
       position,
@@ -156,21 +169,22 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
 
     log.debug(`AI Assist: fetching completions ...`);
 
-    const fetchResponse = await fetch(this.server, {
-      method: `POST`,
-      body: JSON.stringify(prompt),
-      headers: {
-        ...getUserAgentHeader(),
-        'X-Gitlab-Authentication-Type': 'oidc',
-        Authorization: `Bearer ${token.access_token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    let response: CodeSuggestionResponse;
 
-    const response: CodeSuggestionResponse = await fetchResponse.json();
+    try {
+      response = await this.fetchCompletions(token, prompt);
+      this.circuitBreaker.success();
+    } catch (e) {
+      log.error(`AI Assist: Error fetching completions: ${e.toString()}`);
+      this.circuitBreaker.error();
+      return [];
+    }
+
     const choices = response.choices || [];
 
     log.debug(`AI Assist: got ${choices.length} completions`);
+    console.log('vscode', vscode);
+    console.log('vscode.InlineCompletionItem', vscode.InlineCompletionItem);
 
     return choices.map(
       choice => new vscode.InlineCompletionItem(choice.text, new vscode.Range(position, position)),
@@ -198,5 +212,37 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
         }
       }
     });
+  }
+
+  async fetchCompletions(
+    token: CompletionToken,
+    prompt: CodeSuggestionPrompt,
+  ): Promise<CodeSuggestionResponse> {
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        ...getUserAgentHeader(),
+        'X-Gitlab-Authentication-Type': 'oidc',
+        Authorization: `Bearer ${token.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(prompt),
+    };
+
+    const response = await fetch(this.server, requestOptions);
+
+    await this.handleErrorReponse(response);
+
+    const data = await response.json();
+    return data;
+  }
+
+  private async handleErrorReponse(response: Response) {
+    if (!response.ok) {
+      const body = await response.text().catch(() => undefined);
+      throw new Error(
+        `Fetching code suggestions from ${response.url} failed for server ${this.server}. Body: ${body}`,
+      );
+    }
   }
 }
