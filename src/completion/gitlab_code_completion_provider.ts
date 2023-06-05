@@ -5,6 +5,7 @@ import { log } from '../log';
 import {
   AI_ASSISTED_CODE_SUGGESTIONS_API_URL,
   AI_ASSISTED_CODE_SUGGESTIONS_LINES_BELOW_CURSOR,
+  AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES,
 } from '../constants';
 import {
   getAiAssistedCodeSuggestionsConfiguration,
@@ -14,6 +15,7 @@ import {
 import { getActiveProject } from '../commands/run_with_valid_project';
 import { GitLabPlatform } from '../gitlab/gitlab_platform';
 import { CodeCompletionTokenManager } from './token_manager';
+import { getUserAgentHeader } from '../gitlab/http/get_user_agent_header';
 
 interface Choice {
   text: string;
@@ -47,7 +49,7 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
 
   private server: string;
 
-  private debouncedCall: any;
+  private debouncedCall?: NodeJS.Timeout;
 
   private debounceTimeMs = 500;
 
@@ -70,7 +72,7 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
 
     const register = () => {
       subscription = vscode.languages.registerInlineCompletionItemProvider(
-        { pattern: '**' },
+        AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.map(language => ({ language })),
         new GitLabCodeCompletionProvider(platform),
       );
     };
@@ -113,14 +115,13 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
       new vscode.Range(position.line, position.character, position.line + linesBelowCursor, 0),
     );
 
-    const projectPath = getActiveProject()?.project.namespaceWithPath || '';
-    const projectId = getActiveProject()?.project.restId || -1;
+    const { namespaceWithPath: projectPath, restId: projectId } = getActiveProject()?.project || {};
     const fileName = path.basename(document.fileName) || '';
 
     const payload = {
       prompt_version: 1,
-      project_path: projectPath,
-      project_id: projectId,
+      project_path: projectPath || '',
+      project_id: projectId || -1,
       current_file: {
         file_name: fileName,
         content_above_cursor: contentAboveCursor,
@@ -131,7 +132,10 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
     return payload;
   }
 
-  async getCompletions(document: vscode.TextDocument, position: vscode.Position) {
+  async getCompletions(
+    document: vscode.TextDocument,
+    position: vscode.Position,
+  ): Promise<vscode.InlineCompletionItem[]> {
     const prompt: CodeSuggestionPrompt = GitLabCodeCompletionProvider.#getPrompt(
       document,
       position,
@@ -140,8 +144,8 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
     // TODO: Sanitize prompt to prevent exposing sensitive information
     // Issue https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/692
     if (!prompt) {
-      log.debug('AI Assist: Prompt is empty, probably due to first line');
-      return [] as vscode.InlineCompletionItem[];
+      log.warn('AI Assist: Prompt is empty, probably due to first line');
+      return [];
     }
 
     const token = await this.tokenManager.getToken();
@@ -150,29 +154,26 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
       return [] as vscode.InlineCompletionItem[];
     }
 
-    const requestConfig = {
-      method: 'POST',
+    log.debug(`AI Assist: fetching completions ...`);
+
+    const fetchResponse = await fetch(this.server, {
+      method: `POST`,
+      body: JSON.stringify(prompt),
       headers: {
+        ...getUserAgentHeader(),
         'X-Gitlab-Authentication-Type': 'oidc',
         Authorization: `Bearer ${token.access_token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(prompt),
-    };
+    });
 
-    const fetchResponse = await fetch(this.server, requestConfig);
     const response: CodeSuggestionResponse = await fetchResponse.json();
+    const choices = response.choices || [];
 
-    return (
-      response.choices
-        ?.map(choice => choice.text)
-        .map(
-          choiceText =>
-            new vscode.InlineCompletionItem(
-              choiceText as string,
-              new vscode.Range(position, position),
-            ),
-        ) || []
+    log.debug(`AI Assist: got ${choices.length} completions`);
+
+    return choices.map(
+      choice => new vscode.InlineCompletionItem(choice.text, new vscode.Range(position, position)),
     );
   }
 
@@ -181,7 +182,9 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
     position: vscode.Position,
     context: vscode.InlineCompletionContext,
   ): Promise<vscode.InlineCompletionItem[]> {
-    clearTimeout(this.debouncedCall);
+    if (this.debouncedCall !== undefined) {
+      clearTimeout(this.debouncedCall);
+    }
 
     return new Promise(resolve => {
       //  In case of a hover, this will be triggered which is not desired as it calls for a new prediction
