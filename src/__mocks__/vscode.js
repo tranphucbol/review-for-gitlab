@@ -108,4 +108,8 @@ module.exports = {
   InlineCompletionTriggerKind: {
     Automatic: true,
   },
+  InlineCompletionItem: function InlineCompletionItem(insertText, range) {
+    this.insertText = insertText;
+    this.range = range;
+  },
 };
