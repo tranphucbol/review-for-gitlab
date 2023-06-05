@@ -11,6 +11,7 @@ import { pickAccount } from './pick_account';
 import { pickProject } from './pick_project';
 import { convertProjectToSetting, selectedProjectStore } from './selected_project_store';
 import { getProject } from './api/get_project';
+import { GitLabProject } from './gitlab_project';
 
 const selectRepository = async (): Promise<GitRepository | undefined> => {
   const options = gitExtensionWrapper.gitRepositories.map(repository => ({
@@ -38,7 +39,7 @@ const manuallyAssignProject = async (repository: GitRepository) => {
   if (!pointer) return;
   const projectWithRepoInfo = await pickProject(getGitLabServiceForAccount(account));
   if (!projectWithRepoInfo) return;
-  const project = await getGitLabServiceForAccount(account).execute(
+  const project = await getGitLabServiceForAccount(account).fetchFromApi(
     getProject(projectWithRepoInfo.fullPath),
   );
   if (!project) return;
@@ -46,13 +47,13 @@ const manuallyAssignProject = async (repository: GitRepository) => {
   const projectInRepository: ProjectInRepository = {
     account,
     pointer,
-    project,
+    project: new GitLabProject(project),
     initializationType: 'selected',
   };
   const selectedProjectSetting = convertProjectToSetting(projectInRepository);
   await selectedProjectStore.addSelectedProject(selectedProjectSetting);
   await vscode.window.showInformationMessage(
-    `Success: you assigned project ${project.namespaceWithPath} to remote URL ${pointer.urlEntry.url} in repository ${repository.rootFsPath}`,
+    `Success: you assigned project ${project.fullPath} to remote URL ${pointer.urlEntry.url} in repository ${repository.rootFsPath}`,
   );
 };
 

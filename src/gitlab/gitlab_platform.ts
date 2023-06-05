@@ -1,6 +1,7 @@
+import { GraphQLRequest } from './api/graphql_request';
 import { GetRequest, PostRequest } from './api/rest';
 
-export type ApiRequest<T> = GetRequest<T> | PostRequest<T>;
+export type ApiRequest<T> = GetRequest<T> | PostRequest<T> | GraphQLRequest<T>;
 
 export interface GitLabPlatformProject {
   project: string;

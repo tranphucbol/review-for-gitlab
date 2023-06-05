@@ -15,7 +15,7 @@ describe('pickProject', () => {
     createProject('e/f'),
   ];
   const partialGitLabService = {
-    execute: async (r: any) => {
+    fetchFromApi: async (r: any) => {
       if (r.options.namespaceWithPath) {
         return projects.find(p => p.namespaceWithPath === r.options.namespaceWithPath);
       }

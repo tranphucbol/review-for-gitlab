@@ -55,7 +55,7 @@ describe('gitlab_service', () => {
         request: async () => ({ project: gqlProject }),
       });
 
-      await service.execute(getProject('group/project'));
+      await service.fetchFromApi(getProject('group/project'));
 
       expect(GraphQLClient).toHaveBeenCalledWith(endpointUrl, expect.anything());
     });

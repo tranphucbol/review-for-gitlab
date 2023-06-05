@@ -22,8 +22,10 @@ export async function pickProject(
 
   // Return the user's projects which match the query
   async function getItems(query?: string): Promise<ItemOrOther[]> {
-    const projects = await gitlabService.execute(getProjectsWithRepositoryInfo({ search: query }));
-    const items = projects.map(project => ({
+    const projects = await gitlabService.fetchFromApi(
+      getProjectsWithRepositoryInfo({ search: query }),
+    );
+    const items = (projects || []).map(project => ({
       // We have to use `namespaceWithPath`. `project.name` can be arbitrary text and VS Code filters the items based on `query`
       // For example, we search for `test`, API returns project {name: 'Project', namespaceWithPath: 'group/test'}, if we use `project.name`
       // VS Code won't find the `test` string and won't show the item to the user
@@ -36,7 +38,7 @@ export async function pickProject(
 
   // Lookup a specific project by path
   async function lookupItem(path: string): Promise<GqlProjectWithRepoInfo | undefined> {
-    const project = await gitlabService.execute(getProjectWithRepositoryInfo(path));
+    const project = await gitlabService.fetchFromApi(getProjectWithRepositoryInfo(path));
 
     if (!project) await vscode.window.showWarningMessage(`Cannot find project with path '${path}'`);
     return project;
