@@ -10,6 +10,7 @@ import { ProjectInRepository } from './new_project';
 import { pickAccount } from './pick_account';
 import { pickProject } from './pick_project';
 import { convertProjectToSetting, selectedProjectStore } from './selected_project_store';
+import { getProject } from './api/get_project';
 
 const selectRepository = async (): Promise<GitRepository | undefined> => {
   const options = gitExtensionWrapper.gitRepositories.map(repository => ({
@@ -35,8 +36,13 @@ const manuallyAssignProject = async (repository: GitRepository) => {
   if (!account) return;
   const pointer = await pickRemoteUrl(createRemoteUrlPointers(repository));
   if (!pointer) return;
-  const project = await pickProject(getGitLabServiceForAccount(account));
+  const projectWithRepoInfo = await pickProject(getGitLabServiceForAccount(account));
+  if (!projectWithRepoInfo) return;
+  const project = await getGitLabServiceForAccount(account).execute(
+    getProject(projectWithRepoInfo.fullPath),
+  );
   if (!project) return;
+
   const projectInRepository: ProjectInRepository = {
     account,
     pointer,

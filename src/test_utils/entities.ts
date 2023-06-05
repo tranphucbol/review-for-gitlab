@@ -1,8 +1,7 @@
 import vscode from 'vscode';
 import { GitRemote, GitRepository } from '../git/new_git';
 import { CustomQueryType } from '../gitlab/custom_query_type';
-import { GitLabProject } from '../gitlab/gitlab_project';
-import { GqlProject } from '../gitlab/graphql/shared';
+import { GitLabProject, GqlProject } from '../gitlab/gitlab_project';
 import { ProjectInRepository } from '../gitlab/new_project';
 import { ReviewParams as ReviewUriParams } from '../review/review_uri';
 import { makeAccountId, OAuthAccount, TokenAccount } from '../accounts/account';
@@ -10,6 +9,7 @@ import { createFakeRepository } from './fake_git_extension';
 import { InMemoryMemento } from '../../test/integration/test_infrastructure/in_memory_memento';
 import { SecretStorage } from './secret_storage';
 import { GqlSecurityFindingReport } from '../gitlab/graphql/get_security_finding_report';
+import { GqlProjectWithRepoInfo } from '../gitlab/api/get_projects_with_repository_info';
 
 export const issue: RestIssuable = {
   id: 1,
@@ -120,14 +120,11 @@ export const gqlProject: GqlProject = {
   id: 'gid://gitlab/Project/5261717',
   name: 'gitlab-vscode-extension',
   description: '',
-  httpUrlToRepo: 'https://gitlab.com/gitlab-org/gitlab-vscode-extension.git',
-  sshUrlToRepo: 'git@gitlab.com:gitlab-org/gitlab-vscode-extension.git',
   fullPath: 'gitlab-org/gitlab-vscode-extension',
   webUrl: 'https://gitlab.com/gitlab-org/gitlab-vscode-extension',
   group: {
     id: 'gid://gitlab/Group/9970',
   },
-  wikiEnabled: false,
 };
 
 export const reviewUriParams: ReviewUriParams = {
@@ -139,6 +136,19 @@ export const reviewUriParams: ReviewUriParams = {
 };
 
 export const project = new GitLabProject(gqlProject);
+
+export const projectWithRepositoryInfo: GqlProjectWithRepoInfo = {
+  id: 'gid://gitlab/Project/5261717',
+  name: 'gitlab-vscode-extension',
+  description: '',
+  httpUrlToRepo: 'https://gitlab.com/gitlab-org/gitlab-vscode-extension.git',
+  sshUrlToRepo: 'git@gitlab.com:gitlab-org/gitlab-vscode-extension.git',
+  fullPath: 'gitlab-org/gitlab-vscode-extension',
+  repository: {
+    empty: false,
+    rootRef: 'main',
+  },
+};
 
 export const createProject = (namespaceWithPath: string) =>
   new GitLabProject({

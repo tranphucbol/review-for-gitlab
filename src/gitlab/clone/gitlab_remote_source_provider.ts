@@ -1,26 +1,28 @@
 import { RemoteSource, RemoteSourceProvider } from '../../api/git';
 import { GitLabService } from '../gitlab_service';
-import { GitLabProject } from '../gitlab_project';
 import { Account } from '../../accounts/account';
 import { getGitLabServiceForAccount } from '../get_gitlab_service';
-import { getProject } from '../api/get_project';
-import { getProjects } from '../api/get_projects';
+import {
+  GqlProjectWithRepoInfo,
+  getProjectWithRepositoryInfo,
+  getProjectsWithRepositoryInfo,
+} from '../api/get_projects_with_repository_info';
 
 export function convertUrlToWikiUrl(url: string): string {
   return url.replace(/\.git$/, '.wiki.git');
 }
 
 export type GitLabRemote = RemoteSource & {
-  project: GitLabProject;
+  project: GqlProjectWithRepoInfo;
   url: string[];
   wikiUrl: string[];
 };
 
-export function remoteForProject(project: GitLabProject): GitLabRemote {
+export function remoteForProject(project: GqlProjectWithRepoInfo): GitLabRemote {
   const url = [project.sshUrlToRepo, project.httpUrlToRepo];
 
   return {
-    name: `$(repo) ${project.namespaceWithPath}`,
+    name: `$(repo) ${project.fullPath}`,
     description: project.description,
     url,
     wikiUrl: url.map(convertUrlToWikiUrl),
@@ -43,7 +45,7 @@ export class GitLabRemoteSourceProvider implements RemoteSourceProvider {
   }
 
   async lookupByPath(path: string): Promise<GitLabRemote | undefined> {
-    const project = await this.gitlabService.execute(getProject(path));
+    const project = await this.gitlabService.execute(getProjectWithRepositoryInfo(path));
     if (!project) return undefined;
 
     return remoteForProject(project);
@@ -51,11 +53,13 @@ export class GitLabRemoteSourceProvider implements RemoteSourceProvider {
 
   async getRemoteSources(query?: string): Promise<GitLabRemote[]> {
     const projects = await this.gitlabService.execute(
-      getProjects({
+      getProjectsWithRepositoryInfo({
         search: query,
       }),
     );
 
-    return projects.filter(project => !project.empty).map(project => remoteForProject(project));
+    return projects
+      .filter(project => !project.repository.empty)
+      .map(project => remoteForProject(project));
   }
 }

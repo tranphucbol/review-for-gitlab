@@ -1,8 +1,20 @@
 import { gql } from 'graphql-request';
-import { GitLabProject } from '../gitlab_project';
+import { GqlProject, GitLabProject } from '../gitlab_project';
 import { GraphQLQuery } from './graphql_query';
-import { fragmentProjectDetails, GqlProject, GqlProjectResult } from '../graphql/shared';
+import { GqlProjectResult } from '../graphql/shared';
 
+const fragmentProjectDetails = gql`
+  fragment projectDetails on Project {
+    id
+    name
+    description
+    fullPath
+    webUrl
+    group {
+      id
+    }
+  }
+`;
 const queryGetProject = gql`
   ${fragmentProjectDetails}
   query GetProject($namespaceWithPath: ID!) {

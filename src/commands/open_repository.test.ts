@@ -5,9 +5,9 @@ import { pickGitRef } from '../gitlab/pick_git_ref';
 import { pickAccount } from '../gitlab/pick_account';
 import { pickProject } from '../gitlab/pick_project';
 import { accountService } from '../accounts/account_service';
-import { project } from '../test_utils/entities';
 import { testCredentials } from '../test_utils/test_credentials';
 import { openRepository } from './open_repository';
+import { projectWithRepositoryInfo } from '../test_utils/entities';
 
 jest.mock('../accounts/account_service');
 jest.mock('../gitlab/pick_account');
@@ -87,7 +87,7 @@ describe('openRepository', () => {
 
     it('constructs and opens the correct URL', async () => {
       (pickAccount as jest.Mock).mockImplementation(() => testCredentials('https://example.com'));
-      (pickProject as jest.Mock).mockImplementation(() => project);
+      (pickProject as jest.Mock).mockImplementation(() => projectWithRepositoryInfo);
       (pickGitRef as jest.Mock).mockImplementation(() => branch);
       alwaysInput('FooBar');
 

@@ -1,6 +1,6 @@
 const assert = require('assert');
 const { graphql } = require('msw');
-const projectsResponse = require('./fixtures/graphql/projects.json');
+const projectsResponse = require('./fixtures/graphql/projects_with_repository_info.json');
 const { getServer } = require('./test_infrastructure/mock_server');
 const {
   GitLabRemoteSourceProvider,
@@ -21,7 +21,7 @@ const validateRemoteSource = remoteSources => {
     'git@test.gitlab.com:gitlab-org/gitlab.wiki.git',
     'https://test.gitlab.com/gitlab-org/gitlab.wiki.git',
   ]);
-  assert.strictEqual(remoteSource.project.gqlId, 'gid://gitlab/Project/278964');
+  assert.strictEqual(remoteSource.project.id, 'gid://gitlab/Project/278964');
 };
 
 describe('GitLab Remote Source provider', () => {
@@ -31,7 +31,7 @@ describe('GitLab Remote Source provider', () => {
 
   before(async () => {
     server = getServer([
-      graphql.query('GetProjects', (req, res, ctx) => {
+      graphql.query('GetProjectsWithRepositoryInfo', (req, res, ctx) => {
         if (req.variables.search === 'GitLab') return res(ctx.data(projectsResponse));
         if (req.variables.search === 'nonexistent') return res(ctx.data({ projects: null }));
         return res(ctx.data(projectsResponse));

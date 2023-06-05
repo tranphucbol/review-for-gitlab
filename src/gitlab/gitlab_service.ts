@@ -781,12 +781,8 @@ export class GitLabService {
      * Set path based on config.type
      */
     if (config.type === 'epics') {
-      if (project.groupRestId) {
-        path = `/groups/${project.groupRestId}/${config.type}`;
-        search.set('include_ancestor_groups', 'true');
-      } else {
-        return [];
-      }
+      path = `/groups/${project.groupRestId}/${config.type}`;
+      search.set('include_ancestor_groups', 'true');
     } else {
       const searchKind =
         config.type === CustomQueryType.VULNERABILITY ? 'vulnerability_findings' : config.type;
