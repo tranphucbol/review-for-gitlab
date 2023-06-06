@@ -10,8 +10,7 @@ import { ProjectInRepository } from './new_project';
 import { pickAccount } from './pick_account';
 import { pickProject } from './pick_project';
 import { convertProjectToSetting, selectedProjectStore } from './selected_project_store';
-import { getProject } from './api/get_project';
-import { GitLabProject } from './gitlab_project';
+import { convertToGitLabProject, getProject } from './api/get_project';
 
 const selectRepository = async (): Promise<GitRepository | undefined> => {
   const options = gitExtensionWrapper.gitRepositories.map(repository => ({
@@ -47,7 +46,7 @@ const manuallyAssignProject = async (repository: GitRepository) => {
   const projectInRepository: ProjectInRepository = {
     account,
     pointer,
-    project: new GitLabProject(project),
+    project: convertToGitLabProject(project),
     initializationType: 'selected',
   };
   const selectedProjectSetting = convertProjectToSetting(projectInRepository);
