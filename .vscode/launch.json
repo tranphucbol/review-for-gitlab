@@ -35,7 +35,7 @@
         "--disable-workspace-trust",
         "--extensionDevelopmentPath=${workspaceRoot}/dist-desktop",
         "--extensionTestsPath=${workspaceRoot}/dist-desktop/test/integration/",
-        "<run `npm run create-test-workspace` to generate a test folder>"
+        "${workspaceRoot}/test_workspace"
       ],
       "outFiles": ["${workspaceFolder}/dist-desktop/**/*.js"],
       "preLaunchTask": "npm: prepare:test:integration",

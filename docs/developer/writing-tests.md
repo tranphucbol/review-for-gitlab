@@ -28,7 +28,7 @@ You can debug unit tests by running the "Unit Tests" [Launch configuration](http
 
 Integration tests mock the GitLab API using the [`msw`](https://mswjs.io/docs/) module. All API calls made by the extension are intercepted by `msw` and handled by [`mock_server.js`](../test/integration/test_infrastructure/mock_server.js).
 
-A temporary workspace for integration tests is created once before running the test suite by `test/create_tmp_workspace.ts`. In this helper script, we use [`simple-git`](https://github.com/steveukx/git-js) module to initialize git repository.
+A temporary workspace for integration tests is created once before running the test suite by `scripts/create_test_workspace.ts`. In this helper script, we use [`simple-git`](https://github.com/steveukx/git-js) module to initialize git repository.
 
 ## Two environments for integration tests
 
@@ -44,9 +44,7 @@ We solve this by initializing a _second_ extension for tests, running some tests
 
 ### Debugging integration tests
 
-For debugging the integration tests, first create a test workspace. We can do that by running `npm run create-test-workspace` script. This script generates a new workspace, and inserts its path into `.vscode/launch.json`.
-
-Then we can debug the by running the "Integration Tests" [Launch configuration](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations).
+We can debug the integration tests by running the "Integration Tests" [Launch configuration](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations).
 
 ### Create a new integration test
 
@@ -64,7 +62,7 @@ We are now not mocking any part of VS Code. You should be able to set the extens
 
 #### Prepare file system dependency
 
-If you need an additional `git` configuration for your testing, you can set it up either in `test/create_tmp_workspace.ts` (if all tests need it). Or you can use `simple-git` directly in your test set up code (don't forget to reset the configuration after your test to prevent side effects).
+If you need an additional `git` configuration for your testing, you can set it up either in `scripts/create_test_workspace.ts` (if all tests need it). Or you can use `simple-git` directly in your test set up code (don't forget to reset the configuration after your test to prevent side effects).
 
 You can find example of setting the Git repository in a test in [`insert_snippet.test.js`](../test/integration/insert_snippet.test.js):
 
