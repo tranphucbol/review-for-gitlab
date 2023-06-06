@@ -1108,7 +1108,7 @@
     "lint": "eslint --ext .js --ext .ts --ext .mjs . && prettier --check '**/*.{js,ts,mjs,vue,json,md}' && npm run --prefix webviews/issuable lint",
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "jest",
-    "prepare:test:integration": "npm run build:desktop && cp -R node_modules dist-desktop/",
+    "prepare:test:integration": "npm run build:desktop && cp -R node_modules dist-desktop/ && node scripts/create_test_workspace.mjs",
     "test:integration": "npm run prepare:test:integration && node ./dist-desktop/test/runTest.js",
     "prettier-package-json": "prettier --write package.json",
     "autofix": "npm run clean && eslint --fix . && prettier --write '**/*.{js,ts,mjs,vue,json,md}' && cd webviews/issuable && npm run autofix",

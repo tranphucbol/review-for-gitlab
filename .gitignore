@@ -7,3 +7,4 @@ dist-desktop
 /coverage/
 /reports/
 .idea/
+test_workspace/

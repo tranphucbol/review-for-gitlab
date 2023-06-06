@@ -32,6 +32,15 @@
     },
     {
       "type": "npm",
+      "script": "prepare:test:integration",
+      "group": {
+        "kind": "build"
+      },
+      "problemMatcher": ["$tsc"],
+      "label": "npm: prepare:test:integration"
+    },
+    {
+      "type": "npm",
       "script": "lint",
       "problemMatcher": ["$eslint-stylish"],
       "label": "npm: lint",
