@@ -5,7 +5,8 @@ import {
   GitLabCodeCompletionProvider,
   CIRCUIT_BREAK_INTERVAL_MS,
 } from './gitlab_code_completion_provider';
-import { GitLabPlatform, GitLabPlatformProject } from '../gitlab/gitlab_platform';
+import { GitLabPlatformManager } from '../gitlab/gitlab_platform';
+import { project } from '../test_utils/entities';
 
 jest.mock('../gitlab/fetch_logged');
 const crossFetchCallArgument = () => JSON.parse((fetch as jest.Mock).mock.calls[0][1].body);
@@ -25,20 +26,22 @@ const mockPosition = {
   character: mockPrompt.length,
 } as vscode.Position;
 
-const platform: GitLabPlatform = {
-  getProject: async () => ({ project: 'gitlab' } as GitLabPlatformProject),
-  fetchFromApi: async <T>(): Promise<T> =>
-    ({
-      access_token: '123',
-      expires_in: 0,
-      created_at: 0,
-    } as unknown as T),
+const manager: GitLabPlatformManager = {
+  getForActiveProject: async () => ({
+    project,
+    fetchFromApi: async <T>(): Promise<T> =>
+      ({
+        access_token: '123',
+        expires_in: 0,
+        created_at: 0,
+      } as unknown as T),
+  }),
 };
 
 describe('GitLabCodeCompletionProvider', () => {
   describe('getCompletions', () => {
     it('should construct a payload with line above, line below, file name, and prompt version', async () => {
-      const glcp: GitLabCodeCompletionProvider = new GitLabCodeCompletionProvider(platform);
+      const glcp: GitLabCodeCompletionProvider = new GitLabCodeCompletionProvider(manager);
 
       const testDocument = {
         getText(range: vscode.Range): string {
@@ -73,7 +76,7 @@ describe('GitLabCodeCompletionProvider', () => {
     jest.useFakeTimers();
 
     it('provides inline completions', async () => {
-      const glcp: GitLabCodeCompletionProvider = new GitLabCodeCompletionProvider(platform, true);
+      const glcp: GitLabCodeCompletionProvider = new GitLabCodeCompletionProvider(manager, true);
       glcp.getCompletions = jest.fn().mockResolvedValue(mockInlineCompletions);
 
       jest.runAllTimers();
@@ -94,7 +97,7 @@ describe('GitLabCodeCompletionProvider', () => {
     };
 
     it(`starts breaking after 4 errors`, async () => {
-      const glcp = new GitLabCodeCompletionProvider(platform);
+      const glcp = new GitLabCodeCompletionProvider(manager);
 
       glcp.fetchCompletions = jest.fn().mockRejectedValue(new Error('test problem'));
 
@@ -109,7 +112,7 @@ describe('GitLabCodeCompletionProvider', () => {
 
     describe("after circuit breaker's break time elapses", () => {
       it('fetches completions again', async () => {
-        const glcp = new GitLabCodeCompletionProvider(platform);
+        const glcp = new GitLabCodeCompletionProvider(manager);
         glcp.fetchCompletions = jest.fn().mockRejectedValue(new Error('test problem'));
 
         await turnOnCircuitBreaker(glcp);

@@ -1,22 +1,24 @@
-import { GitLabPlatform, GitLabPlatformProject } from '../gitlab/gitlab_platform';
+import { GitLabPlatformManager } from '../gitlab/gitlab_platform';
+import { project } from '../test_utils/entities';
 import { CodeCompletionTokenManager, CompletionToken } from './token_manager';
 
 describe('CodeCompletionTokenManager', () => {
   describe('getToken', () => {
     let makeApiRequest: jest.Mock;
 
-    const createPlatform = (response: CompletionToken): GitLabPlatform => {
+    const createPlatformManager = (response: CompletionToken): GitLabPlatformManager => {
       makeApiRequest = jest.fn(async <T>(): Promise<T> => response as unknown as T);
-
       return {
-        getProject: async () => ({ project: 'gitlab' } as GitLabPlatformProject),
-        fetchFromApi: makeApiRequest,
+        getForActiveProject: async () => ({
+          project,
+          fetchFromApi: makeApiRequest,
+        }),
       };
     };
 
     it('should return a token', async () => {
       const tokenManager = new CodeCompletionTokenManager(
-        createPlatform({
+        createPlatformManager({
           access_token: '123',
           expires_in: 0,
           created_at: 0,
@@ -31,7 +33,7 @@ describe('CodeCompletionTokenManager', () => {
 
     it('should not call the service again if the token has not expired', async () => {
       const unixTimestampNow = Math.floor(new Date().getTime() / 1000);
-      const mf = createPlatform({
+      const mf = createPlatformManager({
         access_token: '123',
         expires_in: 3000,
         created_at: unixTimestampNow,
@@ -48,7 +50,7 @@ describe('CodeCompletionTokenManager', () => {
     it('should call the service again if the token has expired', async () => {
       const unixTimestampExpired = Math.floor(new Date().getTime() / 1000) - 3001;
 
-      const mf = createPlatform({
+      const mf = createPlatformManager({
         access_token: '123',
         expires_in: 3000,
         created_at: unixTimestampExpired,

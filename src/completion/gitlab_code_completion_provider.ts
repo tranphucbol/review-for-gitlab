@@ -12,8 +12,7 @@ import {
   AI_ASSISTED_CODE_SUGGESTIONS_MODE,
   AI_ASSISTED_CODE_SUGGESTIONS_CONFIG,
 } from '../utils/extension_configuration';
-import { getActiveProject } from '../commands/run_with_valid_project';
-import { GitLabPlatform } from '../gitlab/gitlab_platform';
+import { GitLabPlatform, GitLabPlatformManager } from '../gitlab/gitlab_platform';
 import { CodeCompletionTokenManager, CompletionToken } from './token_manager';
 import { getUserAgentHeader } from '../gitlab/http/get_user_agent_header';
 import { CircuitBreaker } from './circuit_breaker';
@@ -49,8 +48,6 @@ interface CodeSuggestionPrompt {
 }
 
 export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItemProvider {
-  private model: string;
-
   private server: string;
 
   private debouncedCall?: NodeJS.Timeout;
@@ -61,20 +58,25 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
 
   private tokenManager: CodeCompletionTokenManager;
 
+  private manager: GitLabPlatformManager;
+
   private circuitBreaker = new CircuitBreaker(
     MAX_ERRORS_BEFORE_CIRCUIT_BREAK,
     CIRCUIT_BREAK_INTERVAL_MS,
   );
 
-  constructor(platform: GitLabPlatform, noDebounce = false) {
-    this.model = 'gitlab';
+  constructor(manager: GitLabPlatformManager, noDebounce = false) {
     this.server = GitLabCodeCompletionProvider.#getServer();
     this.debouncedCall = undefined;
     this.noDebounce = noDebounce;
-    this.tokenManager = new CodeCompletionTokenManager(platform);
+    this.tokenManager = new CodeCompletionTokenManager(manager);
+    this.manager = manager;
   }
 
-  static registerGitLabCodeCompletion(context: vscode.ExtensionContext, platform: GitLabPlatform) {
+  static registerGitLabCodeCompletion(
+    context: vscode.ExtensionContext,
+    manager: GitLabPlatformManager,
+  ) {
     let subscription: vscode.Disposable | undefined;
     const dispose = () => subscription?.dispose();
     context.subscriptions.push({ dispose });
@@ -82,7 +84,7 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
     const register = () => {
       subscription = vscode.languages.registerInlineCompletionItemProvider(
         AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.map(language => ({ language })),
-        new GitLabCodeCompletionProvider(platform),
+        new GitLabCodeCompletionProvider(manager),
       );
     };
     if (getAiAssistedCodeSuggestionsConfiguration().enabled) {
@@ -111,9 +113,12 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
     return serverUrl.href;
   }
 
+  // TODO: Sanitize prompt to prevent exposing sensitive information
+  // Issue https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/692
   static #getPrompt(
     document: vscode.TextDocument,
     position: vscode.Position,
+    platform: GitLabPlatform,
   ): CodeSuggestionPrompt {
     const contentAboveCursor = document.getText(
       new vscode.Range(0, 0, position.line, position.character),
@@ -124,13 +129,13 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
       new vscode.Range(position.line, position.character, position.line + linesBelowCursor, 0),
     );
 
-    const { namespaceWithPath: projectPath, restId: projectId } = getActiveProject()?.project || {};
+    const { namespaceWithPath, restId } = platform.project;
     const fileName = path.basename(document.fileName) || '';
 
     const payload = {
       prompt_version: 1,
-      project_path: projectPath || '',
-      project_id: projectId || -1,
+      project_path: namespaceWithPath,
+      project_id: restId,
       current_file: {
         file_name: fileName,
         content_above_cursor: contentAboveCursor,
@@ -149,22 +154,21 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
       return [];
     }
 
-    const prompt: CodeSuggestionPrompt = GitLabCodeCompletionProvider.#getPrompt(
-      document,
-      position,
-    );
-
-    // TODO: Sanitize prompt to prevent exposing sensitive information
-    // Issue https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/692
-    if (!prompt) {
-      log.warn('AI Assist: Prompt is empty, probably due to first line');
+    const platform = await this.manager.getForActiveProject(false);
+    if (!platform) {
+      log.warn(
+        'AI Assist: could not obtain suggestions, there is no active project. Open GitLab project to continue',
+      );
       return [];
     }
+    const prompt = GitLabCodeCompletionProvider.#getPrompt(document, position, platform);
 
+    // FIXME: when we start supporting SM, we need to get the token from the **platform**, now the project might not match the token
+    // Also, passing the project to the API might get deprecated: https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/merge_requests/143#note_1419849871
     const token = await this.tokenManager.getToken();
     if (!token) {
       log.error('AI Assist: Could not fetch token');
-      return [] as vscode.InlineCompletionItem[];
+      return [];
     }
 
     log.debug(`AI Assist: fetching completions ...`);
