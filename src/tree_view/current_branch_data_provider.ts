@@ -1,9 +1,13 @@
 import * as vscode from 'vscode';
+import { SECURITY_SCANS_FEATURE_FLAG } from '../constants';
+import { getExtensionConfiguration } from '../utils/extension_configuration';
 import { ErrorItem } from './items/error_item';
 import { ItemModel } from './items/item_model';
 import { MrItemModel } from './items/mr_item_model';
 import { IssueItem } from './items/issue_item';
 import { PipelineItemModel } from './items/pipeline_item_model';
+import { SecurityResultsItem } from './items/security_results_item';
+
 import {
   TreeState,
   BranchState,
@@ -50,6 +54,19 @@ export class CurrentBranchDataProvider
     this.mrState = undefined;
   }
 
+  static createSecurityFindingsItem(state: BranchState): vscode.TreeItem | ItemModel {
+    if (!state.mr || !state.securityFindings?.hasSecurityReports) {
+      return new SecurityResultsItem('NO_SCANS_FOUND');
+    }
+    if (state.securityFindings?.hasSecurityReports && state.pipeline?.status === 'running') {
+      return new SecurityResultsItem('RUNNING');
+    }
+    // TODO - Return Findings
+    // https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/717
+    // https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/718
+    return new SecurityResultsItem('COMPLETE');
+  }
+
   createMrItem(state: BranchState): vscode.TreeItem | ItemModel {
     if (!state.userInitiated && this.mrState && this.mrState.mr.id === state.mr?.id)
       return this.mrState.item;
@@ -90,6 +107,13 @@ export class CurrentBranchDataProvider
         this.state.projectInRepository.pointer.repository.rootFsPath,
         this.state.issues,
       );
+      if (getExtensionConfiguration().featureFlags?.includes(SECURITY_SCANS_FEATURE_FLAG)) {
+        const securityFindingsItem = CurrentBranchDataProvider.createSecurityFindingsItem(
+          this.state,
+        );
+        return [pipelineItem, mrItem, ...closingIssuesItems, securityFindingsItem];
+      }
+
       return [pipelineItem, mrItem, ...closingIssuesItems];
     }
     if (this.state.type === 'tag') {

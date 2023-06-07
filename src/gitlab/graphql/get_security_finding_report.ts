@@ -29,6 +29,8 @@ export type GqlSecurityFindingReport = {
   baseReportCreatedAt: string;
   baseReportOutOfDate: string;
   headReportCreatedAt: string;
+  enabledReports: Array<string>;
+  hasSecurityReports: boolean;
   added: Node<GqlSecurityFinding>;
   fixed: Node<GqlSecurityFinding>;
 };

@@ -1,12 +1,17 @@
-import { Disposable } from 'vscode';
+import { Disposable, TreeItem } from 'vscode';
 import { BranchState, TagState } from '../current_branch_refresher';
 import { mr, pipeline, job, issue, projectInRepository } from '../test_utils/entities';
 import { CurrentBranchDataProvider } from './current_branch_data_provider';
 import { ItemModel } from './items/item_model';
 import { PipelineItemModel } from './items/pipeline_item_model';
+import { GqlSecurityFindingReport } from '../gitlab/graphql/get_security_finding_report';
+import { asMock } from '../test_utils/as_mock';
+import { getExtensionConfiguration } from '../utils/extension_configuration';
+import { SECURITY_SCANS_FEATURE_FLAG } from '../constants';
 
 jest.mock('./items/mr_item_model');
 jest.mock('./items/pipeline_item_model');
+jest.mock('../utils/extension_configuration');
 
 const isItemModel = (object: any): object is ItemModel => typeof object.dispose === 'function';
 const branchState: BranchState = {
@@ -33,6 +38,7 @@ describe('CurrentBranchDataProvider', () => {
   let mrItem: Disposable;
 
   beforeEach(async () => {
+    asMock(getExtensionConfiguration).mockReturnValue({ featureFlags: [] });
     currentBranchProvider = new CurrentBranchDataProvider();
     await currentBranchProvider.refresh(branchState);
     [pipelineItem, mrItem] = (await currentBranchProvider.getChildren(undefined)).filter(
@@ -100,6 +106,61 @@ describe('CurrentBranchDataProvider', () => {
       });
       const [, newMrItem] = await currentBranchProvider.getChildren(undefined);
       expect(newMrItem).not.toBe(mrItem);
+    });
+  });
+
+  describe('Security findings item', () => {
+    describe('security scans flag off', () => {
+      it('does not render item', async () => {
+        currentBranchProvider.refresh({
+          ...branchState,
+          securityFindings: { hasSecurityReports: false } as GqlSecurityFindingReport,
+          pipeline: { ...pipeline, status: 'running' },
+        });
+
+        const [, , , securityItem] = await currentBranchProvider.getChildren(undefined);
+        expect(securityItem as TreeItem).toBe(undefined);
+      });
+    });
+    describe('security scans flag on', () => {
+      beforeEach(() => {
+        asMock(getExtensionConfiguration).mockReturnValue({
+          featureFlags: [SECURITY_SCANS_FEATURE_FLAG],
+        });
+      });
+
+      it('renders no scans found', async () => {
+        currentBranchProvider.refresh({
+          ...branchState,
+          securityFindings: { hasSecurityReports: false } as GqlSecurityFindingReport,
+          pipeline: { ...pipeline, status: 'running' },
+        });
+
+        const [, , , securityItem] = await currentBranchProvider.getChildren(undefined);
+        expect((securityItem as TreeItem).label).toBe('No scans found');
+      });
+
+      it('renders scanning state', async () => {
+        currentBranchProvider.refresh({
+          ...branchState,
+          securityFindings: { hasSecurityReports: true } as GqlSecurityFindingReport,
+          pipeline: { ...pipeline, status: 'running' },
+        });
+
+        const [, , , securityItem] = await currentBranchProvider.getChildren(undefined);
+        expect((securityItem as TreeItem).label).toBe('Security scanning');
+      });
+
+      it('renders complete state', async () => {
+        currentBranchProvider.refresh({
+          ...branchState,
+          securityFindings: { hasSecurityReports: true } as GqlSecurityFindingReport,
+          pipeline: { ...pipeline, status: 'success' },
+        });
+
+        const [, , , securityItem] = await currentBranchProvider.getChildren(undefined);
+        expect((securityItem as TreeItem).label).toBe('Security scanning');
+      });
     });
   });
 

@@ -12,6 +12,9 @@ import { getCurrentBranchName } from './git/get_current_branch';
 import { GitLabService } from './gitlab/gitlab_service';
 import { getTagsForHead } from './git/get_tags_for_head';
 import { DetachedHeadError } from './errors/detached_head_error';
+import { GqlSecurityFindingReport } from './gitlab/graphql/get_security_finding_report';
+import { SECURITY_SCANS_FEATURE_FLAG } from './constants';
+import { getExtensionConfiguration } from './utils/extension_configuration';
 
 export interface BranchState {
   type: 'branch';
@@ -21,6 +24,7 @@ export interface BranchState {
   pipeline?: RestPipeline;
   jobs: RestJob[];
   userInitiated: boolean;
+  securityFindings?: GqlSecurityFindingReport;
 }
 
 export interface TagState {
@@ -165,6 +169,7 @@ export class CurrentBranchRefresher {
     if (!projectInRepository) return INVALID_STATE;
     const { project } = projectInRepository;
     const gitLabService = getGitLabService(projectInRepository);
+    let securityFindings;
     try {
       const { type, pipeline, mr } = await CurrentBranchRefresher.getPipelineAndMrForHead(
         gitLabService,
@@ -172,6 +177,10 @@ export class CurrentBranchRefresher {
       );
       const jobs = await getJobs(projectInRepository, pipeline);
       const minimalIssues = mr ? await gitLabService.getMrClosingIssues(project, mr.iid) : [];
+      if (getExtensionConfiguration().featureFlags?.includes(SECURITY_SCANS_FEATURE_FLAG)) {
+        securityFindings = mr ? await gitLabService.getSecurityFindingReport(mr) : undefined;
+      }
+
       const issues = (
         await Promise.all(
           minimalIssues
@@ -188,6 +197,7 @@ export class CurrentBranchRefresher {
         jobs,
         issues,
         userInitiated,
+        securityFindings,
       };
     } catch (e) {
       log.error(e);

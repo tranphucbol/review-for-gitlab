@@ -1,5 +1,8 @@
 import vscode from 'vscode';
 
+// Feature Flags
+export const SECURITY_SCANS_FEATURE_FLAG = 'securityScansFlag';
+
 export const GITLAB_COM_URL = 'https://gitlab.com';
 export const REVIEW_URI_SCHEME = 'gl-review';
 export const MERGED_YAML_URI_SCHEME = 'gl-merged-ci-yaml';
