@@ -74,6 +74,7 @@
           "error",
           { "devDependencies": ["**/*.test.ts", "test/**/*"] }
         ],
+        "no-console": "error",
         "no-useless-constructor": "off",
         "no-unused-expressions": "off",
         "default-param-last": "off"

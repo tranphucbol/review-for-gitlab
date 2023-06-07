@@ -8,6 +8,7 @@ import { getExtensionConfiguration } from './utils/extension_configuration';
 import { Help, HelpMessageSeverity } from './utils/help';
 
 type logFunction = (line: string) => void;
+// eslint-disable-next-line no-console
 let globalLog: logFunction = console.error;
 
 export const initializeLogging = (logLine: logFunction): void => {
