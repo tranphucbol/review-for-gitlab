@@ -183,8 +183,6 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
     const choices = response.choices || [];
 
     log.debug(`AI Assist: got ${choices.length} completions`);
-    console.log('vscode', vscode);
-    console.log('vscode.InlineCompletionItem', vscode.InlineCompletionItem);
 
     return choices.map(
       choice => new vscode.InlineCompletionItem(choice.text, new vscode.Range(position, position)),

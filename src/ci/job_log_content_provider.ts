@@ -15,6 +15,7 @@ import { AnsiDecorationProvider } from './ansi_decoration_provider';
 import { jobLogCache } from './job_log_cache';
 import { fromJobLogUri } from './job_log_uri';
 import { currentBranchRefresher } from '../current_branch_refresher';
+import { log } from '../log';
 
 export class JobLogContentProvider implements vscode.TextDocumentContentProvider {
   #onDidChangeEmitter = new vscode.EventEmitter<vscode.Uri>();
@@ -187,12 +188,12 @@ export class JobLogContentProvider implements vscode.TextDocumentContentProvider
         try {
           decorationType = this.#decorationProvider.resolveDecoration(key);
         } catch (error) {
-          console.error(`error providing decorations for key ${key}`, error);
+          log.error(`error providing decorations for key ${key}`, error);
           return;
         }
 
         if (!decorationType) {
-          console.error(`no decoration resolved for key ${key}`);
+          log.error(`no decoration resolved for key ${key}`);
           return;
         }
 
