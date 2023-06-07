@@ -13,7 +13,8 @@ export interface GqlProject {
   description: string;
   fullPath: string;
   webUrl: string;
-  group: GqlGroup;
+  // The group might not be present, for example for personal projects
+  group?: GqlGroup;
 }
 
 const fragmentProjectDetails = gql`
@@ -51,5 +52,5 @@ export const convertToGitLabProject: (gqlProject: GqlProject) => GitLabProject =
   gqlId: gqlProject.id,
   namespaceWithPath: gqlProject.fullPath,
   restId: getRestIdFromGraphQLId(gqlProject.id),
-  groupRestId: getRestIdFromGraphQLId(gqlProject.group.id),
+  groupRestId: gqlProject.group && getRestIdFromGraphQLId(gqlProject.group.id),
 });
