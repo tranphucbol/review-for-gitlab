@@ -219,6 +219,8 @@ export const securityReport: GqlSecurityFindingReport = {
   baseReportCreatedAt: '2023-04-18T02:10:10.460Z',
   baseReportOutOfDate: '2023-04-18T02:10:10.460Z',
   headReportCreatedAt: '2023-04-18T02:10:10.460Z',
+  enabledReports: ['container_scanning'],
+  hasSecurityReports: true,
   added: {
     nodes: [
       {
