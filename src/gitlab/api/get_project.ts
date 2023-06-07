@@ -1,5 +1,7 @@
 import { gql } from 'graphql-request';
 import { GraphQLRequest } from './graphql_request';
+import { GitLabProject } from '../gitlab_project';
+import { getRestIdFromGraphQLId } from '../get_rest_id_from_graphql_id';
 
 interface GqlGroup {
   id: string;
@@ -42,4 +44,12 @@ export const getProject: (
   query: queryGetProject,
   options: { namespaceWithPath },
   resultPath: 'project',
+});
+
+export const convertToGitLabProject: (gqlProject: GqlProject) => GitLabProject = gqlProject => ({
+  ...gqlProject,
+  gqlId: gqlProject.id,
+  namespaceWithPath: gqlProject.fullPath,
+  restId: getRestIdFromGraphQLId(gqlProject.id),
+  groupRestId: getRestIdFromGraphQLId(gqlProject.group.id),
 });

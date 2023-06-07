@@ -1,6 +1,6 @@
 import { Account } from '../accounts/account';
 import { log } from '../log';
-import { getProject } from './api/get_project';
+import { convertToGitLabProject, getProject } from './api/get_project';
 import { getGitLabServiceForAccount } from './get_gitlab_service';
 import { GitLabProject } from './gitlab_project';
 
@@ -15,5 +15,5 @@ export const tryToGetProjectFromInstance = async (
       return undefined;
     });
 
-  return gqlProject && new GitLabProject(gqlProject);
+  return gqlProject && convertToGitLabProject(gqlProject);
 };
