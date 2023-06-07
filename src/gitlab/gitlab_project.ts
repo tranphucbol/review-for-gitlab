@@ -12,5 +12,5 @@ export interface GitLabProject {
   webUrl: string;
 
   // TODO: This is used only in one spot, probably a good idea to remove it from this main class
-  groupRestId: number;
+  groupRestId?: number;
 }
