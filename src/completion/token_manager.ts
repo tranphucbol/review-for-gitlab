@@ -1,5 +1,5 @@
 import { PostRequest } from '../gitlab/api/rest';
-import { GitLabPlatform } from '../gitlab/gitlab_platform';
+import { GitLabPlatformManager } from '../gitlab/gitlab_platform';
 
 export interface CompletionToken {
   access_token: string;
@@ -16,12 +16,12 @@ const tokenRequest: PostRequest<CompletionToken> = {
 };
 
 export class CodeCompletionTokenManager {
-  private platform: GitLabPlatform;
+  private manager: GitLabPlatformManager;
 
   private currentToken: CompletionToken | undefined;
 
-  constructor(platform: GitLabPlatform) {
-    this.platform = platform;
+  constructor(manager: GitLabPlatformManager) {
+    this.manager = manager;
   }
 
   async getToken(): Promise<CompletionToken | undefined> {
@@ -32,12 +32,12 @@ export class CodeCompletionTokenManager {
       }
     }
 
-    const project = await this.platform.getProject(false);
-    if (!project) {
+    const platform = await this.manager.getForActiveProject(false);
+    if (!platform) {
       return undefined;
     }
 
-    const token = await this.platform.fetchFromApi(tokenRequest, project);
+    const token = await platform.fetchFromApi(tokenRequest);
     this.currentToken = token;
 
     return this.currentToken;
