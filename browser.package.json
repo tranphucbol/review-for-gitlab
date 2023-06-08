@@ -1,0 +1,12 @@
+{
+  "browser": "browser",
+  "contributes": {
+    "commands": [
+      {
+        "command": "gl.hello",
+        "title": "Say Hello world",
+        "category": "GitLab"
+      }
+    ]
+  }
+}

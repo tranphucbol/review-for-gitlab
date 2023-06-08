@@ -12,7 +12,7 @@
       }
     }
   },
-  "ignorePatterns": ["node_modules/", "webviews/", "out", "dist-desktop/"],
+  "ignorePatterns": ["node_modules/", "webviews/", "out", "dist-"],
   "rules": {
     "no-console": "off",
     "no-return-await": "off",

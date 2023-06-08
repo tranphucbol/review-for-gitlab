@@ -1,19 +1,18 @@
 import {
   cleanDesktopBuild,
   copyAssets,
-  copyPackageJson,
+  writeDesktopPackageJson,
   copyPendingJobAssets,
   prepareDistDirs,
   watchDesktop,
   watchIssuable,
-} from './utils/jobs.mjs';
+} from './utils/desktop_jobs.mjs';
 
 async function main() {
   await cleanDesktopBuild();
   await prepareDistDirs();
 
-  copyPackageJson();
-  await Promise.all([copyAssets(), copyPendingJobAssets()]);
+  await Promise.all([writeDesktopPackageJson(), copyAssets(), copyPendingJobAssets()]);
 
   const abortController = new AbortController();
   process.on('exit', () => abortController.abort());

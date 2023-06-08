@@ -1,9 +1,11 @@
 node_modules
 .vscode-test/
+.vscode-test-web/
 .history
 .DS_Store
 webviews/issuable/dist
-dist-desktop
+dist-desktop/
+dist-browser/
 /coverage/
 /reports/
 .idea/

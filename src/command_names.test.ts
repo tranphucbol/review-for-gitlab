@@ -1,5 +1,5 @@
 import { USER_COMMANDS } from './command_names';
-import * as packageJson from '../package.json';
+import * as packageJson from '../desktop.package.json';
 
 describe('user commands', () => {
   it('should match exactly commands defined in package.json', () => {
