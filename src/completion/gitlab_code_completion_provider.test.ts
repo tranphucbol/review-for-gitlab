@@ -4,12 +4,21 @@ import fetch from '../gitlab/fetch_logged';
 import {
   GitLabCodeCompletionProvider,
   CIRCUIT_BREAK_INTERVAL_MS,
+  TELEMETRY_HEADER_REQUESTS,
+  TELEMETRY_HEADER_ERRORS,
+  TELEMETRY_HEADER_ACCEPTS,
 } from './gitlab_code_completion_provider';
+import { codeCompletionTelemetry } from './code_completion_telemetry';
+
 import { GitLabPlatformManager } from '../gitlab/gitlab_platform';
 import { project } from '../test_utils/entities';
+import { asMock } from '../test_utils/as_mock';
+import { PROGRAMMATIC_COMMANDS } from '../command_names';
 
 jest.mock('../gitlab/fetch_logged');
-const crossFetchCallArgument = () => JSON.parse((fetch as jest.Mock).mock.calls[0][1].body);
+const crossFetchCallArgument = () => JSON.parse(asMock(fetch).mock.calls[0][1].body);
+const lastFetchCallHeaders = () =>
+  asMock(fetch).mock.calls[asMock(fetch).mock.calls.length - 1][1].headers;
 
 const mockPrompt = 'const areaOfCube = ';
 const mockDocumentPartial: Partial<vscode.TextDocument> = {
@@ -127,6 +136,68 @@ describe('GitLabCodeCompletionProvider', () => {
 
         expect(glcp.fetchCompletions).toHaveBeenCalled();
       });
+    });
+  });
+
+  describe('telemetry', () => {
+    let glcp: GitLabCodeCompletionProvider;
+
+    beforeEach(() => {
+      codeCompletionTelemetry.resetCounts();
+      glcp = new GitLabCodeCompletionProvider(manager, true);
+    });
+
+    it('includes telemetry headers', async () => {
+      await glcp.getCompletions(mockDocument, mockPosition);
+      const headers = lastFetchCallHeaders();
+
+      [TELEMETRY_HEADER_ACCEPTS, TELEMETRY_HEADER_ERRORS, TELEMETRY_HEADER_REQUESTS].forEach(
+        header => {
+          expect(headers).toHaveProperty(header);
+        },
+      );
+    });
+
+    it('increases requests count for success request', async () => {
+      await glcp.getCompletions(mockDocument, mockPosition);
+      await glcp.getCompletions(mockDocument, mockPosition);
+      const headers = lastFetchCallHeaders();
+
+      // We are always sending previous amount of requests, so it is off-by-one
+      expect(headers[TELEMETRY_HEADER_REQUESTS]).toBe('1');
+    });
+
+    it('increases request count and request errors for failed requests', async () => {
+      asMock(fetch).mockRejectedValueOnce(new Error());
+      await glcp.getCompletions(mockDocument, mockPosition);
+
+      await glcp.getCompletions(mockDocument, mockPosition);
+      const headers = lastFetchCallHeaders();
+
+      expect(headers[TELEMETRY_HEADER_REQUESTS]).toBe('1');
+      expect(headers[TELEMETRY_HEADER_ERRORS]).toBe('1');
+    });
+
+    it('resets counters on successful requests', async () => {
+      asMock(fetch).mockRejectedValueOnce(new Error());
+      await glcp.getCompletions(mockDocument, mockPosition);
+
+      asMock(fetch).mockRejectedValueOnce(new Error());
+      await glcp.getCompletions(mockDocument, mockPosition);
+
+      await glcp.getCompletions(mockDocument, mockPosition);
+      await glcp.getCompletions(mockDocument, mockPosition);
+      const headers = lastFetchCallHeaders();
+
+      expect(headers[TELEMETRY_HEADER_REQUESTS]).toBe('1');
+      expect(headers[TELEMETRY_HEADER_ERRORS]).toBe('0');
+    });
+
+    it('includes correct command when completion is accepted', async () => {
+      glcp.fetchCompletions = jest.fn().mockResolvedValue(mockCompletions);
+
+      const [completion] = await glcp.getCompletions(mockDocument, mockPosition);
+      expect(completion.command?.command).toBe(PROGRAMMATIC_COMMANDS.CODE_SUGGESTION_ACCEPTED);
     });
   });
 });
