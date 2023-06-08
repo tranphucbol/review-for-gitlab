@@ -20,6 +20,6 @@ module.exports = {
       },
     ],
   ],
-  testPathIgnorePatterns: ['/node_modules/', '/webviews/', '/dist-desktop/'],
+  testPathIgnorePatterns: ['/node_modules/', '/webviews/', '/dist-/'],
   testEnvironment: 'node',
 };

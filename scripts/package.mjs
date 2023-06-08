@@ -1,5 +1,6 @@
 import path from 'path';
-import { buildDesktop, buildPackage, root, preparePackageFiles } from './utils/jobs.mjs';
+import { root } from './utils/run_utils.mjs';
+import { buildDesktop, buildPackage, preparePackageFiles } from './utils/desktop_jobs.mjs';
 
 async function build() {
   await buildDesktop();

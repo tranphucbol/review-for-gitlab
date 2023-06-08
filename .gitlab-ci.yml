@@ -97,6 +97,12 @@ test-webview:
     - npm ci
     - npm run test
 
+test-browser-build:
+  stage: test
+  script:
+    - npm ci
+    - npm run build:browser
+
 .package:
   stage: package
   script:
