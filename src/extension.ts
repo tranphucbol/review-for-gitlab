@@ -86,6 +86,7 @@ import { scrollToBottom } from './ci/scroll_to_bottom_command';
 import { pendingWebviewController } from './ci/pending_job_webview_controller';
 import { JobItemModel } from './tree_view/items/job_item_model';
 import { gitlabPlatformManagerDesktop } from './gitlab/gitlab_platform_desktop';
+import { codeSuggestionAccepted } from './commands/code_suggestion_accepted';
 
 const wrapWithCatch =
   (command: (...args: unknown[]) => unknown) =>
@@ -176,6 +177,7 @@ const registerCommands = (
     [USER_COMMANDS.CANCEL_PIPELINE]: cancelPipeline,
     [PROGRAMMATIC_COMMANDS.NO_IMAGE_REVIEW]: () =>
       vscode.window.showInformationMessage("GitLab MR review doesn't support images yet."),
+    [PROGRAMMATIC_COMMANDS.CODE_SUGGESTION_ACCEPTED]: codeSuggestionAccepted,
   };
 
   Object.keys(commands).forEach(cmd => {
