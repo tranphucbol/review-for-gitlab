@@ -1,3 +1,18 @@
+# [3.66.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.65.0...v3.66.0) (2023-06-08)
+
+
+### Bug Fixes
+
+* only suggest when authenticated and for known languages/schemes ([13d313f](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/13d313f649bdd3532af2bcb3313770cc98c11371))
+
+
+### Features
+
+* Add circuit breaker to code completion ([2351f4f](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/2351f4f0f343423efffa5670db728f10bc8ee149))
+* Add Code Suggestion Telemetry ([3134597](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/31345978e4a20fc2939dcba5c9196db4319b6bcd))
+
+
+
 # [3.65.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.64.0...v3.65.0) (2023-06-02)
 
 
