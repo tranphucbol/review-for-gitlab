@@ -16,6 +16,10 @@
     "description": "Available for all jobs executed in CI/CD. `true` when available."
   },
   {
+    "name": "CI_API_GRAPHQL_URL",
+    "description": "The GitLab API GraphQL root URL."
+  },
+  {
     "name": "CI_API_V4_URL",
     "description": "The GitLab API v4 root URL."
   },
@@ -49,7 +53,7 @@
   },
   {
     "name": "CI_COMMIT_REF_PROTECTED",
-    "description": "`true` if the job is running for a protected reference."
+    "description": "`true` if the job is running for a protected reference, `false` otherwise."
   },
   {
     "name": "CI_COMMIT_REF_SLUG",
@@ -204,16 +208,16 @@
     "description": "The name of the Docker image running the job."
   },
   {
-    "name": "CI_JOB_JWT",
-    "description": "A RS256 JSON web token to authenticate with third party systems that support JWT authentication, for example [HashiCorp's Vault](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../secrets/index.md)."
+    "name": "CI_JOB_JWT (Deprecated)",
+    "description": "A RS256 JSON web token to authenticate with third party systems that support JWT authentication, for example [HashiCorp's Vault](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../secrets/index.md). [Deprecated in GitLab 15.9](../../update/deprecations.md#old-versions-of-json-web-tokens-are-deprecated) and scheduled to be removed in GitLab 16.5. Use [ID tokens](../yaml/index.md#id_tokens) instead."
   },
   {
-    "name": "CI_JOB_JWT_V1",
-    "description": "The same value as `CI_JOB_JWT`."
+    "name": "CI_JOB_JWT_V1 (Deprecated)",
+    "description": "The same value as `CI_JOB_JWT`. [Deprecated in GitLab 15.9](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../../update/deprecations.md#old-versions-of-json-web-tokens-are-deprecated) and scheduled to be removed in GitLab 16.5. Use [ID tokens](../yaml/index.md#id_tokens) instead."
   },
   {
-    "name": "CI_JOB_JWT_V2",
-    "description": "A newly formatted RS256 JSON web token to increase compatibility. Similar to `CI_JOB_JWT`, except the issuer (`iss`) claim is changed from `gitlab.com` to `https://gitlab.com`, `sub` has changed from `job_id` to a string that contains the project path, and an `aud` claim is added. Format is subject to change. Be aware, the `aud` field is a constant value. Trusting JWTs in multiple relying parties can lead to [one RP sending a JWT to another one and acting maliciously as a job](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/72555#note_769112331). **Note:** The `CI_JOB_JWT_V2` variable is available for testing, but the full feature is planned to be generally available when [issue 360657](https://gitlab.com/gitlab-org/gitlab/-/issues/360657) is complete."
+    "name": "CI_JOB_JWT_V2 (Deprecated)",
+    "description": "A newly formatted RS256 JSON web token to increase compatibility. Similar to `CI_JOB_JWT`, except the issuer (`iss`) claim is changed from `gitlab.com` to `https://gitlab.com`, `sub` has changed from `job_id` to a string that contains the project path, and an `aud` claim is added. The `aud` field is a constant value. Trusting JWTs in multiple relying parties can lead to [one RP sending a JWT to another one and acting maliciously as a job](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/72555#note_769112331). [Deprecated in GitLab 15.9](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../../update/deprecations.md#old-versions-of-json-web-tokens-are-deprecated) and scheduled to be removed in GitLab 16.5. Use [ID tokens](../yaml/index.md#id_tokens) instead."
   },
   {
     "name": "CI_JOB_MANUAL",
@@ -465,7 +469,7 @@
   },
   {
     "name": "CI_REPOSITORY_URL",
-    "description": "The URL to clone the Git repository."
+    "description": "The full path to Git clone (HTTP) the repository with a [CI/CD job token](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../jobs/ci_job_token.md), in the format `https://gitlab-ci-token:$CI_JOB_TOKEN@gitlab.example.com/my-group/my-project.git`."
   },
   {
     "name": "CI_RUNNER_DESCRIPTION",
@@ -518,6 +522,14 @@
   {
     "name": "CI_SERVER_REVISION",
     "description": "GitLab revision that schedules jobs."
+  },
+  {
+    "name": "CI_SERVER_SHELL_SSH_HOST",
+    "description": "The SSH host of the GitLab instance, used for access to Git repositories via SSH. For example `gitlab.com`."
+  },
+  {
+    "name": "CI_SERVER_SHELL_SSH_PORT",
+    "description": "The SSH port of the GitLab instance, used for access to Git repositories via SSH. For example `22`."
   },
   {
     "name": "CI_SERVER_TLS_CA_FILE",
@@ -582,6 +594,10 @@
   {
     "name": "GITLAB_USER_NAME",
     "description": "The name of the user who started the pipeline, unless the job is a manual job. In manual jobs, the value is the name of the user who started the job."
+  },
+  {
+    "name": "KUBECONFIG",
+    "description": "The path to the `kubeconfig` file with contexts for every shared agent connection. Only available when a [GitLab agent is authorized to access the project](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../../user/clusters/agent/ci_cd_workflow.md#authorize-the-agent)."
   },
   {
     "name": "TRIGGER_PAYLOAD",
