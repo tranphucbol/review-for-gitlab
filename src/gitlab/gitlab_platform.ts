@@ -1,8 +1,5 @@
-import { GraphQLRequest } from './api/graphql_request';
-import { GetRequest, PostRequest } from './api/rest';
+import { fetchFromApi } from '../api/web_ide';
 import { GitLabProject } from './gitlab_project';
-
-export type ApiRequest<T> = GetRequest<T> | PostRequest<T> | GraphQLRequest<T>;
 
 /**
  * GitLabPlatform interface provides methods to fetch GitLab projects and make API requests.
@@ -10,14 +7,7 @@ export type ApiRequest<T> = GetRequest<T> | PostRequest<T> | GraphQLRequest<T>;
 export interface GitLabPlatform {
   project: GitLabProject;
 
-  /**
-   * Makes an API request.
-   *
-   * @template T The expected return type of the API request.
-   * @param request - The API request to be made.
-   * @returns A Promise that resolves with the response of the API request.
-   */
-  fetchFromApi<TReturnType>(request: ApiRequest<TReturnType>): Promise<TReturnType>;
+  fetchFromApi: fetchFromApi;
 }
 
 export interface GitLabPlatformManager {

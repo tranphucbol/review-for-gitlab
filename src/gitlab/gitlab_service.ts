@@ -3,7 +3,6 @@ import { GraphQLClient, gql, Variables, RequestDocument } from 'graphql-request'
 import { URL } from 'url';
 import createHttpProxyAgent from 'https-proxy-agent';
 import assert from 'assert';
-import get from 'lodash/get';
 import fetch from './fetch_logged';
 import { FetchError } from '../errors/fetch_error';
 import { getUserAgentHeader } from './http/get_user_agent_header';
@@ -57,7 +56,7 @@ import { Credentials } from '../accounts/credentials';
 import { newCreateNoteMutation, oldCreateNoteMutation } from './graphql/create_note';
 import { createQueryString, QueryValue } from '../utils/create_query_string';
 import { sort } from '../utils/sort';
-import { ApiRequest } from './gitlab_platform';
+import { ApiRequest, fetchFromApi } from '../api/web_ide';
 
 interface CreateNoteResult {
   createNote: {
@@ -329,10 +328,9 @@ export class GitLabService {
     }
   }
 
-  async fetchFromApi<T>(request: ApiRequest<T>): Promise<T> {
+  fetchFromApi: fetchFromApi = async request => {
     if (request.type === 'graphql') {
-      const result = await this.graphqlRequest(request.query, request.options);
-      return request.resultPath ? get(result, request.resultPath) : result;
+      return this.graphqlRequest(request.query, request.variables);
     }
     switch (request.method) {
       case 'GET':
@@ -343,7 +341,7 @@ export class GitLabService {
         // the type assertion is necessary because TS doesn't expect any other types
         throw new Error(`Unknown request type ${(request as ApiRequest<unknown>).type}`);
     }
-  }
+  };
 
   async getSnippets(namespaceWithPath: string, afterCursor?: string): Promise<GqlSnippet[]> {
     const options: GetSnippetsQueryOptions = {

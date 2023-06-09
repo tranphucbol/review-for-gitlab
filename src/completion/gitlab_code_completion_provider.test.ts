@@ -22,7 +22,7 @@ const lastFetchCallHeaders = () =>
 
 const mockPrompt = 'const areaOfCube = ';
 const mockDocumentPartial: Partial<vscode.TextDocument> = {
-  fileName: 'test.js',
+  uri: vscode.Uri.parse('file:///file/path/test.js'),
   getText: () => mockPrompt,
   lineAt: () => ({ text: mockPrompt } as vscode.TextLine),
 };
@@ -59,7 +59,7 @@ describe('GitLabCodeCompletionProvider', () => {
           }
           return 'after';
         },
-        fileName: 'test.js',
+        uri: vscode.Uri.parse('file:///file/path/test.js'),
       } as vscode.TextDocument;
 
       const position = {

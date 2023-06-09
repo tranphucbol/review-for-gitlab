@@ -1,4 +1,3 @@
-import assert from 'assert';
 import { ExtensionContext, Uri } from 'vscode';
 
 class ContextUtils {
@@ -9,7 +8,9 @@ class ContextUtils {
   }
 
   getEmbededFileUri(...path: string[]) {
-    assert(this.context, 'Context Utils is not initialized');
+    if (!this.context) {
+      throw new Error('Context Utils is not initialized');
+    }
     return Uri.joinPath(this.context.extensionUri, ...path);
   }
 }

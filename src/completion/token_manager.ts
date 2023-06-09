@@ -1,4 +1,4 @@
-import { PostRequest } from '../gitlab/api/rest';
+import { PostRequest } from '../api/web_ide';
 import { GitLabPlatformManager } from '../gitlab/gitlab_platform';
 
 export interface CompletionToken {

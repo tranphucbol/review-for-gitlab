@@ -1,9 +1,9 @@
 import { gitlabPlatformManagerDesktop } from './gitlab_platform_desktop';
 import { getActiveProjectOrSelectOne, getActiveProject } from '../commands/run_with_valid_project';
-import { GetRequest } from './api/rest';
 import { gqlProject, project, projectInRepository } from '../test_utils/entities';
 import { getGitLabService } from './get_gitlab_service';
 import { asMock } from '../test_utils/as_mock';
+import { GetRequest } from '../api/web_ide';
 
 jest.mock('../commands/run_with_valid_project', () => ({
   getActiveProject: jest.fn(),
