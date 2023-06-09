@@ -4,13 +4,7 @@ import { log } from '../log';
 import {
   AI_ASSISTED_CODE_SUGGESTIONS_API_URL,
   AI_ASSISTED_CODE_SUGGESTIONS_LINES_BELOW_CURSOR,
-  AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES,
 } from '../constants';
-import {
-  getAiAssistedCodeSuggestionsConfiguration,
-  AI_ASSISTED_CODE_SUGGESTIONS_MODE,
-  AI_ASSISTED_CODE_SUGGESTIONS_CONFIG,
-} from '../utils/extension_configuration';
 import { GitLabPlatform, GitLabPlatformManager } from '../gitlab/gitlab_platform';
 import { CodeCompletionTokenManager, CompletionToken } from './token_manager';
 import { getUserAgentHeader } from '../gitlab/http/get_user_agent_header';
@@ -76,40 +70,6 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
     this.noDebounce = noDebounce;
     this.tokenManager = new CodeCompletionTokenManager(manager);
     this.manager = manager;
-  }
-
-  static registerGitLabCodeCompletion(
-    context: vscode.ExtensionContext,
-    manager: GitLabPlatformManager,
-  ) {
-    let subscription: vscode.Disposable | undefined;
-    const dispose = () => subscription?.dispose();
-    context.subscriptions.push({ dispose });
-
-    const register = () => {
-      subscription = vscode.languages.registerInlineCompletionItemProvider(
-        AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.map(language => ({ language })),
-        new GitLabCodeCompletionProvider(manager),
-      );
-    };
-    if (getAiAssistedCodeSuggestionsConfiguration().enabled) {
-      register();
-    }
-
-    vscode.workspace.onDidChangeConfiguration(e => {
-      if (e.affectsConfiguration(AI_ASSISTED_CODE_SUGGESTIONS_MODE)) {
-        if (!getAiAssistedCodeSuggestionsConfiguration().enabled) {
-          log.debug('Disabling code completion');
-          dispose();
-        } else {
-          log.debug('Enabling code completion');
-          register();
-        }
-      } else if (e.affectsConfiguration(AI_ASSISTED_CODE_SUGGESTIONS_CONFIG)) {
-        dispose();
-        register();
-      }
-    });
   }
 
   static #getServer(): string {

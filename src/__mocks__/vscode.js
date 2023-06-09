@@ -51,10 +51,14 @@ module.exports = {
     executeCommand: jest.fn(),
     registerCommand: jest.fn(),
   },
+  languages: {
+    registerInlineCompletionItemProvider: jest.fn(),
+  },
   workspace: {
     openTextDocument: jest.fn(),
     getConfiguration: jest.fn().mockReturnValue({}),
     onDidOpenTextDocument: jest.fn(),
+    onDidChangeConfiguration: jest.fn(),
     onDidChangeTextDocument: jest.fn(),
     onDidCloseTextDocument: jest.fn(),
     createFileSystemWatcher: jest.fn(),

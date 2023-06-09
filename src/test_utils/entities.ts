@@ -213,6 +213,7 @@ export const createExtensionContext = (): vscode.ExtensionContext =>
     workspaceState: new InMemoryMemento(),
     secrets: new SecretStorage(),
     extensionPath: '',
+    subscriptions: [],
   } as unknown as vscode.ExtensionContext);
 
 export const securityReport: GqlSecurityFindingReport = {

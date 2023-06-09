@@ -1,6 +1,8 @@
 import path from 'node:path';
 import { mkdirSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
+// eslint-disable-next-line import/no-unresolved
+import { copy } from 'fs-extra/esm';
 import { root, run } from './run_utils.mjs';
 import { createBrowserPackageJson } from './packages.mjs';
 
@@ -39,9 +41,13 @@ async function buildExtension(args = [], signal) {
   );
 }
 
+export async function copyAssets() {
+  return copy(path.join(root, 'src/assets'), path.join(root, 'dist-browser/assets'));
+}
+
 export async function buildBrowser() {
   await cleanBrowserBuild();
   await prepareDistDirs();
 
-  await Promise.all([writeBrowserPackageJson(), buildExtension(['--minify'])]);
+  await Promise.all([writeBrowserPackageJson(), buildExtension(['--minify']), copyAssets()]);
 }

@@ -6,6 +6,7 @@ import { log } from './log';
 import { PROGRAMMATIC_COMMANDS, USER_COMMANDS } from './command_names';
 import { currentBranchRefresher, TreeState } from './current_branch_refresher';
 import { ProjectInRepository } from './gitlab/new_project';
+import { createStatusBarItem } from './status_bar/utils/create_status_bar_item';
 
 const MAXIMUM_DISPLAYED_JOBS = 4;
 
@@ -40,29 +41,6 @@ const createStatusTextFromJobs = (jobs: RestJob[], status: string) => {
     statusText += ` (${jobNames.join(', ')})`;
   }
   return statusText;
-};
-
-const createStatusBarItem = (
-  priority: number,
-  id: string,
-  name: string,
-  initialText: string,
-  command?: string | vscode.Command,
-) => {
-  const statusBarItem = vscode.window.createStatusBarItem(
-    id,
-    vscode.StatusBarAlignment.Left,
-    priority,
-  );
-  statusBarItem.name = name;
-  statusBarItem.text = initialText;
-  statusBarItem.show();
-
-  if (command) {
-    statusBarItem.command = command;
-  }
-
-  return statusBarItem;
 };
 
 const openIssuableInWebview = (issuable: RestIssuable, rootFsPath: string): vscode.Command => ({
@@ -202,27 +180,27 @@ export class StatusBar {
     assert(!this.pipelineStatusBarItem, 'The status bar is already initialized');
     if (showStatusBarLinks) {
       this.#refreshSubscription = currentBranchRefresher.onStateChanged(e => this.refresh(e));
-      this.pipelineStatusBarItem = createStatusBarItem(
-        2,
-        'gl.status.pipeline',
-        'GitLab Workflow: Pipeline',
-        '$(info) GitLab: Fetching pipeline...',
-        USER_COMMANDS.PIPELINE_ACTIONS,
-      );
+      this.pipelineStatusBarItem = createStatusBarItem({
+        priority: 2,
+        id: 'gl.status.pipeline',
+        name: 'GitLab Workflow: Pipeline',
+        initialText: '$(info) GitLab: Fetching pipeline...',
+        command: USER_COMMANDS.PIPELINE_ACTIONS,
+      });
       if (showMrStatusOnStatusBar) {
-        this.mrStatusBarItem = createStatusBarItem(
-          1,
-          'gl.status.mr',
-          'GitLab Workflow: Merge Request',
-          '$(info) GitLab: Finding MR...',
-        );
+        this.mrStatusBarItem = createStatusBarItem({
+          priority: 1,
+          id: 'gl.status.mr',
+          name: 'GitLab Workflow: Merge Request',
+          initialText: '$(info) GitLab: Finding MR...',
+        });
         if (showIssueLinkOnStatusBar) {
-          this.mrIssueStatusBarItem = createStatusBarItem(
-            0,
-            'gl.status.issue',
-            'GitLab Workflow: Issue',
-            '$(info) GitLab: Fetching closing issue...',
-          );
+          this.mrIssueStatusBarItem = createStatusBarItem({
+            priority: 0,
+            id: 'gl.status.issue',
+            name: 'GitLab Workflow: Issue',
+            initialText: '$(info) GitLab: Fetching closing issue...',
+          });
         }
       }
     }
