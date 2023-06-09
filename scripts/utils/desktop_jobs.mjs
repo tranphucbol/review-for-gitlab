@@ -101,6 +101,7 @@ export async function buildDesktop() {
 
 export async function watchDesktop(signal) {
   await compileSource();
+  await writeDesktopPackageJson();
   await buildExtension(['--watch'], signal);
 }
 
