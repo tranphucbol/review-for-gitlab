@@ -48,6 +48,22 @@
           "default": false
         }
       }
+    },
+    "icons": {
+      "gitlab-code-suggestions-enabled": {
+        "description": "GitLab Code Suggestions Enabled",
+        "default": {
+          "fontPath": "./assets/fonts/gitlab_icons.woff",
+          "fontCharacter": "\\eA02"
+        }
+      },
+      "gitlab-code-suggestions-disabled": {
+        "description": "GitLab Code Suggestions Disabled",
+        "default": {
+          "fontPath": "./assets/fonts/gitlab_icons.woff",
+          "fontCharacter": "\\eA03"
+        }
+      }
     }
   },
   "scripts": {

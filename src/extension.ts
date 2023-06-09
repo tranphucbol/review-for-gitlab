@@ -77,7 +77,6 @@ import { setupYamlSupport } from './yaml_support';
 import { cancelJob, executeJob, retryJob } from './commands/job_actions';
 import { MergedYamlContentProvider } from './ci/merged_yaml_content_provider';
 import { cancelPipeline, retryPipeline } from './commands/pipeline_actions';
-import { GitLabCodeCompletionProvider } from './completion/gitlab_code_completion_provider';
 import { openTraceArtifact } from './commands/open_trace_artifact';
 import { JobLogContentProvider } from './ci/job_log_content_provider';
 import { saveRawJobTrace } from './ci/save_raw_job_trace';
@@ -87,6 +86,7 @@ import { pendingWebviewController } from './ci/pending_job_webview_controller';
 import { JobItemModel } from './tree_view/items/job_item_model';
 import { gitlabPlatformManagerDesktop } from './gitlab/gitlab_platform_desktop';
 import { codeSuggestionAccepted } from './commands/code_suggestion_accepted';
+import { AiCodeCompletion } from './completion/ai_code_completion';
 
 const wrapWithCatch =
   (command: (...args: unknown[]) => unknown) =>
@@ -242,12 +242,14 @@ export const activate = async (context: vscode.ExtensionContext) => {
   });
   selectedProjectStore.init(context);
   registerCiCompletion(context);
-  GitLabCodeCompletionProvider.registerGitLabCodeCompletion(context, gitlabPlatformManagerDesktop);
+  context.subscriptions.push(new AiCodeCompletion(gitlabPlatformManagerDesktop));
   setupYamlSupport(context);
   vscode.window.registerUriHandler(gitlabUriHandler);
   context.subscriptions.push(gitExtensionWrapper);
+
   statusBar.init();
   context.subscriptions.push(statusBar);
+
   currentBranchRefresher.init();
   context.subscriptions.push(currentBranchRefresher);
   context.subscriptions.push(jobLogContentProvider);
