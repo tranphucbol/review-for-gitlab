@@ -38,7 +38,7 @@ const manuallyAssignProject = async (repository: GitRepository) => {
   if (!pointer) return;
   const projectWithRepoInfo = await pickProject(getGitLabServiceForAccount(account));
   if (!projectWithRepoInfo) return;
-  const project = await getGitLabServiceForAccount(account).fetchFromApi(
+  const { project } = await getGitLabServiceForAccount(account).fetchFromApi(
     getProject(projectWithRepoInfo.fullPath),
   );
   if (!project) return;

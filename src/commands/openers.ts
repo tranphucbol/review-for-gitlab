@@ -156,9 +156,10 @@ export const compareCurrentBranch: ProjectCommand = async projectInRepository =>
   const { project } = projectInRepository;
   const { repository } = projectInRepository.pointer;
 
-  const projectWithRepoInfo = await getGitLabService(projectInRepository).fetchFromApi(
+  const projectWithRepoInfoResult = await getGitLabService(projectInRepository).fetchFromApi(
     getProjectWithRepositoryInfo(project.namespaceWithPath),
   );
+  const projectWithRepoInfo = projectWithRepoInfoResult.project;
   if (!projectWithRepoInfo) {
     throw new Error(
       `Could not load project ${project.namespaceWithPath} from API, please try again.`,

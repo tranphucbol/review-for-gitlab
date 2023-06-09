@@ -33,7 +33,8 @@ describe('GitLab Remote Source provider', () => {
     server = getServer([
       graphql.query('GetProjectsWithRepositoryInfo', (req, res, ctx) => {
         if (req.variables.search === 'GitLab') return res(ctx.data(projectsResponse));
-        if (req.variables.search === 'nonexistent') return res(ctx.data({ projects: null }));
+        if (req.variables.search === 'nonexistent')
+          return res(ctx.data({ projects: { nodes: [] } }));
         return res(ctx.data(projectsResponse));
       }),
     ]);

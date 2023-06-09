@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import fetch from '../gitlab/fetch_logged';
 import { log } from '../log';
 import {
@@ -136,7 +135,7 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
     );
 
     const { namespaceWithPath, restId } = platform.project;
-    const fileName = path.basename(document.fileName) || '';
+    const fileName = document.uri.path.split('/').pop() || '';
 
     const payload = {
       prompt_version: 1,

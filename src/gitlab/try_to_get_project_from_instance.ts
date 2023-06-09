@@ -8,12 +8,12 @@ export const tryToGetProjectFromInstance = async (
   account: Account,
   namespaceWithPath: string,
 ): Promise<GitLabProject | undefined> => {
-  const gqlProject = await getGitLabServiceForAccount(account)
+  const { project } = await getGitLabServiceForAccount(account)
     .fetchFromApi(getProject(namespaceWithPath))
     .catch(e => {
       log.error(e);
-      return undefined;
+      return { project: undefined };
     });
 
-  return gqlProject && convertToGitLabProject(gqlProject);
+  return project && convertToGitLabProject(project);
 };

@@ -45,20 +45,20 @@ export class GitLabRemoteSourceProvider implements RemoteSourceProvider {
   }
 
   async lookupByPath(path: string): Promise<GitLabRemote | undefined> {
-    const project = await this.gitlabService.fetchFromApi(getProjectWithRepositoryInfo(path));
+    const { project } = await this.gitlabService.fetchFromApi(getProjectWithRepositoryInfo(path));
     if (!project) return undefined;
 
     return remoteForProject(project);
   }
 
   async getRemoteSources(query?: string): Promise<GitLabRemote[]> {
-    const projects = await this.gitlabService.fetchFromApi(
+    const result = await this.gitlabService.fetchFromApi(
       getProjectsWithRepositoryInfo({
         search: query,
       }),
     );
 
-    return (projects || [])
+    return result.projects.nodes
       .filter(project => !project.repository.empty)
       .map(project => remoteForProject(project));
   }

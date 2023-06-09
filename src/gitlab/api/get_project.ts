@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { GraphQLRequest } from './graphql_request';
+import { GraphQLRequest } from '../../api/web_ide';
 import { GitLabProject } from '../gitlab_project';
 import { getRestIdFromGraphQLId } from '../get_rest_id_from_graphql_id';
 
@@ -40,10 +40,10 @@ const queryGetProject = gql`
 
 export const getProject: (
   namespaceWithPath: string,
-) => GraphQLRequest<GqlProject | undefined> = namespaceWithPath => ({
+) => GraphQLRequest<{ project?: GqlProject }> = namespaceWithPath => ({
   type: 'graphql',
   query: queryGetProject,
-  options: { namespaceWithPath },
+  variables: { namespaceWithPath },
   resultPath: 'project',
 });
 

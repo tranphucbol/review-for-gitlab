@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { GraphQLRequest } from './graphql_request';
+import { GraphQLRequest } from '../../api/web_ide';
 
 const fragmentProjectDetails = gql`
   fragment projectDetails on Project {
@@ -76,18 +76,17 @@ const getProjectsDefaultOptions = {
 
 export const getProjectsWithRepositoryInfo: (
   options: Partial<GetProjectsOptions>,
-) => GraphQLRequest<GqlProjectWithRepoInfo[] | undefined> = options => ({
+) => GraphQLRequest<{ projects: { nodes: GqlProjectWithRepoInfo[] } }> = options => ({
   type: 'graphql',
   query: queryGetProjects,
-  options: { ...getProjectsDefaultOptions, ...options },
-  resultPath: 'projects.nodes',
+  variables: { ...getProjectsDefaultOptions, ...options },
 });
 
 export const getProjectWithRepositoryInfo: (
   namespaceWithPath: string,
-) => GraphQLRequest<GqlProjectWithRepoInfo | undefined> = namespaceWithPath => ({
+) => GraphQLRequest<{ project?: GqlProjectWithRepoInfo }> = namespaceWithPath => ({
   type: 'graphql',
   query: queryGetProject,
-  options: { namespaceWithPath },
+  variables: { namespaceWithPath },
   resultPath: 'project',
 });

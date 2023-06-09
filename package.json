@@ -33,6 +33,23 @@
     "color": "#171321",
     "theme": "dark"
   },
+  "contributes": {
+    "configuration": {
+      "title": "GitLab Workflow (GitLab VSCode Extension)",
+      "properties": {
+        "gitlab.debug": {
+          "type": "boolean",
+          "default": false,
+          "description": "Turning on debug mode turns on better stack trace resolution (source maps) and shows more detailed logs. Restart the extension after enabling this option."
+        },
+        "gitlab.aiAssistedCodeSuggestions.enabled": {
+          "description": "Enable code completion (Beta)",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    }
+  },
   "scripts": {
     "watch:desktop": "node scripts/watch_desktop.mjs",
     "build:desktop": "node scripts/build_desktop.mjs",

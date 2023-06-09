@@ -16,13 +16,19 @@ describe('pickProject', () => {
   ];
   const partialGitLabService = {
     fetchFromApi: async (r: any) => {
-      if (r.options.namespaceWithPath) {
-        return projects.find(p => p.namespaceWithPath === r.options.namespaceWithPath);
+      if (r.variables.namespaceWithPath) {
+        return {
+          project: projects.find(p => p.namespaceWithPath === r.variables.namespaceWithPath),
+        };
       }
-      if (r.options.search) {
-        return projects.filter(p => p.namespaceWithPath.indexOf(r.options.search) >= 0);
+      if (r.variables.search) {
+        return {
+          projects: {
+            nodes: projects.filter(p => p.namespaceWithPath.indexOf(r.variables.search) >= 0),
+          },
+        };
       }
-      return projects;
+      return { projects: { nodes: projects } };
     },
   };
   const gitLabService = partialGitLabService as GitLabService;
