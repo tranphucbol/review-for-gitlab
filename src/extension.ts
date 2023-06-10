@@ -19,7 +19,7 @@ import {
   JOB_LOG_URI_SCHEME,
 } from './constants';
 import { USER_COMMANDS, PROGRAMMATIC_COMMANDS } from './command_names';
-import { CiCompletionProvider } from './completion/ci_completion_provider';
+import { CiCompletionProvider } from './ci/ci_completion_provider';
 import { gitExtensionWrapper } from './git/git_extension_wrapper';
 import {
   toggleResolved,
@@ -85,8 +85,8 @@ import { scrollToBottom } from './ci/scroll_to_bottom_command';
 import { pendingWebviewController } from './ci/pending_job_webview_controller';
 import { JobItemModel } from './tree_view/items/job_item_model';
 import { gitlabPlatformManagerDesktop } from './gitlab/gitlab_platform_desktop';
-import { codeSuggestionAccepted } from './commands/code_suggestion_accepted';
-import { AiCodeCompletion } from './completion/ai_code_completion';
+import { codeSuggestionAccepted } from './code_suggestions/commands/code_suggestion_accepted';
+import { CodeSuggestions } from './code_suggestions/code_suggestions';
 
 const wrapWithCatch =
   (command: (...args: unknown[]) => unknown) =>
@@ -242,7 +242,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   });
   selectedProjectStore.init(context);
   registerCiCompletion(context);
-  context.subscriptions.push(new AiCodeCompletion(gitlabPlatformManagerDesktop));
+  context.subscriptions.push(new CodeSuggestions(gitlabPlatformManagerDesktop));
   setupYamlSupport(context);
   vscode.window.registerUriHandler(gitlabUriHandler);
   context.subscriptions.push(gitExtensionWrapper);

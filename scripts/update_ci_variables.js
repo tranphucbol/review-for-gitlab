@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const fetch = require('cross-fetch');
 
-const VARIABLE_JSON_PATH = path.join(__dirname, '../src/completion/ci_variables.json');
+const VARIABLE_JSON_PATH = path.join(__dirname, '../src/ci/ci_variables.json');
 
 const docsLinkBasePath = 'https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/';
 
@@ -60,15 +60,15 @@ async function run() {
 
   if (process.env.CI && onlineVariablesJson !== existingVariablesJson) {
     console.error(
-      '❌ ./src/utils/ci_variables.json has changed, go to https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/developer/ci-variables.md.',
+      '❌ ./src/ci/ci_variables.json has changed, go to https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/developer/ci-variables.md.',
     );
     process.exit(1);
   }
   if (onlineVariablesJson !== existingVariablesJson) {
     writeVariablesJson(onlineVariablesJson);
-    console.log('✅ ./src/utils/ci_variables.json was updated successfully.');
+    console.log('✅ ./src/ci/ci_variables.json was updated successfully.');
   } else {
-    console.log('ℹ️ No changes to ./src/utils/ci_variables.json.');
+    console.log('ℹ️ No changes to ./src/ci/ci_variables.json.');
   }
 }
 

@@ -5,7 +5,7 @@ const {
   closeAndDeleteFile,
   getRepositoryRoot,
 } = require('./test_infrastructure/helpers');
-const ciVariables = require('../../src/completion/ci_variables.json');
+const ciVariables = require('../../src/ci/ci_variables.json');
 
 describe('CI variable completion', () => {
   describe('.gitlab-ci.yml', () => {

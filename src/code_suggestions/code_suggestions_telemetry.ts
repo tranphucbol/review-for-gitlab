@@ -1,7 +1,8 @@
 export const TELEMETRY_HEADER_REQUESTS = 'X-GitLab-CS-Requests';
 export const TELEMETRY_HEADER_ERRORS = 'X-GitLab-CS-Errors';
 export const TELEMETRY_HEADER_ACCEPTS = 'X-GitLab-CS-Accepts';
-export class CodeCompletionTelemetry {
+
+export class CodeSuggestionsTelemetry {
   requestCount = 0;
 
   errorCount = 0;
@@ -27,4 +28,4 @@ export class CodeCompletionTelemetry {
   }
 }
 
-export const codeCompletionTelemetry = new CodeCompletionTelemetry();
+export const codeSuggestionsTelemetry = new CodeSuggestionsTelemetry();

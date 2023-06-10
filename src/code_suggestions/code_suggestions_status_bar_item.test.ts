@@ -1,13 +1,10 @@
 import * as vscode from 'vscode';
 import { CodeSuggestionsStatusBarItem } from './code_suggestions_status_bar_item';
-import {
-  CodeCompletionState,
-  CodeCompletionStateManager,
-} from '../completion/code_completion_state';
+import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_suggestions_state';
 import { asMock } from '../test_utils/as_mock';
 
 jest.mock('../extension_state');
-jest.mock('../completion/ai_code_completion');
+jest.mock('./code_suggestions');
 
 const createFakeItem = (): vscode.StatusBarItem =>
   ({
@@ -18,7 +15,7 @@ const createFakeItem = (): vscode.StatusBarItem =>
 
 describe('code suggestions status bar item', () => {
   let fakeStatusBarItem: vscode.StatusBarItem;
-  let codeCompletionStateManager: CodeCompletionStateManager;
+  let codeSuggestionsStateManager: CodeSuggestionsStateManager;
   let codeSuggestionsStatusBarItem: CodeSuggestionsStatusBarItem;
 
   beforeEach(() => {
@@ -27,8 +24,8 @@ describe('code suggestions status bar item', () => {
       return fakeStatusBarItem;
     });
 
-    codeCompletionStateManager = new CodeCompletionStateManager();
-    codeSuggestionsStatusBarItem = new CodeSuggestionsStatusBarItem(codeCompletionStateManager);
+    codeSuggestionsStateManager = new CodeSuggestionsStateManager();
+    codeSuggestionsStatusBarItem = new CodeSuggestionsStatusBarItem(codeSuggestionsStateManager);
   });
 
   afterEach(() => {
@@ -40,7 +37,7 @@ describe('code suggestions status bar item', () => {
   });
 
   it('updates when state manager changes state', () => {
-    codeCompletionStateManager.setState(CodeCompletionState.OK);
+    codeSuggestionsStateManager.setState(CodeSuggestionsState.OK);
     expect(fakeStatusBarItem.text).toBe('$(gitlab-code-suggestions-enabled)');
   });
 });

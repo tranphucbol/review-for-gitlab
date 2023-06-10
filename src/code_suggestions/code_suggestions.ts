@@ -1,17 +1,17 @@
 import * as vscode from 'vscode';
 import { AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES } from '../constants';
 import { log } from '../log';
-import { GitLabCodeCompletionProvider } from './gitlab_code_completion_provider';
+import { CodeSuggestionsProvider } from './code_suggestions_provider';
 import { GitLabPlatformManager } from '../gitlab/gitlab_platform';
-import { CodeCompletionState, CodeCompletionStateManager } from './code_completion_state';
-import { CodeSuggestionsStatusBarItem } from '../status_bar/code_suggestions_status_bar_item';
+import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_suggestions_state';
+import { CodeSuggestionsStatusBarItem } from './code_suggestions_status_bar_item';
 import {
   AI_ASSISTED_CODE_SUGGESTIONS_MODE,
   getAiAssistedCodeSuggestionsConfiguration,
 } from '../utils/extension_configuration';
 
-export class AiCodeCompletion {
-  stateManager = new CodeCompletionStateManager();
+export class CodeSuggestions {
+  stateManager = new CodeSuggestionsStateManager();
 
   statusBarItem: CodeSuggestionsStatusBarItem;
 
@@ -23,18 +23,18 @@ export class AiCodeCompletion {
     const register = () => {
       this.providerDisposable = vscode.languages.registerInlineCompletionItemProvider(
         AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.map(language => ({ language })),
-        new GitLabCodeCompletionProvider(manager),
+        new CodeSuggestionsProvider(manager),
       );
     };
 
     const enableOrDisableSuggestions = () => {
       if (getAiAssistedCodeSuggestionsConfiguration().enabled) {
         log.debug('Enabling code completion');
-        this.stateManager.setState(CodeCompletionState.OK);
+        this.stateManager.setState(CodeSuggestionsState.OK);
         register();
       } else {
         log.debug('Disabling code completion');
-        this.stateManager.setState(CodeCompletionState.DISABLED);
+        this.stateManager.setState(CodeSuggestionsState.DISABLED);
         this.providerDisposable?.dispose();
       }
     };
