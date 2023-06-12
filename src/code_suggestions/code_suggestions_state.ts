@@ -1,14 +1,14 @@
 import * as vscode from 'vscode';
 
-export const enum CodeCompletionState {
+export const enum CodeSuggestionsState {
   DISABLED = 'code-completion-disabled',
   OK = 'code-completion-ok',
 }
 
-export class CodeCompletionStateManager {
-  #state: CodeCompletionState = CodeCompletionState.DISABLED;
+export class CodeSuggestionsStateManager {
+  #state: CodeSuggestionsState = CodeSuggestionsState.DISABLED;
 
-  #changeStateEmitter = new vscode.EventEmitter<CodeCompletionState>();
+  #changeStateEmitter = new vscode.EventEmitter<CodeSuggestionsState>();
 
   onDidChangeState = this.#changeStateEmitter.event;
 
@@ -16,7 +16,7 @@ export class CodeCompletionStateManager {
     return this.#state;
   }
 
-  setState(newState: CodeCompletionState) {
+  setState(newState: CodeSuggestionsState) {
     if (this.#state !== newState) {
       this.#state = newState;
       this.#changeStateEmitter.fire(newState);

@@ -6,7 +6,7 @@ import {
   AI_ASSISTED_CODE_SUGGESTIONS_LINES_BELOW_CURSOR,
 } from '../constants';
 import { GitLabPlatform, GitLabPlatformManager } from '../gitlab/gitlab_platform';
-import { CodeCompletionTokenManager, CompletionToken } from './token_manager';
+import { CodeSuggestionsTokenManager, CompletionToken } from './code_suggestions_token_manager';
 import { getUserAgentHeader } from '../gitlab/http/get_user_agent_header';
 import { CircuitBreaker } from './circuit_breaker';
 import { PROGRAMMATIC_COMMANDS } from '../command_names';
@@ -14,8 +14,8 @@ import {
   TELEMETRY_HEADER_ACCEPTS,
   TELEMETRY_HEADER_ERRORS,
   TELEMETRY_HEADER_REQUESTS,
-  codeCompletionTelemetry,
-} from './code_completion_telemetry';
+  codeSuggestionsTelemetry,
+} from './code_suggestions_telemetry';
 
 export const CIRCUIT_BREAK_INTERVAL_MS = 10000;
 export const MAX_ERRORS_BEFORE_CIRCUIT_BREAK = 4;
@@ -26,7 +26,7 @@ interface Choice {
   finish_reason: string;
 }
 
-interface CodeSuggestionResponse {
+interface CodeSuggestionsResponse {
   id: string;
   model: string;
   object: string;
@@ -47,7 +47,7 @@ interface CodeSuggestionPrompt {
   project_path: string;
 }
 
-export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItemProvider {
+export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvider {
   private server: string;
 
   private debouncedCall?: NodeJS.Timeout;
@@ -56,7 +56,7 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
 
   private noDebounce: boolean;
 
-  private tokenManager: CodeCompletionTokenManager;
+  private tokenManager: CodeSuggestionsTokenManager;
 
   private manager: GitLabPlatformManager;
 
@@ -66,10 +66,10 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
   );
 
   constructor(manager: GitLabPlatformManager, noDebounce = false) {
-    this.server = GitLabCodeCompletionProvider.#getServer();
+    this.server = CodeSuggestionsProvider.#getServer();
     this.debouncedCall = undefined;
     this.noDebounce = noDebounce;
-    this.tokenManager = new CodeCompletionTokenManager(manager);
+    this.tokenManager = new CodeSuggestionsTokenManager(manager);
     this.manager = manager;
   }
 
@@ -127,7 +127,7 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
       );
       return [];
     }
-    const prompt = GitLabCodeCompletionProvider.#getPrompt(document, position, platform);
+    const prompt = CodeSuggestionsProvider.#getPrompt(document, position, platform);
 
     // FIXME: when we start supporting SM, we need to get the token from the **platform**, now the project might not match the token
     // Also, passing the project to the API might get deprecated: https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/merge_requests/143#note_1419849871
@@ -139,22 +139,22 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
 
     log.debug(`AI Assist: fetching completions ...`);
 
-    let response: CodeSuggestionResponse;
+    let response: CodeSuggestionsResponse;
 
     try {
       response = await this.fetchCompletions(token, prompt);
       this.circuitBreaker.success();
 
       // The previous counts were successfully sent...
-      codeCompletionTelemetry.resetCounts();
+      codeSuggestionsTelemetry.resetCounts();
     } catch (e) {
       log.error(`AI Assist: Error fetching completions: ${e.toString()}`);
       this.circuitBreaker.error();
-      codeCompletionTelemetry.incErrorCount();
+      codeSuggestionsTelemetry.incErrorCount();
       return [];
     } finally {
       // Keep track of this request for next send..
-      codeCompletionTelemetry.incRequestCount();
+      codeSuggestionsTelemetry.incRequestCount();
     }
 
     const choices = response.choices || [];
@@ -204,8 +204,8 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
   async fetchCompletions(
     token: CompletionToken,
     prompt: CodeSuggestionPrompt,
-  ): Promise<CodeSuggestionResponse> {
-    const telemetryString = `requests:${codeCompletionTelemetry.requestCount}/errors:${codeCompletionTelemetry.errorCount}/accepts:${codeCompletionTelemetry.acceptCount}`;
+  ): Promise<CodeSuggestionsResponse> {
+    const telemetryString = `requests:${codeSuggestionsTelemetry.requestCount}/errors:${codeSuggestionsTelemetry.errorCount}/accepts:${codeSuggestionsTelemetry.acceptCount}`;
     log.debug(`AI Assist: fetching completions... (telemetry: ${telemetryString})`);
 
     const requestOptions = {
@@ -215,9 +215,9 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
         'X-Gitlab-Authentication-Type': 'oidc',
         Authorization: `Bearer ${token.access_token}`,
         'Content-Type': 'application/json',
-        [TELEMETRY_HEADER_REQUESTS]: codeCompletionTelemetry.requestCount.toString(),
-        [TELEMETRY_HEADER_ERRORS]: codeCompletionTelemetry.errorCount.toString(),
-        [TELEMETRY_HEADER_ACCEPTS]: codeCompletionTelemetry.acceptCount.toString(),
+        [TELEMETRY_HEADER_REQUESTS]: codeSuggestionsTelemetry.requestCount.toString(),
+        [TELEMETRY_HEADER_ERRORS]: codeSuggestionsTelemetry.errorCount.toString(),
+        [TELEMETRY_HEADER_ACCEPTS]: codeSuggestionsTelemetry.acceptCount.toString(),
       },
       body: JSON.stringify(prompt),
     };

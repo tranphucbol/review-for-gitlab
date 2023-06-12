@@ -15,7 +15,7 @@ const tokenRequest: PostRequest<CompletionToken> = {
   path: '/code_suggestions/tokens',
 };
 
-export class CodeCompletionTokenManager {
+export class CodeSuggestionsTokenManager {
   private manager: GitLabPlatformManager;
 
   private currentToken: CompletionToken | undefined;

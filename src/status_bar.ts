@@ -6,7 +6,7 @@ import { log } from './log';
 import { PROGRAMMATIC_COMMANDS, USER_COMMANDS } from './command_names';
 import { currentBranchRefresher, TreeState } from './current_branch_refresher';
 import { ProjectInRepository } from './gitlab/new_project';
-import { createStatusBarItem } from './status_bar/utils/create_status_bar_item';
+import { createStatusBarItem } from './utils/create_status_bar_item';
 
 const MAXIMUM_DISPLAYED_JOBS = 4;
 

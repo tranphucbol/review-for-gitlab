@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { log } from '../../log';
+import { log } from '../log';
 
 export function getStopSequences(position: number, doc: vscode.TextDocument) {
   const stopSequences: string[] = [];

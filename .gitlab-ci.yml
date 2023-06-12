@@ -63,7 +63,7 @@ check-ci-variables:
       when: always
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       changes:
-        - 'src/completion/ci_variables.json'
+        - 'src/ci/ci_variables.json'
         - 'scripts/update_ci_variables.js'
 
 test-unit:

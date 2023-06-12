@@ -2,11 +2,11 @@ import * as vscode from 'vscode';
 import { GitLabPlatformManager } from '../gitlab/gitlab_platform';
 import { project } from '../test_utils/entities';
 import { asMock } from '../test_utils/as_mock';
-import { AiCodeCompletion } from './ai_code_completion';
-import { CodeCompletionState } from './code_completion_state';
+import { CodeSuggestions } from './code_suggestions';
+import { CodeSuggestionsState } from './code_suggestions_state';
 
-jest.mock('./code_completion_state');
-jest.mock('../status_bar/code_suggestions_status_bar_item');
+jest.mock('./code_suggestions_state');
+jest.mock('./code_suggestions_status_bar_item');
 
 const manager: GitLabPlatformManager = {
   getForActiveProject: async () => ({
@@ -20,22 +20,22 @@ const manager: GitLabPlatformManager = {
   }),
 };
 
-describe('AiCodeCompletion', () => {
-  let aiCodeCompletion: AiCodeCompletion;
+describe('CodeSuggestions', () => {
+  let codeSuggestions: CodeSuggestions;
 
   beforeEach(() => {
-    aiCodeCompletion = new AiCodeCompletion(manager);
+    codeSuggestions = new CodeSuggestions(manager);
   });
 
   afterEach(() => {
-    aiCodeCompletion.dispose();
+    codeSuggestions.dispose();
   });
 
   describe('state updates', () => {
     it.each`
       isEnabledInSettings | codeSuggestionState
-      ${false}            | ${CodeCompletionState.DISABLED}
-      ${true}             | ${CodeCompletionState.OK}
+      ${false}            | ${CodeSuggestionsState.DISABLED}
+      ${true}             | ${CodeSuggestionsState.OK}
     `(
       'sets state to $codeSuggestionState when code suggestions setting is $isEnabledInSettings',
       ({ isEnabledInSettings, codeSuggestionState }) => {
@@ -47,7 +47,7 @@ describe('AiCodeCompletion', () => {
           .mock.calls;
         configurationChangeListener({ affectsConfiguration: () => true });
 
-        expect(aiCodeCompletion.stateManager.setState).toHaveBeenCalledWith(codeSuggestionState);
+        expect(codeSuggestions.stateManager.setState).toHaveBeenCalledWith(codeSuggestionState);
       },
     );
   });

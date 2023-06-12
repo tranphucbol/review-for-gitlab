@@ -2,20 +2,17 @@ import * as vscode from 'vscode';
 import fetch from '../gitlab/fetch_logged';
 
 import {
-  GitLabCodeCompletionProvider,
-  CIRCUIT_BREAK_INTERVAL_MS,
-} from './gitlab_code_completion_provider';
-import {
-  TELEMETRY_HEADER_ACCEPTS,
-  TELEMETRY_HEADER_ERRORS,
   TELEMETRY_HEADER_REQUESTS,
-  codeCompletionTelemetry,
-} from './code_completion_telemetry';
+  TELEMETRY_HEADER_ERRORS,
+  TELEMETRY_HEADER_ACCEPTS,
+  codeSuggestionsTelemetry,
+} from './code_suggestions_telemetry';
 
 import { GitLabPlatformManager } from '../gitlab/gitlab_platform';
 import { project } from '../test_utils/entities';
 import { asMock } from '../test_utils/as_mock';
 import { PROGRAMMATIC_COMMANDS } from '../command_names';
+import { CIRCUIT_BREAK_INTERVAL_MS, CodeSuggestionsProvider } from './code_suggestions_provider';
 
 jest.mock('../gitlab/fetch_logged');
 const crossFetchCallArgument = () => JSON.parse(asMock(fetch).mock.calls[0][1].body);
@@ -49,10 +46,10 @@ const manager: GitLabPlatformManager = {
   }),
 };
 
-describe('GitLabCodeCompletionProvider', () => {
+describe('CodeSuggestionsProvider', () => {
   describe('getCompletions', () => {
     it('should construct a payload with line above, line below, file name, and prompt version', async () => {
-      const glcp: GitLabCodeCompletionProvider = new GitLabCodeCompletionProvider(manager);
+      const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider(manager);
 
       const testDocument = {
         getText(range: vscode.Range): string {
@@ -87,7 +84,7 @@ describe('GitLabCodeCompletionProvider', () => {
     jest.useFakeTimers();
 
     it('provides inline completions', async () => {
-      const glcp: GitLabCodeCompletionProvider = new GitLabCodeCompletionProvider(manager, true);
+      const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider(manager, true);
       glcp.getCompletions = jest.fn().mockResolvedValue(mockInlineCompletions);
 
       jest.runAllTimers();
@@ -100,7 +97,7 @@ describe('GitLabCodeCompletionProvider', () => {
   });
 
   describe(`circuit breaking`, () => {
-    const turnOnCircuitBreaker = async (glcp: GitLabCodeCompletionProvider) => {
+    const turnOnCircuitBreaker = async (glcp: CodeSuggestionsProvider) => {
       await glcp.getCompletions(mockDocument, mockPosition);
       await glcp.getCompletions(mockDocument, mockPosition);
       await glcp.getCompletions(mockDocument, mockPosition);
@@ -108,7 +105,7 @@ describe('GitLabCodeCompletionProvider', () => {
     };
 
     it(`starts breaking after 4 errors`, async () => {
-      const glcp = new GitLabCodeCompletionProvider(manager);
+      const glcp = new CodeSuggestionsProvider(manager);
 
       glcp.fetchCompletions = jest.fn().mockRejectedValue(new Error('test problem'));
 
@@ -123,7 +120,7 @@ describe('GitLabCodeCompletionProvider', () => {
 
     describe("after circuit breaker's break time elapses", () => {
       it('fetches completions again', async () => {
-        const glcp = new GitLabCodeCompletionProvider(manager);
+        const glcp = new CodeSuggestionsProvider(manager);
         glcp.fetchCompletions = jest.fn().mockRejectedValue(new Error('test problem'));
 
         await turnOnCircuitBreaker(glcp);
@@ -142,11 +139,11 @@ describe('GitLabCodeCompletionProvider', () => {
   });
 
   describe('telemetry', () => {
-    let glcp: GitLabCodeCompletionProvider;
+    let glcp: CodeSuggestionsProvider;
 
     beforeEach(() => {
-      codeCompletionTelemetry.resetCounts();
-      glcp = new GitLabCodeCompletionProvider(manager, true);
+      codeSuggestionsTelemetry.resetCounts();
+      glcp = new CodeSuggestionsProvider(manager, true);
     });
 
     it('includes telemetry headers', async () => {
@@ -214,7 +211,7 @@ describe('GitLabCodeCompletionProvider', () => {
     });
 
     it('sends correct accepted value when it is increased in telemetry', async () => {
-      codeCompletionTelemetry.incAcceptCount();
+      codeSuggestionsTelemetry.incAcceptCount();
       await glcp.getCompletions(mockDocument, mockPosition);
       const headers = lastFetchCallHeaders();
 

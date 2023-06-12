@@ -1,16 +1,13 @@
 import * as vscode from 'vscode';
-import { createStatusBarItem } from './utils/create_status_bar_item';
-import {
-  CodeCompletionStateManager,
-  CodeCompletionState,
-} from '../completion/code_completion_state';
+import { createStatusBarItem } from '../utils/create_status_bar_item';
+import { CodeSuggestionsStateManager, CodeSuggestionsState } from './code_suggestions_state';
 
 const CODE_SUGGESTIONS_STATUSES = {
-  [CodeCompletionState.DISABLED]: {
+  [CodeSuggestionsState.DISABLED]: {
     text: '$(gitlab-code-suggestions-disabled)',
     tooltip: 'Code suggestions are disabled',
   },
-  [CodeCompletionState.OK]: {
+  [CodeSuggestionsState.OK]: {
     text: '$(gitlab-code-suggestions-enabled)',
     tooltip: 'Code suggestions are enabled',
   },
@@ -21,7 +18,7 @@ export class CodeSuggestionsStatusBarItem {
 
   #codeSuggestionsStateSubscription?: vscode.Disposable;
 
-  updateCodeSuggestionsItem(state: CodeCompletionState) {
+  updateCodeSuggestionsItem(state: CodeSuggestionsState) {
     if (!this.codeSuggestionsStatusBarItem) return;
 
     const newUiState = CODE_SUGGESTIONS_STATUSES[state];
@@ -30,7 +27,7 @@ export class CodeSuggestionsStatusBarItem {
     this.codeSuggestionsStatusBarItem.tooltip = newUiState.tooltip;
   }
 
-  constructor(state: CodeCompletionStateManager) {
+  constructor(state: CodeSuggestionsStateManager) {
     this.codeSuggestionsStatusBarItem = createStatusBarItem({
       priority: 3,
       id: 'gl.status.code_suggestions',

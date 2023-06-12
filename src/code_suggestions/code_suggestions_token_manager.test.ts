@@ -1,8 +1,8 @@
 import { GitLabPlatformManager } from '../gitlab/gitlab_platform';
 import { project } from '../test_utils/entities';
-import { CodeCompletionTokenManager, CompletionToken } from './token_manager';
+import { CodeSuggestionsTokenManager, CompletionToken } from './code_suggestions_token_manager';
 
-describe('CodeCompletionTokenManager', () => {
+describe('CodeSuggestionsTokenManager', () => {
   describe('getToken', () => {
     let makeApiRequest: jest.Mock;
 
@@ -17,7 +17,7 @@ describe('CodeCompletionTokenManager', () => {
     };
 
     it('should return a token', async () => {
-      const tokenManager = new CodeCompletionTokenManager(
+      const tokenManager = new CodeSuggestionsTokenManager(
         createPlatformManager({
           access_token: '123',
           expires_in: 0,
@@ -39,7 +39,7 @@ describe('CodeCompletionTokenManager', () => {
         created_at: unixTimestampNow,
       });
 
-      const tokenManager = new CodeCompletionTokenManager(mf);
+      const tokenManager = new CodeSuggestionsTokenManager(mf);
 
       await tokenManager.getToken();
       await tokenManager.getToken();
@@ -56,7 +56,7 @@ describe('CodeCompletionTokenManager', () => {
         created_at: unixTimestampExpired,
       });
 
-      const tokenManager = new CodeCompletionTokenManager(mf);
+      const tokenManager = new CodeSuggestionsTokenManager(mf);
 
       await tokenManager.getToken();
       await tokenManager.getToken();
