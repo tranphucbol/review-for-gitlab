@@ -1,3 +1,6 @@
+export const TELEMETRY_HEADER_REQUESTS = 'X-GitLab-CS-Requests';
+export const TELEMETRY_HEADER_ERRORS = 'X-GitLab-CS-Errors';
+export const TELEMETRY_HEADER_ACCEPTS = 'X-GitLab-CS-Accepts';
 export class CodeCompletionTelemetry {
   requestCount = 0;
 
