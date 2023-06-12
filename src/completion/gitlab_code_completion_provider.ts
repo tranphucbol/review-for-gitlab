@@ -10,14 +10,15 @@ import { CodeCompletionTokenManager, CompletionToken } from './token_manager';
 import { getUserAgentHeader } from '../gitlab/http/get_user_agent_header';
 import { CircuitBreaker } from './circuit_breaker';
 import { PROGRAMMATIC_COMMANDS } from '../command_names';
-import { codeCompletionTelemetry } from './code_completion_telemetry';
+import {
+  TELEMETRY_HEADER_ACCEPTS,
+  TELEMETRY_HEADER_ERRORS,
+  TELEMETRY_HEADER_REQUESTS,
+  codeCompletionTelemetry,
+} from './code_completion_telemetry';
 
 export const CIRCUIT_BREAK_INTERVAL_MS = 10000;
 export const MAX_ERRORS_BEFORE_CIRCUIT_BREAK = 4;
-
-export const TELEMETRY_HEADER_REQUESTS = 'X-GitLab-CS-Requests';
-export const TELEMETRY_HEADER_ERRORS = 'X-GitLab-CS-Errors';
-export const TELEMETRY_HEADER_ACCEPTS = 'X-GitLab-CS-Accepts';
 
 interface Choice {
   text: string;
@@ -143,10 +144,17 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
     try {
       response = await this.fetchCompletions(token, prompt);
       this.circuitBreaker.success();
+
+      // The previous counts were successfully sent...
+      codeCompletionTelemetry.resetCounts();
     } catch (e) {
       log.error(`AI Assist: Error fetching completions: ${e.toString()}`);
       this.circuitBreaker.error();
+      codeCompletionTelemetry.incErrorCount();
       return [];
+    } finally {
+      // Keep track of this request for next send..
+      codeCompletionTelemetry.incRequestCount();
     }
 
     const choices = response.choices || [];
@@ -197,6 +205,9 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
     token: CompletionToken,
     prompt: CodeSuggestionPrompt,
   ): Promise<CodeSuggestionResponse> {
+    const telemetryString = `requests:${codeCompletionTelemetry.requestCount}/errors:${codeCompletionTelemetry.errorCount}/accepts:${codeCompletionTelemetry.acceptCount}`;
+    log.debug(`AI Assist: fetching completions... (telemetry: ${telemetryString})`);
+
     const requestOptions = {
       method: 'POST',
       headers: {
@@ -211,23 +222,12 @@ export class GitLabCodeCompletionProvider implements vscode.InlineCompletionItem
       body: JSON.stringify(prompt),
     };
 
-    try {
-      const response = await fetch(this.server, requestOptions);
+    const response = await fetch(this.server, requestOptions);
 
-      await this.handleErrorReponse(response);
+    await this.handleErrorReponse(response);
 
-      // The previous counts were successfully sent...
-      codeCompletionTelemetry.resetCounts();
-
-      const data = await response.json();
-      return data;
-    } catch (e) {
-      codeCompletionTelemetry.incErrorCount();
-      throw e;
-    } finally {
-      // Keep track of this request for next send..
-      codeCompletionTelemetry.incRequestCount();
-    }
+    const data = await response.json();
+    return data;
   }
 
   private async handleErrorReponse(response: Response) {

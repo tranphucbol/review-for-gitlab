@@ -4,11 +4,13 @@ import fetch from '../gitlab/fetch_logged';
 import {
   GitLabCodeCompletionProvider,
   CIRCUIT_BREAK_INTERVAL_MS,
-  TELEMETRY_HEADER_REQUESTS,
-  TELEMETRY_HEADER_ERRORS,
-  TELEMETRY_HEADER_ACCEPTS,
 } from './gitlab_code_completion_provider';
-import { codeCompletionTelemetry } from './code_completion_telemetry';
+import {
+  TELEMETRY_HEADER_ACCEPTS,
+  TELEMETRY_HEADER_ERRORS,
+  TELEMETRY_HEADER_REQUESTS,
+  codeCompletionTelemetry,
+} from './code_completion_telemetry';
 
 import { GitLabPlatformManager } from '../gitlab/gitlab_platform';
 import { project } from '../test_utils/entities';
@@ -178,10 +180,21 @@ describe('GitLabCodeCompletionProvider', () => {
       expect(headers[TELEMETRY_HEADER_ERRORS]).toBe('1');
     });
 
-    it('resets counters on successful requests', async () => {
+    it('does not reset request count and request errors for failed requests', async () => {
       asMock(fetch).mockRejectedValueOnce(new Error());
       await glcp.getCompletions(mockDocument, mockPosition);
 
+      asMock(fetch).mockRejectedValueOnce(new Error());
+      await glcp.getCompletions(mockDocument, mockPosition);
+
+      await glcp.getCompletions(mockDocument, mockPosition);
+      const headers = lastFetchCallHeaders();
+
+      expect(headers[TELEMETRY_HEADER_REQUESTS]).toBe('2');
+      expect(headers[TELEMETRY_HEADER_ERRORS]).toBe('2');
+    });
+
+    it('resets counters on successful requests', async () => {
       asMock(fetch).mockRejectedValueOnce(new Error());
       await glcp.getCompletions(mockDocument, mockPosition);
 
@@ -198,6 +211,15 @@ describe('GitLabCodeCompletionProvider', () => {
 
       const [completion] = await glcp.getCompletions(mockDocument, mockPosition);
       expect(completion.command?.command).toBe(PROGRAMMATIC_COMMANDS.CODE_SUGGESTION_ACCEPTED);
+    });
+
+    it('sends correct accepted value when it is increased in telemetry', async () => {
+      codeCompletionTelemetry.incAcceptCount();
+      await glcp.getCompletions(mockDocument, mockPosition);
+      const headers = lastFetchCallHeaders();
+
+      expect(headers[TELEMETRY_HEADER_REQUESTS]).toBe('0');
+      expect(headers[TELEMETRY_HEADER_ACCEPTS]).toBe('1');
     });
   });
 });
