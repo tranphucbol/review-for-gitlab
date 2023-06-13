@@ -13,6 +13,7 @@ import { project } from '../test_utils/entities';
 import { asMock } from '../test_utils/as_mock';
 import { PROGRAMMATIC_COMMANDS } from '../command_names';
 import { CIRCUIT_BREAK_INTERVAL_MS, CodeSuggestionsProvider } from './code_suggestions_provider';
+import { GitLabProject } from '../gitlab/gitlab_project';
 
 jest.mock('../gitlab/fetch_logged');
 const crossFetchCallArgument = () => JSON.parse(asMock(fetch).mock.calls[0][1].body);
@@ -34,45 +35,72 @@ const mockPosition = {
   character: mockPrompt.length,
 } as vscode.Position;
 
-const manager: GitLabPlatformManager = {
-  getForActiveProject: async () => ({
-    project,
-    fetchFromApi: async <T>(): Promise<T> =>
-      ({
-        access_token: '123',
-        expires_in: 0,
-        created_at: 0,
-      } as unknown as T),
-  }),
-};
+function createManager(project: GitLabProject): GitLabPlatformManager {
+  return {
+    getForActiveProject: async () => ({
+      project,
+      fetchFromApi: async <T>(): Promise<T> =>
+        ({
+          access_token: '123',
+          expires_in: 0,
+          created_at: 0,
+        } as unknown as T),
+    }),
+  };
+}
+
+const manager = createManager(project);
 
 describe('CodeSuggestionsProvider', () => {
+  const testDocument = {
+    getText(range: vscode.Range): string {
+      if (range.start.character === 0 && range.start.line === 0) {
+        return 'before';
+      }
+      return 'after';
+    },
+    uri: vscode.Uri.parse('file:///file/path/test.js'),
+  } as vscode.TextDocument;
+
+  const position = {
+    line: 1,
+    character: 1,
+  } as vscode.Position;
+
   describe('getCompletions', () => {
-    it('should construct a payload with line above, line below, file name, and prompt version', async () => {
+    const projectForSelfManaged: GitLabProject = {
+      gqlId: 'gid://my-gitlab/Project/5261717',
+      restId: 5261717,
+      name: 'test-project',
+      description: '',
+      namespaceWithPath: 'my-gitlab/Project',
+      webUrl: 'https://gitlab.example.com/gitlab-org/gitlab-vscode-extension',
+    };
+
+    it('should construct a payload with line above, line below, file name, prompt version, project id and path', async () => {
       const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider(manager);
-
-      const testDocument = {
-        getText(range: vscode.Range): string {
-          if (range.start.character === 0 && range.start.line === 0) {
-            return 'before';
-          }
-          return 'after';
-        },
-        uri: vscode.Uri.parse('file:///file/path/test.js'),
-      } as vscode.TextDocument;
-
-      const position = {
-        line: 1,
-        character: 1,
-      } as vscode.Position;
-
       await glcp.getCompletions(testDocument, position);
+
       const inputBody = crossFetchCallArgument();
+
       expect(inputBody.prompt_version).toBe(1);
       expect(inputBody.current_file.content_above_cursor).toBe('before');
       expect(inputBody.current_file.content_below_cursor).toBe('after');
       expect(inputBody.current_file.file_name).toBe('test.js');
       expect(inputBody.prompt_version).toBe(1);
+      expect(inputBody.project_id).toBe(project.restId);
+      expect(inputBody.project_path).toBe(project.namespaceWithPath);
+    });
+
+    it('should not send project id and path unless targeting SaaS', async () => {
+      const manager = createManager(projectForSelfManaged);
+      const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider(manager);
+      await glcp.getCompletions(testDocument, position);
+
+      const inputBody = crossFetchCallArgument();
+
+      expect(inputBody.project_id).toBe(undefined);
+      expect(inputBody.project_path).toBe(undefined);
     });
   });
 
