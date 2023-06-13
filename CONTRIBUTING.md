@@ -145,7 +145,7 @@ To add documentation that includes a new image:
    in the form of:
 
    ```plaintext
-   https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/<COMMIT_SHA>/src/assets/imagename.png
+   https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/<COMMIT_SHA>/docs/assets/imagename.png
    ```
 
 1. Commit your text changes.
