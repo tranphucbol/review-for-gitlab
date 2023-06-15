@@ -1,14 +1,10 @@
 import * as vscode from 'vscode';
 import assert = require('assert');
 import * as openers from './commands/openers';
-import { UserFriendlyError } from './errors/user_friendly_error';
-import { log } from './log';
 import { PROGRAMMATIC_COMMANDS, USER_COMMANDS } from './command_names';
 import { currentBranchRefresher, TreeState } from './current_branch_refresher';
 import { ProjectInRepository } from './gitlab/new_project';
 import { createStatusBarItem } from './utils/create_status_bar_item';
-
-const MAXIMUM_DISPLAYED_JOBS = 4;
 
 // FIXME: if you are touching this configuration statement, move the configuration to extension_configuration.ts
 const {
@@ -29,38 +25,11 @@ const iconForStatus: Record<string, { icon: string; text?: string } | undefined>
 
 const getStatusText = (status: string) => iconForStatus[status]?.text || status;
 
-const createStatusTextFromJobs = (jobs: RestJob[], status: string) => {
-  let statusText = getStatusText(status);
-  const jobNames = jobs.filter(job => job.status === status).map(job => job.name);
-  if (jobNames.length > MAXIMUM_DISPLAYED_JOBS) {
-    statusText += ' (';
-    statusText += jobNames.slice(0, MAXIMUM_DISPLAYED_JOBS).join(', ');
-    statusText += `, +${jobNames.length - MAXIMUM_DISPLAYED_JOBS} jobs`;
-    statusText += ')';
-  } else if (jobNames.length > 0) {
-    statusText += ` (${jobNames.join(', ')})`;
-  }
-  return statusText;
-};
-
 const openIssuableInWebview = (issuable: RestIssuable, rootFsPath: string): vscode.Command => ({
   title: '',
   command: PROGRAMMATIC_COMMANDS.SHOW_RICH_CONTENT,
   arguments: [issuable, rootFsPath],
 });
-
-const sortAndDeduplicate = (jobs: RestJob[]): RestJob[] => {
-  const alreadyProcessedJob = new Set();
-  const compareTimeNewFirst = (a: RestJob, b: RestJob) =>
-    Date.parse(a.created_at) < Date.parse(b.created_at) ? -1 : 1;
-  return jobs.sort(compareTimeNewFirst).filter(job => {
-    if (alreadyProcessedJob.has(job.name)) {
-      return false;
-    }
-    alreadyProcessedJob.add(job.name);
-    return true;
-  });
-};
 
 export class StatusBar {
   pipelineStatusBarItem?: vscode.StatusBarItem;
@@ -101,31 +70,22 @@ export class StatusBar {
   ): Promise<void> {
     if (!this.pipelineStatusBarItem) return;
     if (!pipeline) {
-      this.pipelineStatusBarItem.text = 'GitLab: No pipeline.';
+      this.pipelineStatusBarItem.text = 'No pipeline';
       this.pipelineStatusBarItem.show();
       this.firstRun = false;
       return;
     }
     const { status } = pipeline;
-    let statusText = getStatusText(status);
+    const statusText = getStatusText(status);
 
-    if (status === 'running' || status === 'failed') {
-      try {
-        const processedJobs = sortAndDeduplicate(jobs);
-        statusText = createStatusTextFromJobs(processedJobs, status);
-      } catch (e) {
-        log.error(new UserFriendlyError('Failed to fetch jobs for pipeline.', e));
-      }
-    }
-
-    const msg = `$(${iconForStatus[status]?.icon}) GitLab: Pipeline ${statusText}`;
+    const msg = `$(${iconForStatus[status]?.icon}) Pipeline ${statusText}`;
 
     if (
       showPipelineUpdateNotifications &&
       this.pipelineStatusBarItem.text !== msg &&
       !this.firstRun
     ) {
-      const message = `Pipeline ${statusText}.`;
+      const message = `Pipeline ${statusText}`;
 
       await vscode.window
         .showInformationMessage(message, { modal: false }, 'View in Gitlab')
@@ -148,12 +108,12 @@ export class StatusBar {
   ): void {
     if (!this.mrIssueStatusBarItem) return;
     if (mr) {
-      let text = `$(code) GitLab: No issue.`;
+      let text = `$(code) No issue`;
       let command;
 
       const firstIssue = closingIssues[0];
       if (firstIssue) {
-        text = `$(code) GitLab: Issue #${firstIssue.iid}`;
+        text = `$(code) #${firstIssue.iid}`;
         command = openIssuableInWebview(firstIssue, rootFsPath);
       }
 
@@ -172,8 +132,8 @@ export class StatusBar {
       ? openIssuableInWebview(mr, rootFsPath)
       : USER_COMMANDS.OPEN_CREATE_NEW_MR;
     this.mrStatusBarItem.text = mr
-      ? `$(git-pull-request) GitLab: MR !${mr.iid}`
-      : '$(git-pull-request) GitLab: Create MR.';
+      ? `$(git-pull-request) !${mr.iid}`
+      : '$(git-pull-request) Create MR';
   }
 
   init(): void {
@@ -184,7 +144,7 @@ export class StatusBar {
         priority: 2,
         id: 'gl.status.pipeline',
         name: 'GitLab Workflow: Pipeline',
-        initialText: '$(info) GitLab: Fetching pipeline...',
+        initialText: '$(info) Fetching pipeline...',
         command: USER_COMMANDS.PIPELINE_ACTIONS,
       });
       if (showMrStatusOnStatusBar) {
@@ -192,14 +152,14 @@ export class StatusBar {
           priority: 1,
           id: 'gl.status.mr',
           name: 'GitLab Workflow: Merge Request',
-          initialText: '$(info) GitLab: Finding MR...',
+          initialText: '$(info) Finding MR...',
         });
         if (showIssueLinkOnStatusBar) {
           this.mrIssueStatusBarItem = createStatusBarItem({
             priority: 0,
             id: 'gl.status.issue',
             name: 'GitLab Workflow: Issue',
-            initialText: '$(info) GitLab: Fetching closing issue...',
+            initialText: '$(info) Fetching closing issue...',
           });
         }
       }
