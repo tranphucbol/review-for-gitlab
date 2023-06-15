@@ -69,7 +69,7 @@ describe('status_bar', () => {
       await statusBar.refresh(createBranchInfo({ pipeline }));
       expect(getPipelineItem().show).toHaveBeenCalled();
       expect(getPipelineItem().hide).not.toHaveBeenCalled();
-      expect(getPipelineItem().text).toBe('$(check) GitLab: Pipeline passed');
+      expect(getPipelineItem().text).toBe('$(check) Pipeline passed');
     });
 
     it('prints jobs for running pipeline', async () => {
@@ -93,9 +93,7 @@ describe('status_bar', () => {
       await statusBar.refresh(
         createBranchInfo({ pipeline: { ...pipeline, status: 'running' }, jobs }),
       );
-      expect(getPipelineItem().text).toBe(
-        '$(pulse) GitLab: Pipeline running (Unit Tests, Integration Tests)',
-      );
+      expect(getPipelineItem().text).toBe('$(pulse) Pipeline running');
     });
 
     it('sorts by created time (starts with newer) and deduplicates jobs for running pipeline', async () => {
@@ -122,24 +120,22 @@ describe('status_bar', () => {
       await statusBar.refresh(
         createBranchInfo({ pipeline: { ...pipeline, status: 'running' }, jobs }),
       );
-      expect(getPipelineItem().text).toBe(
-        '$(pulse) GitLab: Pipeline running (Unit Tests, Integration Tests)',
-      );
+      expect(getPipelineItem().text).toBe('$(pulse) Pipeline running');
     });
 
     it('shows no pipeline text when there is no pipeline', async () => {
       await statusBar.refresh(createBranchInfo());
-      expect(getPipelineItem().text).toBe('GitLab: No pipeline.');
+      expect(getPipelineItem().text).toBe('No pipeline');
     });
 
     it.each`
       status        | itemText
-      ${'running'}  | ${'$(pulse) GitLab: Pipeline running'}
-      ${'success'}  | ${'$(check) GitLab: Pipeline passed'}
-      ${'pending'}  | ${'$(clock) GitLab: Pipeline pending'}
-      ${'failed'}   | ${'$(x) GitLab: Pipeline failed'}
-      ${'canceled'} | ${'$(circle-slash) GitLab: Pipeline canceled'}
-      ${'skipped'}  | ${'$(diff-renamed) GitLab: Pipeline skipped'}
+      ${'running'}  | ${'$(pulse) Pipeline running'}
+      ${'success'}  | ${'$(check) Pipeline passed'}
+      ${'pending'}  | ${'$(clock) Pipeline pending'}
+      ${'failed'}   | ${'$(x) Pipeline failed'}
+      ${'canceled'} | ${'$(circle-slash) Pipeline canceled'}
+      ${'skipped'}  | ${'$(diff-renamed) Pipeline skipped'}
     `('shows $itemText for pipeline with status $status', async ({ status, itemText }) => {
       await statusBar.refresh(createBranchInfo({ pipeline: { ...pipeline, status } }));
       expect(getPipelineItem().text).toBe(itemText);
@@ -151,7 +147,7 @@ describe('status_bar', () => {
       await statusBar.refresh(createBranchInfo({ mr }));
       expect(getMrItem().show).toHaveBeenCalled();
       expect(getMrItem().hide).not.toHaveBeenCalled();
-      expect(getMrItem().text).toBe('$(git-pull-request) GitLab: MR !2000');
+      expect(getMrItem().text).toBe('$(git-pull-request) !2000');
       const command = getMrItem().command as vscode.Command;
       expect(command.command).toBe('gl.showRichContent');
       expect(command.arguments?.[0]).toEqual(mr);
@@ -159,7 +155,7 @@ describe('status_bar', () => {
 
     it('shows create MR text when there is no MR', async () => {
       await statusBar.refresh(createBranchInfo());
-      expect(getMrItem().text).toBe('$(git-pull-request) GitLab: Create MR.');
+      expect(getMrItem().text).toBe('$(git-pull-request) Create MR');
       expect(getMrItem().command).toBe(USER_COMMANDS.OPEN_CREATE_NEW_MR);
     });
   });
@@ -169,7 +165,7 @@ describe('status_bar', () => {
       await statusBar.refresh(createBranchInfo({ mr, issues: [issue] }));
       expect(getClosingIssueItem().show).toHaveBeenCalled();
       expect(getClosingIssueItem().hide).not.toHaveBeenCalled();
-      expect(getClosingIssueItem().text).toBe('$(code) GitLab: Issue #1000');
+      expect(getClosingIssueItem().text).toBe('$(code) #1000');
       const command = getClosingIssueItem().command as vscode.Command;
       expect(command.command).toBe('gl.showRichContent');
       expect(command.arguments?.[0]).toEqual(issue);
@@ -177,7 +173,7 @@ describe('status_bar', () => {
 
     it('shows no issue when there is not a closing issue', async () => {
       await statusBar.refresh(createBranchInfo({ mr, issues: [] }));
-      expect(getClosingIssueItem().text).toBe('$(code) GitLab: No issue.');
+      expect(getClosingIssueItem().text).toBe('$(code) No issue');
       expect(getClosingIssueItem().command).toBe(undefined);
     });
 

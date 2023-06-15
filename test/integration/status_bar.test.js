@@ -52,7 +52,7 @@ describe('GitLab status bar', () => {
 
     assert.strictEqual(vscode.window.createStatusBarItem.firstCall.firstArg, 'gl.status.pipeline');
     const pipelineItem = statusBar.pipelineStatusBarItem;
-    assert.strictEqual(pipelineItem.text, '$(check) GitLab: Pipeline passed');
+    assert.strictEqual(pipelineItem.text, '$(check) Pipeline passed');
     assert.strictEqual(pipelineItem.show.called, true);
     assert.strictEqual(pipelineItem.hide.called, false);
     assert.strictEqual(pipelineItem.command, USER_COMMANDS.PIPELINE_ACTIONS);
