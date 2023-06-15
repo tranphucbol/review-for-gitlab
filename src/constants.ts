@@ -31,6 +31,14 @@ export const AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES = [
   'scala',
   'typescript',
   'typescriptreact',
+  // Following languages are not explicitly supported by the model gateway but we add them
+  // to have at least some autocomplete
+  // See https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/781 for details
+  'erb',
+  'haml',
+  'handlebars',
+  'svelte',
+  'vue',
 ];
 export const ADDED = 'added';
 export const DELETED = 'deleted';
