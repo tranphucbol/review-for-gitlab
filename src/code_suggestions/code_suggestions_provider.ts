@@ -4,6 +4,7 @@ import { log } from '../log';
 import {
   AI_ASSISTED_CODE_SUGGESTIONS_API_URL,
   AI_ASSISTED_CODE_SUGGESTIONS_LINES_BELOW_CURSOR,
+  GITLAB_COM_URL,
 } from '../constants';
 import { GitLabPlatform, GitLabPlatformManager } from '../gitlab/gitlab_platform';
 import { CodeSuggestionsTokenManager, CompletionToken } from './code_suggestions_token_manager';
@@ -16,6 +17,7 @@ import {
   TELEMETRY_HEADER_REQUESTS,
   codeSuggestionsTelemetry,
 } from './code_suggestions_telemetry';
+import { GitLabProject } from '../gitlab/gitlab_project';
 
 export const CIRCUIT_BREAK_INTERVAL_MS = 10000;
 export const MAX_ERRORS_BEFORE_CIRCUIT_BREAK = 4;
@@ -43,8 +45,8 @@ interface CurrentFile {
 interface CodeSuggestionPrompt {
   current_file: CurrentFile;
   prompt_version: number;
-  project_id: number | unknown;
-  project_path: string;
+  project_id?: number;
+  project_path?: string;
 }
 
 export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvider {
@@ -95,18 +97,22 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       new vscode.Range(position.line, position.character, position.line + linesBelowCursor, 0),
     );
 
-    const { namespaceWithPath, restId } = platform.project;
     const fileName = document.uri.path.split('/').pop() || '';
+
+    const isSaasProject = (project: GitLabProject) => project.webUrl.startsWith(GITLAB_COM_URL);
+
+    const projectInfo = isSaasProject(platform.project)
+      ? { project_id: platform.project.restId, project_path: platform.project.namespaceWithPath }
+      : {};
 
     const payload = {
       prompt_version: 1,
-      project_path: namespaceWithPath,
-      project_id: restId,
       current_file: {
         file_name: fileName,
         content_above_cursor: contentAboveCursor,
         content_below_cursor: contentBelowCursor,
       },
+      ...projectInfo,
     };
 
     return payload;
