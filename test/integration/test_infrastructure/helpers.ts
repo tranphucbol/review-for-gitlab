@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import assert from 'assert';
 import { SinonSandbox } from 'sinon';
-import { GitExtension, Repository } from '../../../src/api/git';
+import { GitExtension, Repository } from '../../../src/desktop/api/git';
 
 export const createAndOpenFile = async (testFileUri: vscode.Uri): Promise<void> => {
   const createFileEdit = new vscode.WorkspaceEdit();

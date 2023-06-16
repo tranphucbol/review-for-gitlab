@@ -13,8 +13,8 @@ const {
   getRepositoryRoot,
   insertTextIntoActiveEditor,
 } = require('./test_infrastructure/helpers');
-const { USER_COMMANDS } = require('../../src/command_names');
-const { fromMergedYamlUri } = require('../../src/ci/merged_yaml_uri');
+const { USER_COMMANDS } = require('../../src/desktop/command_names');
+const { fromMergedYamlUri } = require('../../src/desktop/ci/merged_yaml_uri');
 
 describe('CI Lint commands', async () => {
   let server;

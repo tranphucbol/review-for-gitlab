@@ -1,5 +1,5 @@
-import { GitLabPlatformManager } from '../gitlab/gitlab_platform';
-import { project } from '../test_utils/entities';
+import { GitLabPlatformManager } from '../common/platform/gitlab_platform';
+import { project } from '../desktop/test_utils/entities';
 import { CodeSuggestionsTokenManager, CompletionToken } from './code_suggestions_token_manager';
 
 describe('CodeSuggestionsTokenManager', () => {

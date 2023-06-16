@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { createStatusBarItem } from '../utils/create_status_bar_item';
+import { createStatusBarItem } from '../desktop/utils/create_status_bar_item';
 import { CodeSuggestionsStateManager, CodeSuggestionsState } from './code_suggestions_state';
 
 const CODE_SUGGESTIONS_STATUSES = {

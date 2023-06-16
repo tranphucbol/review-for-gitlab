@@ -1,7 +1,7 @@
-const { Uri } = require('../test_utils/uri');
-const { EventEmitter } = require('../test_utils/event_emitter');
-const { FileType } = require('../test_utils/file_type');
-const { FileSystemError } = require('../test_utils/file_system_error');
+const { Uri } = require('../desktop/test_utils/uri');
+const { EventEmitter } = require('../desktop/test_utils/event_emitter');
+const { FileType } = require('../desktop/test_utils/file_type');
+const { FileSystemError } = require('../desktop/test_utils/file_system_error');
 
 module.exports = {
   TreeItem: function TreeItem(labelOrUri, collapsibleState) {

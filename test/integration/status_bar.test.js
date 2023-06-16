@@ -1,12 +1,12 @@
 const assert = require('assert');
 const sinon = require('sinon');
 const vscode = require('vscode');
-const { StatusBar } = require('../../src/status_bar');
+const { StatusBar } = require('../../src/desktop/status_bar');
 const pipelinesResponse = require('./fixtures/rest/pipelines.json');
 const { getServer, createQueryJsonEndpoint } = require('./test_infrastructure/mock_server');
-const { USER_COMMANDS } = require('../../src/command_names');
+const { USER_COMMANDS } = require('../../src/desktop/command_names');
 const { updateRepositoryStatus } = require('./test_infrastructure/helpers');
-const { CurrentBranchRefresher } = require('../../src/current_branch_refresher');
+const { CurrentBranchRefresher } = require('../../src/desktop/current_branch_refresher');
 
 describe('GitLab status bar', () => {
   let server;

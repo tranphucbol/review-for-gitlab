@@ -17,7 +17,7 @@ const {
   getRepositoryRoot,
   updateRepositoryStatus,
 } = require('./test_infrastructure/helpers');
-const { USER_COMMANDS } = require('../../src/command_names');
+const { USER_COMMANDS } = require('../../src/desktop/command_names');
 
 describe('Insert snippet', async () => {
   let server;

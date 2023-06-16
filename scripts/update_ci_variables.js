@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const fetch = require('cross-fetch');
 
-const VARIABLE_JSON_PATH = path.join(__dirname, '../src/ci/ci_variables.json');
+const VARIABLE_JSON_PATH = path.join(__dirname, '../src/desktop/ci/ci_variables.json');
 
 const docsLinkBasePath = 'https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/';
 
