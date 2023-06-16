@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { GitLabPlatformManager } from '../gitlab/gitlab_platform';
-import { project } from '../test_utils/entities';
-import { asMock } from '../test_utils/as_mock';
+import { GitLabPlatformManager } from '../common/platform/gitlab_platform';
+import { project } from '../desktop/test_utils/entities';
+import { asMock } from '../desktop/test_utils/as_mock';
 import { CodeSuggestions } from './code_suggestions';
 import { CodeSuggestionsState } from './code_suggestions_state';
 

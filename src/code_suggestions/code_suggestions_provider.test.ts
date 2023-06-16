@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import fetch from '../gitlab/fetch_logged';
+import fetch from '../desktop/gitlab/fetch_logged';
 
 import {
   TELEMETRY_HEADER_REQUESTS,
@@ -8,14 +8,14 @@ import {
   codeSuggestionsTelemetry,
 } from './code_suggestions_telemetry';
 
-import { GitLabPlatformManager } from '../gitlab/gitlab_platform';
-import { project } from '../test_utils/entities';
-import { asMock } from '../test_utils/as_mock';
-import { PROGRAMMATIC_COMMANDS } from '../command_names';
+import { GitLabPlatformManager } from '../common/platform/gitlab_platform';
+import { project } from '../desktop/test_utils/entities';
+import { asMock } from '../desktop/test_utils/as_mock';
+import { PROGRAMMATIC_COMMANDS } from '../desktop/command_names';
 import { CIRCUIT_BREAK_INTERVAL_MS, CodeSuggestionsProvider } from './code_suggestions_provider';
-import { GitLabProject } from '../gitlab/gitlab_project';
+import { GitLabProject } from '../desktop/gitlab/gitlab_project';
 
-jest.mock('../gitlab/fetch_logged');
+jest.mock('../desktop/gitlab/fetch_logged');
 const crossFetchCallArgument = () => JSON.parse(asMock(fetch).mock.calls[0][1].body);
 const lastFetchCallHeaders = () =>
   asMock(fetch).mock.calls[asMock(fetch).mock.calls.length - 1][1].headers;

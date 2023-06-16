@@ -1,12 +1,12 @@
 const assert = require('assert');
 const vscode = require('vscode');
-const { IssuableDataProvider } = require('../../src/tree_view/issuable_data_provider');
+const { IssuableDataProvider } = require('../../src/desktop/tree_view/issuable_data_provider');
 const openIssueResponse = require('./fixtures/rest/open_issue.json');
 const openMergeRequestResponse = require('./fixtures/rest/open_mr.json');
 const userResponse = require('./fixtures/rest/user.json');
 const { getServer, createQueryJsonEndpoint } = require('./test_infrastructure/mock_server');
 const { GITLAB_URL } = require('./test_infrastructure/constants');
-const { gitlabProjectRepository } = require('../../src/gitlab/gitlab_project_repository');
+const { gitlabProjectRepository } = require('../../src/desktop/gitlab/gitlab_project_repository');
 
 describe('GitLab tree view', () => {
   let server;

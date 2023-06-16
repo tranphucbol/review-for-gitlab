@@ -3,9 +3,9 @@ const sinon = require('sinon');
 const vscode = require('vscode');
 const { graphql } = require('msw');
 
-const { IssuableDataProvider } = require('../../src/tree_view/issuable_data_provider');
-const { MrItemModel } = require('../../src/tree_view/items/mr_item_model');
-const { submitEdit, createComment } = require('../../src/commands/mr_discussion_commands');
+const { IssuableDataProvider } = require('../../src/desktop/tree_view/issuable_data_provider');
+const { MrItemModel } = require('../../src/desktop/tree_view/items/mr_item_model');
+const { submitEdit, createComment } = require('../../src/desktop/commands/mr_discussion_commands');
 const openMergeRequestResponse = require('./fixtures/rest/open_mr.json');
 const versionsResponse = require('./fixtures/rest/versions.json');
 const versionResponse = require('./fixtures/rest/mr_version.json');
@@ -21,11 +21,11 @@ const {
   createJsonEndpoint,
   createQueryTextEndpoint,
 } = require('./test_infrastructure/mock_server');
-const { ApiContentProvider } = require('../../src/review/api_content_provider');
-const { PROGRAMMATIC_COMMANDS } = require('../../src/command_names');
+const { ApiContentProvider } = require('../../src/desktop/review/api_content_provider');
+const { PROGRAMMATIC_COMMANDS } = require('../../src/desktop/command_names');
 const { getRepositoryRoot } = require('./test_infrastructure/helpers');
-const { toReviewUri } = require('../../src/review/review_uri');
-const { gitlabProjectRepository } = require('../../src/gitlab/gitlab_project_repository');
+const { toReviewUri } = require('../../src/desktop/review/review_uri');
+const { gitlabProjectRepository } = require('../../src/desktop/gitlab/gitlab_project_repository');
 
 describe('MR Review', () => {
   let server;

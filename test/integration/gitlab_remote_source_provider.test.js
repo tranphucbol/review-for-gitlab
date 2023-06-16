@@ -4,8 +4,8 @@ const projectsResponse = require('./fixtures/graphql/projects_with_repository_in
 const { getServer } = require('./test_infrastructure/mock_server');
 const {
   GitLabRemoteSourceProvider,
-} = require('../../src/gitlab/clone/gitlab_remote_source_provider');
-const { accountService } = require('../../src/accounts/account_service');
+} = require('../../src/desktop/gitlab/clone/gitlab_remote_source_provider');
+const { accountService } = require('../../src/desktop/accounts/account_service');
 
 const validateRemoteSource = remoteSources => {
   assert.strictEqual(remoteSources.length, 1);

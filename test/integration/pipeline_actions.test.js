@@ -8,8 +8,8 @@ const {
   createPostEndpoint,
 } = require('./test_infrastructure/mock_server');
 const { simulateQuickPickChoice } = require('./test_infrastructure/helpers');
-const { currentBranchRefresher } = require('../../src/current_branch_refresher');
-const { USER_COMMANDS } = require('../../src/command_names');
+const { currentBranchRefresher } = require('../../src/desktop/current_branch_refresher');
+const { USER_COMMANDS } = require('../../src/desktop/command_names');
 
 describe('Pipeline actions', async () => {
   let server;

@@ -8,7 +8,7 @@ const {
   simulateQuickPickChoice,
   getRepositoryRoot,
 } = require('./test_infrastructure/helpers');
-const { USER_COMMANDS } = require('../../src/command_names');
+const { USER_COMMANDS } = require('../../src/desktop/command_names');
 
 describe('Create snippet', async () => {
   let server;

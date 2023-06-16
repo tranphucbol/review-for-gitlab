@@ -1,23 +1,23 @@
 import * as vscode from 'vscode';
-import fetch from '../gitlab/fetch_logged';
-import { log } from '../log';
+import fetch from '../desktop/gitlab/fetch_logged';
+import { log } from '../desktop/log';
 import {
   AI_ASSISTED_CODE_SUGGESTIONS_API_URL,
   AI_ASSISTED_CODE_SUGGESTIONS_LINES_BELOW_CURSOR,
   GITLAB_COM_URL,
-} from '../constants';
-import { GitLabPlatform, GitLabPlatformManager } from '../gitlab/gitlab_platform';
+} from '../desktop/constants';
+import { GitLabPlatform, GitLabPlatformManager } from '../common/platform/gitlab_platform';
 import { CodeSuggestionsTokenManager, CompletionToken } from './code_suggestions_token_manager';
-import { getUserAgentHeader } from '../gitlab/http/get_user_agent_header';
+import { getUserAgentHeader } from '../desktop/gitlab/http/get_user_agent_header';
 import { CircuitBreaker } from './circuit_breaker';
-import { PROGRAMMATIC_COMMANDS } from '../command_names';
+import { PROGRAMMATIC_COMMANDS } from '../desktop/command_names';
 import {
   TELEMETRY_HEADER_ACCEPTS,
   TELEMETRY_HEADER_ERRORS,
   TELEMETRY_HEADER_REQUESTS,
   codeSuggestionsTelemetry,
 } from './code_suggestions_telemetry';
-import { GitLabProject } from '../gitlab/gitlab_project';
+import { GitLabProject } from '../desktop/gitlab/gitlab_project';
 
 export const CIRCUIT_BREAK_INTERVAL_MS = 10000;
 export const MAX_ERRORS_BEFORE_CIRCUIT_BREAK = 4;

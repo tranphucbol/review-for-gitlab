@@ -29,7 +29,7 @@ async function buildExtension(args = [], signal) {
   await run(
     'esbuild',
     [
-      path.join(root, 'src/browser.js'),
+      path.join(root, 'src/browser/browser.js'),
       '--bundle',
       '--outfile=dist-browser/browser.js',
       '--external:vscode',

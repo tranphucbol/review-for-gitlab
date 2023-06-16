@@ -3,7 +3,7 @@ const { setupServer } = require('msw/node');
 const { graphql } = require('msw');
 const assert = require('assert');
 const { GITLAB_URL } = require('./test_infrastructure/constants');
-const { GitLabService } = require('../../src/gitlab/gitlab_service');
+const { GitLabService } = require('../../src/desktop/gitlab/gitlab_service');
 const { snippetsResponse } = require('./fixtures/graphql/snippets');
 const packageJson = require('../../package.json');
 

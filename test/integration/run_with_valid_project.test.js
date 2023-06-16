@@ -4,9 +4,9 @@ const vscode = require('vscode');
 const {
   getActiveProject,
   getActiveProjectOrSelectOne,
-} = require('../../src/commands/run_with_valid_project');
-const { gitlabProjectRepository } = require('../../src/gitlab/gitlab_project_repository');
-const { job, projectInRepository } = require('../../src/test_utils/entities');
+} = require('../../src/desktop/commands/run_with_valid_project');
+const { gitlabProjectRepository } = require('../../src/desktop/gitlab/gitlab_project_repository');
+const { job, projectInRepository } = require('../../src/desktop/test_utils/entities');
 const {
   createAndOpenFile,
   closeAndDeleteFile,
@@ -14,9 +14,9 @@ const {
   getRepositoryRoot,
   waitForActiveTabChange,
 } = require('./test_infrastructure/helpers');
-const { WEBVIEW_PENDING_JOB } = require('../../src/constants');
-const { pendingWebviewController } = require('../../src/ci/pending_job_webview_controller');
-const { JobItemModel } = require('../../src/tree_view/items/job_item_model');
+const { WEBVIEW_PENDING_JOB } = require('../../src/desktop/constants');
+const { pendingWebviewController } = require('../../src/desktop/ci/pending_job_webview_controller');
+const { JobItemModel } = require('../../src/desktop/tree_view/items/job_item_model');
 
 describe('run_with_valid_project', () => {
   describe('getting repositories', () => {

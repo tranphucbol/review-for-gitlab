@@ -3,7 +3,7 @@ const vscode = require('vscode');
 const sinon = require('sinon');
 const EventEmitter = require('events');
 const { graphql } = require('msw');
-const { webviewController } = require('../../src/webview_controller');
+const { webviewController } = require('../../src/desktop/webview_controller');
 const openIssueResponse = require('./fixtures/rest/open_issue.json');
 const { projectWithIssueDiscussions, note2 } = require('./fixtures/graphql/discussions');
 

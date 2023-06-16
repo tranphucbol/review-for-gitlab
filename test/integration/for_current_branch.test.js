@@ -1,6 +1,8 @@
 const assert = require('assert');
 const dayjs = require('dayjs');
-const { CurrentBranchDataProvider } = require('../../src/tree_view/current_branch_data_provider');
+const {
+  CurrentBranchDataProvider,
+} = require('../../src/desktop/tree_view/current_branch_data_provider');
 const closingIssueResponse = require('./fixtures/rest/closing_issue.json');
 const openIssueResponse = require('./fixtures/rest/open_issue.json');
 const pipelinesResponse = require('./fixtures/rest/pipelines.json');
@@ -10,7 +12,7 @@ const {
   createQueryJsonEndpoint,
   createJsonEndpoint,
 } = require('./test_infrastructure/mock_server');
-const { CurrentBranchRefresher } = require('../../src/current_branch_refresher');
+const { CurrentBranchRefresher } = require('../../src/desktop/current_branch_refresher');
 
 describe('GitLab tree view for current branch', () => {
   let server;

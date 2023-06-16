@@ -1,9 +1,8 @@
 import * as vscode from 'vscode';
 import { CodeSuggestionsStatusBarItem } from './code_suggestions_status_bar_item';
 import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_suggestions_state';
-import { asMock } from '../test_utils/as_mock';
+import { asMock } from '../desktop/test_utils/as_mock';
 
-jest.mock('../extension_state');
 jest.mock('./code_suggestions');
 
 const createFakeItem = (): vscode.StatusBarItem =>

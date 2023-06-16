@@ -48,7 +48,7 @@ export async function buildExtension(args = [], signal) {
   await run(
     'esbuild',
     [
-      path.join(root, 'src/extension.js'),
+      path.join(root, 'src/desktop/extension.js'),
       '--bundle',
       '--outfile=dist-desktop/extension.js',
       '--external:vscode',
