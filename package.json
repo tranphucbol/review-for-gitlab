@@ -53,14 +53,14 @@
       "gitlab-code-suggestions-enabled": {
         "description": "GitLab Code Suggestions Enabled",
         "default": {
-          "fontPath": "./assets/fonts/gitlab_icons.woff",
+          "fontPath": "./assets/gitlab_icons.woff",
           "fontCharacter": "\\eA02"
         }
       },
       "gitlab-code-suggestions-disabled": {
         "description": "GitLab Code Suggestions Disabled",
         "default": {
-          "fontPath": "./assets/fonts/gitlab_icons.woff",
+          "fontPath": "./assets/gitlab_icons.woff",
           "fontCharacter": "\\eA03"
         }
       }
@@ -119,7 +119,8 @@
     "ts-jest": "^29.1.0",
     "typescript": "^5.0.0",
     "vsce": "^2.0.0",
-    "vscode-test": "^1.6.1"
+    "vscode-test": "^1.6.1",
+    "webfont": "^11.2.26"
   },
   "dependencies": {
     "cross-fetch": "^3.1.6",

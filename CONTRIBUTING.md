@@ -152,6 +152,29 @@ To add documentation that includes a new image:
 
 For more examples, refer to the `gif` images in the README file.
 
+### Adding new icons
+
+If you're adding new icons to extension, you will need to put svg file named exactly with the name of new icon in `src/assets/icons`.
+Please use `./assets/gitlab_icons.woff` as `fontPath` for icon in `package.json`. This font will be auto-generated
+
+For example, consider you're adding new icon to `contributes.icon` section of `package.json`:
+
+```json
+{
+  "gitlab-new-icon": {
+    "description": "GitLab New Icon",
+    "default": {
+      "fontPath": "./assets/gitlab_icons.woff",
+      "fontCharacter": "\\eA05"
+    }
+  }
+}
+```
+
+In that case you need to place icon SVG at `src/assts/icons/gitlab-new-icon.svg`.
+
+Build process will fail if one of the referenced icons are missing.
+
 ### Opening Merge Requests
 
 Steps to opening a merge request to contribute code to GitLab Workflow is similar to any other open source project.

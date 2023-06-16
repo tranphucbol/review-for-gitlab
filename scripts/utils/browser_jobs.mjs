@@ -4,7 +4,8 @@ import { writeFile } from 'node:fs/promises';
 // eslint-disable-next-line import/no-unresolved
 import { copy } from 'fs-extra/esm';
 import { root, run } from './run_utils.mjs';
-import { createBrowserPackageJson } from './packages.mjs';
+import { createBrowserPackageJson, prettyPrint } from './packages.mjs';
+import { generateFont } from './generate_font.mjs';
 
 export async function cleanBrowserBuild() {
   await run('rm', ['-rf', 'dist-browser']);
@@ -12,11 +13,11 @@ export async function cleanBrowserBuild() {
 
 async function prepareDistDirs() {
   mkdirSync(path.join(root, 'dist-browser'));
+  mkdirSync(path.join(root, 'dist-browser/assets'));
 }
 
-async function writeBrowserPackageJson() {
-  const json = createBrowserPackageJson();
-  await writeFile(path.join(root, 'dist-browser/package.json'), json);
+async function writeBrowserPackageJson(packageJson) {
+  await writeFile(path.join(root, 'dist-browser/package.json'), prettyPrint(packageJson));
 }
 
 function typecheck(signal) {
@@ -41,13 +42,22 @@ async function buildExtension(args = [], signal) {
   );
 }
 
-export async function copyAssets() {
-  return copy(path.join(root, 'src/assets'), path.join(root, 'dist-browser/assets'));
+export async function generateAssets(packageJson) {
+  return Promise.all([
+    copy(path.join(root, 'src/assets'), path.join(root, 'dist-browser/assets')),
+    generateFont(packageJson, 'dist-browser'),
+  ]);
 }
 
 export async function buildBrowser() {
+  const packageJson = createBrowserPackageJson();
+
   await cleanBrowserBuild();
   await prepareDistDirs();
 
-  await Promise.all([writeBrowserPackageJson(), buildExtension(['--minify']), copyAssets()]);
+  await Promise.all([
+    writeBrowserPackageJson(packageJson),
+    buildExtension(['--minify']),
+    generateAssets(packageJson),
+  ]);
 }

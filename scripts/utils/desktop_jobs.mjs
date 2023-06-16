@@ -4,7 +4,8 @@ import { copyFile, writeFile } from 'node:fs/promises';
 // eslint-disable-next-line import/no-unresolved
 import { copy } from 'fs-extra/esm';
 import { root, run } from './run_utils.mjs';
-import { createDesktopPackageJson } from './packages.mjs';
+import { createDesktopPackageJson, prettyPrint } from './packages.mjs';
+import { generateFont } from './generate_font.mjs';
 
 export async function cleanDesktopBuild() {
   await run('rm', ['-rf', 'dist-desktop']);
@@ -21,10 +22,14 @@ export async function prepareIssuable() {
 export async function prepareDistDirs() {
   fs.mkdirSync(path.join(root, 'dist-desktop'));
   fs.mkdirSync(path.join(root, 'dist-desktop/webviews'));
+  fs.mkdirSync(path.join(root, 'dist-desktop/assets'));
 }
 
-export async function copyAssets() {
-  return copy(path.join(root, 'src/assets'), path.join(root, 'dist-desktop/assets'));
+export async function generateAssets(packageJson) {
+  return Promise.all([
+    copy(path.join(root, 'src/assets'), path.join(root, 'dist-desktop/assets')),
+    generateFont(packageJson, 'dist-desktop'),
+  ]);
 }
 
 export async function copyPendingJobAssets() {
@@ -34,9 +39,8 @@ export async function copyPendingJobAssets() {
   );
 }
 
-export async function writeDesktopPackageJson() {
-  const json = createDesktopPackageJson();
-  await writeFile(path.join(root, 'dist-desktop/package.json'), json);
+export async function writeDesktopPackageJson(json) {
+  await writeFile(path.join(root, 'dist-desktop/package.json'), prettyPrint(json));
 }
 
 export async function compileSource() {
@@ -85,6 +89,8 @@ export async function watchIssuable(signal) {
 }
 
 export async function buildDesktop() {
+  const packageJson = createDesktopPackageJson();
+
   await cleanDesktopBuild();
   await prepareDistDirs();
 
@@ -92,16 +98,17 @@ export async function buildDesktop() {
     prepareIssuable(),
     copyPendingJobAssets(),
     checkAndBuildExtension(['--minify']),
-    copyAssets(),
+    generateAssets(packageJson),
   ]);
 
   // we need to wait for `tsc` to compile so we can replace package.json
-  await writeDesktopPackageJson();
+  await writeDesktopPackageJson(packageJson);
 }
 
 export async function watchDesktop(signal) {
+  const packageJson = createDesktopPackageJson();
   await compileSource();
-  await writeDesktopPackageJson();
+  await writeDesktopPackageJson(packageJson);
   await buildExtension(['--watch'], signal);
 }
 

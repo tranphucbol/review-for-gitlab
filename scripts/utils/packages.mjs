@@ -13,16 +13,14 @@ function mergeJson(left, right) {
   );
 }
 
-function prettyPrint(json) {
+export function prettyPrint(json) {
   return JSON.stringify(json, null, 2);
 }
 
 export function createDesktopPackageJson() {
-  const json = mergeJson(packageJson(), desktopPackageJson());
-  return prettyPrint(json);
+  return mergeJson(packageJson(), desktopPackageJson());
 }
 
 export function createBrowserPackageJson() {
-  const json = mergeJson(packageJson(), browserPackageJson());
-  return prettyPrint(json);
+  return mergeJson(packageJson(), browserPackageJson());
 }
