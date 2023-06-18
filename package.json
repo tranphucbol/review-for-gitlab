@@ -102,7 +102,7 @@
     "@vscode/test-web": "^0.0.44",
     "conventional-changelog-cli": "^3.0.0",
     "esbuild": "^0.18.0",
-    "eslint": "^8.42.0",
+    "eslint": "^8.43.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-import": "^2.27.5",
