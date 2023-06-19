@@ -213,16 +213,12 @@ export class AnsiDecorationProvider {
       decorationType = vscode.window.createTextEditorDecorationType({
         light: {
           after: {
-            contentIconPath: this.#context?.asAbsolutePath(
-              'src/assets/images/light/running-job.svg',
-            ),
+            contentIconPath: this.#context?.asAbsolutePath('assets/images/light/running-job.svg'),
           },
         },
         dark: {
           after: {
-            contentIconPath: this.#context?.asAbsolutePath(
-              'src/assets/images/dark/running-job.svg',
-            ),
+            contentIconPath: this.#context?.asAbsolutePath('assets/images/dark/running-job.svg'),
           },
         },
       });
