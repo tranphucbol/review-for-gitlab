@@ -6,7 +6,7 @@ import {
   InteropConfig,
   fetchFromApi,
 } from '../common/platform/web_ide';
-import { convertToGitLabProject, getProject } from '../desktop/gitlab/api/get_project';
+import { convertToGitLabProject, getProject } from '../common/gitlab/api/get_project';
 
 const fetchFromApi: fetchFromApi = async request =>
   vscode.commands.executeCommand(COMMAND_FETCH_FROM_API, request);

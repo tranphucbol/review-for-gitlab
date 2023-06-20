@@ -7,7 +7,7 @@ import {
   ProjectInRepositoryAndFile,
 } from './run_with_valid_project';
 import { ifVersionGte } from '../utils/if_version_gte';
-import { GitLabProject } from '../gitlab/gitlab_project';
+import { GitLabProject } from '../../common/platform/gitlab_project';
 import { ProjectInRepository } from '../gitlab/new_project';
 import { getGitLabService } from '../gitlab/get_gitlab_service';
 import { getTrackingBranchName } from '../git/get_tracking_branch_name';

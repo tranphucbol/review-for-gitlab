@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { DO_NOT_SHOW_VERSION_WARNING } from '../constants';
 import { setupVersionCheck } from './check_version';
-import { log } from '../log';
+import { log } from '../../common/log';
 import { gitlabProjectRepository } from './gitlab_project_repository';
 import { GitLabService } from './gitlab_service';
 import SpyInstance = jest.SpyInstance;

@@ -1,5 +1,5 @@
 import { ExtensionContext } from 'vscode';
-import { log } from '../log';
+import { log } from '../../common/log';
 import { notNullOrUndefined } from '../utils/not_null_or_undefined';
 import { removeTrailingSlash } from '../utils/remove_trailing_slash';
 import { makeAccountId } from './account';

@@ -1,6 +1,6 @@
 import { GitRemoteUrlPointer } from '../git/new_git';
 import { Account } from '../accounts/account';
-import { GitLabProject } from './gitlab_project';
+import { GitLabProject } from '../../common/platform/gitlab_project';
 
 /**
  * Existing project represents a remote URL for which we were

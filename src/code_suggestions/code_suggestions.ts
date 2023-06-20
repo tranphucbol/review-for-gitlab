@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES } from '../desktop/constants';
-import { log } from '../desktop/log';
+import { log } from '../common/log';
 import { CodeSuggestionsProvider } from './code_suggestions_provider';
 import { GitLabPlatformManager } from '../common/platform/gitlab_platform';
 import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_suggestions_state';
@@ -8,7 +8,7 @@ import { CodeSuggestionsStatusBarItem } from './code_suggestions_status_bar_item
 import {
   AI_ASSISTED_CODE_SUGGESTIONS_MODE,
   getAiAssistedCodeSuggestionsConfiguration,
-} from '../desktop/utils/extension_configuration';
+} from '../common/utils/extension_configuration';
 
 export class CodeSuggestions {
   stateManager = new CodeSuggestionsStateManager();

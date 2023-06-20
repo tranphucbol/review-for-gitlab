@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { CustomQueryItemModel } from './custom_query_item_model';
-import { CustomQuery } from '../../gitlab/custom_query';
+import { CustomQuery } from '../../../common/gitlab/custom_query';
 import { ItemModel } from './item_model';
 import { ProjectInRepository } from '../../gitlab/new_project';
 

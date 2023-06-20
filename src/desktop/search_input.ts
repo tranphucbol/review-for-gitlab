@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import { ProjectCommand } from './commands/run_with_valid_project';
-import { GitLabProject } from './gitlab/gitlab_project';
+import { GitLabProject } from '../common/platform/gitlab_project';
 import * as openers from './commands/openers';
 import { createQueryString } from './utils/create_query_string';
 import { GITLAB_COM_URL } from './constants';

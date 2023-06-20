@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { coerce, gte, valid } from 'semver';
-import { log } from '../log';
+import { log } from '../../common/log';
 
 /**
  * This method runs different code for different versions (VS Code, GitLab API, ...).

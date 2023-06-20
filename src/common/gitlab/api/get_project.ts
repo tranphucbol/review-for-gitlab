@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request';
-import { GraphQLRequest } from '../../../common/platform/web_ide';
-import { GitLabProject } from '../gitlab_project';
-import { getRestIdFromGraphQLId } from '../get_rest_id_from_graphql_id';
+import { GraphQLRequest } from '../../platform/web_ide';
+import { GitLabProject } from '../../platform/gitlab_project';
+import { getRestIdFromGraphQLId } from './get_rest_id_from_graphql_id';
 
 interface GqlGroup {
   id: string;

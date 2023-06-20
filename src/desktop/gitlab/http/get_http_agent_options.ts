@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { UserFriendlyError } from '../../errors/user_friendly_error';
-import { handleError } from '../../log';
+import { handleError } from '../../handle_error';
 
 interface GitLabHttpAgentOptions {
   ca?: Buffer;

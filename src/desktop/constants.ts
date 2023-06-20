@@ -8,8 +8,6 @@ export const REVIEW_URI_SCHEME = 'gl-review';
 export const MERGED_YAML_URI_SCHEME = 'gl-merged-ci-yaml';
 export const JOB_LOG_URI_SCHEME = 'gl-job-log';
 export const REMOTE_URI_SCHEME = 'gitlab-remote';
-export const CONFIG_NAMESPACE = 'gitlab';
-export const AI_ASSISTED_CODE_SUGGESTIONS_CONFIG_NAMESPACE = 'gitlab.aiAssistedCodeSuggestions';
 export const AI_ASSISTED_CODE_SUGGESTIONS_API_URL =
   'https://codesuggestions.gitlab.com/v2/completions';
 export const AI_ASSISTED_CODE_SUGGESTIONS_LINES_BELOW_CURSOR = 10;

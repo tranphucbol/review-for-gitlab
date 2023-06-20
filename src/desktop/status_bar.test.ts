@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { pipeline, mr, issue, job, project } from './test_utils/entities';
+import { pipeline, mr, issue, job } from './test_utils/entities';
+import { project } from '../common/test_utils/entities';
 import { USER_COMMANDS } from './command_names';
 import { asMock } from './test_utils/as_mock';
 import { BranchState } from './current_branch_refresher';

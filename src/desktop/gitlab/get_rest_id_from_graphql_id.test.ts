@@ -1,4 +1,4 @@
-import { getRestIdFromGraphQLId } from './get_rest_id_from_graphql_id';
+import { getRestIdFromGraphQLId } from '../../common/gitlab/api/get_rest_id_from_graphql_id';
 
 describe('getRestIdFromGraphQLId', () => {
   it.each`

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { SECURITY_SCANS_FEATURE_FLAG } from '../constants';
-import { getExtensionConfiguration } from '../utils/extension_configuration';
+import { getExtensionConfiguration } from '../../common/utils/extension_configuration';
 import { ErrorItem } from './items/error_item';
 import { ItemModel } from './items/item_model';
 import { MrItemModel } from './items/mr_item_model';

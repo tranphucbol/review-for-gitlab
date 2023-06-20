@@ -9,12 +9,12 @@ import {
 } from './code_suggestions_telemetry';
 
 import { GitLabPlatformManager } from '../common/platform/gitlab_platform';
-import { project } from '../desktop/test_utils/entities';
+import { project } from '../common/test_utils/entities';
 import { asMock } from '../desktop/test_utils/as_mock';
 import { PROGRAMMATIC_COMMANDS } from '../desktop/command_names';
 import { CIRCUIT_BREAK_INTERVAL_MS, CodeSuggestionsProvider } from './code_suggestions_provider';
 import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_suggestions_state';
-import { GitLabProject } from '../desktop/gitlab/gitlab_project';
+import { GitLabProject } from '../common/platform/gitlab_project';
 
 jest.mock('../desktop/gitlab/fetch_logged');
 

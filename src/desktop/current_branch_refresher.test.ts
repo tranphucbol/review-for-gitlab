@@ -12,10 +12,10 @@ import {
 import { getGitLabService } from './gitlab/get_gitlab_service';
 import { getTrackingBranchName } from './git/get_tracking_branch_name';
 import { getTagsForHead } from './git/get_tags_for_head';
-import { getExtensionConfiguration } from './utils/extension_configuration';
+import { getExtensionConfiguration } from '../common/utils/extension_configuration';
 import { SECURITY_SCANS_FEATURE_FLAG } from './constants';
 
-jest.mock('./utils/extension_configuration');
+jest.mock('../common/utils/extension_configuration');
 jest.mock('./gitlab/get_gitlab_service');
 jest.mock('./git/get_tracking_branch_name');
 jest.mock('./git/get_tags_for_head');

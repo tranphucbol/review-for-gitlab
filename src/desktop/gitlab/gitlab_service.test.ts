@@ -3,27 +3,21 @@ import fetch from './fetch_logged';
 import { GitLabService } from './gitlab_service';
 import { testSnippet1 } from '../../../test/integration/fixtures/graphql/snippets.js';
 import { DEFAULT_FETCH_RESPONSE } from './__mocks__/fetch_logged';
-import { CustomQueryType } from './custom_query_type';
-import { CustomQuery } from './custom_query';
+import { CustomQueryType } from '../../common/gitlab/custom_query_type';
+import { CustomQuery } from '../../common/gitlab/custom_query';
 import { asMock } from '../test_utils/as_mock';
-import {
-  externalStatus,
-  gqlProject,
-  mr,
-  pipeline,
-  project,
-  securityReport,
-} from '../test_utils/entities';
-import { getExtensionConfiguration } from '../utils/extension_configuration';
+import { externalStatus, mr, pipeline, securityReport } from '../test_utils/entities';
+import { getExtensionConfiguration } from '../../common/utils/extension_configuration';
 import { getHttpAgentOptions } from './http/get_http_agent_options';
 import { HelpError } from '../errors/help_error';
 import { testCredentials } from '../test_utils/test_credentials';
-import { getProject } from './api/get_project';
+import { getProject } from '../../common/gitlab/api/get_project';
+import { gqlProject, project } from '../../common/test_utils/entities';
 
 jest.mock('graphql-request');
 jest.mock('../accounts/account_service');
 jest.mock('./fetch_logged');
-jest.mock('../utils/extension_configuration');
+jest.mock('../../common/utils/extension_configuration');
 jest.mock('./http/get_http_agent_options');
 
 const crossFetchCallArgument = () => (fetch as jest.Mock).mock.calls[0][0];

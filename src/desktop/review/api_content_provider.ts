@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import assert from 'assert';
 import { fromReviewUri, isEmptyFileUri } from './review_uri';
-import { log } from '../log';
+import { log } from '../../common/log';
 import { gitlabProjectRepository } from '../gitlab/gitlab_project_repository';
 import { getGitLabService } from '../gitlab/get_gitlab_service';
 

@@ -1,10 +1,6 @@
-import * as vscode from 'vscode';
 import { DetailedError } from './errors/common';
-import { handleError, initializeLogging, log } from './log';
-import { USER_COMMANDS } from './command_names';
-import { asMock } from './test_utils/as_mock';
-import { getExtensionConfiguration } from './utils/extension_configuration';
-import { WarningError } from './errors/warning_error';
+import { initializeLogging, log } from './log';
+import { ExtensionConfiguration, getExtensionConfiguration } from './utils/extension_configuration';
 
 jest.mock('./utils/extension_configuration');
 
@@ -24,7 +20,9 @@ describe('logging', () => {
 
   describe('log', () => {
     beforeEach(() => {
-      asMock(getExtensionConfiguration).mockReturnValue({ debug: true });
+      jest
+        .mocked(getExtensionConfiguration)
+        .mockReturnValue({ debug: true } as ExtensionConfiguration);
     });
 
     it('passes the argument to the handler', () => {
@@ -46,7 +44,9 @@ describe('logging', () => {
     });
 
     it('does not log debug messages if debug mode is disabled', () => {
-      asMock(getExtensionConfiguration).mockReturnValue({ debug: false });
+      jest
+        .mocked(getExtensionConfiguration)
+        .mockReturnValue({ debug: false } as ExtensionConfiguration);
 
       log.debug('message');
 
@@ -84,40 +84,6 @@ describe('logging', () => {
         expect(logFunctionArgument).toMatch(/\[error\]:/);
         expect(logFunctionArgument).toMatch(message);
       });
-    });
-  });
-
-  describe('handleError', () => {
-    const message = 'Uncaught TypeError: NetworkError when attempting to fetch resource.';
-    const showErrorMessage = vscode.window.showErrorMessage as jest.Mock;
-
-    it('passes the argument to the handler', () => {
-      const error = new Error(message);
-
-      handleError(error);
-
-      expect(getLoggedMessage()).toContain(message);
-    });
-
-    it('prompts the user to show the logs', () => {
-      handleError(new Error(message));
-
-      expect(showErrorMessage).toBeCalledWith(message, 'Show Logs');
-    });
-
-    it('shows the logs when the user confirms the prompt', async () => {
-      const executeCommand = vscode.commands.executeCommand as jest.Mock;
-      showErrorMessage.mockResolvedValue('Show Logs');
-
-      await handleError(new Error(message)).onlyForTesting;
-
-      expect(executeCommand).toBeCalledWith(USER_COMMANDS.SHOW_OUTPUT);
-    });
-
-    it('shows WarningError as warning', async () => {
-      await handleError(new WarningError(message)).onlyForTesting;
-
-      expect(vscode.window.showWarningMessage).toBeCalledWith(message);
     });
   });
 });

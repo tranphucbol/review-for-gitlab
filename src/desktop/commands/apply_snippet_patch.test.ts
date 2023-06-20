@@ -11,7 +11,7 @@ import { GitLabService } from '../gitlab/gitlab_service';
 import { getLastCommitSha } from '../git/get_last_commit_sha';
 import { getGitLabService } from '../gitlab/get_gitlab_service';
 import { ProjectInRepository } from '../gitlab/new_project';
-import { project } from '../test_utils/entities';
+import { project } from '../../common/test_utils/entities';
 
 jest.mock('../git/get_last_commit_sha');
 jest.mock('../gitlab/get_gitlab_service');

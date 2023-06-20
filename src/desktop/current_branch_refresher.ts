@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import dayjs from 'dayjs';
-import { log } from './log';
+import { log } from '../common/log';
 import { extensionState } from './extension_state';
 import { UserFriendlyError } from './errors/user_friendly_error';
 import { notNullOrUndefined } from './utils/not_null_or_undefined';
@@ -14,7 +14,7 @@ import { getTagsForHead } from './git/get_tags_for_head';
 import { DetachedHeadError } from './errors/detached_head_error';
 import { GqlSecurityFindingReport } from './gitlab/graphql/get_security_finding_report';
 import { SECURITY_SCANS_FEATURE_FLAG } from './constants';
-import { getExtensionConfiguration } from './utils/extension_configuration';
+import { getExtensionConfiguration } from '../common/utils/extension_configuration';
 
 export interface BranchState {
   type: 'branch';

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { DO_NOT_SHOW_VERSION_WARNING, MINIMUM_VERSION } from '../constants';
-import { log } from '../log';
+import { log } from '../../common/log';
 import { ifVersionGte } from '../utils/if_version_gte';
 import { ProjectInRepository } from './new_project';
 import { getGitLabService } from './get_gitlab_service';

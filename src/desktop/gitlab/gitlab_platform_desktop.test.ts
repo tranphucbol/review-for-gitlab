@@ -1,6 +1,7 @@
 import { gitlabPlatformManagerDesktop } from './gitlab_platform_desktop';
 import { getActiveProjectOrSelectOne, getActiveProject } from '../commands/run_with_valid_project';
-import { gqlProject, project, projectInRepository } from '../test_utils/entities';
+import { projectInRepository } from '../test_utils/entities';
+import { gqlProject, project } from '../../common/test_utils/entities';
 import { getGitLabService } from './get_gitlab_service';
 import { asMock } from '../test_utils/as_mock';
 import { GetRequest } from '../../common/platform/web_ide';
