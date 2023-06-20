@@ -1,4 +1,4 @@
-import { stackToArray, DetailedError, isDetailedError } from './common';
+import { stackToArray, DetailedError, isDetailedError } from '../../common/errors/common';
 
 export class UserFriendlyError extends Error implements DetailedError {
   originalError: Error | DetailedError;

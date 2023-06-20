@@ -4,7 +4,7 @@ import { PROGRAMMATIC_COMMANDS } from '../../command_names';
 import { ChangedFileItem, HasCommentsFn } from './changed_file_item';
 import { ItemModel } from './item_model';
 import { GqlDiscussion, GqlTextDiffDiscussion } from '../../gitlab/graphql/get_discussions';
-import { handleError } from '../../log';
+import { handleError } from '../../handle_error';
 import { UserFriendlyError } from '../../errors/user_friendly_error';
 import { GitLabCommentThread } from '../../review/gitlab_comment_thread';
 import { CommentingRangeProvider } from '../../review/commenting_range_provider';

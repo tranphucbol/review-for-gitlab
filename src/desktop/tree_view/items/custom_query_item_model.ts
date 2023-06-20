@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
-import { handleError } from '../../log';
+import { handleError } from '../../handle_error';
 import { ErrorItem } from './error_item';
 import { MrItemModel } from './mr_item_model';
 import { ExternalUrlItem } from './external_url_item';
 import { IssueItem } from './issue_item';
 import { VulnerabilityItem } from './vulnerability_item';
-import { CustomQuery } from '../../gitlab/custom_query';
-import { CustomQueryType } from '../../gitlab/custom_query_type';
+import { CustomQuery } from '../../../common/gitlab/custom_query';
+import { CustomQueryType } from '../../../common/gitlab/custom_query_type';
 import { ItemModel } from './item_model';
 import { ProjectInRepository } from '../../gitlab/new_project';
 import { getGitLabService } from '../../gitlab/get_gitlab_service';

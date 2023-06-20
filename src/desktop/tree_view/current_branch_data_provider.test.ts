@@ -6,12 +6,12 @@ import { ItemModel } from './items/item_model';
 import { PipelineItemModel } from './items/pipeline_item_model';
 import { GqlSecurityFindingReport } from '../gitlab/graphql/get_security_finding_report';
 import { asMock } from '../test_utils/as_mock';
-import { getExtensionConfiguration } from '../utils/extension_configuration';
+import { getExtensionConfiguration } from '../../common/utils/extension_configuration';
 import { SECURITY_SCANS_FEATURE_FLAG } from '../constants';
 
 jest.mock('./items/mr_item_model');
 jest.mock('./items/pipeline_item_model');
-jest.mock('../utils/extension_configuration');
+jest.mock('../../common/utils/extension_configuration');
 
 const isItemModel = (object: any): object is ItemModel => typeof object.dispose === 'function';
 const branchState: BranchState = {

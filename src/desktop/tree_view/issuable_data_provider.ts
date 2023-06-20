@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { ItemModel } from './items/item_model';
 import { extensionState } from '../extension_state';
 import { gitExtensionWrapper } from '../git/git_extension_wrapper';
-import { getExtensionConfiguration } from '../utils/extension_configuration';
+import { getExtensionConfiguration } from '../../common/utils/extension_configuration';
 import { onSidebarViewStateChange } from './sidebar_view_state';
 import { gitlabProjectRepository } from '../gitlab/gitlab_project_repository';
 import { MultipleProjectsItem } from './items/multiple_projects_item';

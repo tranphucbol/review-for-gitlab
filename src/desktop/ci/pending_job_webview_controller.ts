@@ -7,7 +7,7 @@ import { getJobMetadata } from '../gitlab/ci_status_metadata';
 import { JobItemModel } from '../tree_view/items/job_item_model';
 import { cancelJob, executeJob, retryJob } from '../commands/job_actions';
 import { toJobLogUri } from './job_log_uri';
-import { log } from '../log';
+import { log } from '../../common/log';
 import { hasTraceAvailable } from '../utils/has_trace_available';
 import { WEBVIEW_PENDING_JOB } from '../constants';
 import { RepositoryRootWebviewProvider } from '../commands/run_with_valid_project';

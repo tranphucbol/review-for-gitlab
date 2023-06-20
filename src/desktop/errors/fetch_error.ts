@@ -1,4 +1,4 @@
-import { stackToArray, DetailedError } from './common';
+import { stackToArray, DetailedError } from '../../common/errors/common';
 
 export class FetchError extends Error implements DetailedError {
   response: Response;

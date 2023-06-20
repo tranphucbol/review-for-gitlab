@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { COMMAND_FETCH_FROM_API, COMMAND_GET_CONFIG } from '../common/platform/web_ide';
-import { gqlProject, project } from '../desktop/test_utils/entities';
+import { gqlProject, project } from '../common/test_utils/entities';
 import { createGitLabPlatformManagerBrowser } from './gitlab_platform_browser';
 
 describe('createGitLabPlatformManagerBrowser', () => {

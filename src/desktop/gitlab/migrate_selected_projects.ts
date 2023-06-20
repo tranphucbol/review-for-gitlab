@@ -1,4 +1,4 @@
-import { log } from '../log';
+import { log } from '../../common/log';
 import { AccountService } from '../accounts/account_service';
 import { SelectedProjectSetting } from './new_project';
 import { SelectedProjectStore } from './selected_project_store';

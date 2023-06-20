@@ -8,8 +8,9 @@ import * as vscode from 'vscode';
 import { API, GitExtension, Repository } from '../api/git';
 import { gitlabCredentialsProvider } from '../gitlab/clone/gitlab_credentials_provider';
 import { GitLabRemoteSourceProviderRepository } from '../gitlab/clone/gitlab_remote_source_provider_repository';
-import { handleError, log } from '../log';
+import { log } from '../../common/log';
 import { GitRepository, GitRepositoryImpl } from './new_git';
+import { handleError } from '../handle_error';
 
 export class GitExtensionWrapper implements vscode.Disposable {
   apiListeners: vscode.Disposable[] = [];

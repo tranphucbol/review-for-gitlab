@@ -1,11 +1,6 @@
 import dayjs from 'dayjs';
-import * as vscode from 'vscode';
-import { USER_COMMANDS } from './command_names';
-import { DetailedError, isDetailedError, prettyJson } from './errors/common';
-import { HelpError } from './errors/help_error';
-import { WarningError } from './errors/warning_error';
+import { isDetailedError, prettyJson } from './errors/common';
 import { getExtensionConfiguration } from './utils/extension_configuration';
-import { Help, HelpMessageSeverity } from './utils/help';
 
 type logFunction = (line: string) => void;
 // eslint-disable-next-line no-console
@@ -66,27 +61,3 @@ const warn = (a1: Error | string, a2?: Error) => logWithLevel(LOG_LEVEL.WARNING,
 const error = (a1: Error | string, a2?: Error) => logWithLevel(LOG_LEVEL.ERROR, a1, a2);
 
 export const log: Log = { debug, info, warn, error };
-
-// FIXME: UI treatment of the error is not really closely related to logging and should have a different module
-export const handleError = (e: Error | DetailedError): { onlyForTesting: Thenable<unknown> } => {
-  log.error(e);
-  // This is probably the only place where we want to ignore a floating promise.
-  // We don't want to block the app and wait for user click on the "Show Logs"
-  // button or close the message However, for testing this method, we need to
-  // keep the promise.
-  if (HelpError.isHelpError(e)) {
-    return { onlyForTesting: Help.showError(e, HelpMessageSeverity.Error) };
-  }
-  if (e instanceof WarningError) {
-    return {
-      onlyForTesting: vscode.window.showWarningMessage(e.message),
-    };
-  }
-  const showErrorMessage = async () => {
-    const choice = await vscode.window.showErrorMessage(e.message, 'Show Logs');
-    if (choice === 'Show Logs') {
-      await vscode.commands.executeCommand(USER_COMMANDS.SHOW_OUTPUT);
-    }
-  };
-  return { onlyForTesting: showErrorMessage() };
-};

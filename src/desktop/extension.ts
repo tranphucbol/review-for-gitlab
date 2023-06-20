@@ -10,7 +10,8 @@ import { validateCiConfig, showMergedCiConfig } from './commands/ci_config_lint_
 import { webviewController } from './webview_controller';
 import { issuableDataProvider } from './tree_view/issuable_data_provider';
 import { currentBranchDataProvider } from './tree_view/current_branch_data_provider';
-import { initializeLogging, handleError } from './log';
+import { initializeLogging } from '../common/log';
+import { handleError } from './handle_error';
 import { GitContentProvider } from './review/git_content_provider';
 import {
   REVIEW_URI_SCHEME,
@@ -71,7 +72,10 @@ import { migrateSelectedProjects } from './gitlab/migrate_selected_projects';
 import { gitlabUriHandler } from './gitlab_uri_handler';
 import { authenticate } from './accounts/authenticate';
 import { GitLabAuthenticationProvider } from './accounts/oauth/gitlab_authentication_provider';
-import { getExtensionConfiguration, GITLAB_DEBUG_MODE } from './utils/extension_configuration';
+import {
+  getExtensionConfiguration,
+  GITLAB_DEBUG_MODE,
+} from '../common/utils/extension_configuration';
 import { setupVersionCheck } from './gitlab/check_version';
 import { setupYamlSupport } from './yaml_support';
 import { cancelJob, executeJob, retryJob } from './commands/job_actions';

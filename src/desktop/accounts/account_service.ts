@@ -2,7 +2,7 @@ import assert from 'assert';
 import { isDeepStrictEqual } from 'util';
 import { EventEmitter, ExtensionContext, Event } from 'vscode';
 import { UserFriendlyError } from '../errors/user_friendly_error';
-import { log } from '../log';
+import { log } from '../../common/log';
 import { hasPresentKey } from '../utils/has_present_key';
 import { notNullOrUndefined } from '../utils/not_null_or_undefined';
 import { removeTrailingSlash } from '../utils/remove_trailing_slash';

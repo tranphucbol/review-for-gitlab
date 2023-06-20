@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import fetch from '../desktop/gitlab/fetch_logged';
-import { log } from '../desktop/log';
+import { log } from '../common/log';
 import {
   AI_ASSISTED_CODE_SUGGESTIONS_API_URL,
   AI_ASSISTED_CODE_SUGGESTIONS_LINES_BELOW_CURSOR,
@@ -17,7 +17,7 @@ import {
   TELEMETRY_HEADER_REQUESTS,
   codeSuggestionsTelemetry,
 } from './code_suggestions_telemetry';
-import { GitLabProject } from '../desktop/gitlab/gitlab_project';
+import { GitLabProject } from '../common/platform/gitlab_project';
 import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_suggestions_state';
 
 export const CIRCUIT_BREAK_INTERVAL_MS = 10000;

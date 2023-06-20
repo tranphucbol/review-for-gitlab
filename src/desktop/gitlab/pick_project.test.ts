@@ -1,12 +1,20 @@
 import * as vscode from 'vscode';
-import { createProject } from '../test_utils/entities';
 import { showQuickPick } from '../utils/show_quickpick';
-import { GitLabProject } from './gitlab_project';
+import { GitLabProject } from '../../common/platform/gitlab_project';
 import { GitLabService } from './gitlab_service';
 import { pickProject } from './pick_project';
+import { convertToGitLabProject } from '../../common/gitlab/api/get_project';
+import { gqlProject } from '../../common/test_utils/entities';
 
 jest.mock('../utils/show_quickpick');
 jest.mock('./clone/gitlab_remote_source_provider');
+
+export const createProject = (namespaceWithPath: string) =>
+  convertToGitLabProject({
+    ...gqlProject,
+    fullPath: namespaceWithPath,
+    name: namespaceWithPath.replace('/', '-'),
+  });
 
 describe('pickProject', () => {
   const projects: GitLabProject[] = [

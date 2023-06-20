@@ -15,9 +15,9 @@ import {
   SelectedProjectStore,
   selectedProjectStore,
 } from './selected_project_store';
-import { log } from '../log';
+import { log } from '../../common/log';
 import { jsonStringifyWithSortedKeys } from '../utils/json_stringify_with_sorted_keys';
-import { prettyJson } from '../errors/common';
+import { prettyJson } from '../../common/errors/common';
 import { EnsureLatestPromise } from '../utils/ensure_latest_promise';
 import { Account } from '../accounts/account';
 import { tryToGetProjectFromInstance } from './try_to_get_project_from_instance';

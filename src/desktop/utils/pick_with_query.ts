@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { handleError } from '../log';
+import { handleError } from '../handle_error';
 import { showQuickPick } from './show_quickpick';
 
 /**

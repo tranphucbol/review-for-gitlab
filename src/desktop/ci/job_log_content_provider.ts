@@ -15,7 +15,7 @@ import { AnsiDecorationProvider } from './ansi_decoration_provider';
 import { jobLogCache } from './job_log_cache';
 import { fromJobLogUri } from './job_log_uri';
 import { currentBranchRefresher } from '../current_branch_refresher';
-import { log } from '../log';
+import { log } from '../../common/log';
 
 export class JobLogContentProvider implements vscode.TextDocumentContentProvider {
   #onDidChangeEmitter = new vscode.EventEmitter<vscode.Uri>();

@@ -5,7 +5,7 @@ import { accountService } from './accounts/account_service';
 import { getUserForCredentialsOrFail } from './accounts/get_user_for_credentials_or_fail';
 import { removeTrailingSlash } from './utils/remove_trailing_slash';
 import { validateInstanceUrl } from './utils/validate_instance_url';
-import { handleError } from './log';
+import { handleError } from './handle_error';
 
 export async function addAccount() {
   const rawInstanceUrl = await vscode.window.showInputBox({

@@ -1,5 +1,5 @@
 import { asMock } from '../test_utils/as_mock';
-import { getExtensionConfiguration } from '../utils/extension_configuration';
+import { getExtensionConfiguration } from '../../common/utils/extension_configuration';
 import { projectInRepository } from '../test_utils/entities';
 import { getRepositoryRootForUri, runWithValidProject } from './run_with_valid_project';
 import { gitlabProjectRepository } from '../gitlab/gitlab_project_repository';
@@ -7,8 +7,8 @@ import { toJobLogUri } from '../ci/job_log_uri';
 import { toMergedYamlUri } from '../ci/merged_yaml_uri';
 
 jest.mock('../gitlab/gitlab_project_repository');
-jest.mock('../utils/extension_configuration');
-jest.mock('../log');
+jest.mock('../../common/utils/extension_configuration');
+jest.mock('../../common/log');
 
 describe('runWithValidProject', () => {
   beforeEach(() => {

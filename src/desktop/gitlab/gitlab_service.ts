@@ -7,11 +7,11 @@ import fetch from './fetch_logged';
 import { FetchError } from '../errors/fetch_error';
 import { getUserAgentHeader } from './http/get_user_agent_header';
 import { ensureAbsoluteAvatarUrl } from './ensure_absolute_avatar_url';
-import { CustomQueryType } from './custom_query_type';
-import { CustomQuery } from './custom_query';
+import { CustomQueryType } from '../../common/gitlab/custom_query_type';
+import { CustomQuery } from '../../common/gitlab/custom_query';
 import { getHttpAgentOptions } from './http/get_http_agent_options';
-import { GitLabProject } from './gitlab_project';
-import { getRestIdFromGraphQLId } from './get_rest_id_from_graphql_id';
+import { GitLabProject } from '../../common/platform/gitlab_project';
+import { getRestIdFromGraphQLId } from '../../common/gitlab/api/get_rest_id_from_graphql_id';
 import { UserFriendlyError } from '../errors/user_friendly_error';
 import { getMrPermissionsQuery, MrPermissionsQueryOptions } from './graphql/mr_permission';
 import { GqlBasePosition, GqlGenericNote, GqlNote, Node } from './graphql/shared';
@@ -34,7 +34,7 @@ import {
 } from './graphql/get_snippets';
 import { createDiffNoteMutation, GqlDiffPositionInput } from './graphql/create_diff_comment';
 import { removeLeadingSlash } from '../utils/remove_leading_slash';
-import { log } from '../log';
+import { log } from '../../common/log';
 import { isMr } from '../utils/is_mr';
 import { ifVersionGte } from '../utils/if_version_gte';
 import {

@@ -1,4 +1,4 @@
-import { log } from '../log';
+import { log } from '../../common/log';
 
 /**
  * EnsureLatestPromise prevents race conditions when you create the same promise multiple times.

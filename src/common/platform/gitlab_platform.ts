@@ -1,5 +1,5 @@
 import { fetchFromApi } from './web_ide';
-import { GitLabProject } from '../../desktop/gitlab/gitlab_project';
+import { GitLabProject } from './gitlab_project';
 
 /**
  * GitLabPlatform interface provides methods to fetch GitLab projects and make API requests.

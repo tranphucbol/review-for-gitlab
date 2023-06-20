@@ -5,7 +5,7 @@ import { pickAccount } from '../gitlab/pick_account';
 import { pickProject } from '../gitlab/pick_project';
 import { pickGitRef } from '../gitlab/pick_git_ref';
 import { getGitLabServiceForAccount } from '../gitlab/get_gitlab_service';
-import { getRestIdFromGraphQLId } from '../gitlab/get_rest_id_from_graphql_id';
+import { getRestIdFromGraphQLId } from '../../common/gitlab/api/get_rest_id_from_graphql_id';
 
 // eslint-disable-next-line no-shadow
 enum Action {

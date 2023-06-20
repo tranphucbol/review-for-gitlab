@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import { GitRemote, GitRepository } from '../git/new_git';
-import { CustomQueryType } from '../gitlab/custom_query_type';
+import { CustomQueryType } from '../../common/gitlab/custom_query_type';
 import { ProjectInRepository } from '../gitlab/new_project';
 import { ReviewParams as ReviewUriParams } from '../review/review_uri';
 import { makeAccountId, OAuthAccount, TokenAccount } from '../accounts/account';
@@ -9,8 +9,7 @@ import { InMemoryMemento } from '../../../test/integration/test_infrastructure/i
 import { SecretStorage } from './secret_storage';
 import { GqlSecurityFindingReport } from '../gitlab/graphql/get_security_finding_report';
 import { GqlProjectWithRepoInfo } from '../gitlab/api/get_projects_with_repository_info';
-import { GqlProject, convertToGitLabProject } from '../gitlab/api/get_project';
-import { GitLabProject } from '../gitlab/gitlab_project';
+import { project } from '../../common/test_utils/entities';
 
 export const issue: RestIssuable = {
   id: 1,
@@ -117,17 +116,6 @@ export const artifact: RestArtifact = {
   size: 1024,
 };
 
-export const gqlProject: GqlProject = {
-  id: 'gid://gitlab/Project/5261717',
-  name: 'gitlab-vscode-extension',
-  description: '',
-  fullPath: 'gitlab-org/gitlab-vscode-extension',
-  webUrl: 'https://gitlab.com/gitlab-org/gitlab-vscode-extension',
-  group: {
-    id: 'gid://gitlab/Group/9970',
-  },
-};
-
 export const reviewUriParams: ReviewUriParams = {
   mrId: mr.id,
   projectId: mr.project_id,
@@ -135,8 +123,6 @@ export const reviewUriParams: ReviewUriParams = {
   path: 'new_path.js',
   commit: mr.sha,
 };
-
-export const project: GitLabProject = convertToGitLabProject(gqlProject);
 
 export const projectWithRepositoryInfo: GqlProjectWithRepoInfo = {
   id: 'gid://gitlab/Project/5261717',
@@ -150,13 +136,6 @@ export const projectWithRepositoryInfo: GqlProjectWithRepoInfo = {
     rootRef: 'main',
   },
 };
-
-export const createProject = (namespaceWithPath: string) =>
-  convertToGitLabProject({
-    ...gqlProject,
-    fullPath: namespaceWithPath,
-    name: namespaceWithPath.replace('/', '-'),
-  });
 
 export const createTokenAccount = (
   instanceUrl = 'https://gitlab.com',
