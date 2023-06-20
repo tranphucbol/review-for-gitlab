@@ -59,7 +59,7 @@ export class GitLabRemoteSourceProvider implements RemoteSourceProvider {
     );
 
     return result.projects.nodes
-      .filter(project => !project.repository.empty)
+      .filter(project => !project.repository?.empty)
       .map(project => remoteForProject(project));
   }
 }

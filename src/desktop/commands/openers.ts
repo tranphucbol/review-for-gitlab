@@ -166,7 +166,7 @@ export const compareCurrentBranch: ProjectCommand = async projectInRepository =>
     );
   }
 
-  if (getLastCommitSha(repository.rawRepository) && projectWithRepoInfo.repository.rootRef) {
+  if (getLastCommitSha(repository.rawRepository) && projectWithRepoInfo.repository?.rootRef) {
     await openUrl(
       `${project.webUrl}/-/compare/${projectWithRepoInfo.repository.rootRef}...${getLastCommitSha(
         repository.rawRepository,

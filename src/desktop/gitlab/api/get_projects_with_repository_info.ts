@@ -23,7 +23,7 @@ export interface GqlProjectWithRepoInfo {
   httpUrlToRepo: string;
   sshUrlToRepo: string;
   fullPath: string;
-  repository: {
+  repository?: {
     rootRef: string;
     empty: boolean;
   };
