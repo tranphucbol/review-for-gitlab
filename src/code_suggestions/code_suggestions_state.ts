@@ -1,8 +1,11 @@
 import * as vscode from 'vscode';
 
 export const enum CodeSuggestionsState {
-  DISABLED = 'code-completion-disabled',
-  OK = 'code-completion-ok',
+  LOADING = 'code-suggestions-loading',
+  DISABLED = 'code-suggestions-disabled',
+  OK = 'code-suggestions-ok',
+  ERROR = 'code-suggestions-error',
+  UNSUPPORTED_LANGUAGE = 'code-suggestions-unsupported-language',
 }
 
 export class CodeSuggestionsStateManager {
@@ -18,6 +21,13 @@ export class CodeSuggestionsStateManager {
 
   setState(newState: CodeSuggestionsState) {
     if (this.#state !== newState) {
+      if (
+        this.#state === CodeSuggestionsState.UNSUPPORTED_LANGUAGE &&
+        ![CodeSuggestionsState.OK, CodeSuggestionsState.DISABLED].includes(newState)
+      ) {
+        return;
+      }
+
       this.#state = newState;
       this.#changeStateEmitter.fire(newState);
     }

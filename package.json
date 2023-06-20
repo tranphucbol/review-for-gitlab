@@ -50,6 +50,13 @@
       }
     },
     "icons": {
+      "gitlab-code-suggestions-loading": {
+        "description": "GitLab Code Suggestions Loading",
+        "default": {
+          "fontPath": "./assets/gitlab_icons.woff",
+          "fontCharacter": "\\eA01"
+        }
+      },
       "gitlab-code-suggestions-enabled": {
         "description": "GitLab Code Suggestions Enabled",
         "default": {
@@ -62,6 +69,13 @@
         "default": {
           "fontPath": "./assets/gitlab_icons.woff",
           "fontCharacter": "\\eA03"
+        }
+      },
+      "gitlab-code-suggestions-error": {
+        "description": "GitLab Code Suggestions Error",
+        "default": {
+          "fontPath": "./assets/gitlab_icons.woff",
+          "fontCharacter": "\\eA04"
         }
       }
     }
