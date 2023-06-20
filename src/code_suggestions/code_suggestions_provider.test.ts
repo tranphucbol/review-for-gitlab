@@ -13,9 +13,11 @@ import { project } from '../desktop/test_utils/entities';
 import { asMock } from '../desktop/test_utils/as_mock';
 import { PROGRAMMATIC_COMMANDS } from '../desktop/command_names';
 import { CIRCUIT_BREAK_INTERVAL_MS, CodeSuggestionsProvider } from './code_suggestions_provider';
+import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_suggestions_state';
 import { GitLabProject } from '../desktop/gitlab/gitlab_project';
 
 jest.mock('../desktop/gitlab/fetch_logged');
+
 const crossFetchCallArgument = () => JSON.parse(asMock(fetch).mock.calls[0][1].body);
 const lastFetchCallHeaders = () =>
   asMock(fetch).mock.calls[asMock(fetch).mock.calls.length - 1][1].headers;
@@ -37,7 +39,7 @@ const mockPosition = {
 
 function createManager(project: GitLabProject): GitLabPlatformManager {
   return {
-    getForActiveProject: async () => ({
+    getForActiveProject: jest.fn(async () => ({
       project,
       fetchFromApi: async <T>(): Promise<T> =>
         ({
@@ -45,11 +47,13 @@ function createManager(project: GitLabProject): GitLabPlatformManager {
           expires_in: 0,
           created_at: 0,
         } as unknown as T),
-    }),
+    })),
   };
 }
 
 const manager = createManager(project);
+
+const stateManager = new CodeSuggestionsStateManager();
 
 describe('CodeSuggestionsProvider', () => {
   const testDocument = {
@@ -78,7 +82,7 @@ describe('CodeSuggestionsProvider', () => {
     };
 
     it('should construct a payload with line above, line below, file name, prompt version, project id and path', async () => {
-      const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider(manager);
+      const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({ manager, stateManager });
       await glcp.getCompletions(testDocument, position);
 
       const inputBody = crossFetchCallArgument();
@@ -94,7 +98,7 @@ describe('CodeSuggestionsProvider', () => {
 
     it('should not send project id and path unless targeting SaaS', async () => {
       const manager = createManager(projectForSelfManaged);
-      const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider(manager);
+      const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({ manager, stateManager });
       await glcp.getCompletions(testDocument, position);
 
       const inputBody = crossFetchCallArgument();
@@ -112,7 +116,11 @@ describe('CodeSuggestionsProvider', () => {
     jest.useFakeTimers();
 
     it('provides inline completions', async () => {
-      const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider(manager, true);
+      const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
+        manager,
+        stateManager,
+        noDebounce: true,
+      });
       glcp.getCompletions = jest.fn().mockResolvedValue(mockInlineCompletions);
 
       jest.runAllTimers();
@@ -133,7 +141,7 @@ describe('CodeSuggestionsProvider', () => {
     };
 
     it(`starts breaking after 4 errors`, async () => {
-      const glcp = new CodeSuggestionsProvider(manager);
+      const glcp = new CodeSuggestionsProvider({ manager, stateManager });
 
       glcp.fetchCompletions = jest.fn().mockRejectedValue(new Error('test problem'));
 
@@ -148,7 +156,7 @@ describe('CodeSuggestionsProvider', () => {
 
     describe("after circuit breaker's break time elapses", () => {
       it('fetches completions again', async () => {
-        const glcp = new CodeSuggestionsProvider(manager);
+        const glcp = new CodeSuggestionsProvider({ manager, stateManager });
         glcp.fetchCompletions = jest.fn().mockRejectedValue(new Error('test problem'));
 
         await turnOnCircuitBreaker(glcp);
@@ -166,12 +174,57 @@ describe('CodeSuggestionsProvider', () => {
     });
   });
 
+  describe('state management', () => {
+    let glcp: CodeSuggestionsProvider;
+
+    beforeEach(() => {
+      stateManager.setState(CodeSuggestionsState.OK);
+      glcp = new CodeSuggestionsProvider({ manager, stateManager, noDebounce: true });
+    });
+
+    it('sets state to loading on request', async () => {
+      const stateTracker = jest.fn();
+      const subscription = stateManager.onDidChangeState(stateTracker);
+
+      await glcp.getCompletions(mockDocument, mockPosition);
+
+      expect(stateTracker).toHaveBeenCalledWith(CodeSuggestionsState.LOADING);
+      subscription.dispose();
+    });
+
+    it('sets state to ok on succesful request', async () => {
+      await glcp.getCompletions(mockDocument, mockPosition);
+      expect(stateManager.getState()).toBe(CodeSuggestionsState.OK);
+    });
+
+    it('sets state to error on failed request', async () => {
+      asMock(fetch).mockRejectedValueOnce(new Error());
+      await glcp.getCompletions(mockDocument, mockPosition);
+      expect(stateManager.getState()).toBe(CodeSuggestionsState.ERROR);
+    });
+
+    it('sets state to error when completion is requested with no active project', async () => {
+      asMock(manager.getForActiveProject).mockResolvedValueOnce(null);
+      await glcp.getCompletions(mockDocument, mockPosition);
+      expect(stateManager.getState()).toBe(CodeSuggestionsState.ERROR);
+    });
+  });
+
   describe('telemetry', () => {
     let glcp: CodeSuggestionsProvider;
 
     beforeEach(() => {
       codeSuggestionsTelemetry.resetCounts();
-      glcp = new CodeSuggestionsProvider(manager, true);
+      glcp = new CodeSuggestionsProvider({ manager, stateManager, noDebounce: true });
+    });
+
+    it('increases requests count for success request', async () => {
+      await glcp.getCompletions(mockDocument, mockPosition);
+      await glcp.getCompletions(mockDocument, mockPosition);
+      const headers = lastFetchCallHeaders();
+
+      // We are always sending previous amount of requests, so it is off-by-one
+      expect(headers[TELEMETRY_HEADER_REQUESTS]).toBe('1');
     });
 
     it('includes telemetry headers', async () => {

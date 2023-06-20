@@ -17,13 +17,29 @@ export class CodeSuggestions {
 
   providerDisposable?: vscode.Disposable;
 
+  activeTextEditorChangeDisposable?: vscode.Disposable;
+
   constructor(manager: GitLabPlatformManager) {
     this.statusBarItem = new CodeSuggestionsStatusBarItem(this.stateManager);
+
+    const updateCodeSuggestionsStateForEditor = (editor?: vscode.TextEditor) => {
+      if (!editor) return;
+
+      if (AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.includes(editor.document.languageId)) {
+        this.stateManager.setState(CodeSuggestionsState.OK);
+      } else {
+        this.stateManager.setState(CodeSuggestionsState.UNSUPPORTED_LANGUAGE);
+      }
+    };
 
     const register = () => {
       this.providerDisposable = vscode.languages.registerInlineCompletionItemProvider(
         AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.map(language => ({ language })),
-        new CodeSuggestionsProvider(manager),
+        new CodeSuggestionsProvider({ manager, stateManager: this.stateManager }),
+      );
+      updateCodeSuggestionsStateForEditor(vscode.window.activeTextEditor);
+      this.activeTextEditorChangeDisposable = vscode.window.onDidChangeActiveTextEditor(
+        updateCodeSuggestionsStateForEditor,
       );
     };
 
@@ -36,6 +52,7 @@ export class CodeSuggestions {
         log.debug('Disabling code completion');
         this.stateManager.setState(CodeSuggestionsState.DISABLED);
         this.providerDisposable?.dispose();
+        this.activeTextEditorChangeDisposable?.dispose();
       }
     };
 
@@ -50,5 +67,6 @@ export class CodeSuggestions {
   dispose() {
     this.statusBarItem?.dispose();
     this.providerDisposable?.dispose();
+    this.activeTextEditorChangeDisposable?.dispose();
   }
 }

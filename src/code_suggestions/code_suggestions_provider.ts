@@ -18,6 +18,7 @@ import {
   codeSuggestionsTelemetry,
 } from './code_suggestions_telemetry';
 import { GitLabProject } from '../desktop/gitlab/gitlab_project';
+import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_suggestions_state';
 
 export const CIRCUIT_BREAK_INTERVAL_MS = 10000;
 export const MAX_ERRORS_BEFORE_CIRCUIT_BREAK = 4;
@@ -62,17 +63,28 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
 
   private manager: GitLabPlatformManager;
 
+  private stateManager: CodeSuggestionsStateManager;
+
   private circuitBreaker = new CircuitBreaker(
     MAX_ERRORS_BEFORE_CIRCUIT_BREAK,
     CIRCUIT_BREAK_INTERVAL_MS,
   );
 
-  constructor(manager: GitLabPlatformManager, noDebounce = false) {
+  constructor({
+    manager,
+    stateManager,
+    noDebounce = false,
+  }: {
+    manager: GitLabPlatformManager;
+    stateManager: CodeSuggestionsStateManager;
+    noDebounce?: boolean;
+  }) {
     this.server = CodeSuggestionsProvider.#getServer();
     this.debouncedCall = undefined;
     this.noDebounce = noDebounce;
     this.tokenManager = new CodeSuggestionsTokenManager(manager);
     this.manager = manager;
+    this.stateManager = stateManager;
   }
 
   static #getServer(): string {
@@ -131,6 +143,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       log.warn(
         'AI Assist: could not obtain suggestions, there is no active project. Open GitLab project to continue',
       );
+      this.stateManager.setState(CodeSuggestionsState.ERROR);
       return [];
     }
     const prompt = CodeSuggestionsProvider.#getPrompt(document, position, platform);
@@ -148,7 +161,9 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     let response: CodeSuggestionsResponse;
 
     try {
+      this.stateManager.setState(CodeSuggestionsState.LOADING);
       response = await this.fetchCompletions(token, prompt);
+      this.stateManager.setState(CodeSuggestionsState.OK);
       this.circuitBreaker.success();
 
       // The previous counts were successfully sent...
@@ -156,6 +171,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     } catch (e) {
       log.error(`AI Assist: Error fetching completions: ${e.toString()}`);
       this.circuitBreaker.error();
+      this.stateManager.setState(CodeSuggestionsState.ERROR);
       codeSuggestionsTelemetry.incErrorCount();
       return [];
     } finally {

@@ -50,5 +50,14 @@ describe('CodeSuggestions', () => {
         expect(codeSuggestions.stateManager.setState).toHaveBeenCalledWith(codeSuggestionState);
       },
     );
+
+    it('sets state to unsupported when switching to document with unsupported language', () => {
+      const [[editorChangeListener]] = asMock(vscode.window.onDidChangeActiveTextEditor).mock.calls;
+      editorChangeListener({ document: { languageId: 'some-unsupported' } });
+
+      expect(codeSuggestions.stateManager.setState).toHaveBeenCalledWith(
+        CodeSuggestionsState.UNSUPPORTED_LANGUAGE,
+      );
+    });
   });
 });

@@ -2,7 +2,13 @@ import * as vscode from 'vscode';
 import { createStatusBarItem } from '../desktop/utils/create_status_bar_item';
 import { CodeSuggestionsStateManager, CodeSuggestionsState } from './code_suggestions_state';
 
-const CODE_SUGGESTIONS_STATUSES = {
+type CodeSuggestionsStatuses = Record<CodeSuggestionsState, { text: string; tooltip: string }>;
+
+const CODE_SUGGESTIONS_STATUSES: CodeSuggestionsStatuses = {
+  [CodeSuggestionsState.LOADING]: {
+    text: '$(gitlab-code-suggestions-loading)',
+    tooltip: 'Code suggestion is loading...',
+  },
   [CodeSuggestionsState.DISABLED]: {
     text: '$(gitlab-code-suggestions-disabled)',
     tooltip: 'Code suggestions are disabled',
@@ -10,6 +16,14 @@ const CODE_SUGGESTIONS_STATUSES = {
   [CodeSuggestionsState.OK]: {
     text: '$(gitlab-code-suggestions-enabled)',
     tooltip: 'Code suggestions are enabled',
+  },
+  [CodeSuggestionsState.ERROR]: {
+    text: '$(gitlab-code-suggestions-error)',
+    tooltip: 'There was an error fetching code suggestions. See extension logs',
+  },
+  [CodeSuggestionsState.UNSUPPORTED_LANGUAGE]: {
+    text: '$(gitlab-code-suggestions-disabled)',
+    tooltip: 'Code suggestions are not supported for this language',
   },
 };
 
