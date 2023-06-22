@@ -11,14 +11,10 @@ import { CodeSuggestionsTokenManager, CompletionToken } from './code_suggestions
 import { getUserAgentHeader } from '../desktop/gitlab/http/get_user_agent_header';
 import { CircuitBreaker } from './circuit_breaker';
 import { PROGRAMMATIC_COMMANDS } from '../desktop/command_names';
-import {
-  TELEMETRY_HEADER_ACCEPTS,
-  TELEMETRY_HEADER_ERRORS,
-  TELEMETRY_HEADER_REQUESTS,
-  codeSuggestionsTelemetry,
-} from './code_suggestions_telemetry';
+import { Model, Telemetry, codeSuggestionsTelemetry } from './code_suggestions_telemetry';
 import { GitLabProject } from '../common/platform/gitlab_project';
 import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_suggestions_state';
+import { prettyJson } from '../common/utils/json';
 
 export const CIRCUIT_BREAK_INTERVAL_MS = 10000;
 export const MAX_ERRORS_BEFORE_CIRCUIT_BREAK = 4;
@@ -31,7 +27,7 @@ interface Choice {
 
 interface CodeSuggestionsResponse {
   id: string;
-  model: string;
+  model: Model;
   object: string;
   created: number;
   choices: Choice[];
@@ -43,11 +39,13 @@ interface CurrentFile {
   content_below_cursor: string;
   file_name: string;
 }
+
 interface CodeSuggestionPrompt {
   current_file: CurrentFile;
   prompt_version: number;
   project_id?: number;
   project_path?: string;
+  telemetry: Telemetry[];
 }
 
 export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvider {
@@ -125,6 +123,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
         content_below_cursor: contentBelowCursor,
       },
       ...projectInfo,
+      telemetry: codeSuggestionsTelemetry.toArray(),
     };
 
     return payload;
@@ -156,14 +155,23 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       return [];
     }
 
-    log.debug(`AI Assist: fetching completions ...`);
+    log.debug(
+      `AI Assist: fetching completions ... (telemetry: ${prettyJson(
+        codeSuggestionsTelemetry.toArray(),
+        0,
+      )})`,
+    );
 
     let response: CodeSuggestionsResponse;
+    let model: Model = { engine: '', name: '' }; // Defaults for telemetry of failed requests
 
     try {
       this.stateManager.setState(CodeSuggestionsState.LOADING);
       response = await this.fetchCompletions(token, prompt);
       this.stateManager.setState(CodeSuggestionsState.OK);
+
+      if (response.model !== undefined) model = response.model;
+
       this.circuitBreaker.success();
 
       // The previous counts were successfully sent...
@@ -172,11 +180,11 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       log.error(`AI Assist: Error fetching completions: ${e.toString()}`);
       this.circuitBreaker.error();
       this.stateManager.setState(CodeSuggestionsState.ERROR);
-      codeSuggestionsTelemetry.incErrorCount();
+      codeSuggestionsTelemetry.incErrorCount(model);
       return [];
     } finally {
       // Keep track of this request for next send..
-      codeSuggestionsTelemetry.incRequestCount();
+      codeSuggestionsTelemetry.incRequestCount(model);
     }
 
     const choices = response.choices || [];
@@ -187,7 +195,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     const acceptedCommand: vscode.Command = {
       title: 'Code Suggestion Accepted',
       command: PROGRAMMATIC_COMMANDS.CODE_SUGGESTION_ACCEPTED,
-      arguments: [],
+      arguments: [model],
     };
 
     return choices.map(
@@ -227,8 +235,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     token: CompletionToken,
     prompt: CodeSuggestionPrompt,
   ): Promise<CodeSuggestionsResponse> {
-    const telemetryString = `requests:${codeSuggestionsTelemetry.requestCount}/errors:${codeSuggestionsTelemetry.errorCount}/accepts:${codeSuggestionsTelemetry.acceptCount}`;
-    log.debug(`AI Assist: fetching completions... (telemetry: ${telemetryString})`);
+    log.debug(`AI Assist: fetching completions...`);
 
     const requestOptions = {
       method: 'POST',
@@ -237,9 +244,6 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
         'X-Gitlab-Authentication-Type': 'oidc',
         Authorization: `Bearer ${token.access_token}`,
         'Content-Type': 'application/json',
-        [TELEMETRY_HEADER_REQUESTS]: codeSuggestionsTelemetry.requestCount.toString(),
-        [TELEMETRY_HEADER_ERRORS]: codeSuggestionsTelemetry.errorCount.toString(),
-        [TELEMETRY_HEADER_ACCEPTS]: codeSuggestionsTelemetry.acceptCount.toString(),
       },
       body: JSON.stringify(prompt),
     };

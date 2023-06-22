@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
-import { isDetailedError, prettyJson } from './errors/common';
+import { isDetailedError } from './errors/common';
+import { prettyJson } from './utils/json';
 import { getExtensionConfiguration } from './utils/extension_configuration';
 
 type logFunction = (line: string) => void;

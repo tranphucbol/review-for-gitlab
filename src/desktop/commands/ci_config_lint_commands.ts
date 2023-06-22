@@ -5,7 +5,7 @@ import { getGitLabService } from '../gitlab/get_gitlab_service';
 import { toMergedYamlUri } from '../ci/merged_yaml_uri';
 import { log } from '../../common/log';
 import { USER_COMMANDS } from '../command_names';
-import { prettyJson } from '../../common/errors/common';
+import { prettyJson } from '../../common/utils/json';
 
 export const validateCiConfig: ProjectCommand = async projectInRepository => {
   const editor = vscode.window.activeTextEditor;

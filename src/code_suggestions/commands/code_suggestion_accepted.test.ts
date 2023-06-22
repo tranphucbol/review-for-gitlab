@@ -3,8 +3,8 @@ import { codeSuggestionsTelemetry } from '../code_suggestions_telemetry';
 
 describe('code suggestion accepted command', () => {
   it('updates codeSuggestionsTelemetry with the correct value', async () => {
-    await codeSuggestionAccepted();
+    await codeSuggestionAccepted({ name: 'ensemble', engine: 'codegen' });
 
-    expect(codeSuggestionsTelemetry.acceptCount).toBe(1);
+    expect(codeSuggestionsTelemetry.toArray()[0].accepts).toBe(1);
   });
 });
