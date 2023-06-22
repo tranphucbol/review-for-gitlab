@@ -1,15 +1,11 @@
 import * as vscode from 'vscode';
 import fetch from '../desktop/gitlab/fetch_logged';
 
-import {
-  TELEMETRY_HEADER_REQUESTS,
-  TELEMETRY_HEADER_ERRORS,
-  TELEMETRY_HEADER_ACCEPTS,
-  codeSuggestionsTelemetry,
-} from './code_suggestions_telemetry';
+import { codeSuggestionsTelemetry } from './code_suggestions_telemetry';
 
 import { GitLabPlatformManager } from '../common/platform/gitlab_platform';
 import { project } from '../common/test_utils/entities';
+import { log } from '../common/log';
 import { asMock } from '../desktop/test_utils/as_mock';
 import { PROGRAMMATIC_COMMANDS } from '../desktop/command_names';
 import { CIRCUIT_BREAK_INTERVAL_MS, CodeSuggestionsProvider } from './code_suggestions_provider';
@@ -17,10 +13,11 @@ import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_sugges
 import { GitLabProject } from '../common/platform/gitlab_project';
 
 jest.mock('../desktop/gitlab/fetch_logged');
+jest.mock('../common/log');
 
 const crossFetchCallArgument = () => JSON.parse(asMock(fetch).mock.calls[0][1].body);
-const lastFetchCallHeaders = () =>
-  asMock(fetch).mock.calls[asMock(fetch).mock.calls.length - 1][1].headers;
+const lastFetchCallBody = () =>
+  JSON.parse(asMock(fetch).mock.calls[asMock(fetch).mock.calls.length - 1][1].body);
 
 const mockPrompt = 'const areaOfCube = ';
 const mockDocumentPartial: Partial<vscode.TextDocument> = {
@@ -30,7 +27,10 @@ const mockDocumentPartial: Partial<vscode.TextDocument> = {
 };
 const mockDocument = mockDocumentPartial as unknown as vscode.TextDocument;
 const choice = '(side) => ';
-const mockCompletions = { choices: [{ text: choice }] };
+const mockCompletions = {
+  choices: [{ text: choice }],
+  model: { name: 'ensemble', engine: 'codegen' },
+};
 
 const mockPosition = {
   line: 0,
@@ -221,30 +221,30 @@ describe('CodeSuggestionsProvider', () => {
     it('increases requests count for success request', async () => {
       await glcp.getCompletions(mockDocument, mockPosition);
       await glcp.getCompletions(mockDocument, mockPosition);
-      const headers = lastFetchCallHeaders();
+      const body = lastFetchCallBody();
 
       // We are always sending previous amount of requests, so it is off-by-one
-      expect(headers[TELEMETRY_HEADER_REQUESTS]).toBe('1');
+      expect(body.telemetry[0].requests).toBe(1);
     });
 
-    it('includes telemetry headers', async () => {
+    it('sends model information with the telemetry', async () => {
+      asMock(fetch).mockResolvedValue({ ok: true, json: async () => mockCompletions });
       await glcp.getCompletions(mockDocument, mockPosition);
-      const headers = lastFetchCallHeaders();
+      await glcp.getCompletions(mockDocument, mockPosition);
 
-      [TELEMETRY_HEADER_ACCEPTS, TELEMETRY_HEADER_ERRORS, TELEMETRY_HEADER_REQUESTS].forEach(
-        header => {
-          expect(headers).toHaveProperty(header);
-        },
-      );
+      const body = lastFetchCallBody();
+
+      expect(body.telemetry[0].model_engine).toBe('codegen');
+      expect(body.telemetry[0].model_name).toBe('ensemble');
     });
-
     it('increases requests count for success request', async () => {
       await glcp.getCompletions(mockDocument, mockPosition);
       await glcp.getCompletions(mockDocument, mockPosition);
-      const headers = lastFetchCallHeaders();
-
+      const body = lastFetchCallBody();
       // We are always sending previous amount of requests, so it is off-by-one
-      expect(headers[TELEMETRY_HEADER_REQUESTS]).toBe('1');
+      expect(body.telemetry[0].requests).toBe(1);
+      expect(body.telemetry[0].model_engine).toBe('codegen');
+      expect(body.telemetry[0].model_name).toBe('ensemble');
     });
 
     it('increases request count and request errors for failed requests', async () => {
@@ -252,10 +252,10 @@ describe('CodeSuggestionsProvider', () => {
       await glcp.getCompletions(mockDocument, mockPosition);
 
       await glcp.getCompletions(mockDocument, mockPosition);
-      const headers = lastFetchCallHeaders();
+      const body = lastFetchCallBody();
 
-      expect(headers[TELEMETRY_HEADER_REQUESTS]).toBe('1');
-      expect(headers[TELEMETRY_HEADER_ERRORS]).toBe('1');
+      expect(body.telemetry[0].requests).toBe(1);
+      expect(body.telemetry[0].errors).toBe(1);
     });
 
     it('does not reset request count and request errors for failed requests', async () => {
@@ -266,10 +266,10 @@ describe('CodeSuggestionsProvider', () => {
       await glcp.getCompletions(mockDocument, mockPosition);
 
       await glcp.getCompletions(mockDocument, mockPosition);
-      const headers = lastFetchCallHeaders();
+      const body = lastFetchCallBody();
 
-      expect(headers[TELEMETRY_HEADER_REQUESTS]).toBe('2');
-      expect(headers[TELEMETRY_HEADER_ERRORS]).toBe('2');
+      expect(body.telemetry[0].requests).toBe(2);
+      expect(body.telemetry[0].errors).toBe(2);
     });
 
     it('resets counters on successful requests', async () => {
@@ -278,10 +278,10 @@ describe('CodeSuggestionsProvider', () => {
 
       await glcp.getCompletions(mockDocument, mockPosition);
       await glcp.getCompletions(mockDocument, mockPosition);
-      const headers = lastFetchCallHeaders();
+      const body = lastFetchCallBody();
 
-      expect(headers[TELEMETRY_HEADER_REQUESTS]).toBe('1');
-      expect(headers[TELEMETRY_HEADER_ERRORS]).toBe('0');
+      expect(body.telemetry[0].requests).toBe(1);
+      expect(body.telemetry[0].errors).toBe(0);
     });
 
     it('includes correct command when completion is accepted', async () => {
@@ -292,12 +292,25 @@ describe('CodeSuggestionsProvider', () => {
     });
 
     it('sends correct accepted value when it is increased in telemetry', async () => {
-      codeSuggestionsTelemetry.incAcceptCount();
+      codeSuggestionsTelemetry.incAcceptCount({ name: 'testModel', engine: 'testEngine' });
       await glcp.getCompletions(mockDocument, mockPosition);
-      const headers = lastFetchCallHeaders();
+      const body = lastFetchCallBody();
 
-      expect(headers[TELEMETRY_HEADER_REQUESTS]).toBe('0');
-      expect(headers[TELEMETRY_HEADER_ACCEPTS]).toBe('1');
+      expect(body.telemetry[0].requests).toBe(0);
+      expect(body.telemetry[0].accepts).toBe(1);
+    });
+
+    describe('logging', () => {
+      const getLoggedMessage = () => jest.mocked(log.debug).mock.calls[1][0];
+
+      it('logs the telemetry details', async () => {
+        codeSuggestionsTelemetry.incAcceptCount({ name: 'testModel', engine: 'testEngine' });
+        await glcp.getCompletions(mockDocument, mockPosition);
+
+        expect(getLoggedMessage()).toContain(
+          'AI Assist: fetching completions ... (telemetry: [{"model_engine":"testEngine","model_name":"testModel","requests":0,"accepts":1,"errors":0}])',
+        );
+      });
     });
   });
 });

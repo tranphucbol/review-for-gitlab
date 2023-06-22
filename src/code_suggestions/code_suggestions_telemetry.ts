@@ -1,30 +1,58 @@
-export const TELEMETRY_HEADER_REQUESTS = 'X-GitLab-CS-Requests';
-export const TELEMETRY_HEADER_ERRORS = 'X-GitLab-CS-Errors';
-export const TELEMETRY_HEADER_ACCEPTS = 'X-GitLab-CS-Accepts';
+export interface Model {
+  engine: string;
+  name: string;
+}
+
+export interface Telemetry {
+  model_engine: string;
+  model_name: string;
+  requests: number;
+  accepts: number;
+  errors: number;
+}
+
+type ModelKey = string;
+
+const DELIMITER = '\u200B'; // zero width space minimises chance of conflict with model name or engine characters
+
+const modelToKey = (m: Model): ModelKey => `${m.engine}${DELIMITER}${m.name}`;
+
+const createEmptyTelemetry = (m: Model): Telemetry => ({
+  model_engine: m.engine,
+  model_name: m.name,
+  requests: 0,
+  accepts: 0,
+  errors: 0,
+});
 
 export class CodeSuggestionsTelemetry {
-  requestCount = 0;
+  #telemetryByModel: Record<ModelKey, Telemetry> = {};
 
-  errorCount = 0;
-
-  acceptCount = 0;
-
-  incRequestCount() {
-    this.requestCount += 1;
+  incRequestCount(model: Model) {
+    this.#getTelemetry(model).requests += 1;
   }
 
-  incErrorCount() {
-    this.errorCount += 1;
+  incErrorCount(model: Model) {
+    this.#getTelemetry(model).errors += 1;
   }
 
-  incAcceptCount() {
-    this.acceptCount += 1;
+  incAcceptCount(model: Model) {
+    this.#getTelemetry(model).accepts += 1;
   }
 
   resetCounts() {
-    this.requestCount = 0;
-    this.errorCount = 0;
-    this.acceptCount = 0;
+    this.#telemetryByModel = {};
+  }
+
+  #getTelemetry(model: Model) {
+    if (this.#telemetryByModel[modelToKey(model)] === undefined) {
+      this.#telemetryByModel[modelToKey(model)] = createEmptyTelemetry(model);
+    }
+    return this.#telemetryByModel[modelToKey(model)];
+  }
+
+  toArray() {
+    return Object.values(this.#telemetryByModel);
   }
 }
 
