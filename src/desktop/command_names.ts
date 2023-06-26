@@ -67,7 +67,6 @@ export const USER_COMMANDS = {
 export const PROGRAMMATIC_COMMANDS = {
   SHOW_RICH_CONTENT: 'gl.showRichContent',
   NO_IMAGE_REVIEW: 'gl.noImageReview',
-  CODE_SUGGESTION_ACCEPTED: 'gl.codeSuggestionAccepted',
 };
 
 export const VS_COMMANDS = {

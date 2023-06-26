@@ -1,10 +1,6 @@
 import * as vscode from 'vscode';
 
 export const getUserAgentHeader = (): Record<string, string> => {
-  // browser ignores user agent header, we don't have to construct it
-  if (typeof process === 'undefined') {
-    return {};
-  }
   const extension = vscode.extensions.getExtension('GitLab.gitlab-workflow');
   const extensionVersion = extension?.packageJSON?.version;
   const nodePlatform = `Node.js/${process.version.substr(1)} (${process.platform}; ${

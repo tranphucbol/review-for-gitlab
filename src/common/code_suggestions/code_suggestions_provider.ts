@@ -1,20 +1,19 @@
 import * as vscode from 'vscode';
-import fetch from '../desktop/gitlab/fetch_logged';
-import { log } from '../common/log';
+import fetch from '../fetch_logged';
+import { log } from '../log';
+import { GITLAB_COM_URL } from '../constants';
+import { GitLabPlatform, GitLabPlatformManager } from '../platform/gitlab_platform';
+import { CodeSuggestionsTokenManager, CompletionToken } from './code_suggestions_token_manager';
+import { CircuitBreaker } from './circuit_breaker';
+import { Model, Telemetry, codeSuggestionsTelemetry } from './code_suggestions_telemetry';
+import { GitLabProject } from '../platform/gitlab_project';
+import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_suggestions_state';
 import {
   AI_ASSISTED_CODE_SUGGESTIONS_API_URL,
   AI_ASSISTED_CODE_SUGGESTIONS_LINES_BELOW_CURSOR,
-  GITLAB_COM_URL,
-} from '../desktop/constants';
-import { GitLabPlatform, GitLabPlatformManager } from '../common/platform/gitlab_platform';
-import { CodeSuggestionsTokenManager, CompletionToken } from './code_suggestions_token_manager';
-import { getUserAgentHeader } from '../desktop/gitlab/http/get_user_agent_header';
-import { CircuitBreaker } from './circuit_breaker';
-import { PROGRAMMATIC_COMMANDS } from '../desktop/command_names';
-import { Model, Telemetry, codeSuggestionsTelemetry } from './code_suggestions_telemetry';
-import { GitLabProject } from '../common/platform/gitlab_project';
-import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_suggestions_state';
-import { prettyJson } from '../common/utils/json';
+} from './constants';
+import { prettyJson } from '../utils/json';
+import { COMMAND_CODE_SUGGESTION_ACCEPTED } from './commands/code_suggestion_accepted';
 
 export const CIRCUIT_BREAK_INTERVAL_MS = 10000;
 export const MAX_ERRORS_BEFORE_CIRCUIT_BREAK = 4;
@@ -167,7 +166,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
 
     try {
       this.stateManager.setState(CodeSuggestionsState.LOADING);
-      response = await this.fetchCompletions(token, prompt);
+      response = await this.fetchCompletions(platform, token, prompt);
       this.stateManager.setState(CodeSuggestionsState.OK);
 
       if (response.model !== undefined) model = response.model;
@@ -194,7 +193,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     // This command will be called when a suggestion is accepted
     const acceptedCommand: vscode.Command = {
       title: 'Code Suggestion Accepted',
-      command: PROGRAMMATIC_COMMANDS.CODE_SUGGESTION_ACCEPTED,
+      command: COMMAND_CODE_SUGGESTION_ACCEPTED,
       arguments: [model],
     };
 
@@ -232,6 +231,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
   }
 
   async fetchCompletions(
+    platform: GitLabPlatform,
     token: CompletionToken,
     prompt: CodeSuggestionPrompt,
   ): Promise<CodeSuggestionsResponse> {
@@ -240,7 +240,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     const requestOptions = {
       method: 'POST',
       headers: {
-        ...getUserAgentHeader(),
+        ...platform.getUserAgentHeader(),
         'X-Gitlab-Authentication-Type': 'oidc',
         Authorization: `Bearer ${token.access_token}`,
         'Content-Type': 'application/json',

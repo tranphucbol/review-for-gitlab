@@ -3,7 +3,7 @@ import { ProjectCommand } from './commands/run_with_valid_project';
 import { GitLabProject } from '../common/platform/gitlab_project';
 import * as openers from './commands/openers';
 import { createQueryString } from './utils/create_query_string';
-import { GITLAB_COM_URL } from './constants';
+import { GITLAB_COM_URL } from '../common/constants';
 
 type SearchLevel = 'project' | 'instance';
 

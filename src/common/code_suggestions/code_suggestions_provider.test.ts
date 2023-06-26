@@ -1,19 +1,23 @@
 import * as vscode from 'vscode';
-import fetch from '../desktop/gitlab/fetch_logged';
+import fetch from '../fetch_logged';
 
 import { codeSuggestionsTelemetry } from './code_suggestions_telemetry';
 
-import { GitLabPlatformManager } from '../common/platform/gitlab_platform';
-import { project } from '../common/test_utils/entities';
-import { log } from '../common/log';
-import { asMock } from '../desktop/test_utils/as_mock';
-import { PROGRAMMATIC_COMMANDS } from '../desktop/command_names';
+import { GitLabPlatformManager } from '../platform/gitlab_platform';
+import { project } from '../test_utils/entities';
+import { log } from '../log';
 import { CIRCUIT_BREAK_INTERVAL_MS, CodeSuggestionsProvider } from './code_suggestions_provider';
 import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_suggestions_state';
-import { GitLabProject } from '../common/platform/gitlab_project';
+import { GitLabProject } from '../platform/gitlab_project';
+import { COMMAND_CODE_SUGGESTION_ACCEPTED } from './commands/code_suggestion_accepted';
 
-jest.mock('../desktop/gitlab/fetch_logged');
-jest.mock('../common/log');
+jest.mock('../log');
+jest.mock('../fetch_logged');
+
+/**
+ * @deprecated use jest.mocked() instead
+ */
+const asMock = (mockFn: unknown) => mockFn as jest.Mock;
 
 const crossFetchCallArgument = () => JSON.parse(asMock(fetch).mock.calls[0][1].body);
 const lastFetchCallBody = () =>
@@ -47,6 +51,7 @@ function createManager(project: GitLabProject): GitLabPlatformManager {
           expires_in: 0,
           created_at: 0,
         } as unknown as T),
+      getUserAgentHeader: () => ({}),
     })),
   };
 }
@@ -288,7 +293,7 @@ describe('CodeSuggestionsProvider', () => {
       glcp.fetchCompletions = jest.fn().mockResolvedValue(mockCompletions);
 
       const [completion] = await glcp.getCompletions(mockDocument, mockPosition);
-      expect(completion.command?.command).toBe(PROGRAMMATIC_COMMANDS.CODE_SUGGESTION_ACCEPTED);
+      expect(completion.command?.command).toBe(COMMAND_CODE_SUGGESTION_ACCEPTED);
     });
 
     it('sends correct accepted value when it is increased in telemetry', async () => {

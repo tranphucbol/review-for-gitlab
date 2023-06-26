@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import { CodeSuggestionsStatusBarItem } from './code_suggestions_status_bar_item';
 import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_suggestions_state';
-import { asMock } from '../desktop/test_utils/as_mock';
 
 jest.mock('./code_suggestions');
 
@@ -18,7 +17,7 @@ describe('code suggestions status bar item', () => {
   let codeSuggestionsStatusBarItem: CodeSuggestionsStatusBarItem;
 
   beforeEach(() => {
-    asMock(vscode.window.createStatusBarItem).mockImplementation(() => {
+    jest.mocked(vscode.window.createStatusBarItem).mockImplementation(() => {
       fakeStatusBarItem = createFakeItem();
       return fakeStatusBarItem;
     });

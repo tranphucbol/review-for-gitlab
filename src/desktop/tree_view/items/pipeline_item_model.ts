@@ -4,7 +4,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { getJobMetadata, getPipelineMetadata } from '../../gitlab/ci_status_metadata';
 import { ItemModel } from './item_model';
 import { StageItemModel } from './stage_item_model';
-import { compareBy } from '../../utils/compare_by';
+import { compareBy } from '../../../common/utils/compare_by';
 import { hasDownloadableArtifacts } from '../../utils/has_downloadable_artifacts';
 import { JobProvider } from './job_provider';
 import { PipelineProvider } from './pipeline_provider';

@@ -4,7 +4,7 @@ import * as openers from './commands/openers';
 import { PROGRAMMATIC_COMMANDS, USER_COMMANDS } from './command_names';
 import { currentBranchRefresher, TreeState } from './current_branch_refresher';
 import { ProjectInRepository } from './gitlab/new_project';
-import { createStatusBarItem } from './utils/create_status_bar_item';
+import { createStatusBarItem } from '../common/utils/create_status_bar_item';
 
 // FIXME: if you are touching this configuration statement, move the configuration to extension_configuration.ts
 const {

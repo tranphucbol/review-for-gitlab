@@ -1,5 +1,5 @@
 import crossFetch from 'cross-fetch';
-import { log } from '../../common/log';
+import { log } from './log';
 
 function extractURL(input: RequestInfo | URL): string {
   if (input instanceof URL) {

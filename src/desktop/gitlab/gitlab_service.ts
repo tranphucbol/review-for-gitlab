@@ -3,7 +3,7 @@ import { GraphQLClient, gql, Variables, RequestDocument } from 'graphql-request'
 import { URL } from 'url';
 import createHttpProxyAgent from 'https-proxy-agent';
 import assert from 'assert';
-import fetch from './fetch_logged';
+import fetch from '../../common/fetch_logged';
 import { FetchError } from '../errors/fetch_error';
 import { getUserAgentHeader } from './http/get_user_agent_header';
 import { ensureAbsoluteAvatarUrl } from './ensure_absolute_avatar_url';

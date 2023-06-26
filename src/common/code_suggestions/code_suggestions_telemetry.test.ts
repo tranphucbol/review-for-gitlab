@@ -1,4 +1,4 @@
-import { compareBy } from '../desktop/utils/compare_by';
+import { compareBy } from '../utils/compare_by';
 import { CodeSuggestionsTelemetry, Model, Telemetry } from './code_suggestions_telemetry';
 
 describe('CodeSuggestionsTelemetry', () => {
