@@ -8,6 +8,12 @@ export interface GitLabPlatform {
   project: GitLabProject;
 
   fetchFromApi: fetchFromApi;
+
+  /**
+   * What user agent should be used for API calls that are not made to GitLab API
+   * (e.g. when calling Model Gateway for code suggestions)
+   */
+  getUserAgentHeader(): Record<string, string>;
 }
 
 export interface GitLabPlatformManager {

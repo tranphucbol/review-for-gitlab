@@ -7,7 +7,8 @@ import { GitLabUriHandler, gitlabUriHandler } from '../../gitlab_uri_handler';
 import { accountService, AccountService } from '../account_service';
 import { OAuthAccount } from '../account';
 import { sort } from '../../utils/sort';
-import { GITLAB_COM_URL, OAUTH_CLIENT_ID, OAUTH_REDIRECT_URI } from '../../constants';
+import { OAUTH_CLIENT_ID, OAUTH_REDIRECT_URI } from '../../constants';
+import { GITLAB_COM_URL } from '../../../common/constants';
 import { generateSecret } from '../../utils/generate_secret';
 import { TokenExchangeService, tokenExchangeService } from '../../gitlab/token_exchange_service';
 

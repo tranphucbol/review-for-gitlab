@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
-import { GitLabPlatformManager } from '../common/platform/gitlab_platform';
-import { project } from '../common/test_utils/entities';
-import { asMock } from '../desktop/test_utils/as_mock';
+import { GitLabPlatformManager } from '../platform/gitlab_platform';
+import { project } from '../test_utils/entities';
 import { CodeSuggestions } from './code_suggestions';
 import { CodeSuggestionsState } from './code_suggestions_state';
 
@@ -17,6 +16,7 @@ const manager: GitLabPlatformManager = {
         expires_in: 0,
         created_at: 0,
       } as unknown as T),
+    getUserAgentHeader: () => ({}),
   }),
 };
 
@@ -39,12 +39,13 @@ describe('CodeSuggestions', () => {
     `(
       'sets state to $codeSuggestionState when code suggestions setting is $isEnabledInSettings',
       ({ isEnabledInSettings, codeSuggestionState }) => {
-        asMock(vscode.workspace.getConfiguration).mockReturnValue({
+        jest.mocked(vscode.workspace.getConfiguration).mockReturnValue({
           enabled: isEnabledInSettings,
-        });
+        } as unknown as vscode.WorkspaceConfiguration);
 
-        const [[configurationChangeListener]] = asMock(vscode.workspace.onDidChangeConfiguration)
-          .mock.calls;
+        const [[configurationChangeListener]] = jest.mocked(
+          vscode.workspace.onDidChangeConfiguration,
+        ).mock.calls;
         configurationChangeListener({ affectsConfiguration: () => true });
 
         expect(codeSuggestions.stateManager.setState).toHaveBeenCalledWith(codeSuggestionState);
@@ -52,8 +53,11 @@ describe('CodeSuggestions', () => {
     );
 
     it('sets state to unsupported when switching to document with unsupported language', () => {
-      const [[editorChangeListener]] = asMock(vscode.window.onDidChangeActiveTextEditor).mock.calls;
-      editorChangeListener({ document: { languageId: 'some-unsupported' } });
+      const [[editorChangeListener]] = jest.mocked(vscode.window.onDidChangeActiveTextEditor).mock
+        .calls;
+      editorChangeListener({
+        document: { languageId: 'some-unsupported' },
+      } as unknown as vscode.TextEditor);
 
       expect(codeSuggestions.stateManager.setState).toHaveBeenCalledWith(
         CodeSuggestionsState.UNSUPPORTED_LANGUAGE,

@@ -33,6 +33,9 @@ export const createGitLabPlatformManagerBrowser: () => Promise<GitLabPlatformMan
         Promise.resolve({
           project: gitLabProject,
           fetchFromApi,
+          // browser won't let us change User-Agent header
+          // so we don't have to construct it
+          getUserAgentHeader: () => ({}),
         }),
     };
   };

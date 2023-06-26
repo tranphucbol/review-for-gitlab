@@ -3,41 +3,11 @@ import vscode from 'vscode';
 // Feature Flags
 export const SECURITY_SCANS_FEATURE_FLAG = 'securityScansFlag';
 
-export const GITLAB_COM_URL = 'https://gitlab.com';
 export const REVIEW_URI_SCHEME = 'gl-review';
 export const MERGED_YAML_URI_SCHEME = 'gl-merged-ci-yaml';
 export const JOB_LOG_URI_SCHEME = 'gl-job-log';
 export const REMOTE_URI_SCHEME = 'gitlab-remote';
-export const AI_ASSISTED_CODE_SUGGESTIONS_API_URL =
-  'https://codesuggestions.gitlab.com/v2/completions';
-export const AI_ASSISTED_CODE_SUGGESTIONS_LINES_BELOW_CURSOR = 10;
-// this list matches predefined list in the model gateway
-// https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/blob/main/codesuggestions/suggestions/prompt.py#L29-44
-export const AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES = [
-  'c',
-  'cpp',
-  'csharp',
-  'go',
-  'java',
-  'javascript',
-  'javascriptreact',
-  'kotlin',
-  'python',
-  'php',
-  'ruby',
-  'rust',
-  'scala',
-  'typescript',
-  'typescriptreact',
-  // Following languages are not explicitly supported by the model gateway but we add them
-  // to have at least some autocomplete
-  // See https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/781 for details
-  'erb',
-  'haml',
-  'handlebars',
-  'svelte',
-  'vue',
-];
+
 export const ADDED = 'added';
 export const DELETED = 'deleted';
 export const RENAMED = 'renamed';

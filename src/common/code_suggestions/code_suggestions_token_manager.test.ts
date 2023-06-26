@@ -1,5 +1,5 @@
-import { GitLabPlatformManager } from '../common/platform/gitlab_platform';
-import { project } from '../common/test_utils/entities';
+import { GitLabPlatformManager } from '../platform/gitlab_platform';
+import { project } from '../test_utils/entities';
 import { CodeSuggestionsTokenManager, CompletionToken } from './code_suggestions_token_manager';
 
 describe('CodeSuggestionsTokenManager', () => {
@@ -12,6 +12,7 @@ describe('CodeSuggestionsTokenManager', () => {
         getForActiveProject: async () => ({
           project,
           fetchFromApi: makeApiRequest,
+          getUserAgentHeader: () => ({}),
         }),
       };
     };

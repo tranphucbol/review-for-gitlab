@@ -1,5 +1,5 @@
 import vscode from 'vscode';
-import { GITLAB_COM_URL } from './constants';
+import { GITLAB_COM_URL } from '../common/constants';
 import { makeAccountId } from './accounts/account';
 import { accountService } from './accounts/account_service';
 import { getUserForCredentialsOrFail } from './accounts/get_user_for_credentials_or_fail';

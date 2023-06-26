@@ -2,6 +2,7 @@ import { getActiveProject, getActiveProjectOrSelectOne } from '../commands/run_w
 import { getGitLabService } from './get_gitlab_service';
 import { GitLabPlatformManager } from '../../common/platform/gitlab_platform';
 import { ProjectInRepository } from './new_project';
+import { getUserAgentHeader } from './http/get_user_agent_header';
 
 const getProjectInRepository = async (userInitiated: boolean) => {
   let projectInRepository: ProjectInRepository | undefined;
@@ -23,6 +24,7 @@ export const gitlabPlatformManagerDesktop: GitLabPlatformManager = {
     return {
       project: projectInRepository.project,
       fetchFromApi: async req => getGitLabService(projectInRepository).fetchFromApi(req),
+      getUserAgentHeader,
     };
   },
 };

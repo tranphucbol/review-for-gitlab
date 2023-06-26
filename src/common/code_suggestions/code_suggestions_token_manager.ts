@@ -1,5 +1,5 @@
-import { PostRequest } from '../common/platform/web_ide';
-import { GitLabPlatformManager } from '../common/platform/gitlab_platform';
+import { PostRequest } from '../platform/web_ide';
+import { GitLabPlatformManager } from '../platform/gitlab_platform';
 
 export interface CompletionToken {
   access_token: string;

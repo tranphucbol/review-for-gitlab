@@ -1,8 +1,8 @@
 import { GraphQLClient } from 'graphql-request';
-import fetch from './fetch_logged';
+import fetch from '../../common/fetch_logged';
 import { GitLabService } from './gitlab_service';
 import { testSnippet1 } from '../../../test/integration/fixtures/graphql/snippets.js';
-import { DEFAULT_FETCH_RESPONSE } from './__mocks__/fetch_logged';
+import { DEFAULT_FETCH_RESPONSE } from '../../common/__mocks__/fetch_logged';
 import { CustomQueryType } from '../../common/gitlab/custom_query_type';
 import { CustomQuery } from '../../common/gitlab/custom_query';
 import { asMock } from '../test_utils/as_mock';
@@ -16,7 +16,7 @@ import { gqlProject, project } from '../../common/test_utils/entities';
 
 jest.mock('graphql-request');
 jest.mock('../accounts/account_service');
-jest.mock('./fetch_logged');
+jest.mock('../../common/fetch_logged');
 jest.mock('../../common/utils/extension_configuration');
 jest.mock('./http/get_http_agent_options');
 

@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { Account, makeAccountId, OAuthAccount, serializeAccountSafe } from '../accounts/account';
 import { accountService, AccountService } from '../accounts/account_service';
-import { GITLAB_COM_URL } from '../constants';
+import { GITLAB_COM_URL } from '../../common/constants';
 import { log } from '../../common/log';
 import {
   AuthorizationCodeTokenExchangeParams,

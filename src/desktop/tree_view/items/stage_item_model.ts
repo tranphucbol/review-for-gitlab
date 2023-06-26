@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { getJobMetadata } from '../../gitlab/ci_status_metadata';
-import { compareBy } from '../../utils/compare_by';
+import { compareBy } from '../../../common/utils/compare_by';
 import { JobItemModel } from './job_item_model';
 import { ItemModel } from './item_model';
 import { JobProvider } from './job_provider';

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { CONFIG_NAMESPACE, AI_ASSISTED_CODE_SUGGESTIONS_CONFIG_NAMESPACE } from '../constants';
+import { CONFIG_NAMESPACE } from '../constants';
+import { AI_ASSISTED_CODE_SUGGESTIONS_CONFIG_NAMESPACE } from '../code_suggestions/constants';
 import { CustomQuery } from '../gitlab/custom_query';
 
 // These constants represent `settings.json` keys. Other constants belong to `constants.ts`.
