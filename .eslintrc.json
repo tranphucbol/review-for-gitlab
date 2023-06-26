@@ -16,6 +16,18 @@
   "rules": {
     "no-console": "off",
     "no-return-await": "off",
+    "import/no-restricted-paths": [
+      "error",
+      {
+        "zones": [
+          {
+            "target": "src/common/**",
+            "from": ["src/desktop/**", "src/browser/**"],
+            "message": "Code in src/common can't import desktop-specific or browser-specific code."
+          }
+        ]
+      }
+    ],
     "import/no-unresolved": [
       2,
       {
