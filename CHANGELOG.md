@@ -5,6 +5,7 @@
 
 * git clone not working for projects without repositories ([436b073](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/436b07316ff85c2b51ae89ffe813c68d215bed92))
 * running job SVG is not showing ([0c28696](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/0c286967ae2e28f4e342f38b1f74fad370a0f15c))
+  * Fixed by [Lennard Sprong](https://gitlab.com/X_Sheep) with [MR !857](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/857) 👍
 
 
 ### Features
