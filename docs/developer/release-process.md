@@ -6,13 +6,21 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 # Release process
 
+We release irregularly (see the dates in the [CHANGELOG](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/CHANGELOG.md)).
+
+We release when there is a fix or user facing feature that will provide value to the users.
+
+If there are multiple features/fixes, we try to release no more than once per week. This is because part of the release is a manual process.
+
+## Perform release
+
 Perform the following steps to release a new version of the extension.
 
 1. (Optional.) Do a quick test of the extension in your local development. At this stage, you
    are only verifying there is no complete failure of the extension.
 1. Update the package version in `npm version <type>`. This automatically generates a changelog entry. Specify the `type` as:
-   - `patch` - if you only released bugfixes
-   - `minor` - if you released ane new `feature: `
+   - `patch` - if you only released bug fixes
+   - `minor` - if you released any new `feature: `
    - `major` - we haven't changed major version yet, do this if you introduce severe breaking changes
 1. If there have been community contributions:
 
@@ -22,10 +30,10 @@ Perform the following steps to release a new version of the extension.
       (Implemented|Fixed) by [@flood4life](https://gitlab.com/flood4life) with [MR !90](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/90) 👍
       ```
 
-1. Run the command `git push origin main` and `git push --tags`.
+1. Run the command `git push origin main` and `git push origin v3.65.0` (assuming you created version `3.65.0`).
 1. Trigger the **Publish** steps (`publish_marketplace` and `publish_open_vsx`) on the tag pipeline that you created by pushing the new tag.
 1. When the extension updates in your VS Code, check that the extension works.
-1. Add a message to our `#f_vscode_extension` slack channel:
+1. Add a message to our `#f_vscode_extension` slack channel (replace `3.0.0` with the released version):
 
    ```plaintext
    :vscode:  [GitLab Workflow](https://marketplace.visualstudio.com/items?itemName=gitlab.gitlab-workflow) `3.0.0` has been released :rocket:
