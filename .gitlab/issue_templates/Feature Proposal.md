@@ -4,7 +4,7 @@ Please read this!
 Before opening a new issue, make sure to search for keywords in the issues
 filtered by the "feature" label:
 
-- https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues?label_name%5B%5D=feature
+- https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues?label_name%5B%5D=type%3A%3Afeature
 
 and verify the issue you're about to submit isn't a duplicate.
 --->
