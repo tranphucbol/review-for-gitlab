@@ -14,7 +14,7 @@ This document describes how we make changes to the extension. For contributing g
 
 ## Who reviews the changes?
 
-**Any member of the Create:Code Review team** (either [FE](https://about.gitlab.com/handbook/engineering/development/dev/create-code-review-fe/) or [BE](https://about.gitlab.com/handbook/engineering/development/dev/create-code-review-be/)) can review a change (MR). Each MR should have at least one review. At the moment, we don't want to have any more complexity in the process to speed up the development. The review is mainly for knowledge sharing and sanity checking. It's not a full sign off the same way a maintainer would sign off a change to the [`gitlab-org/gitlab`](https://gitlab.com/gitlab-org/gitlab/) project.
+Project [reviewer or maintainer](https://gitlab-org.gitlab.io/gitlab-roulette/?currentProject=gitlab-vscode-extension). Each MR should have at least one review. Any maintainer can merge the MR. At the moment, we don't want to have any more complexity in the process to speed up the development. The review is mainly for knowledge sharing and sanity checking.
 
 ## Who releases the changes?
 
