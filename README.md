@@ -331,12 +331,12 @@ suggestions as you type. To learn more about this feature, see the
 [Code Suggestions documentation](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html#enable-code-suggestions-in-vs-code).
 
 This feature is in
-[Open Beta](/ee/policy/alpha-beta-support.md#open-beta-features).
+[Beta](https://docs.gitlab.com/ee/policy/experiment-beta-support.html#beta).
 Code Suggestions use generative AI to suggest code while you're developing.
 Due to high demand, this feature will have unscheduled downtime and
 suggestions in VS Code may be delayed. Code Suggestions may produce
-[low-quality or incomplete suggestions](#model-accuracy-and-quality).
-Beta users should read about the [known limitations](#known-limitations).
+[low-quality or incomplete suggestions](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html#model-accuracy-and-quality).
+Beta users should read about the [known limitations](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html#known-limitations).
 
 Report issues in the
 [feedback issue](https://gitlab.com/gitlab-org/gitlab/-/issues/405152).
