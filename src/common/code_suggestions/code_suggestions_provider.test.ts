@@ -57,8 +57,13 @@ function createManager(project: GitLabProject): GitLabPlatformManager {
 }
 
 const manager = createManager(project);
+const cancellationToken = new vscode.CancellationTokenSource().token;
 
 const stateManager = new CodeSuggestionsStateManager();
+
+function getCompletionsWithDefaultArgs(glcp: CodeSuggestionsProvider) {
+  return glcp.getCompletions({ document: mockDocument, position: mockPosition, cancellationToken });
+}
 
 describe('CodeSuggestionsProvider', () => {
   const testDocument = {
@@ -88,7 +93,7 @@ describe('CodeSuggestionsProvider', () => {
 
     it('should construct a payload with line above, line below, file name, prompt version, project id and path', async () => {
       const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({ manager, stateManager });
-      await glcp.getCompletions(testDocument, position);
+      await glcp.getCompletions({ document: testDocument, position, cancellationToken });
 
       const inputBody = crossFetchCallArgument();
 
@@ -104,7 +109,7 @@ describe('CodeSuggestionsProvider', () => {
     it('should not send project id and path unless targeting SaaS', async () => {
       const manager = createManager(projectForSelfManaged);
       const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({ manager, stateManager });
-      await glcp.getCompletions(testDocument, position);
+      await glcp.getCompletions({ document: testDocument, position, cancellationToken });
 
       const inputBody = crossFetchCallArgument();
 
@@ -129,7 +134,12 @@ describe('CodeSuggestionsProvider', () => {
       glcp.getCompletions = jest.fn().mockResolvedValue(mockInlineCompletions);
 
       jest.runAllTimers();
-      await glcp.provideInlineCompletionItems(mockDocument, mockPosition, mockContext);
+      await glcp.provideInlineCompletionItems(
+        mockDocument,
+        mockPosition,
+        mockContext,
+        cancellationToken,
+      );
       jest.runAllTimers();
 
       expect(glcp.getCompletions).toHaveBeenCalled();
@@ -139,10 +149,10 @@ describe('CodeSuggestionsProvider', () => {
 
   describe(`circuit breaking`, () => {
     const turnOnCircuitBreaker = async (glcp: CodeSuggestionsProvider) => {
-      await glcp.getCompletions(mockDocument, mockPosition);
-      await glcp.getCompletions(mockDocument, mockPosition);
-      await glcp.getCompletions(mockDocument, mockPosition);
-      await glcp.getCompletions(mockDocument, mockPosition);
+      await getCompletionsWithDefaultArgs(glcp);
+      await getCompletionsWithDefaultArgs(glcp);
+      await getCompletionsWithDefaultArgs(glcp);
+      await getCompletionsWithDefaultArgs(glcp);
     };
 
     it(`starts breaking after 4 errors`, async () => {
@@ -154,7 +164,7 @@ describe('CodeSuggestionsProvider', () => {
 
       glcp.fetchCompletions = jest.fn().mockResolvedValue(mockCompletions);
 
-      const result = await glcp.getCompletions(mockDocument, mockPosition);
+      const result = await getCompletionsWithDefaultArgs(glcp);
       expect(result).toEqual([]);
       expect(glcp.fetchCompletions).not.toHaveBeenCalled();
     });
@@ -172,7 +182,7 @@ describe('CodeSuggestionsProvider', () => {
 
         glcp.fetchCompletions = jest.fn().mockResolvedValue(mockCompletions);
 
-        await glcp.getCompletions(mockDocument, mockPosition);
+        await getCompletionsWithDefaultArgs(glcp);
 
         expect(glcp.fetchCompletions).toHaveBeenCalled();
       });
@@ -191,26 +201,26 @@ describe('CodeSuggestionsProvider', () => {
       const stateTracker = jest.fn();
       const subscription = stateManager.onDidChangeState(stateTracker);
 
-      await glcp.getCompletions(mockDocument, mockPosition);
+      await getCompletionsWithDefaultArgs(glcp);
 
       expect(stateTracker).toHaveBeenCalledWith(CodeSuggestionsState.LOADING);
       subscription.dispose();
     });
 
     it('sets state to ok on succesful request', async () => {
-      await glcp.getCompletions(mockDocument, mockPosition);
+      await getCompletionsWithDefaultArgs(glcp);
       expect(stateManager.getState()).toBe(CodeSuggestionsState.OK);
     });
 
     it('sets state to error on failed request', async () => {
       asMock(fetch).mockRejectedValueOnce(new Error());
-      await glcp.getCompletions(mockDocument, mockPosition);
+      await getCompletionsWithDefaultArgs(glcp);
       expect(stateManager.getState()).toBe(CodeSuggestionsState.ERROR);
     });
 
     it('sets state to error when completion is requested with no active project', async () => {
       asMock(manager.getForActiveProject).mockResolvedValueOnce(null);
-      await glcp.getCompletions(mockDocument, mockPosition);
+      await getCompletionsWithDefaultArgs(glcp);
       expect(stateManager.getState()).toBe(CodeSuggestionsState.ERROR);
     });
   });
@@ -224,18 +234,35 @@ describe('CodeSuggestionsProvider', () => {
     });
 
     it('increases requests count for success request', async () => {
-      await glcp.getCompletions(mockDocument, mockPosition);
-      await glcp.getCompletions(mockDocument, mockPosition);
+      await getCompletionsWithDefaultArgs(glcp);
+      await getCompletionsWithDefaultArgs(glcp);
       const body = lastFetchCallBody();
 
       // We are always sending previous amount of requests, so it is off-by-one
       expect(body.telemetry[0].requests).toBe(1);
     });
 
+    it('does not increase requests count for cancelled success request', async () => {
+      const tokenSource = new vscode.CancellationTokenSource();
+      tokenSource.cancel();
+      const { token: cancelledToken } = tokenSource;
+
+      await glcp.getCompletions({
+        document: mockDocument,
+        position: mockPosition,
+        cancellationToken: cancelledToken,
+      });
+
+      await getCompletionsWithDefaultArgs(glcp);
+      const body = lastFetchCallBody();
+
+      expect(body.telemetry).toHaveLength(0);
+    });
+
     it('sends model information with the telemetry', async () => {
       asMock(fetch).mockResolvedValue({ ok: true, json: async () => mockCompletions });
-      await glcp.getCompletions(mockDocument, mockPosition);
-      await glcp.getCompletions(mockDocument, mockPosition);
+      await getCompletionsWithDefaultArgs(glcp);
+      await getCompletionsWithDefaultArgs(glcp);
 
       const body = lastFetchCallBody();
 
@@ -243,8 +270,8 @@ describe('CodeSuggestionsProvider', () => {
       expect(body.telemetry[0].model_name).toBe('ensemble');
     });
     it('increases requests count for success request', async () => {
-      await glcp.getCompletions(mockDocument, mockPosition);
-      await glcp.getCompletions(mockDocument, mockPosition);
+      await getCompletionsWithDefaultArgs(glcp);
+      await getCompletionsWithDefaultArgs(glcp);
       const body = lastFetchCallBody();
       // We are always sending previous amount of requests, so it is off-by-one
       expect(body.telemetry[0].requests).toBe(1);
@@ -254,9 +281,28 @@ describe('CodeSuggestionsProvider', () => {
 
     it('increases request count and request errors for failed requests', async () => {
       asMock(fetch).mockRejectedValueOnce(new Error());
-      await glcp.getCompletions(mockDocument, mockPosition);
+      await getCompletionsWithDefaultArgs(glcp);
 
-      await glcp.getCompletions(mockDocument, mockPosition);
+      await getCompletionsWithDefaultArgs(glcp);
+      const body = lastFetchCallBody();
+
+      expect(body.telemetry[0].requests).toBe(1);
+      expect(body.telemetry[0].errors).toBe(1);
+    });
+
+    it('increases request count and request errors for cancelled failed requests', async () => {
+      const tokenSource = new vscode.CancellationTokenSource();
+      tokenSource.cancel();
+      const { token: cancelledToken } = tokenSource;
+
+      jest.mocked(fetch).mockRejectedValueOnce(new Error());
+      await glcp.getCompletions({
+        document: mockDocument,
+        position: mockPosition,
+        cancellationToken: cancelledToken,
+      });
+
+      await getCompletionsWithDefaultArgs(glcp);
       const body = lastFetchCallBody();
 
       expect(body.telemetry[0].requests).toBe(1);
@@ -265,12 +311,12 @@ describe('CodeSuggestionsProvider', () => {
 
     it('does not reset request count and request errors for failed requests', async () => {
       asMock(fetch).mockRejectedValueOnce(new Error());
-      await glcp.getCompletions(mockDocument, mockPosition);
+      await getCompletionsWithDefaultArgs(glcp);
 
       asMock(fetch).mockRejectedValueOnce(new Error());
-      await glcp.getCompletions(mockDocument, mockPosition);
+      await getCompletionsWithDefaultArgs(glcp);
 
-      await glcp.getCompletions(mockDocument, mockPosition);
+      await getCompletionsWithDefaultArgs(glcp);
       const body = lastFetchCallBody();
 
       expect(body.telemetry[0].requests).toBe(2);
@@ -279,10 +325,10 @@ describe('CodeSuggestionsProvider', () => {
 
     it('resets counters on successful requests', async () => {
       asMock(fetch).mockRejectedValueOnce(new Error());
-      await glcp.getCompletions(mockDocument, mockPosition);
+      await getCompletionsWithDefaultArgs(glcp);
 
-      await glcp.getCompletions(mockDocument, mockPosition);
-      await glcp.getCompletions(mockDocument, mockPosition);
+      await getCompletionsWithDefaultArgs(glcp);
+      await getCompletionsWithDefaultArgs(glcp);
       const body = lastFetchCallBody();
 
       expect(body.telemetry[0].requests).toBe(1);
@@ -292,13 +338,13 @@ describe('CodeSuggestionsProvider', () => {
     it('includes correct command when completion is accepted', async () => {
       glcp.fetchCompletions = jest.fn().mockResolvedValue(mockCompletions);
 
-      const [completion] = await glcp.getCompletions(mockDocument, mockPosition);
+      const [completion] = await getCompletionsWithDefaultArgs(glcp);
       expect(completion.command?.command).toBe(COMMAND_CODE_SUGGESTION_ACCEPTED);
     });
 
     it('sends correct accepted value when it is increased in telemetry', async () => {
       codeSuggestionsTelemetry.incAcceptCount({ name: 'testModel', engine: 'testEngine' });
-      await glcp.getCompletions(mockDocument, mockPosition);
+      await getCompletionsWithDefaultArgs(glcp);
       const body = lastFetchCallBody();
 
       expect(body.telemetry[0].requests).toBe(0);
@@ -310,7 +356,7 @@ describe('CodeSuggestionsProvider', () => {
 
       it('logs the telemetry details', async () => {
         codeSuggestionsTelemetry.incAcceptCount({ name: 'testModel', engine: 'testEngine' });
-        await glcp.getCompletions(mockDocument, mockPosition);
+        await getCompletionsWithDefaultArgs(glcp);
 
         expect(getLoggedMessage()).toContain(
           'AI Assist: fetching completions ... (telemetry: [{"model_engine":"testEngine","model_name":"testModel","requests":0,"accepts":1,"errors":0}])',

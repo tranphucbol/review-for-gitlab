@@ -128,10 +128,15 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     return payload;
   }
 
-  async getCompletions(
-    document: vscode.TextDocument,
-    position: vscode.Position,
-  ): Promise<vscode.InlineCompletionItem[]> {
+  async getCompletions({
+    document,
+    position,
+    cancellationToken,
+  }: {
+    document: vscode.TextDocument;
+    position: vscode.Position;
+    cancellationToken: vscode.CancellationToken;
+  }): Promise<vscode.InlineCompletionItem[]> {
     if (this.circuitBreaker.isBreaking()) {
       return [];
     }
@@ -175,17 +180,25 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
 
       // The previous counts were successfully sent...
       codeSuggestionsTelemetry.resetCounts();
+
+      if (!cancellationToken.isCancellationRequested) {
+        // Keep track of this request for next send..
+        codeSuggestionsTelemetry.incRequestCount(model);
+      } else {
+        log.debug(
+          'Code suggestions result is discarded because the completion request has been cancelled by the VS Code',
+        );
+        return [];
+      }
     } catch (e) {
       log.error(`AI Assist: Error fetching completions: ${e.toString()}`);
       this.circuitBreaker.error();
       this.stateManager.setState(CodeSuggestionsState.ERROR);
+
+      codeSuggestionsTelemetry.incRequestCount(model);
       codeSuggestionsTelemetry.incErrorCount(model);
       return [];
-    } finally {
-      // Keep track of this request for next send..
-      codeSuggestionsTelemetry.incRequestCount(model);
     }
-
     const choices = response.choices || [];
 
     log.debug(`AI Assist: got ${choices.length} completions`);
@@ -211,6 +224,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     document: vscode.TextDocument,
     position: vscode.Position,
     context: vscode.InlineCompletionContext,
+    cancellationToken: vscode.CancellationToken,
   ): Promise<vscode.InlineCompletionItem[]> {
     if (this.debouncedCall !== undefined) {
       clearTimeout(this.debouncedCall);
@@ -220,10 +234,10 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       //  In case of a hover, this will be triggered which is not desired as it calls for a new prediction
       if (context.triggerKind === vscode.InlineCompletionTriggerKind.Automatic) {
         if (this.noDebounce) {
-          resolve(this.getCompletions(document, position));
+          resolve(this.getCompletions({ document, position, cancellationToken }));
         } else {
           this.debouncedCall = setTimeout(() => {
-            resolve(this.getCompletions(document, position));
+            resolve(this.getCompletions({ document, position, cancellationToken }));
           }, this.debounceTimeMs);
         }
       }

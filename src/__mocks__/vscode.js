@@ -92,7 +92,12 @@ module.exports = {
     return { start: args[0], end: args[1] };
   },
   CancellationTokenSource: function CancellationTokenSource() {
-    return { token: { isCancellationRequested: false } };
+    return {
+      token: { isCancellationRequested: false },
+      cancel() {
+        this.token.isCancellationRequested = true;
+      },
+    };
   },
   ThemeColor: jest.fn(color => color),
   ProgressLocation: {
