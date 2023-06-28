@@ -89,7 +89,7 @@ import { scrollToBottom } from './ci/scroll_to_bottom_command';
 import { pendingWebviewController } from './ci/pending_job_webview_controller';
 import { JobItemModel } from './tree_view/items/job_item_model';
 import { gitlabPlatformManagerDesktop } from './gitlab/gitlab_platform_desktop';
-import { CodeSuggestions } from '../common/code_suggestions/code_suggestions';
+import { activateCommon } from '../common/main';
 
 type commandType = Parameters<typeof vscode.commands.registerCommand>[1];
 
@@ -244,7 +244,6 @@ export const activate = async (context: vscode.ExtensionContext) => {
   });
   selectedProjectStore.init(context);
   registerCiCompletion(context);
-  context.subscriptions.push(new CodeSuggestions(gitlabPlatformManagerDesktop));
   setupYamlSupport(context);
   vscode.window.registerUriHandler(gitlabUriHandler);
   context.subscriptions.push(gitExtensionWrapper);
@@ -278,6 +277,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
       gitlabProjectRepository.init(),
       currentBranchRefresher.refresh(),
       pendingWebviewController.init(context),
+      activateCommon(context, gitlabPlatformManagerDesktop),
     ]).catch(e => handleError(e)),
   );
 };
