@@ -89,15 +89,13 @@ import { scrollToBottom } from './ci/scroll_to_bottom_command';
 import { pendingWebviewController } from './ci/pending_job_webview_controller';
 import { JobItemModel } from './tree_view/items/job_item_model';
 import { gitlabPlatformManagerDesktop } from './gitlab/gitlab_platform_desktop';
-import {
-  COMMAND_CODE_SUGGESTION_ACCEPTED,
-  codeSuggestionAccepted,
-} from '../common/code_suggestions/commands/code_suggestion_accepted';
 import { CodeSuggestions } from '../common/code_suggestions/code_suggestions';
 
+type commandType = Parameters<typeof vscode.commands.registerCommand>[1];
+
 const wrapWithCatch =
-  (command: (...args: unknown[]) => unknown) =>
-  async (...args: unknown[]) => {
+  (command: commandType): commandType =>
+  async (...args) => {
     try {
       await command(...args);
     } catch (e) {
@@ -184,13 +182,10 @@ const registerCommands = (
     [USER_COMMANDS.CANCEL_PIPELINE]: cancelPipeline,
     [PROGRAMMATIC_COMMANDS.NO_IMAGE_REVIEW]: () =>
       vscode.window.showInformationMessage("GitLab MR review doesn't support images yet."),
-    [COMMAND_CODE_SUGGESTION_ACCEPTED]: codeSuggestionAccepted,
   };
 
   Object.keys(commands).forEach(cmd => {
-    context.subscriptions.push(
-      vscode.commands.registerCommand(cmd, wrapWithCatch(commands[cmd] as any)),
-    );
+    context.subscriptions.push(vscode.commands.registerCommand(cmd, wrapWithCatch(commands[cmd])));
   });
 };
 
