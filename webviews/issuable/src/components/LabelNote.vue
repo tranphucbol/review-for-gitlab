@@ -1,7 +1,7 @@
 <script>
-import UserAvatar from './UserAvatar';
-import Date from './Date';
-import LabelIcon from './icons/LabelIcon';
+import UserAvatar from './UserAvatar.vue';
+import Date from './Date.vue';
+import LabelIcon from './icons/LabelIcon.vue';
 
 export default {
   props: {

@@ -1,6 +1,6 @@
 <script>
-import UserAvatar from './UserAvatar';
-import Date from './Date';
+import UserAvatar from './UserAvatar.vue';
+import Date from './Date.vue';
 import { SafeHtmlDirective } from '../directives/safe_html/safe_html';
 
 export default {

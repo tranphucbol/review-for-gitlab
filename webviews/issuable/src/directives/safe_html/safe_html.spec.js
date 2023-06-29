@@ -1,3 +1,4 @@
+import { afterEach, describe, it } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
 import { forbiddenDataAttrs } from './constants';
 import { SafeHtmlDirective as safeHtml } from './safe_html';
@@ -22,11 +23,17 @@ describe('safe html directive', () => {
       template: template || defaultTemplate,
     };
 
-    wrapper = shallowMount(component);
+    wrapper = shallowMount(component, {
+      global: {
+        directives: {
+          'safe-html': safeHtml,
+        },
+      },
+    });
   };
 
   afterEach(() => {
-    wrapper.destroy();
+    wrapper.unmount();
   });
 
   describe('default', () => {

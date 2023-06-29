@@ -1,5 +1,5 @@
 /* Copied from https://gitlab.com/gitlab-org/gitlab-ui/-/blob/main/src/directives/safe_html/safe_html.js */
-import { sanitize } from 'dompurify';
+import DOMPurify from 'dompurify';
 import { forbiddenDataAttrs } from './constants';
 
 // Mitigate against future dompurify mXSS bypasses by
@@ -15,12 +15,12 @@ const transform = (el, binding) => {
 
     // eslint-disable-next-line no-param-reassign
     el.textContent = '';
-    el.appendChild(sanitize(binding.value, config));
+    el.appendChild(DOMPurify.sanitize(binding.value, config));
   }
 };
 
 // eslint-disable-next-line import/prefer-default-export
 export const SafeHtmlDirective = {
-  bind: transform,
+  created: transform,
   update: transform,
 };

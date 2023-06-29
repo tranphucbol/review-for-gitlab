@@ -1,8 +1,8 @@
 <script>
-import Note from './Note';
-import Discussion from './Discussion';
-import SystemNote from './SystemNote';
-import LabelNote from './LabelNote';
+import Note from './Note.vue';
+import Discussion from './Discussion.vue';
+import SystemNote from './SystemNote.vue';
+import LabelNote from './LabelNote.vue';
 
 const isLabel = discussion => Boolean(discussion.label);
 const isSystem = discussion => discussion.notes && discussion.notes.nodes[0].system;

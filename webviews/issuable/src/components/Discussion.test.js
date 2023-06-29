@@ -1,6 +1,7 @@
+import { expect, it, describe } from 'vitest';
 import { mount } from '@vue/test-utils';
-import Discussion from './Discussion';
-import CommentForm from './CommentForm';
+import Discussion from './Discussion.vue';
+import CommentForm from './CommentForm.vue';
 
 const {
   multipleNotes,
@@ -18,11 +19,13 @@ describe('Discussion', () => {
   describe('with multiple comments', () => {
     beforeEach(() => {
       wrapper = mount(Discussion, {
-        propsData: {
+        props: {
           noteable: multipleNotes,
         },
-        stubs: {
-          date: true,
+        global: {
+          stubs: {
+            date: true,
+          },
         },
       });
     });

@@ -236,8 +236,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
     GitLabRemoteFileSystem.OPTIONS,
   );
   registerCommands(context, outputChannel);
-  const isDev = process.env.GITLAB_VSCODE_ENV === 'development';
-  webviewController.init(context, isDev);
+  webviewController.init(context);
   await accountService.init(context).catch(e => {
     handleError(e);
     throw e;

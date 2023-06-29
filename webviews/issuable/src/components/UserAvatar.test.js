@@ -1,5 +1,6 @@
+import { expect, it, describe } from 'vitest';
 import { mount } from '@vue/test-utils';
-import UserAvatar from './UserAvatar';
+import UserAvatar from './UserAvatar.vue';
 
 describe('UserAvatar', () => {
   describe('shows avatar picture', () => {

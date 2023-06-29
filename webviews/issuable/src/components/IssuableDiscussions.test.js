@@ -1,8 +1,9 @@
+import { vi, expect, it, describe } from 'vitest';
 import { mount } from '@vue/test-utils';
-import IssuableDiscussions from './IssuableDiscussions';
-import Discussion from './Discussion';
-import SystemNote from './SystemNote';
-import LabelNote from './LabelNote';
+import IssuableDiscussions from './IssuableDiscussions.vue';
+import Discussion from './Discussion.vue';
+import SystemNote from './SystemNote.vue';
+import LabelNote from './LabelNote.vue';
 
 const {
   singleNote,
@@ -14,11 +15,11 @@ const {
 } = require('../../../../test/integration/fixtures/graphql/discussions');
 const labelNote = require('../../../../test/integration/fixtures/rest/label_events/added_normal.json');
 
-const partOfLabelNote = 'added Category:Editor Extension';
+const partOfLabelNote = 'addedCategory:Editor Extension';
 
 describe('IssuableDiscussions', () => {
   beforeEach(() => {
-    window.vsCodeApi = { postMessage: jest.fn() };
+    window.vsCodeApi = { postMessage: vi.fn() };
   });
   it.each`
     name                           | discussion       | component     | noteText
@@ -32,8 +33,10 @@ describe('IssuableDiscussions', () => {
       propsData: {
         discussions: [discussion],
       },
-      stubs: {
-        date: true,
+      global: {
+        stubs: {
+          date: true,
+        },
       },
     });
     const discussions = wrapper.findAllComponents(component);
