@@ -1,7 +1,9 @@
 <script>
+import checkbox from 'markdown-it-checkbox';
+import MarkdownIt from 'markdown-it';
 import { SafeHtmlDirective } from '../directives/safe_html/safe_html';
 
-const md = require('markdown-it')().use(require('markdown-it-checkbox'));
+const md = new MarkdownIt().use(checkbox);
 
 export default {
   name: 'NoteBody',
@@ -32,7 +34,11 @@ export default {
       if (event.data.type === 'markdownRendered') {
         const { ref, object, markdown } = event.data;
         if (object === 'note' && ref === this.note.id) {
+          // TODO: fix this. The eslint rule is disabled during vue3 migration
+          // eslint-disable-next-line vue/no-mutating-props
           this.note.markdownRenderedOnServer = true;
+          // TODO: fix this. The eslint rule is disabled during vue3 migration
+          // eslint-disable-next-line vue/no-mutating-props
           this.note.body = markdown;
         }
       }

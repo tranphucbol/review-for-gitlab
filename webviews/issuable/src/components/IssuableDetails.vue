@@ -1,9 +1,11 @@
 <script>
-import UserAvatar from './UserAvatar';
-import Date from './Date';
+import checkbox from 'markdown-it-checkbox';
+import MarkdownIt from 'markdown-it';
+import UserAvatar from './UserAvatar.vue';
+import Date from './Date.vue';
 import { SafeHtmlDirective } from '../directives/safe_html/safe_html';
 
-const md = require('markdown-it')().use(require('markdown-it-checkbox'));
+const md = new MarkdownIt().use(checkbox);
 
 export default {
   props: {
@@ -54,7 +56,11 @@ export default {
       if (event.data.type === 'markdownRendered') {
         const { ref, object, markdown } = event.data;
         if (object === 'issuable' && ref === this.issuable.id) {
+          // TODO: fix this. The eslint rule is disabled during vue3 migration
+          // eslint-disable-next-line vue/no-mutating-props
           this.issuable.markdownRenderedOnServer = true;
+          // TODO: fix this. The eslint rule is disabled during vue3 migration
+          // eslint-disable-next-line vue/no-mutating-props
           this.issuable.description = markdown;
         }
       }

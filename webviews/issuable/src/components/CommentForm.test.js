@@ -1,5 +1,6 @@
+import { vi, expect, it, describe } from 'vitest';
 import { mount } from '@vue/test-utils';
-import CommentForm from './CommentForm';
+import CommentForm from './CommentForm.vue';
 
 const getSubmitButton = wrapper => wrapper.find('.js-submit');
 const getCancelButton = wrapper => wrapper.find('.js-cancel');
@@ -8,7 +9,7 @@ describe('CommentForm', () => {
   let wrapper;
 
   beforeEach(() => {
-    window.vsCodeApi = { postMessage: jest.fn() };
+    window.vsCodeApi = { postMessage: vi.fn() };
   });
 
   describe('not a part of a discussion thread', () => {

@@ -1,8 +1,8 @@
 <script>
-import NoteBody from './NoteBody';
-import UserAvatar from './UserAvatar';
+import NoteBody from './NoteBody.vue';
+import UserAvatar from './UserAvatar.vue';
 import icons from '../assets/icons';
-import Date from './Date';
+import Date from './Date.vue';
 import { SafeHtmlDirective } from '../directives/safe_html/safe_html';
 
 export default {
@@ -109,6 +109,8 @@ export default {
       // eslint-disable-next-line prefer-destructuring
       this.firstLine = lines[0];
       lines.splice(0, 1);
+      // TODO: fix this. The eslint rule is disabled during vue3 migration
+      // eslint-disable-next-line vue/no-mutating-props
       this.noteable.body = lines.join('\n');
       this.multiLine = true;
     }

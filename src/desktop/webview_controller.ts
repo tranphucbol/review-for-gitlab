@@ -15,11 +15,8 @@ import { WEBVIEW_WORKFLOW } from './constants';
 import { RepositoryRootWebviewProvider } from './commands/run_with_valid_project';
 
 const webviewResourcePaths = {
-  appScriptUri: 'webviews/issuable/js/app.js',
-  vendorUri: 'webviews/issuable/js/chunk-vendors.js',
-  styleUri: 'webviews/issuable/css/app.css',
-  // TODO: remove the devScriptUri since it's not used
-  devScriptUri: 'webviews/issuable/js/app.js',
+  appScriptUri: 'webviews/issuable/assets/app.js',
+  styleUri: 'webviews/issuable/assets/index.css',
 } as const;
 
 type WebviewResources = Record<keyof typeof webviewResourcePaths, vscode.Uri>;
@@ -61,13 +58,10 @@ async function initPanelIfActive(
 class WebviewController implements RepositoryRootWebviewProvider {
   context?: vscode.ExtensionContext;
 
-  isDev = false;
-
   openedPanels: Record<string, IssuableWebviewPanel | undefined> = {};
 
-  init(context: vscode.ExtensionContext, isDev: boolean) {
+  init(context: vscode.ExtensionContext) {
     this.context = context;
-    this.isDev = isDev;
   }
 
   private getResources(panel: vscode.WebviewPanel): WebviewResources {
@@ -78,22 +72,17 @@ class WebviewController implements RepositoryRootWebviewProvider {
     }, {}) as WebviewResources;
   }
 
-  private getIndexPath() {
-    return this.isDev ? 'webviews/issuable/dev.html' : 'webviews/issuable/index.html';
-  }
-
   private replaceResources(panel: vscode.WebviewPanel) {
     assert(this.context);
-    const { appScriptUri, vendorUri, styleUri, devScriptUri } = this.getResources(panel);
+    const { appScriptUri, styleUri } = this.getResources(panel);
     const nonce = generateSecret();
 
     return fs
-      .readFileSync(path.join(this.context.extensionPath, this.getIndexPath()), 'UTF-8')
+      .readFileSync(path.join(this.context.extensionPath, 'webviews/issuable/index.html'), 'UTF-8')
       .replace(/{{nonce}}/gm, nonce)
-      .replace('{{styleUri}}', styleUri.toString())
-      .replace('{{vendorUri}}', vendorUri.toString())
-      .replace('{{appScriptUri}}', appScriptUri.toString())
-      .replace('{{devScriptUri}}', devScriptUri.toString());
+      .replace(/<script /g, `<script nonce="${nonce}"`)
+      .replace('/assets/index.css', styleUri.toString())
+      .replace('/assets/app.js', appScriptUri.toString());
   }
 
   private createPanel(issuable: RestIssuable) {

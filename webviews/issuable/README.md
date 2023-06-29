@@ -1,25 +1,33 @@
 # webview
 
-## Project setup
+## Recommended IDE Setup
 
-```
-yarn install
-```
+[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
 
-### Compiles and hot-reloads for development
+## Customize configuration
 
-```
-yarn run serve
-```
+See [Vite Configuration Reference](https://vitejs.dev/config/).
 
-### Compiles and minifies for production
+## Project Setup
 
-```
-yarn run build
+```sh
+npm install
 ```
 
-### Run your unit tests
+### Compile and Hot-Reload for Development
 
+```sh
+npm run dev
 ```
-yarn run test:unit
+
+### Compile and Minify for Production
+
+```sh
+npm run build
+```
+
+### Lint with [ESLint](https://eslint.org/)
+
+```sh
+npm run lint
 ```

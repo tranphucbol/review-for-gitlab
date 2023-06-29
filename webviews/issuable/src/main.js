@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import VTooltip from 'v-tooltip';
-import App from './App';
+import App from './App.vue';
 
 Vue.config.productionTip = false;
 Vue.use(VTooltip);

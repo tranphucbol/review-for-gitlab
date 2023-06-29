@@ -1,7 +1,7 @@
 <script>
-import IssuableDetails from './components/IssuableDetails';
-import IssuableDiscussions from './components/IssuableDiscussions';
-import CommentForm from './components/CommentForm';
+import IssuableDetails from './components/IssuableDetails.vue';
+import IssuableDiscussions from './components/IssuableDiscussions.vue';
+import CommentForm from './components/CommentForm.vue';
 
 const vscode = acquireVsCodeApi();
 

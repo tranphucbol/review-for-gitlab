@@ -108,14 +108,20 @@ describe('GitLab webview', () => {
   });
 
   it('substitutes the resource URLs in the HTML markup', () => {
-    const resources = [
-      'webviews/issuable/js/app\\.js',
-      'webviews/issuable/js/chunk-vendors\\.js',
-      'webviews/issuable/css/app\\.css',
-    ];
+    const resources = ['webviews/issuable/assets/app\\.js', 'webviews/issuable/assets/index\\.css'];
     resources.forEach(r => {
       assert.match(webviewPanel.webview.html, new RegExp(r, 'gm'));
     });
+  });
+
+  it('adds nonce to all script tags', () => {
+    const allScriptTags = webviewPanel.webview.html.match(/<script/).length;
+    const scriptTagsWithNonce = webviewPanel.webview.html.match(/<script nonce="\w+"/).length;
+    assert.strictEqual(
+      allScriptTags,
+      scriptTagsWithNonce,
+      'There are script tags without nonce in the index.html.',
+    );
   });
 
   it('reveals existing panel instead of creating a new one', async () => {

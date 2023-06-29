@@ -1,8 +1,8 @@
 <script>
-import Note from './Note';
-import CommentForm from './CommentForm';
-import ChevronDownIcon from './icons/ChevronDownIcon';
-import ChevronRightIcon from './icons/ChevronRightIcon';
+import Note from './Note.vue';
+import CommentForm from './CommentForm.vue';
+import ChevronDownIcon from './icons/ChevronDownIcon.vue';
+import ChevronRightIcon from './icons/ChevronRightIcon.vue';
 
 export default {
   name: 'Discussion',

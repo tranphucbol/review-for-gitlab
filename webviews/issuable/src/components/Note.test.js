@@ -1,5 +1,6 @@
+import { vi, expect, it, describe } from 'vitest';
 import { mount } from '@vue/test-utils';
-import Note from './Note';
+import Note from './Note.vue';
 
 const {
   noteOnDiffWithSuggestion,
@@ -7,11 +8,11 @@ const {
 
 describe('Note', () => {
   let wrapper;
-  const tooltipDirective = jest.fn();
+  const tooltipDirective = vi.fn();
 
   beforeEach(() => {
     tooltipDirective.mockReset();
-    window.vsCodeApi = { postMessage: jest.fn() };
+    window.vsCodeApi = { postMessage: vi.fn() };
   });
   describe('initializes suggestions', () => {
     beforeEach(() => {
@@ -19,11 +20,13 @@ describe('Note', () => {
         propsData: {
           noteable: noteOnDiffWithSuggestion,
         },
-        stubs: {
-          date: true,
-        },
-        directives: {
-          tooltip: tooltipDirective,
+        global: {
+          stubs: {
+            date: true,
+          },
+          directives: {
+            tooltip: tooltipDirective,
+          },
         },
       });
     });

@@ -1,8 +1,8 @@
 <script>
-const dayjs = require('dayjs');
-const dayjsUtc = require('dayjs/plugin/utc');
-const dayjsTimezone = require('dayjs/plugin/timezone');
-const dayjsRelativeTime = require('dayjs/plugin/relativeTime');
+import dayjs from 'dayjs';
+import dayjsUtc from 'dayjs/plugin/utc';
+import dayjsTimezone from 'dayjs/plugin/timezone';
+import dayjsRelativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(dayjsRelativeTime);
 dayjs.extend(dayjsUtc);

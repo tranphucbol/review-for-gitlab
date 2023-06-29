@@ -1,16 +1,17 @@
+import { vi, expect, it, describe } from 'vitest';
 import { mount } from '@vue/test-utils';
-import LabelNote from './LabelNote';
+import LabelNote from './LabelNote.vue';
 
 const addedLabelEvent = require('../../../../test/integration/fixtures/rest/label_events/added_normal.json');
 const scopedLabelEvent = require('../../../../test/integration/fixtures/rest/label_events/added_scoped.json');
 
 describe('LabelNote', () => {
   let wrapper;
-  const tooltipDirective = jest.fn();
+  const tooltipDirective = vi.fn();
 
   beforeEach(() => {
     tooltipDirective.mockReset();
-    window.vsCodeApi = { postMessage: jest.fn() };
+    window.vsCodeApi = { postMessage: vi.fn() };
   });
   describe('added normal event', () => {
     beforeEach(() => {
@@ -18,8 +19,10 @@ describe('LabelNote', () => {
         propsData: {
           noteable: addedLabelEvent,
         },
-        stubs: {
-          date: true,
+        global: {
+          stubs: {
+            date: true,
+          },
         },
         directives: {
           tooltip: tooltipDirective,
@@ -27,7 +30,7 @@ describe('LabelNote', () => {
       });
     });
     it('contains correct text', () => {
-      expect(wrapper.text()).toBe('Tomas Vik  @viktomas added Category:Editor Extension  label ·');
+      expect(wrapper.text()).toBe('Tomas Vik @viktomasaddedCategory:Editor Extensionlabel ·');
     });
 
     describe('label pill', () => {
@@ -51,8 +54,10 @@ describe('LabelNote', () => {
         propsData: {
           noteable: scopedLabelEvent,
         },
-        stubs: {
-          date: true,
+        global: {
+          stubs: {
+            date: true,
+          },
         },
         directives: {
           tooltip: tooltipDirective,
@@ -60,7 +65,7 @@ describe('LabelNote', () => {
       });
     });
     it('contains correct text', () => {
-      expect(wrapper.text()).toBe('Tomas Vik  @viktomas added group code review label ·');
+      expect(wrapper.text()).toBe('Tomas Vik @viktomasaddedgroupcode reviewlabel ·');
     });
 
     describe('label pill', () => {
