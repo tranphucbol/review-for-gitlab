@@ -10,7 +10,7 @@ import { gitlabCredentialsProvider } from '../gitlab/clone/gitlab_credentials_pr
 import { GitLabRemoteSourceProviderRepository } from '../gitlab/clone/gitlab_remote_source_provider_repository';
 import { log } from '../../common/log';
 import { GitRepository, GitRepositoryImpl } from './new_git';
-import { handleError } from '../handle_error';
+import { handleError } from '../../common/errors/handle_error';
 
 export class GitExtensionWrapper implements vscode.Disposable {
   apiListeners: vscode.Disposable[] = [];

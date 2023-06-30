@@ -34,6 +34,13 @@
     "theme": "dark"
   },
   "contributes": {
+    "commands": [
+      {
+        "command": "gl.showOutput",
+        "title": "Show Extension Logs",
+        "category": "GitLab"
+      }
+    ],
     "configuration": {
       "title": "GitLab Workflow (GitLab VSCode Extension)",
       "properties": {

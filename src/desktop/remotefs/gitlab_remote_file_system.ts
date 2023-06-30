@@ -3,7 +3,7 @@ import assert from 'assert';
 import { README_SECTIONS, REMOTE_URI_SCHEME } from '../constants';
 import { FetchError } from '../errors/fetch_error';
 import { GitLabService } from '../gitlab/gitlab_service';
-import { handleError } from '../handle_error';
+import { handleError } from '../../common/errors/handle_error';
 import { accountService } from '../accounts/account_service';
 import { HelpError } from '../errors/help_error';
 import { removeTrailingSlash } from '../utils/remove_trailing_slash';

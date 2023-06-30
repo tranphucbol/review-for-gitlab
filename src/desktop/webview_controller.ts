@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import assert from 'assert';
 import { log } from '../common/log';
-import { handleError } from './handle_error';
+import { handleError } from '../common/errors/handle_error';
 import { isMr } from './utils/is_mr';
 import { makeHtmlLinksAbsolute } from './utils/make_html_links_absolute';
 import { GitLabService } from './gitlab/gitlab_service';

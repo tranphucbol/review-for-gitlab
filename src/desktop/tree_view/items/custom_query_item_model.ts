@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { handleError } from '../../handle_error';
+import { handleError } from '../../../common/errors/handle_error';
 import { ErrorItem } from './error_item';
 import { MrItemModel } from './mr_item_model';
 import { ExternalUrlItem } from './external_url_item';

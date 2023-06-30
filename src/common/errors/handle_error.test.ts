@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
-import { initializeLogging } from '../common/log';
-import { USER_COMMANDS } from './command_names';
-import { WarningError } from './errors/warning_error';
+import { initializeLogging } from '../log';
 import { handleError } from './handle_error';
+import { UiError } from './ui_error';
+import { COMMAND_SHOW_OUTPUT } from '../show_output_command';
+
+const waitForPromises = () => new Promise(process.nextTick);
 
 describe('handleError', () => {
   const message = 'Uncaught TypeError: NetworkError when attempting to fetch resource.';
@@ -33,14 +35,20 @@ describe('handleError', () => {
     const executeCommand = vscode.commands.executeCommand as jest.Mock;
     showErrorMessage.mockResolvedValue('Show Logs');
 
-    await handleError(new Error(message)).onlyForTesting;
+    handleError(new Error(message));
 
-    expect(executeCommand).toBeCalledWith(USER_COMMANDS.SHOW_OUTPUT);
+    await waitForPromises();
+
+    expect(executeCommand).toBeCalledWith(COMMAND_SHOW_OUTPUT);
   });
 
-  it('shows WarningError as warning', async () => {
-    await handleError(new WarningError(message)).onlyForTesting;
+  it('shows UI error', async () => {
+    const error = new Error('test');
+    const showUiMock = jest.fn().mockResolvedValueOnce(undefined);
+    const testError: UiError = { ...error, showUi: showUiMock };
 
-    expect(vscode.window.showWarningMessage).toBeCalledWith(message);
+    handleError(testError);
+
+    expect(showUiMock).toHaveBeenCalled();
   });
 });

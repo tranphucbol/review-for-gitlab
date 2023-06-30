@@ -123,11 +123,6 @@
         "icon": "$(open-preview)"
       },
       {
-        "command": "gl.showOutput",
-        "title": "Show Extension Logs",
-        "category": "GitLab"
-      },
-      {
         "command": "gl.sidebarViewAsList",
         "title": "View Sidebar as List",
         "category": "GitLab",

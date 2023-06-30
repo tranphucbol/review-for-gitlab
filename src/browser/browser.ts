@@ -7,5 +7,5 @@ export const activate = async (context: vscode.ExtensionContext) => {
   const outputChannel = vscode.window.createOutputChannel('GitLab Workflow');
   initializeLogging(line => outputChannel.appendLine(line));
   const platformManager = await createGitLabPlatformManagerBrowser();
-  await activateCommon(context, platformManager);
+  await activateCommon(context, platformManager, outputChannel);
 };

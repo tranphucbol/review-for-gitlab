@@ -11,7 +11,7 @@ import { webviewController } from './webview_controller';
 import { issuableDataProvider } from './tree_view/issuable_data_provider';
 import { currentBranchDataProvider } from './tree_view/current_branch_data_provider';
 import { initializeLogging } from '../common/log';
-import { handleError } from './handle_error';
+import { handleError } from '../common/errors/handle_error';
 import { GitContentProvider } from './review/git_content_provider';
 import {
   REVIEW_URI_SCHEME,
@@ -90,28 +90,14 @@ import { pendingWebviewController } from './ci/pending_job_webview_controller';
 import { JobItemModel } from './tree_view/items/job_item_model';
 import { gitlabPlatformManagerDesktop } from './gitlab/gitlab_platform_desktop';
 import { activateCommon } from '../common/main';
-
-type commandType = Parameters<typeof vscode.commands.registerCommand>[1];
-
-const wrapWithCatch =
-  (command: commandType): commandType =>
-  async (...args) => {
-    try {
-      await command(...args);
-    } catch (e) {
-      handleError(e);
-    }
-  };
+import { wrapCommandWithCatch } from '../common/utils/wrap_command_with_catch';
 
 const registerSidebarTreeDataProviders = () => {
   vscode.window.registerTreeDataProvider('issuesAndMrs', issuableDataProvider);
   vscode.window.registerTreeDataProvider('currentBranchInfo', currentBranchDataProvider);
 };
 
-const registerCommands = (
-  context: vscode.ExtensionContext,
-  outputChannel: vscode.OutputChannel,
-) => {
+const registerCommands = (context: vscode.ExtensionContext) => {
   const commands = {
     [USER_COMMANDS.SHOW_ISSUES_ASSIGNED_TO_ME]: runWithValidProject(openers.showIssues),
     [USER_COMMANDS.SHOW_MERGE_REQUESTS_ASSIGNED_TO_ME]: runWithValidProject(
@@ -138,7 +124,6 @@ const registerCommands = (
     [USER_COMMANDS.VALIDATE_CI_CONFIG]: runWithValidProject(validateCiConfig),
     [USER_COMMANDS.SHOW_MERGED_CI_CONFIG]: runWithValidProject(showMergedCiConfig),
     [PROGRAMMATIC_COMMANDS.SHOW_RICH_CONTENT]: webviewController.open.bind(webviewController),
-    [USER_COMMANDS.SHOW_OUTPUT]: () => outputChannel.show(),
     [USER_COMMANDS.RESOLVE_THREAD]: toggleResolved,
     [USER_COMMANDS.UNRESOLVE_THREAD]: toggleResolved,
     [USER_COMMANDS.DELETE_COMMENT]: deleteComment,
@@ -185,7 +170,9 @@ const registerCommands = (
   };
 
   Object.keys(commands).forEach(cmd => {
-    context.subscriptions.push(vscode.commands.registerCommand(cmd, wrapWithCatch(commands[cmd])));
+    context.subscriptions.push(
+      vscode.commands.registerCommand(cmd, wrapCommandWithCatch(commands[cmd])),
+    );
   });
 };
 
@@ -235,7 +222,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
     new GitLabRemoteFileSystem(),
     GitLabRemoteFileSystem.OPTIONS,
   );
-  registerCommands(context, outputChannel);
+  registerCommands(context);
   webviewController.init(context);
   await accountService.init(context).catch(e => {
     handleError(e);
@@ -276,7 +263,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
       gitlabProjectRepository.init(),
       currentBranchRefresher.refresh(),
       pendingWebviewController.init(context),
-      activateCommon(context, gitlabPlatformManagerDesktop),
+      activateCommon(context, gitlabPlatformManagerDesktop, outputChannel),
     ]).catch(e => handleError(e)),
   );
 };

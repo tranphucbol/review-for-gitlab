@@ -1,18 +1,22 @@
 import * as vscode from 'vscode';
 import { VS_COMMANDS } from '../command_names';
-import { contextUtils } from './context_utils';
-import { Help } from './help';
+import { contextUtils } from '../utils/context_utils';
+import { HelpError } from './help_error';
 
-describe('Help', () => {
+describe('HelpError', () => {
   describe('show', () => {
     beforeAll(() => {
       contextUtils.init({
         extensionUri: vscode.Uri.parse(`file:///path/to/extension`),
       } as vscode.ExtensionContext);
+      jest.mocked(vscode.window.showErrorMessage).mockResolvedValue('Show Help' as any);
     });
 
     it('opens the file', async () => {
-      await Help.show();
+      const error = new HelpError('message');
+
+      await error.showUi();
+
       expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
         VS_COMMANDS.MARKDOWN_SHOW_PREVIEW,
         vscode.Uri.parse(`file:///path/to/extension/README.md`),
@@ -20,7 +24,9 @@ describe('Help', () => {
     });
 
     it('opens the file to the correct section', async () => {
-      await Help.show('foobar');
+      const error = new HelpError('message', { section: 'foobar' });
+
+      await error.showUi();
       expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
         VS_COMMANDS.MARKDOWN_SHOW_PREVIEW,
         vscode.Uri.parse(`file:///path/to/extension/README.md#foobar`),
