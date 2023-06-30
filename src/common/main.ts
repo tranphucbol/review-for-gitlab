@@ -5,14 +5,19 @@ import {
   COMMAND_CODE_SUGGESTION_ACCEPTED,
   codeSuggestionAccepted,
 } from './code_suggestions/commands/code_suggestion_accepted';
+import { COMMAND_SHOW_OUTPUT, createShowOutputCommand } from './show_output_command';
 
 export const activateCommon = async (
   context: vscode.ExtensionContext,
   manager: GitLabPlatformManager,
+  outputChannel: vscode.OutputChannel,
 ) => {
-  // TODO use the wrapWithCatch that is defined in the `extension.ts`
-  context.subscriptions.push(
-    vscode.commands.registerCommand(COMMAND_CODE_SUGGESTION_ACCEPTED, codeSuggestionAccepted),
-  );
+  const commands = {
+    [COMMAND_SHOW_OUTPUT]: createShowOutputCommand(outputChannel),
+    [COMMAND_CODE_SUGGESTION_ACCEPTED]: codeSuggestionAccepted,
+  };
+  Object.entries(commands).forEach(([cmdName, cmd]) => {
+    context.subscriptions.push(vscode.commands.registerCommand(cmdName, cmd));
+  });
   context.subscriptions.push(new CodeSuggestions(manager));
 };
