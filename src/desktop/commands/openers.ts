@@ -74,9 +74,12 @@ async function getActiveFile({
 }: ProjectInRepositoryAndFile): Promise<string> {
   const { repository } = projectInRepository.pointer;
 
-  const filePath = path
-    .relative(repository.rootFsPath, activeEditor.document.uri.fsPath)
-    .replace(/\\/g, '/');
+  const repoPath = repository.rootFsPath;
+  const editorPath = activeEditor.document.uri.fsPath;
+  if (!editorPath.startsWith(repoPath)) {
+    throw new WarningError('The current file is not in the project repository.');
+  }
+  const filePath = path.relative(repoPath, editorPath).replace(/\\/g, '/');
 
   const log = await repository.rawRepository.log({ maxEntries: 1, path: filePath });
 

@@ -58,4 +58,15 @@ describe('openers', () => {
 
     expect(vscode.env.clipboard.writeText).not.toHaveBeenCalled();
   });
+
+  it('copyLInkToActiveFile throws error when the file is not in the project repository', async () => {
+    activeEditor = {
+      document: { uri: vscode.Uri.file('Untitled-1') },
+    } as unknown as vscode.TextEditor;
+
+    const copyResult = copyLinkToActiveFile({ projectInRepository: pir, activeEditor });
+
+    await expect(copyResult).rejects.toThrow(WarningError);
+    await expect(copyResult).rejects.toThrow(/current file is not in the project repository/);
+  });
 });
