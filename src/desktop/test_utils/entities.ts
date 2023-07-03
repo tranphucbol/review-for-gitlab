@@ -8,6 +8,7 @@ import { createFakeRepository } from './fake_git_extension';
 import { InMemoryMemento } from '../../../test/integration/test_infrastructure/in_memory_memento';
 import { SecretStorage } from './secret_storage';
 import { GqlSecurityFindingReport } from '../gitlab/graphql/get_security_finding_report';
+import { GqlSecurityReportFinding } from '../gitlab/graphql/get_security_finding';
 import { GqlProjectWithRepoInfo } from '../gitlab/api/get_projects_with_repository_info';
 import { project } from '../../common/test_utils/entities';
 
@@ -316,5 +317,46 @@ export const securityReport: GqlSecurityFindingReport = {
         },
       },
     ],
+  },
+};
+
+export const securityReportFinding: GqlSecurityReportFinding = {
+  project: {
+    id: 'gid://gitlab/Project/23921884',
+    pipeline: {
+      id: 'gid://gitlab/Ci::Pipeline/875580836',
+      securityReportFinding: {
+        id: 'da3c6db0-f38f-5b01-b82f-8f36094a025c',
+        vulnerability: {
+          id: 'gid://gitlab/Vulnerability/34594691',
+          title: 'Cross Site Scripting (Reflected)',
+          description:
+            "Cross-site Scripting (XSS) is an attack technique that involves echoing attacker-supplied code into a user's browser instance. A browser instance can be a standard web browser client, or a browser object embedded in a software product such as the browser within WinAmp, an RSS reader, or an email client. The code itself is usually written in HTML/JavaScript, but may also extend to VBScript, ActiveX, Java, Flash, or any other browser-supported technology. When an attacker gets a user's browser to execute his/her code, the code will run within the security context (or zone) of the hosting web site. With this level of privilege, the code has the ability to read, modify and transmit any sensitive data accessible by the browser. A Cross-site Scripted user could have his/her account hijacked (cookie theft), their browser redirected to another location, or possibly shown fraudulent content delivered by the web site they are visiting. Cross-site Scripting attacks essentially compromise the trust relationship between a user and the web site. Applications utilizing browser object instances which load content from the file system may execute code under the local machine zone allowing for system compromise. There are three types of Cross-site Scripting attacks: non-persistent, persistent and DOM-based. Non-persistent attacks and DOM-based attacks require a user to either visit a specially crafted link laced with malicious code, or visit a malicious web page containing a web form, which when posted to the vulnerable site, will mount the attack. Using a malicious form will oftentimes take place when the vulnerable resource only accepts HTTP POST requests. In such a case, the form can be submitted automatically, without the victim's knowledge (e.g. by using JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user's browser and execute. Another technique to send almost arbitrary requests (GET and POST) is by using an embedded client, such as Adobe Flash. Persistent attacks occur when the malicious code is submitted to a web site where it's stored for a period of time. Examples of an attacker's favorite targets often include message board posts, web mail messages, and web chat software. The unsuspecting user is not required to interact with any additional site/link (e.g. an attacker site or a malicious link sent via email), just simply view the web page containing the code.",
+          descriptionHtml:
+            "<p data-sourcepos=\"1:1-1:2498\" dir=\"auto\">Cross-site Scripting (XSS) is an attack technique that involves echoing attacker-supplied code into a user's browser instance. A browser instance can be a standard web browser client, or a browser object embedded in a software product such as the browser within WinAmp, an RSS reader, or an email client. The code itself is usually written in HTML/JavaScript, but may also extend to VBScript, ActiveX, Java, Flash, or any other browser-supported technology. When an attacker gets a user's browser to execute his/her code, the code will run within the security context (or zone) of the hosting web site. With this level of privilege, the code has the ability to read, modify and transmit any sensitive data accessible by the browser. A Cross-site Scripted user could have his/her account hijacked (cookie theft), their browser redirected to another location, or possibly shown fraudulent content delivered by the web site they are visiting. Cross-site Scripting attacks essentially compromise the trust relationship between a user and the web site. Applications utilizing browser object instances which load content from the file system may execute code under the local machine zone allowing for system compromise. There are three types of Cross-site Scripting attacks: non-persistent, persistent and DOM-based. Non-persistent attacks and DOM-based attacks require a user to either visit a specially crafted link laced with malicious code, or visit a malicious web page containing a web form, which when posted to the vulnerable site, will mount the attack. Using a malicious form will oftentimes take place when the vulnerable resource only accepts HTTP POST requests. In such a case, the form can be submitted automatically, without the victim's knowledge (e.g. by using JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user's browser and execute. Another technique to send almost arbitrary requests (GET and POST) is by using an embedded client, such as Adobe Flash. Persistent attacks occur when the malicious code is submitted to a web site where it's stored for a period of time. Examples of an attacker's favorite targets often include message board posts, web mail messages, and web chat software. The unsuspecting user is not required to interact with any additional site/link (e.g. an attacker site or a malicious link sent via email), just simply view the web page containing the code.</p>",
+          severity: 'HIGH',
+          project: {
+            id: 'gid://gitlab/Project/23921884',
+            fullPath: 'gitlab-org/security-products/demos/dast/dvwa',
+            nameWithNamespace: 'GitLab.org / security-products / Demos / DAST / DVWA',
+          },
+          reportType: 'DAST',
+          scanner: {
+            id: 'gid://gitlab/Representation::VulnerabilityScannerEntry/72498',
+            name: 'OWASP Zed Attack Proxy (ZAP)',
+          },
+          identifiers: [
+            {
+              name: 'Cross Site Scripting (Reflected)',
+              url: 'https://github.com/zaproxy/zaproxy/blob/w2019-01-14/docs/scanners.md',
+            },
+            {
+              name: 'CWE-79',
+              url: 'https://cwe.mitre.org/data/definitions/79.html',
+            },
+          ],
+        },
+      },
+    },
   },
 };

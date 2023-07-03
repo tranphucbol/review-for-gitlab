@@ -6,7 +6,13 @@ import { DEFAULT_FETCH_RESPONSE } from '../../common/__mocks__/fetch_logged';
 import { CustomQueryType } from '../../common/gitlab/custom_query_type';
 import { CustomQuery } from '../../common/gitlab/custom_query';
 import { asMock } from '../test_utils/as_mock';
-import { externalStatus, mr, pipeline, securityReport } from '../test_utils/entities';
+import {
+  externalStatus,
+  mr,
+  pipeline,
+  securityReport,
+  securityReportFinding,
+} from '../test_utils/entities';
 import { getExtensionConfiguration } from '../../common/utils/extension_configuration';
 import { getHttpAgentOptions } from './http/get_http_agent_options';
 import { HelpError } from '../errors/help_error';
@@ -130,6 +136,13 @@ describe('gitlab_service', () => {
     it('returns the security report', async () => {
       const report = await service.getSecurityFindingReport(mr);
       expect(report).toEqual(securityReport);
+    });
+  });
+
+  describe('getSecurityFinding', () => {
+    it('returns the security finding', async () => {
+      const report = await service.getSecurityFinding(mr);
+      expect(report).toEqual(securityReportFinding);
     });
   });
 
