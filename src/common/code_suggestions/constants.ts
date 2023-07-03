@@ -18,6 +18,7 @@ export const AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES = [
   'ruby',
   'rust',
   'scala',
+  'swift',
   'typescript',
   'typescriptreact',
   // Following languages are not explicitly supported by the model gateway but we add them
