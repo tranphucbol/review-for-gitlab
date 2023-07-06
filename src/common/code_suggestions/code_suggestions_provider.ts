@@ -8,10 +8,7 @@ import { CircuitBreaker } from './circuit_breaker';
 import { Model, Telemetry, codeSuggestionsTelemetry } from './code_suggestions_telemetry';
 import { GitLabProject } from '../platform/gitlab_project';
 import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_suggestions_state';
-import {
-  AI_ASSISTED_CODE_SUGGESTIONS_API_URL,
-  AI_ASSISTED_CODE_SUGGESTIONS_LINES_BELOW_CURSOR,
-} from './constants';
+import { AI_ASSISTED_CODE_SUGGESTIONS_API_URL } from './constants';
 import { prettyJson } from '../utils/json';
 import { COMMAND_CODE_SUGGESTION_ACCEPTED } from './commands/code_suggestion_accepted';
 
@@ -97,13 +94,12 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     position: vscode.Position,
     platform: GitLabPlatform,
   ): CodeSuggestionPrompt {
-    const contentAboveCursor = document.getText(
+    const contentBeforeCursor = document.getText(
       new vscode.Range(0, 0, position.line, position.character),
     );
 
-    const linesBelowCursor = AI_ASSISTED_CODE_SUGGESTIONS_LINES_BELOW_CURSOR;
-    const contentBelowCursor = document.getText(
-      new vscode.Range(position.line, position.character, position.line + linesBelowCursor, 0),
+    const contentAfterCursor = document.getText(
+      new vscode.Range(position.line, position.character, document.lineCount, 0),
     );
 
     const fileName = document.uri.path.split('/').pop() || '';
@@ -118,8 +114,8 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       prompt_version: 1,
       current_file: {
         file_name: fileName,
-        content_above_cursor: contentAboveCursor,
-        content_below_cursor: contentBelowCursor,
+        content_above_cursor: contentBeforeCursor,
+        content_below_cursor: contentAfterCursor,
       },
       ...projectInfo,
       telemetry: codeSuggestionsTelemetry.toArray(),
