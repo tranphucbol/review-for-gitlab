@@ -24,7 +24,7 @@ import {
   GqlTextDiffDiscussion,
 } from './graphql/get_discussions';
 import { GqlSecurityFindingReport } from './graphql/get_security_finding_report';
-import { securityReport } from '../test_utils/entities';
+import { securityReport, securityReportFinding } from '../test_utils/entities';
 import {
   GetSnippetsQueryOptions,
   GetSnippetsQueryResult,
@@ -57,6 +57,7 @@ import { newCreateNoteMutation, oldCreateNoteMutation } from './graphql/create_n
 import { createQueryString, QueryValue } from '../utils/create_query_string';
 import { sort } from '../utils/sort';
 import { ApiRequest, fetchFromApi } from '../../common/platform/web_ide';
+import { GqlSecurityReportFinding } from './graphql/get_security_finding';
 
 interface CreateNoteResult {
   createNote: {
@@ -501,6 +502,12 @@ export class GitLabService {
     // TODO - Implement actual graphql query https://gitlab.com/gitlab-org/gitlab/-/issues/408353
     // GraphQl Spec - https://gitlab.com/gitlab-org/gitlab/-/issues/408350
     return Promise.resolve(securityReport);
+  }
+
+  // eslint-disable-next-line class-methods-use-this,  @typescript-eslint/no-unused-vars
+  async getSecurityFinding(mr: RestMr): Promise<GqlSecurityReportFinding> {
+    // TODO - Implement actual graphql query https://gitlab.com/gitlab-org/gitlab/-/issues/408353
+    return Promise.resolve(securityReportFinding);
   }
 
   async getDiscussions({ issuable, endCursor }: GetDiscussionsOptions): Promise<GqlDiscussion[]> {
