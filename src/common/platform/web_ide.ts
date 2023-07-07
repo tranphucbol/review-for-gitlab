@@ -6,16 +6,23 @@
  * ------------------------------------
  */
 
-/* Mediator commands */
+// region: Mediator commands -------------------------------------------
 export const COMMAND_FETCH_FROM_API = `gitlab-web-ide.mediator.fetch-from-api`;
+export const COMMAND_FETCH_BUFFER_FROM_API = `gitlab-web-ide.mediator.fetch-buffer-from-api`;
 export const COMMAND_GET_CONFIG = `gitlab-web-ide.mediator.get-config`;
 
-/*  Shared configuration */
+// Return type from `COMMAND_FETCH_BUFFER_FROM_API`
+export interface VSCodeBuffer {
+  readonly buffer: Uint8Array;
+}
+
+// region: Shared configuration ----------------------------------------
 export interface InteropConfig {
   projectPath: string;
 }
 
-/* API types */
+// region: API types ---------------------------------------------------
+// why: `TReturnType` helps encapsulate the full request type when used with `fetchFromApi`
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface PostRequest<TReturnType> {
   type: 'rest';
@@ -29,9 +36,9 @@ export interface PostRequest<TReturnType> {
   body?: unknown;
 }
 
+// why: `TReturnType` helps encapsulate the full request type when used with `fetchFromApi`
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export interface GetRequest<TReturnType> {
-  type: 'rest';
+interface GetRequestBase<TReturnType> {
   method: 'GET';
   /**
    * The request path without `/api/v4`
@@ -42,6 +49,15 @@ export interface GetRequest<TReturnType> {
   searchParams?: Record<string, string>;
 }
 
+export interface GetRequest<TReturnType> extends GetRequestBase<TReturnType> {
+  type: 'rest';
+}
+
+export interface GetBufferRequest extends GetRequestBase<Uint8Array> {
+  type: 'rest-buffer';
+}
+
+// why: `TReturnType` helps encapsulate the full request type when used with `fetchFromApi`
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface GraphQLRequest<TReturnType> {
   type: 'graphql';
@@ -55,11 +71,8 @@ export type ApiRequest<TReturnType> =
   | PostRequest<TReturnType>
   | GraphQLRequest<TReturnType>;
 
-/**
- * Makes an API request to GitLab instance.
- *
- * @template TReturnType The expected return type of the API request.
- * @param request - The API request to be made.
- * @returns A Promise that resolves with the response of the API request. The response is always an object parsed from JSON.
- */
+// The interface of the VSCode mediator command COMMAND_FETCH_FROM_API
 export type fetchFromApi = <TReturnType>(request: ApiRequest<TReturnType>) => Promise<TReturnType>;
+
+// The interface of the VSCode mediator command COMMAND_FETCH_BUFFER_FROM_API
+export type fetchBufferFromApi = (request: GetBufferRequest) => Promise<VSCodeBuffer>;
