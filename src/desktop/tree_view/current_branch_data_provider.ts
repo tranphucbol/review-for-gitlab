@@ -6,7 +6,10 @@ import { ItemModel } from './items/item_model';
 import { MrItemModel } from './items/mr_item_model';
 import { IssueItem } from './items/issue_item';
 import { PipelineItemModel } from './items/pipeline_item_model';
-import { SecurityResultsItem } from './items/security_results_item';
+import {
+  SecurityResultsItemModel,
+  SecurityResultsType,
+} from './items/security/security_results_item_model';
 
 import {
   TreeState,
@@ -54,17 +57,18 @@ export class CurrentBranchDataProvider
     this.mrState = undefined;
   }
 
-  static createSecurityFindingsItem(state: BranchState): vscode.TreeItem | ItemModel {
+  static getSecurityReportType(state: BranchState): SecurityResultsType {
     if (!state.mr || !state.securityFindings?.hasSecurityReports) {
-      return new SecurityResultsItem('NO_SCANS_FOUND');
+      return 'NO_SCANS_FOUND';
     }
     if (state.securityFindings?.hasSecurityReports && state.pipeline?.status === 'running') {
-      return new SecurityResultsItem('RUNNING');
+      return 'RUNNING';
     }
-    // TODO - Return Findings
-    // https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/717
-    // https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/718
-    return new SecurityResultsItem('COMPLETE');
+    return 'COMPLETE';
+  }
+
+  static createSecurityFindingsItem(state: BranchState): ItemModel {
+    return new SecurityResultsItemModel(this.getSecurityReportType(state), state.securityFindings);
   }
 
   createMrItem(state: BranchState): vscode.TreeItem | ItemModel {

@@ -17,19 +17,16 @@ export type GqlSecurityIdentifier = {
 
 export type GqlSecurityFinding = {
   uuid: string;
-  name: string;
-  scan: GqlSecurityScan;
-  scanner: GqlSecurityScanner;
+  title: string;
+  description: string;
   severity: string;
-  state: string;
-  identifiers: Node<GqlSecurityIdentifier>;
+  foundByPipelineIid: string;
 };
 
 export type GqlSecurityFindingReport = {
   baseReportCreatedAt: string;
   baseReportOutOfDate: string;
   headReportCreatedAt: string;
-  enabledReports: Array<string>;
   hasSecurityReports: boolean;
   added: Node<GqlSecurityFinding>;
   fixed: Node<GqlSecurityFinding>;

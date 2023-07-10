@@ -1,4 +1,4 @@
-import { Disposable, TreeItem } from 'vscode';
+import { Disposable } from 'vscode';
 import { BranchState, TagState } from '../current_branch_refresher';
 import { mr, pipeline, job, issue, projectInRepository } from '../test_utils/entities';
 import { CurrentBranchDataProvider } from './current_branch_data_provider';
@@ -119,7 +119,7 @@ describe('CurrentBranchDataProvider', () => {
         });
 
         const [, , , securityItem] = await currentBranchProvider.getChildren(undefined);
-        expect(securityItem as TreeItem).toBe(undefined);
+        expect(securityItem as ItemModel).toBe(undefined);
       });
     });
     describe('security scans flag on', () => {
@@ -137,7 +137,7 @@ describe('CurrentBranchDataProvider', () => {
         });
 
         const [, , , securityItem] = await currentBranchProvider.getChildren(undefined);
-        expect((securityItem as TreeItem).label).toBe('No scans found');
+        expect((securityItem as ItemModel).getTreeItem().label).toBe('No scans found');
       });
 
       it('renders scanning state', async () => {
@@ -148,7 +148,7 @@ describe('CurrentBranchDataProvider', () => {
         });
 
         const [, , , securityItem] = await currentBranchProvider.getChildren(undefined);
-        expect((securityItem as TreeItem).label).toBe('Security scanning');
+        expect((securityItem as ItemModel).getTreeItem().label).toBe('Security scanning');
       });
 
       it('renders complete state', async () => {
@@ -159,7 +159,7 @@ describe('CurrentBranchDataProvider', () => {
         });
 
         const [, , , securityItem] = await currentBranchProvider.getChildren(undefined);
-        expect((securityItem as TreeItem).label).toBe('Security scanning');
+        expect((securityItem as ItemModel).getTreeItem().label).toBe('Security scanning');
       });
     });
   });
