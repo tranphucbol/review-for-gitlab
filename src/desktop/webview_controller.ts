@@ -13,6 +13,7 @@ import { getGitLabService } from './gitlab/get_gitlab_service';
 import { generateSecret } from './utils/generate_secret';
 import { WEBVIEW_WORKFLOW } from './constants';
 import { RepositoryRootWebviewProvider } from './commands/run_with_valid_project';
+import { waitForWebview } from '../common/utils/wait_for_webview';
 
 const webviewResourcePaths = {
   appScriptUri: 'webviews/issuable/assets/app.js',
@@ -32,22 +33,14 @@ async function initPanelIfActive(
 ) {
   if (!panel.active) return;
 
-  const appReadyPromise = new Promise<void>(resolve => {
-    const sub = panel.webview.onDidReceiveMessage(async message => {
-      if (message.command === 'appReady') {
-        sub.dispose();
-        resolve();
-      }
-    });
-  });
-
   const discussionsAndLabels = await gitlabService
     .getDiscussionsAndLabelEvents(issuable)
     .catch(e => {
       handleError(e);
       return [];
     });
-  await appReadyPromise;
+
+  await waitForWebview(panel.webview);
   await panel.webview.postMessage({
     type: 'issuableFetch',
     issuable,
