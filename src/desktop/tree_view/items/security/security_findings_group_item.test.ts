@@ -29,9 +29,8 @@ describe('SecurityFindingsGroupItem', () => {
       ).getChildren();
 
       const itemLabel = `${count} ${severity} severity`;
-      const item = children
-        .find(item => item.getTreeItem().label === itemLabel)
-        ?.getTreeItem().label;
+      const item = children.find(item => item.getTreeItem().label === itemLabel)?.getTreeItem()
+        .label;
       expect(item).toBe(itemLabel);
     });
   });
