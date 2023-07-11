@@ -117,7 +117,9 @@ export default {
   &[aria-hidden='true'] {
     visibility: hidden;
     opacity: 0;
-    transition: opacity 0.15s, visibility 0.15s;
+    transition:
+      opacity 0.15s,
+      visibility 0.15s;
   }
 
   &[aria-hidden='false'] {

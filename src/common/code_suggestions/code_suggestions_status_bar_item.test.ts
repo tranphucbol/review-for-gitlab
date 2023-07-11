@@ -9,7 +9,7 @@ const createFakeItem = (): vscode.StatusBarItem =>
     show: jest.fn(),
     hide: jest.fn(),
     dispose: jest.fn(),
-  } as unknown as vscode.StatusBarItem);
+  }) as unknown as vscode.StatusBarItem;
 
 describe('code suggestions status bar item', () => {
   let fakeStatusBarItem: vscode.StatusBarItem;

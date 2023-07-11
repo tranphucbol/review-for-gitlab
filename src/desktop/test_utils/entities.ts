@@ -194,7 +194,7 @@ export const createExtensionContext = (): vscode.ExtensionContext =>
     secrets: new SecretStorage(),
     extensionPath: '',
     subscriptions: [],
-  } as unknown as vscode.ExtensionContext);
+  }) as unknown as vscode.ExtensionContext;
 
 export const securityReport: GqlSecurityFindingReport = {
   baseReportCreatedAt: '2023-04-18T02:10:10.460Z',

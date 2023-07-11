@@ -45,7 +45,7 @@ describe('yaml support', () => {
 
   it('does nothing if extension is already installed', async () => {
     (vscode.extensions.getExtension as jest.Mock).mockImplementation(
-      () => ({} as Extension<unknown>),
+      () => ({}) as Extension<unknown>,
     );
     await setup();
     expect(onDidOpenTextDocument).not.toBeCalled();

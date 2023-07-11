@@ -22,9 +22,9 @@ export async function pickGitRef(
 
       return [
         ...branches.map(
-          b => ({ ...b, refType: 'branch', label: `$(git-branch) ${b.name}` } as BranchRef),
+          b => ({ ...b, refType: 'branch', label: `$(git-branch) ${b.name}` }) as BranchRef,
         ),
-        ...tags.map(t => ({ ...t, refType: 'tag', label: `$(tag) ${t.name}` } as TagRef)),
+        ...tags.map(t => ({ ...t, refType: 'tag', label: `$(tag) ${t.name}` }) as TagRef),
       ];
     },
   );
