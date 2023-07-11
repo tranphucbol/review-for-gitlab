@@ -11,7 +11,7 @@ export const AI_ASSISTED_CODE_SUGGESTIONS_CONFIG = 'gitlab.aiAssistedCodeSuggest
 export interface ExtensionConfiguration {
   pipelineGitRemoteName?: string;
   debug: boolean;
-  featureFlags?: string[];
+  featureFlags: Record<string, boolean>;
   customQueries: CustomQuery[];
 }
 
@@ -26,7 +26,7 @@ export function getExtensionConfiguration(): ExtensionConfiguration {
   const workspaceConfig = vscode.workspace.getConfiguration(CONFIG_NAMESPACE);
   return {
     pipelineGitRemoteName: turnNullToUndefined(workspaceConfig.pipelineGitRemoteName),
-    featureFlags: turnNullToUndefined(workspaceConfig.featureFlags),
+    featureFlags: workspaceConfig.featureFlags ?? {},
     debug: workspaceConfig.debug,
     customQueries: workspaceConfig.customQueries || [],
   };

@@ -111,7 +111,7 @@ export class CurrentBranchDataProvider
         this.state.projectInRepository.pointer.repository.rootFsPath,
         this.state.issues,
       );
-      if (getExtensionConfiguration().featureFlags?.includes(SECURITY_SCANS_FEATURE_FLAG)) {
+      if (getExtensionConfiguration().featureFlags[SECURITY_SCANS_FEATURE_FLAG]) {
         const securityFindingsItem = CurrentBranchDataProvider.createSecurityFindingsItem(
           this.state,
         );
