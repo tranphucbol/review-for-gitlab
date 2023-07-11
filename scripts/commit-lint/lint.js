@@ -10,8 +10,8 @@ const maximumLineLength = 72;
 const {
   CI_MERGE_REQUEST_PROJECT_ID, // 5261717
   CI_MERGE_REQUEST_IID,
-  CI_COMMIT_SHA,
-  CI_MERGE_REQUEST_TARGET_BRANCH_NAME, // usually main
+  CI_MERGE_REQUEST_SOURCE_BRANCH_SHA, // this is the last commit in the MR (it ignores the merge result commit)
+  CI_MERGE_REQUEST_DIFF_BASE_SHA, // refers to the main branch
 } = process.env;
 
 const urlSemanticRelease =
@@ -36,9 +36,9 @@ async function getMr() {
 }
 
 async function getCommitsInMr() {
-  const targetBranch = `origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}`;
-  const sourceCommit = CI_COMMIT_SHA;
-  const messages = await read({ from: targetBranch, to: sourceCommit });
+  const diffBaseSha = CI_MERGE_REQUEST_DIFF_BASE_SHA;
+  const sourceBranchSha = CI_MERGE_REQUEST_SOURCE_BRANCH_SHA;
+  const messages = await read({ from: diffBaseSha, to: sourceBranchSha });
   return messages;
 }
 
