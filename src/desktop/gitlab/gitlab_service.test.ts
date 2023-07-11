@@ -301,7 +301,7 @@ describe('gitlab_service', () => {
       });
 
       it('sets author_id parameter if author is found', async () => {
-        service.getFirstUserByUsername = async () => ({ id: 1 } as RestUser);
+        service.getFirstUserByUsername = async () => ({ id: 1 }) as RestUser;
         await service.getIssuables(
           { ...defaultParams, type: CustomQueryType.MR, author: 'testuser' },
           project,
@@ -313,7 +313,7 @@ describe('gitlab_service', () => {
 
     describe('current user', () => {
       it('replaces <current_user> with the current user name', async () => {
-        service.getCurrentUser = async () => ({ username: 'testuser' } as RestUser);
+        service.getCurrentUser = async () => ({ username: 'testuser' }) as RestUser;
         await service.getIssuables(
           {
             ...defaultParams,
@@ -341,7 +341,7 @@ describe('gitlab_service', () => {
       });
 
       it('sets assignee_id parameter if assignee is found', async () => {
-        service.getFirstUserByUsername = async () => ({ id: 1 } as RestUser);
+        service.getFirstUserByUsername = async () => ({ id: 1 }) as RestUser;
         await service.getIssuables(
           { ...defaultParams, type: CustomQueryType.MR, assignee: 'testuser' },
           project,

@@ -15,7 +15,7 @@ const manager: GitLabPlatformManager = {
         access_token: '123',
         expires_in: 0,
         created_at: 0,
-      } as unknown as T),
+      }) as unknown as T,
     getUserAgentHeader: () => ({}),
   }),
 };
