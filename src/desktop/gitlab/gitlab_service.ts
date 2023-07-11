@@ -55,7 +55,6 @@ import { HelpError } from '../errors/help_error';
 import { Credentials } from '../accounts/credentials';
 import { newCreateNoteMutation, oldCreateNoteMutation } from './graphql/create_note';
 import { createQueryString, QueryValue } from '../utils/create_query_string';
-import { sort } from '../utils/sort';
 import { ApiRequest, fetchFromApi } from '../../common/platform/web_ide';
 import { GqlSecurityReportFinding } from './graphql/get_security_finding';
 
@@ -933,69 +932,6 @@ export class GitLabService {
       'status for commit',
     );
     return statuses.map(s => ({ ...s, stage: 'external' }));
-  }
-
-  async getLastPipelineForMr(mr: RestMr): Promise<RestPipeline | undefined> {
-    const pipelines = await this.fetch<RestPipeline[]>(
-      `/projects/${mr.project_id}/merge_requests/${mr.iid}/pipelines`,
-      {},
-      'pipelines for MR',
-    );
-    // the sort is a fix for an ordering issue https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/569
-    // the sort can be removed once https://gitlab.com/gitlab-org/gitlab/-/issues/344853 is fixed
-    return sort(pipelines, (p1, p2) => p2.iid - p1.iid)[0];
-  }
-
-  async getOpenMergeRequestForCurrentBranch(
-    project: GitLabProject,
-    trackingBranchName: string,
-  ): Promise<RestMr | undefined> {
-    const path = `/projects/${project.restId}/merge_requests`;
-    const mrs = await this.fetch<RestMr[]>(
-      path,
-      { state: 'opened', source_branch: trackingBranchName },
-      'open MRs for current branch',
-    );
-    return mrs[0];
-  }
-
-  async getLastPipelineForCurrentBranch(
-    project: GitLabProject,
-    trackingBranchName: string,
-  ): Promise<RestPipeline | undefined> {
-    const pipelinesRootPath = `/projects/${project.restId}/pipelines`;
-    const pipelines = await this.fetch<RestPipeline[]>(`${pipelinesRootPath}`, {
-      ref: trackingBranchName,
-    });
-    return pipelines[0];
-  }
-
-  async getPipelineAndMrForCurrentBranch(
-    project: GitLabProject,
-    trackingBranchName: string,
-  ): Promise<{
-    pipeline?: RestPipeline;
-    mr?: RestMr;
-  }> {
-    // TODO: implement more granular approach to errors (deciding between expected and critical)
-    // This can be done when we migrate the code to gitlab_service.ts
-    const turnErrorToUndefined: <T>(p: Promise<T>) => Promise<T | undefined> = p =>
-      p.catch(e => {
-        log.error(e);
-        return undefined;
-      });
-
-    const mr = await turnErrorToUndefined(
-      this.getOpenMergeRequestForCurrentBranch(project, trackingBranchName),
-    );
-    if (mr) {
-      const pipeline = await turnErrorToUndefined(this.getLastPipelineForMr(mr));
-      if (pipeline) return { mr, pipeline };
-    }
-    const pipeline = await turnErrorToUndefined(
-      this.getLastPipelineForCurrentBranch(project, trackingBranchName),
-    );
-    return { mr, pipeline };
   }
 
   async cancelOrRetryPipeline(

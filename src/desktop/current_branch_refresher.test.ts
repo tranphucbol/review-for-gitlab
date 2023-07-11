@@ -14,11 +14,13 @@ import { getTrackingBranchName } from './git/get_tracking_branch_name';
 import { getTagsForHead } from './git/get_tags_for_head';
 import { getExtensionConfiguration } from '../common/utils/extension_configuration';
 import { SECURITY_SCANS_FEATURE_FLAG } from './constants';
+import { getPipelineAndMrForBranch } from './gitlab/get_pipeline_and_mr_for_branch';
 
 jest.mock('../common/utils/extension_configuration');
 jest.mock('./gitlab/get_gitlab_service');
 jest.mock('./git/get_tracking_branch_name');
 jest.mock('./git/get_tags_for_head');
+jest.mock('./gitlab/get_pipeline_and_mr_for_branch');
 
 describe('CurrentBranchRefrehser', () => {
   beforeEach(() => {
@@ -46,12 +48,13 @@ describe('CurrentBranchRefrehser', () => {
       asMock(getGitLabService).mockReturnValue({
         getMrClosingIssues: () => [{ iid: 123 }],
         getSingleProjectIssue: () => issue,
-        getPipelineAndMrForCurrentBranch: () => ({ pipeline, mr }),
-        getLastPipelineForCurrentBranch: () => pipeline,
         getJobsForPipeline: () => [job],
         getExternalStatusForCommit: () => [externalStatus],
         getSecurityFindingReport: () => securityReport,
+        fetchFromApi: () => [pipeline],
       });
+
+      jest.mocked(getPipelineAndMrForBranch).mockResolvedValue({ pipeline, mr });
     });
 
     it('returns valid state if GitLab service returns pipeline and mr', async () => {

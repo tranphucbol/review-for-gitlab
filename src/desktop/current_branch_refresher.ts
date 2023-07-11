@@ -15,6 +15,8 @@ import { DetachedHeadError } from './errors/detached_head_error';
 import { GqlSecurityFindingReport } from './gitlab/graphql/get_security_finding_report';
 import { SECURITY_SCANS_FEATURE_FLAG } from './constants';
 import { getExtensionConfiguration } from '../common/utils/extension_configuration';
+import { getPipelinesForRef } from './gitlab/api/get_pipelines_for_ref';
+import { getPipelineAndMrForBranch } from './gitlab/get_pipeline_and_mr_for_branch';
 
 export interface BranchState {
   type: 'branch';
@@ -143,7 +145,8 @@ export class CurrentBranchRefresher {
     const { rawRepository } = projectInRepository.pointer.repository;
     const branchName = await getTrackingBranchName(rawRepository);
     if (branchName) {
-      const { pipeline, mr } = await gitLabService.getPipelineAndMrForCurrentBranch(
+      const { pipeline, mr } = await getPipelineAndMrForBranch(
+        gitLabService,
         projectInRepository.project,
         branchName,
       );
@@ -151,12 +154,12 @@ export class CurrentBranchRefresher {
     }
     const tags = await getTagsForHead(rawRepository);
     if (tags.length === 1) {
+      const pipelines = await gitLabService.fetchFromApi(
+        getPipelinesForRef(projectInRepository.project, tags[0]),
+      );
       return {
         type: 'tag',
-        pipeline: await gitLabService.getLastPipelineForCurrentBranch(
-          projectInRepository.project,
-          tags[0],
-        ),
+        pipeline: pipelines[0],
       };
     }
     throw new DetachedHeadError(tags);

@@ -18,6 +18,8 @@ import { JobItemModel } from '../tree_view/items/job_item_model';
 import { PipelineItemModel } from '../tree_view/items/pipeline_item_model';
 import { WarningError } from '../errors/warning_error';
 import { getProjectWithRepositoryInfo } from '../gitlab/api/get_projects_with_repository_info';
+import { getPipelineAndMrForBranch } from '../gitlab/get_pipeline_and_mr_for_branch';
+import { getOpenMergeRequestsForBranch } from '../gitlab/api/get_open_merge_requests_for_branch';
 
 export const openUrl = async (url: string): Promise<void> => {
   // workaround for a VS Code open command bug: https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/44
@@ -115,13 +117,15 @@ export const copyLinkToActiveFile: ProjectFileCommand = async projectInRepositor
 
 export const openCurrentMergeRequest: ProjectCommand = async projectInRepository => {
   const { repository } = projectInRepository.pointer;
-  const mr = await getGitLabService(projectInRepository).getOpenMergeRequestForCurrentBranch(
-    projectInRepository.project,
-    await getTrackingBranchNameOrThrow(repository.rawRepository),
+  const mrs = await getGitLabService(projectInRepository).fetchFromApi(
+    getOpenMergeRequestsForBranch(
+      projectInRepository.project,
+      await getTrackingBranchNameOrThrow(repository.rawRepository),
+    ),
   );
 
-  if (mr) {
-    await openUrl(mr.web_url);
+  if (mrs[0]) {
+    await openUrl(mrs[0].web_url);
   }
 };
 
@@ -145,7 +149,8 @@ export const openProjectPage: ProjectCommand = async projectInRepository => {
 };
 
 export async function openCurrentPipeline(projectInRepository: ProjectInRepository): Promise<void> {
-  const { pipeline } = await getGitLabService(projectInRepository).getPipelineAndMrForCurrentBranch(
+  const { pipeline } = await getPipelineAndMrForBranch(
+    getGitLabService(projectInRepository),
     projectInRepository.project,
     await getTrackingBranchNameOrThrow(projectInRepository.pointer.repository.rawRepository),
   );
