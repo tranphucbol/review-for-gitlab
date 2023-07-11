@@ -177,7 +177,7 @@ export class CurrentBranchRefresher {
       );
       const jobs = await getJobs(projectInRepository, pipeline);
       const minimalIssues = mr ? await gitLabService.getMrClosingIssues(project, mr.iid) : [];
-      if (getExtensionConfiguration().featureFlags?.includes(SECURITY_SCANS_FEATURE_FLAG)) {
+      if (getExtensionConfiguration().featureFlags[SECURITY_SCANS_FEATURE_FLAG]) {
         securityFindings = mr ? await gitLabService.getSecurityFindingReport(mr) : undefined;
       }
 

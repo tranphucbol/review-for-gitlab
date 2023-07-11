@@ -22,7 +22,7 @@ jest.mock('./git/get_tags_for_head');
 
 describe('CurrentBranchRefrehser', () => {
   beforeEach(() => {
-    asMock(getExtensionConfiguration).mockReturnValue({ featureFlags: [] });
+    asMock(getExtensionConfiguration).mockReturnValue({ featureFlags: {} });
   });
 
   describe('invalid state', () => {
@@ -68,7 +68,7 @@ describe('CurrentBranchRefrehser', () => {
     it('returns valid state if GitLab service returns pipeline and mr and security scans feature flag is on', async () => {
       asMock(getTrackingBranchName).mockResolvedValue('branch');
       asMock(getExtensionConfiguration).mockReturnValue({
-        featureFlags: [SECURITY_SCANS_FEATURE_FLAG],
+        featureFlags: { [SECURITY_SCANS_FEATURE_FLAG]: true },
       });
       const state = await CurrentBranchRefresher.getState(projectInRepository, false);
 

@@ -38,7 +38,7 @@ describe('CurrentBranchDataProvider', () => {
   let mrItem: Disposable;
 
   beforeEach(async () => {
-    asMock(getExtensionConfiguration).mockReturnValue({ featureFlags: [] });
+    asMock(getExtensionConfiguration).mockReturnValue({ featureFlags: {} });
     currentBranchProvider = new CurrentBranchDataProvider();
     await currentBranchProvider.refresh(branchState);
     [pipelineItem, mrItem] = (await currentBranchProvider.getChildren(undefined)).filter(
@@ -125,7 +125,7 @@ describe('CurrentBranchDataProvider', () => {
     describe('security scans flag on', () => {
       beforeEach(() => {
         asMock(getExtensionConfiguration).mockReturnValue({
-          featureFlags: [SECURITY_SCANS_FEATURE_FLAG],
+          featureFlags: { [SECURITY_SCANS_FEATURE_FLAG]: true },
         });
       });
 
