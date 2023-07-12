@@ -42,8 +42,17 @@ async function getCommitsInMr() {
   return messages;
 }
 
+const messageMatcher = r => r.test.bind(r);
+
 async function isConventional(message) {
-  return lint(message, { ...config.rules, ...customRules }, { defaultIgnores: false });
+  return lint(
+    message,
+    { ...config.rules, ...customRules },
+    {
+      defaultIgnores: false,
+      ignores: [messageMatcher(/^[Rr]evert .*/), messageMatcher(/^(?:fixup|squash)!/)],
+    },
+  );
 }
 
 async function lintMr() {
