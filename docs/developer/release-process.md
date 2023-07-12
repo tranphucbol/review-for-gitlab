@@ -26,13 +26,22 @@ Perform the following steps to release a new version of the extension.
    - `patch` - if you only released bug fixes
    - `minor` - if you released any new `feature: `
    - `major` - we haven't changed major version yet, do this if you introduce severe breaking changes
-1. If there have been community contributions:
+1. Check if there have been community contributions:
 
-   1. Manually add attribution to the `CHANGELOG.md` and `CONTRIBUTORS.md`. For example:
+   1. Get emails of all contributors between the tag you just created and one before:
+
+      ```sh
+      git log --format='%ae' $(git describe --abbrev=0 --tags HEAD^)..HEAD | sort -u
+      ```
+
+   1. In the result, look for emails that don't end with `@gitlab.com`.
+   1. Manually add attribution to the `CHANGELOG.md`, for each contribution from community contributor. For example:
 
       ```plaintext
       (Implemented|Fixed) by [@flood4life](https://gitlab.com/flood4life) with [MR !90](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/90) 👍
       ```
+
+   1. If that's their first contribution, add the contributor to `CONTRIBUTORS.md`.
 
 1. Run the command `git push origin main` and `git push origin v3.65.0` (assuming you created version `3.65.0`).
 1. Trigger the **Publish** steps (`publish_marketplace` and `publish_open_vsx`) on the tag pipeline that you created by pushing the new tag.
