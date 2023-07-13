@@ -14,6 +14,8 @@ If there are multiple features/fixes, we try to release no more than once per we
 
 ## Perform release
 
+This process is recorded in a YouTube video: [GitLab Workflow VS Code Extension - Release and Rollback](https://www.youtube.com/watch?v=anW0R9AtH5k).
+
 Perform the following steps to release a new version of the extension.
 
 1. (Optional.) Do a quick test of the extension in your local development. At this stage, you
@@ -39,6 +41,48 @@ Perform the following steps to release a new version of the extension.
    :vscode:  [GitLab Workflow](https://marketplace.visualstudio.com/items?itemName=gitlab.gitlab-workflow) `3.0.0` has been released :rocket:
    See [CHANGELOG.md](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/CHANGELOG.md).
    ```
+
+## Rollback
+
+This process is recorded in a YouTube video: [GitLab Workflow VS Code Extension - Release and Rollback - YouTube](https://www.youtube.com/watch?v=anW0R9AtH5k&t=956s).
+
+You released a critical issue and you need to return to a working version. Don't panic.
+
+1. Rollback
+
+   1. Assuming that the faulty version is `3.65.0` and the one before that worked well is `3.64.0`
+   1. Checkout the tag of the latest working version `git checkout v3.64.0`
+   1. Create a new version by incrementing `patch` version on the **faulty** version and push the tag: `npm version 3.65.1`
+      - You are releasing `3.65.1` because that will be the latest available version (replacing `3.65.0`). `3.65.1` will be virtually identical to `3.64.0`.
+   1. Push the new tag `git push origin v3.65.1`
+   1. Trigger the **Publish** steps (`publish_marketplace` and `publish_open_vsx`) on the tag pipeline that you created by pushing the new tag.
+   1. **Relax.** The marketplaces will release the change in a few minutes.
+   1. Verify the rollback version works.
+
+1. Update `CHANGELOG.md` (you'll create an entry like [this one](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/CHANGELOG.md#3682-2023-07-13))
+
+   1. Make sure you still have the rollback tag checked out `git checkout v3.65.1`
+   1. Copy the empty version header from the `CHANGELOG.md`
+
+      ```md
+      ## [3.65.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.64.0...v3.65.1) (2023-07-13)
+      ```
+
+   1. Checkout `main`: `git checkout main`
+   1. Add the empty header to the `CHANGELOG.md` and add a line about this being a rollback release. Your result should look similar to:
+
+      ```md
+      ## [3.65.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.64.0...v3.65.1) (2023-07-13)
+
+      This is a rollback release because `3.65.0` broke > **add the reason here** <. This version is identical to `3.64.0`.
+      ```
+
+   1. Commit `git add . && git ci -m "chore: update changelog with rollback release"`
+   1. Push `git push`
+
+1. You are done.
+
+This new tag and commit are detached from `main` branch and are not to be merged to `main`. The side effect is that when you make the next release from `main`, you need to **manually specify the version** (`npm version 3.65.2`), otherwise `npm version patch` results in the already-released `3.65.1`.
 
 ## Access tokens for Marketplaces
 
