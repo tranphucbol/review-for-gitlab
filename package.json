@@ -34,13 +34,46 @@
     "theme": "dark"
   },
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "gitlab-workflow",
+          "title": "GitLab Workflow",
+          "icon": "assets/images/light/gitlab-logo.svg"
+        }
+      ]
+    },
+    "views": {
+      "gitlab-workflow": [
+        {
+          "type": "webview",
+          "id": "gl.chatView",
+          "name": "GitLab Duo Chat",
+          "when": "config.gitlab.featureFlags.chat"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "gl.showOutput",
         "title": "Show Extension Logs",
         "category": "GitLab"
+      },
+      {
+        "command": "gl.openChat",
+        "title": "Open Chat",
+        "category": "GitLab Duo",
+        "when": "config.gitlab.featureFlags.chat"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "gl.openChat",
+          "when": "config.gitlab.featureFlags.chat"
+        }
+      ]
+    },
     "configuration": {
       "title": "GitLab Workflow (GitLab VSCode Extension)",
       "properties": {
@@ -117,6 +150,7 @@
     "@types/sinon": "^10.0.15",
     "@types/source-map-support": "^0.5.4",
     "@types/temp": "^0.9.0",
+    "@types/uuid": "^8.3.2",
     "@types/vscode": "^1.68.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
@@ -153,6 +187,7 @@
     "semver": "^7.3.5",
     "source-map-support": "^0.5.20",
     "temp": "^0.9.4",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "uuid": "^8.3.2"
   }
 }
