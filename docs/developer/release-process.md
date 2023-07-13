@@ -12,6 +12,8 @@ We release when there is a fix or user facing feature that will provide value to
 
 If there are multiple features/fixes, we try to release no more than once per week. This is because part of the release is a manual process.
 
+If you are not a maintainer, ask [one of the maintainers](https://gitlab-org.gitlab.io/gitlab-roulette/?currentProject=gitlab-vscode-extension&mode=show&hidden=reviewer) to release the extension.
+
 ## Perform release
 
 Perform the following steps to release a new version of the extension.
