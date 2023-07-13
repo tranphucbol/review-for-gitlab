@@ -33,6 +33,8 @@ async function initPanelIfActive(
 ) {
   if (!panel.active) return;
 
+  const waitPromise = waitForWebview(panel.webview);
+
   const discussionsAndLabels = await gitlabService
     .getDiscussionsAndLabelEvents(issuable)
     .catch(e => {
@@ -40,7 +42,7 @@ async function initPanelIfActive(
       return [];
     });
 
-  await waitForWebview(panel.webview);
+  await waitPromise;
   await panel.webview.postMessage({
     type: 'issuableFetch',
     issuable,
