@@ -1,3 +1,14 @@
+## [3.68.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.68.0...v3.68.1) (2023-07-13)
+
+
+### Bug Fixes
+
+* handle edge case when getting GitLab URL for unsaved file ([21cac29](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/21cac2922262234c8c7ed300a8b13b84cdd55a34))
+* report accepted suggestions in WebIDE ([09cc39c](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/09cc39cbda524d69cfcdb19d6a58234192218953))
+* **telemetry:** only count suggestions shown to the user ([3e1b6fe](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/3e1b6fe70458422b129f7c60856f52f2924e46c7))
+
+
+
 # [3.68.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.67.0...v3.68.0) (2023-06-26)
 
 
