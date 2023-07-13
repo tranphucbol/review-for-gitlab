@@ -1,3 +1,8 @@
+## [3.68.2](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.68.0...v3.68.2) (2023-07-13)
+
+This is a rollback release because `3.68.1` broke the issuable webview. This version is identical to `3.68.0`.
+
+
 ## [3.68.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.68.0...v3.68.1) (2023-07-13)
 
 
