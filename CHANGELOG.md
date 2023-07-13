@@ -1,3 +1,12 @@
+## [3.68.3](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.68.1...v3.68.3) (2023-07-13)
+
+
+### Bug Fixes
+
+* broken issuable webview (couldn't initialize) ([3c6fadd](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/3c6fadde1135618fc1c4a75957580da0fe7c1fc9))
+
+
+
 ## [3.68.2](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.68.0...v3.68.2) (2023-07-13)
 
 This is a rollback release because `3.68.1` broke the issuable webview. This version is identical to `3.68.0`.
