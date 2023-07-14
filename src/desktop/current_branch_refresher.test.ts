@@ -15,12 +15,14 @@ import { getTagsForHead } from './git/get_tags_for_head';
 import { getExtensionConfiguration } from '../common/utils/extension_configuration';
 import { SECURITY_SCANS_FEATURE_FLAG } from './constants';
 import { getPipelineAndMrForBranch } from './gitlab/get_pipeline_and_mr_for_branch';
+import { getAllSecurityReports } from './gitlab/security_findings/get_all_security_reports';
 
 jest.mock('../common/utils/extension_configuration');
 jest.mock('./gitlab/get_gitlab_service');
 jest.mock('./git/get_tracking_branch_name');
 jest.mock('./git/get_tags_for_head');
 jest.mock('./gitlab/get_pipeline_and_mr_for_branch');
+jest.mock('./gitlab/security_findings/get_all_security_reports');
 
 describe('CurrentBranchRefrehser', () => {
   beforeEach(() => {
@@ -50,7 +52,6 @@ describe('CurrentBranchRefrehser', () => {
         getSingleProjectIssue: () => issue,
         getJobsForPipeline: () => [job],
         getExternalStatusForCommit: () => [externalStatus],
-        getSecurityFindingReport: () => securityReport,
         fetchFromApi: () => [pipeline],
       });
 
@@ -70,6 +71,7 @@ describe('CurrentBranchRefrehser', () => {
 
     it('returns valid state if GitLab service returns pipeline and mr and security scans feature flag is on', async () => {
       asMock(getTrackingBranchName).mockResolvedValue('branch');
+      asMock(getAllSecurityReports).mockReturnValue(securityReport);
       asMock(getExtensionConfiguration).mockReturnValue({
         featureFlags: { [SECURITY_SCANS_FEATURE_FLAG]: true },
       });

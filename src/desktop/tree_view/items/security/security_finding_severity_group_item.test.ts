@@ -3,12 +3,12 @@ import { securityReport } from '../../../test_utils/entities';
 import { SecurityFindingItem } from './security_finding_item';
 import { Severity, severityToIcon } from './severity_to_icon';
 
-const TEST_FINDINGS = securityReport.added.nodes;
+const TEST_FINDINGS = securityReport.added;
 
 describe('SecurityFindingSeverityGroup', () => {
   let subject: SecurityFindingSeverityGroup;
 
-  describe.each<Severity>(['info', 'low', 'medium', 'high', 'critical', 'unknown'])(
+  describe.each<Severity>(['INFO', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL', 'UNKNOWN'])(
     'with %s severity',
     severity => {
       beforeEach(() => {

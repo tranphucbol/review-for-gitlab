@@ -7,7 +7,7 @@ import { makeAccountId, OAuthAccount, TokenAccount } from '../accounts/account';
 import { createFakeRepository } from './fake_git_extension';
 import { InMemoryMemento } from '../../../test/integration/test_infrastructure/in_memory_memento';
 import { SecretStorage } from './secret_storage';
-import { GqlSecurityFindingReport } from '../gitlab/graphql/get_security_finding_report';
+import { GqlSecurityFindingReport } from '../gitlab/security_findings/api/get_security_finding_report';
 import { GqlSecurityReportFinding } from '../gitlab/graphql/get_security_finding';
 import { GqlProjectWithRepoInfo } from '../gitlab/api/get_projects_with_repository_info';
 import { project } from '../../common/test_utils/entities';
@@ -200,99 +200,94 @@ export const securityReport: GqlSecurityFindingReport = {
   baseReportCreatedAt: '2023-04-18T02:10:10.460Z',
   baseReportOutOfDate: '2023-04-18T02:10:10.460Z',
   headReportCreatedAt: '2023-04-18T02:10:10.460Z',
-  hasSecurityReports: true,
-  added: {
-    nodes: [
-      {
-        uuid: '1ae0b693-2b75-5724-92cf-6b35f53a53fd',
-        title: 'CVE-2021-2256 in curl-7.79.1-1.amzn2.0.1',
-        description: 'sd',
-        severity: 'info',
-        foundByPipelineIid: '34',
-      },
-      {
-        uuid: '2ae0b693-2b75-5724-92cf-6b35f53a53fd',
-        title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
-        description: 'sd',
-        severity: 'low',
-        foundByPipelineIid: '34',
-      },
-      {
-        uuid: '3ae0b693-2b75-5724-92cf-6b35f53a53fd',
-        title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
-        description: 'sd',
-        severity: 'medium',
-        foundByPipelineIid: '34',
-      },
-      {
-        uuid: '4ae0b693-2b75-5724-92cf-6b35f53a53fd',
-        title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
-        description: 'sd',
-        severity: 'high',
-        foundByPipelineIid: '34',
-      },
-      {
-        uuid: '5ae0b693-2b75-5724-92cf-6b35f53a53fd',
-        title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
-        description: 'sd',
-        severity: 'critical',
-        foundByPipelineIid: '34',
-      },
-      {
-        uuid: '6ae0b693-2b75-5724-92cf-6b35f53a53fd',
-        title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
-        description: 'sd',
-        severity: 'unknown',
-        foundByPipelineIid: '34',
-      },
-    ],
-  },
-  fixed: {
-    nodes: [
-      {
-        uuid: '7ae0b693-2b75-5724-92cf-6b35f53a53fd',
-        title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
-        description: 'sd',
-        severity: 'info',
-        foundByPipelineIid: '34',
-      },
-      {
-        uuid: '8ae0b693-2b75-5724-92cf-6b35f53a53fd',
-        title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
-        description: 'sd',
-        severity: 'low',
-        foundByPipelineIid: '34',
-      },
-      {
-        uuid: '9ae0b693-2b75-5724-92cf-6b35f53a53fd',
-        title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
-        description: 'sd',
-        severity: 'medium',
-        foundByPipelineIid: '34',
-      },
-      {
-        uuid: 'fae0b693-2b75-5724-92cf-6b35f53a53fd',
-        title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
-        description: 'sd',
-        severity: 'high',
-        foundByPipelineIid: '34',
-      },
-      {
-        uuid: 'be0b693-2b75-5724-92cf-6b35f53a53fd',
-        title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
-        description: 'sd',
-        severity: 'critical',
-        foundByPipelineIid: '34',
-      },
-      {
-        uuid: 'cae0b693-2b75-5724-92cf-6b35f53a53fd',
-        title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
-        description: 'sd',
-        severity: 'unknown',
-        foundByPipelineIid: '34',
-      },
-    ],
-  },
+  added: [
+    {
+      uuid: '1ae0b693-2b75-5724-92cf-6b35f53a53fd',
+      title: 'CVE-2021-2256 in curl-7.79.1-1.amzn2.0.1',
+      description: 'sd',
+      severity: 'INFO',
+      foundByPipelineIid: '34',
+    },
+    {
+      uuid: '2ae0b693-2b75-5724-92cf-6b35f53a53fd',
+      title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
+      description: 'sd',
+      severity: 'LOW',
+      foundByPipelineIid: '34',
+    },
+    {
+      uuid: '3ae0b693-2b75-5724-92cf-6b35f53a53fd',
+      title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
+      description: 'sd',
+      severity: 'MEDIUM',
+      foundByPipelineIid: '34',
+    },
+    {
+      uuid: '4ae0b693-2b75-5724-92cf-6b35f53a53fd',
+      title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
+      description: 'sd',
+      severity: 'HIGH',
+      foundByPipelineIid: '34',
+    },
+    {
+      uuid: '5ae0b693-2b75-5724-92cf-6b35f53a53fd',
+      title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
+      description: 'sd',
+      severity: 'CRITICAL',
+      foundByPipelineIid: '34',
+    },
+    {
+      uuid: '6ae0b693-2b75-5724-92cf-6b35f53a53fd',
+      title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
+      description: 'sd',
+      severity: 'UNKNOWN',
+      foundByPipelineIid: '34',
+    },
+  ],
+  fixed: [
+    {
+      uuid: '7ae0b693-2b75-5724-92cf-6b35f53a53fd',
+      title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
+      description: 'sd',
+      severity: 'INFO',
+      foundByPipelineIid: '34',
+    },
+    {
+      uuid: '8ae0b693-2b75-5724-92cf-6b35f53a53fd',
+      title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
+      description: 'sd',
+      severity: 'LOW',
+      foundByPipelineIid: '34',
+    },
+    {
+      uuid: '9ae0b693-2b75-5724-92cf-6b35f53a53fd',
+      title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
+      description: 'sd',
+      severity: 'MEDIUM',
+      foundByPipelineIid: '34',
+    },
+    {
+      uuid: 'fae0b693-2b75-5724-92cf-6b35f53a53fd',
+      title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
+      description: 'sd',
+      severity: 'HIGH',
+      foundByPipelineIid: '34',
+    },
+    {
+      uuid: 'be0b693-2b75-5724-92cf-6b35f53a53fd',
+      title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
+      description: 'sd',
+      severity: 'CRITICAL',
+      foundByPipelineIid: '34',
+    },
+    {
+      uuid: 'cae0b693-2b75-5724-92cf-6b35f53a53fd',
+      title: 'CVE-2022-22576 in curl-7.79.1-1.amzn2.0.1',
+      description: 'sd',
+      severity: 'UNKNOWN',
+      foundByPipelineIid: '34',
+    },
+  ],
 };
 
 export const securityReportFinding: GqlSecurityReportFinding = {
