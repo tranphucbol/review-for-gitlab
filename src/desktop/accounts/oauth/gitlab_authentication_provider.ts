@@ -9,7 +9,7 @@ import { OAuthAccount } from '../account';
 import { sort } from '../../utils/sort';
 import { OAUTH_CLIENT_ID, OAUTH_REDIRECT_URI } from '../../constants';
 import { GITLAB_COM_URL } from '../../../common/constants';
-import { generateSecret } from '../../utils/generate_secret';
+import { generateSecret } from '../../../common/utils/generate_secret';
 import { TokenExchangeService, tokenExchangeService } from '../../gitlab/token_exchange_service';
 
 const generateCodeChallengeFromVerifier = (v: string) => {

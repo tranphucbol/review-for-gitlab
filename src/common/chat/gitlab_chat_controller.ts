@@ -12,10 +12,10 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
 
   readonly #api: GitLabChatApi;
 
-  constructor(manager: GitLabPlatformManager) {
+  constructor(manager: GitLabPlatformManager, context: vscode.ExtensionContext) {
     this.chatHistory = [];
     this.#api = new GitLabChatApi(manager);
-    this.#view = new GitLabChatView();
+    this.#view = new GitLabChatView(context);
     this.#view.onViewMessage(this.viewMessageHandler.bind(this));
   }
 

@@ -1,9 +1,10 @@
-import { cleanDesktopBuild } from './utils/desktop_jobs.mjs';
-import { cleanBrowserBuild } from './utils/browser_jobs.mjs';
+import { cleanBuild } from './utils/common_jobs.mjs';
+import { ENVIRONMENTS } from './constants.mjs';
 
-async function main() {
-  await cleanDesktopBuild();
-  await cleanBrowserBuild();
+function main() {
+  Object.values(ENVIRONMENTS).forEach(async env => {
+    await cleanBuild(env);
+  });
 }
 
 main();

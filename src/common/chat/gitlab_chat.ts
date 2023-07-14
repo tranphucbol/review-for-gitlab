@@ -9,7 +9,7 @@ import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { CHAT_SIDEBAR_VIEW_ID } from './gitlab_chat_view';
 
 export const activateChat = (context: vscode.ExtensionContext, manager: GitLabPlatformManager) => {
-  const controller = new GitLabChatController(manager);
+  const controller = new GitLabChatController(manager, context);
 
   // sidebar view
   context.subscriptions.push(
