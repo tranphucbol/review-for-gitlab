@@ -152,6 +152,18 @@ To add documentation that includes a new image:
 
 For more examples, refer to the `gif` images in the README file.
 
+### Adding a new feature
+
+If you are contributing a new feature, these are the things to consider:
+
+#### Do you need multiple MRs to complete the feature?
+
+If you need multiple MRs, then you have to hide the partial functionality behind a feature flag. See our [feature flag documentation](./docs/developer/feature-flags.md).
+
+#### Should WebIDE support the feature?
+
+WebIDE is a browser version of VS Code that ships with every GitLab instance. If you want the new feature to run in WebIDE, you need to put it in the `src/common` folder. See the ["Environments" section of the architecture documentation](docs/developer/architecture.md#environments).
+
 ### Adding new icons
 
 If you're adding new icons to extension, you will need to put svg file named exactly with the name of new icon in `src/assets/icons`.
