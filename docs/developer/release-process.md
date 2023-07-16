@@ -57,6 +57,7 @@ Our [CI/CD jobs](https://gitlab.com/gitlab-org/gitlab-vscode-extension/blob/e80e
 1. Log in to [open-vsx.org](https://open-vsx.org/) with the GitHub account.
 1. Go to the [Access Tokens Settings page](https://open-vsx.org/user-settings/tokens).
 1. Create a new token.
+1. **Open VSX tokens don't expire.**
 
 #### Microsoft VS Code Marketplace
 
