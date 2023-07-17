@@ -27,10 +27,11 @@ Once a security issue is assigned to a developer, we follow the same merge reque
 ```mermaid
 graph TD;
 A[run security-harness] --> B[prepare branches]
-B --> C[MR to the release branch]
-C --> D[MR to the main]
-D --> E[tag, release and validate]
-E --> F[push changes to the regular repo]
+B --> C[MR to the security release branch]
+C --> D[tag and release]
+D --> E[MR to main repo]
+E --> F[validate and wait for GitLab security release]
+F --> G[push changes to the regular repo]
 ```
 
 ### Preparation
@@ -61,22 +62,20 @@ The main objective is to release the security fix as a patch of the latest produ
 
 #### Patch release branch
 
-Before starting the development of the fix, do the following:
-
-1. Merge `main` from the main repository into the `main` of the
-   [Security Repository](https://gitlab.com/gitlab-org/security/gitlab-vscode-extension).
-1. Check the [extension version in the marketplace](https://marketplace.visualstudio.com/items?itemName=fatihacet.gitlab-workflow) and find the latest released tag.
-1. Create a branch based on the latest released tag. For example, if the latest
-   release is `v.2.2.0`, create a branch `security-2-2`. This new branch is the
-   target of the security MRs.
-1. Push the branch to the security repo.
+1. Check the [extension version in the marketplace](https://marketplace.visualstudio.com/items?itemName=fatihacet.gitlab-workflow).
+1. In the `gitlab-vscode-extension`, find the marketplace version tag by checking the [tags](https://gitlab.com/gitlab-org/security/gitlab-vscode-extension/-/tags).
+1. In the `gitlab-vscode-extension`, [create a security branch](https://gitlab.com/gitlab-org/security/gitlab-vscode-extension/-/branches/new) based on the latest released tag.
+   For example, if the latest released tag is `v.2.2.0`, create a branch in the security project with:
+   - **Branch name:** `security-v2.2.0`
+   - **Create from:** `v2.2.0`.
 
 #### Security fix branch
 
 Your fix is going to be pushed into `security-<issue number>` branch. If you work on issue #9999, you push the fix into `security-9999` branch.
 
 ```sh
-git checkout security-2-2
+git fetch security
+git checkout security-v2.2.0
 git checkout -b security-9999
 git push security security-9999
 ```
@@ -87,24 +86,21 @@ Here, the process diverges from the [`gitlab-org/gitlab` security release proces
 
 1. **Before developing the fix, make sure that you've already run the `scripts/security-harness` script.**
 1. Implement the fix and push it to your branch (`security-9999` for issue #9999).
-1. Create an MR to merge `security-9999` to the patch release branch (`security-2-2`) and get it reviewed.
+1. Create an MR to merge `security-9999` to the patch release branch (`security-v2.2.0`) and get it reviewed.
 1. Merge the fix (make sure you squash all the MR commits into one).
 
 ### Release the change
 
-Follow the [regular release process](release-process.md) to tag a new patch version on the `security-2-2` branch and release it. Patch release for tag `v2.2.0` would have version and tag `v2.2.1`. Push the new version commit (changing `CHANGELOG.md` and version in `package.json`) to the `security-2-2` branch.
+Follow the [regular release process](release-process.md) to tag a new patch version on the `security-v2.2.0` branch and release it. Patch release for tag `v2.2.0` would have version and tag `v2.2.1`. Push the new version commit (changing `CHANGELOG.md` and version in `package.json`) to the `security-v2.2.0` branch.
 
 Validate that the security issue is fixed in production.
 
-### Backport the fix to `main`
+### Backport the fix to the [Extension Repo](https://gitlab.com/gitlab-org/gitlab-vscode-extension)
 
-1. Create an MR to merge the security branch `security-2-2` to `main`. Don't squash commits. Delete source branch.
-1. In the MR description, add references to all the reviewed MRs that were merged into `security-2-2`.
-1. Review the MR and merge it. You don't need an additional reviewer because all of the changes have been reviewed.
-
-Example: https://gitlab.com/gitlab-org/security/gitlab-vscode-extension/-/merge_requests/8
-
-## Push changes back to the [Extension Repo](https://gitlab.com/gitlab-org/gitlab-vscode-extension)
-
-1. Push the patch tag to the [Extension Repo](https://gitlab.com/gitlab-org/gitlab-vscode-extension)
-1. Merge the [Security Repo](https://gitlab.com/gitlab-org/security/gitlab-vscode-extension) `main` branch with the [Extension Repo](https://gitlab.com/gitlab-org/gitlab-vscode-extension) `main` and push to Extension Repo
+1. [Create an MR](https://gitlab.com/gitlab-org/security/gitlab-vscode-extension/-/merge_requests/new?merge_request%5Bsource_project_id%5D=47566511&merge_request%5Bsource_branch%5D=&merge_request%5Btarget_project_id%5D=35104827&merge_request%5Btarget_branch%5D=main) from the security project:
+   - **Source project:** `gitlab-org/security/gitlab-vscode-extension`
+   - **Source branch:** The patch release branch (for example `security-v2.2.0`)
+   - **Target project:** `gitlab-org/gitlab-vscode-extension`
+   - **Target branch:** `main`
+1. Merge the MR. No review is necessary since the changes have already been
+   reviewed.
