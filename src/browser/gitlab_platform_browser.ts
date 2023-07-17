@@ -1,18 +1,30 @@
 import * as vscode from 'vscode';
+import { memoize } from 'lodash';
 import { GitLabPlatformManager } from '../common/platform/gitlab_platform';
 import {
   COMMAND_FETCH_FROM_API,
   COMMAND_GET_CONFIG,
+  COMMAND_MEDIATOR_TOKEN,
   InteropConfig,
   fetchFromApi,
 } from '../common/platform/web_ide';
 import { convertToGitLabProject, getProject } from '../common/gitlab/api/get_project';
 
-const fetchFromApi: fetchFromApi = async request =>
-  vscode.commands.executeCommand(COMMAND_FETCH_FROM_API, request);
+const getMediatorToken: () => Promise<string> = memoize(async () =>
+  vscode.commands.executeCommand(COMMAND_MEDIATOR_TOKEN),
+);
 
-const getConfig: () => Promise<InteropConfig> = async () =>
-  vscode.commands.executeCommand(COMMAND_GET_CONFIG);
+const fetchFromApi: fetchFromApi = async request => {
+  const token = await getMediatorToken();
+
+  return vscode.commands.executeCommand(COMMAND_FETCH_FROM_API, token, request);
+};
+
+const getConfig: () => Promise<InteropConfig> = async () => {
+  const token = await getMediatorToken();
+
+  return vscode.commands.executeCommand(COMMAND_GET_CONFIG, token);
+};
 
 export const createGitLabPlatformManagerBrowser: () => Promise<GitLabPlatformManager> =
   async () => {
