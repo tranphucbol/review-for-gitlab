@@ -66,6 +66,19 @@ check-ci-variables:
         - 'src/ci/ci_variables.json'
         - 'scripts/update_ci_variables.js'
 
+check-icons:
+  stage: test
+  script:
+    - apt-get update && apt-get install -y git wget
+    - ./scripts/check_icons_are_up_to_date.sh
+  allow_failure: true # can be caused by changes in https://gitlab.com/gitlab-org/editor-extensions/gitlab-ide-icons
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - 'src/assets/icons/*'
+
 test-unit:
   stage: test
   script:

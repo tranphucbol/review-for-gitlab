@@ -23,7 +23,7 @@ We keep a local copy of all supported GitLab CI/CD variables in [`ci_variables.j
 
    A script generated this code change, so this merge request will merge without a second review.
 
-   /label ~"devops::create" ~"group::code review" ~"VS Code" ~"Category:Editor Extension" ~"section::dev" ~"type::maintenance"
+   /label ~"devops::create" ~"group::ide" ~"VS Code" ~"section::dev" ~"type::maintenance"
    ```
 
 1. Perform a quick review of the change.
