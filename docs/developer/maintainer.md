@@ -11,6 +11,7 @@ This document is for new extension maintainers.
 ## Access you need
 
 - Maintainer access to [`gitlab-org/gitlab-vscode-extension`](https://gitlab.com/gitlab-org/gitlab-vscode-extension)
+- [Add yourself](https://gitlab.com/gitlab-com/www-gitlab-com/-/tree/master/data/team_members/person) as a maintainer of this project so that Roulette can select you
 - Access to "VS Code Extension" 1Password vault
 - Create an [Access Request](https://about.gitlab.com/handbook/business-technology/team-member-enablement/onboarding-access-requests/access-requests/) and ask to be added to `vscode@gitlab.com` email group. Historically, EMs and PMs on the extension team also have access to this email group.
 
