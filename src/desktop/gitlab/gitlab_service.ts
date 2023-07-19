@@ -159,6 +159,8 @@ const getIssuableGqlId = (issuable: RestIssuable) =>
   `gid://gitlab/${isMr(issuable) ? 'MergeRequest' : 'Issue'}/${issuable.id}`;
 const getMrGqlId = (id: number) => `gid://gitlab/MergeRequest/${id}`;
 
+// FIXME: specify correct type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const safelyParseJson = (text: string): any | undefined => {
   try {
     return JSON.parse(text);
@@ -210,6 +212,8 @@ export class GitLabService {
     this.#credentials = credentials;
   }
 
+  // FIXME: specify correct type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async graphqlRequest<T = any, V extends Variables = Variables>(
     document: RequestDocument,
     variables?: V,

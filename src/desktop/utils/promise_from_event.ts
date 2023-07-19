@@ -6,9 +6,13 @@
 import { EventEmitter, Event, Disposable } from 'vscode';
 
 export interface PromiseAdapter<T, U> {
+  // FIXME: specify correct type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (value: T, resolve: (value: U | PromiseLike<U>) => void, reject: (reason: any) => void): any;
 }
 
+// FIXME: specify correct type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const passthrough = (value: any, resolve: (value?: any) => void) => resolve(value);
 
 /**
