@@ -20,8 +20,28 @@ export class GitLabChatController implements IChatController {
     this.view = new GitLabChatView(this);
   }
 
-  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
   async processNewUserRecord(record: GitLabChatRecord) {
-    // implementation will be added in a follow-up MR.
+    await this.addToChat(record);
+
+    const responseRecord = new GitLabChatRecord({
+      author: 'gitLabChat',
+      text: '...',
+      state: 'pending',
+    });
+
+    await this.addToChat(responseRecord);
+
+    const { text, requestId } = await this.api.processNewUserPrompt(record.text);
+
+    responseRecord.text = text ?? '';
+    responseRecord.state = 'ready';
+    responseRecord.requestId = requestId;
+
+    await this.view.updateRecord(responseRecord);
+  }
+
+  private async addToChat(record: GitLabChatRecord) {
+    this.chatHistory.push(record);
+    await this.view.addRecord(record);
   }
 }

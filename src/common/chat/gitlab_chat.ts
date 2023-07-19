@@ -9,9 +9,7 @@ export const activateChat = (context: vscode.ExtensionContext, manager: GitLabPl
 
   // sidebar view
   context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider(CHAT_SIDEBAR_VIEW_ID, controller.view, {
-      webviewOptions: { retainContextWhenHidden: true },
-    }),
+    vscode.window.registerWebviewViewProvider(CHAT_SIDEBAR_VIEW_ID, controller.view),
   );
 
   // commands
