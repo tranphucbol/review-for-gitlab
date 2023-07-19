@@ -101,6 +101,8 @@ class WebviewController implements RepositoryRootWebviewProvider {
       issuable: RestIssuable,
       projectInRepository: ProjectInRepository,
     ) =>
+    // FIXME: specify correct type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (message: any) => {
       if (message.command === 'renderMarkdown') {
         let rendered = await getGitLabService(projectInRepository).renderMarkdown(

@@ -4,6 +4,6 @@ export interface DetailedError extends Error {
   readonly details: Record<string, unknown>;
 }
 
-export function isDetailedError(object: any): object is DetailedError {
-  return Boolean(object.details);
+export function isDetailedError(object: unknown): object is DetailedError {
+  return Boolean((object as DetailedError).details);
 }

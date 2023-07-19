@@ -56,6 +56,8 @@ const INSTANCE_SEARCH_LEVEL: SearchLevelItem = {
 };
 
 const parseQuery = (query: string, noteableType: string) => {
+  // FIXME: specify correct type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params: Record<string, any> = {};
   const tokens = query
     .replace(/: /g, ':') // Normalize spaces after tokens.

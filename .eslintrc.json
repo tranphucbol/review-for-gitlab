@@ -99,6 +99,12 @@
         }
       },
       "plugins": ["@typescript-eslint"]
+    },
+    {
+      "files": ["**/*test.ts", "test/**/*.ts", "**/test_utils/**/*.ts"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "warn"
+      }
     }
   ]
 }

@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { isEmpty } from 'lodash';
 import { DiffFilePath, findFileInDiffs } from '../utils/find_file_in_diffs';
 
 // these helper functions are simplified version of the same lodash functions
@@ -6,9 +7,6 @@ const range = (start: number, end: number) => [...Array(end - start).keys()].map
 const flatten = <T>(a: T[][]): T[] => a.reduce((acc, nested) => [...acc, ...nested], []);
 const last = <T>(a: T[]): T | undefined => a[a.length - 1];
 const first = <T>(a: T[]): T | undefined => a[0];
-// copied from https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore#_isempty
-const isEmpty = (obj: any): boolean =>
-  [Object, Array].includes((obj || {}).constructor) && !Object.entries(obj || {}).length;
 
 /**
  * This method returns line number where in the text document given hunk starts.
