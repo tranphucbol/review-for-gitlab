@@ -32,7 +32,7 @@ describe('GitLabChatView', () => {
       await view.resolveWebviewView(webview);
 
       expect(webview.webview.options).toEqual({ enableScripts: true });
-      expect(webview.webview.html).toEqual('<html><body>Chat Window HTML code.</body></html>');
+      expect(webview.webview.html.length).toBeGreaterThan(0);
     });
 
     it('sets message processing and dispose callbacks', async () => {

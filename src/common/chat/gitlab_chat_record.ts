@@ -7,22 +7,26 @@ export class GitLabChatRecord {
 
   id: string;
 
+  requestId?: string;
+
   state: string; // ['pending', 'ready']
 
   payload?: object;
 
-  type: string; // // ['general', 'explainThisCode']
+  type: string; // ['general', 'explainThisCode']
 
   constructor({
     type,
     author,
     text,
     state,
+    requestId,
     payload,
   }: {
     type?: string;
     author: string;
     text: string;
+    requestId?: string;
     state?: string;
     payload?: object;
   }) {
@@ -31,6 +35,7 @@ export class GitLabChatRecord {
     this.text = text;
     this.state = state ?? 'ready';
     this.payload = payload ?? {};
+    this.requestId = requestId;
     this.id = uuidv4();
   }
 }
