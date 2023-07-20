@@ -14,6 +14,7 @@ export const RENAMED = 'renamed';
 export const MODIFIED = 'modified';
 export const DO_NOT_SHOW_VERSION_WARNING = 'DO_NOT_SHOW_VERSION_WARNING';
 export const DO_NOT_SHOW_YAML_SUGGESTION = 'DO_NOT_SHOW_YAML_SUGGESTION';
+export const DISMISSED_CODE_SUGGESTIONS_PROMO = 'DISMISSED_CODE_SUGGESTIONS_PROMO';
 export const WEBVIEW_WORKFLOW = 'glWorkflow';
 export const WEBVIEW_PENDING_JOB = 'gitlab.waitForPendingJob';
 
