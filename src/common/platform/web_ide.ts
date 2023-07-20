@@ -34,6 +34,7 @@ export interface PostRequest<TReturnType> {
    */
   path: string;
   body?: unknown;
+  headers?: Record<string, string>;
 }
 
 // why: `TReturnType` helps encapsulate the full request type when used with `fetchFromApi`
@@ -47,6 +48,7 @@ interface GetRequestBase<TReturnType> {
    */
   path: string;
   searchParams?: Record<string, string>;
+  headers?: Record<string, string>;
 }
 
 export interface GetRequest<TReturnType> extends GetRequestBase<TReturnType> {

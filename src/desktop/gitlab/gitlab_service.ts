@@ -295,12 +295,13 @@ export class GitLabService {
     apiResourcePath: string,
     query: Record<string, QueryValue> = {},
     resourceName = 'resource',
+    headers?: Record<string, string>,
   ): Promise<T> {
     const { instanceUrl } = await this.getCredentials();
 
     const url = `${instanceUrl}/api/v4${apiResourcePath}${createQueryString(query)}`;
 
-    const result = await this.crossFetch(url);
+    const result = await this.crossFetch(url, { headers });
     await handleFetchError(result, resourceName);
     return result.json() as Promise<T>;
   }
@@ -309,12 +310,13 @@ export class GitLabService {
     apiResourcePath: string,
     resourceName = 'resource',
     body?: unknown,
+    headers?: Record<string, string>,
   ): Promise<T> {
     const { instanceUrl } = await this.getCredentials();
     const url = `${instanceUrl}/api/v4${apiResourcePath}`;
 
     const response = await this.crossFetch(url, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...headers },
       method: 'POST',
       body: JSON.stringify(body),
     });
@@ -338,9 +340,9 @@ export class GitLabService {
     }
     switch (request.method) {
       case 'GET':
-        return this.fetch(request.path, request.searchParams);
+        return this.fetch(request.path, request.searchParams, 'resource', request.headers);
       case 'POST':
-        return this.postFetch(request.path, 'resource', request.body);
+        return this.postFetch(request.path, 'resource', request.body, request.headers);
       default:
         // the type assertion is necessary because TS doesn't expect any other types
         throw new Error(`Unknown request type ${(request as ApiRequest<unknown>).type}`);
