@@ -1,6 +1,9 @@
 ## [3.68.4](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.68.3...v3.68.4) (2023-07-20)
 
+### Bug fixes
 
+* Ignore erb files for code suggestions to improve internal team member Markdown experience
+([4c1fa845](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/commit/4c1fa845b174ad2f1745d9e03dbae30e8448c19c))
 
 ## [3.68.3](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.68.1...v3.68.3) (2023-07-13)
 
