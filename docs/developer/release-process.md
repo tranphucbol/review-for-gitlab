@@ -22,10 +22,17 @@ Perform the following steps to release a new version of the extension.
 
 1. (Optional.) Do a quick test of the extension in your local development. At this stage, you
    are only verifying there is no complete failure of the extension.
-1. Update the package version in `npm version <type>`. This automatically generates a changelog entry. Specify the `type` as:
-   - `patch` - if you only released bug fixes
-   - `minor` - if you released any new `feature: `
-   - `major` - we haven't changed major version yet, do this if you introduce severe breaking changes
+
+   - Run the extension locally, in the side panel open an issuable. This is a sufficient smoke test.
+
+1. Find out if you release `minor` or `patch` version:
+
+   - find all commit titles since the last release `git log --format='%s' $(git describe --abbrev=0 --tags HEAD)..HEAD | grep -v 'Merge branch'`
+     - if the commit messages contain `feat:` the version will be `minor`
+     - otherwise the version will be only `patch`
+     - we haven't release `major` version yet, there is no process for that
+
+1. Update the package version in `npm version <type>`. This automatically generates a changelog entry. Specify the `type` as `minor` or `patch`.
 1. Check if there have been community contributions:
 
    1. Get emails of all contributors between the tag you just created and one before:
@@ -45,7 +52,7 @@ Perform the following steps to release a new version of the extension.
 
 1. Run the command `git push origin main` and `git push origin v3.65.0` (assuming you created version `3.65.0`).
 1. Trigger the **Publish** steps (`publish_marketplace` and `publish_open_vsx`) on the tag pipeline that you created by pushing the new tag.
-1. When the extension updates in your VS Code, check that the extension works.
+1. When the extension updates in your VS Code, check that the extension works. Repeat smoke test from Step 1.
 1. Add a message to our `#f_vscode_extension` slack channel (replace `3.0.0` with the released version):
 
    ```plaintext
