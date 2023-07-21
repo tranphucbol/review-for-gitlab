@@ -88,7 +88,7 @@ npm install
 
 This command will install all necessary dependencies to run and debug extension in developer mode.
 
-#### Step - 4 : Running the extension
+#### Step - 4 : Running the extension in Desktop VS Code
 
 Open the extension project in VS Code (e.g. by running `code .` in the project folder).
 
@@ -99,13 +99,19 @@ To run the extension in development mode:
 
 You can read through the [Running and debugging your extension](https://code.visualstudio.com/api/working-with-extensions/bundling-extension#run-the-extension) section of the official documentation.
 
-#### Step - 5 : Troubleshooting
+#### Step - 5 : Running the Extension in WebIDE
+
+WebIDE is browser-only VS Code that's packaged with every GitLab instance.
+
+If you changed any code in the `src/browser` or `src/common` test the changes in WebIDE by [setting up the WebIDE locally](https://gitlab.com/gitlab-org/gitlab-web-ide/-/blob/main/docs/dev/development_environment_setup.md#setup) and [setting up integrating with GitLab Workflow VS Code extension](https://gitlab.com/gitlab-org/gitlab-web-ide/-/blob/main/docs/dev/development_environment_setup.md#setup-integrating-with-gitlab-workflow-vs-code-extension).
+
+#### Step - 6 : Troubleshooting
 
 Logs can be found by running `Developer: Show Logs ...` command (using `cmd+shift+p`) and selecting `Extension Host`.
 
 You can always use debugger when you are running the extension in development mode.
 
-#### Step - 6 : Run tests
+#### Step - 7 : Run tests
 
 To run tests in the terminal, run the following command from within the project folder:
 
@@ -119,7 +125,7 @@ To run tests from the VS Code, use the `Unit Tests` and `Integration Tests` [lau
 
 See also [how to write automated tests](docs/developer/writing-tests.md).
 
-#### Step - 7 : Run linter
+#### Step - 8 : Run linter
 
 To run linters, open terminal within the project folder and run following;
 
@@ -128,7 +134,7 @@ npm run autofix # Automatically formats your code using prettier and fixes eslin
 npm run lint
 ```
 
-#### Step - 8 : Add documentation
+#### Step - 9 : Add documentation
 
 If you added or changed a feature, add the documentation to the README.
 
