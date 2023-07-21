@@ -6,6 +6,9 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 # Release process
 
+This release process is concerned with releasing the GitLab Workflow extension to the **desktop** VS Code (Microsoft marketplace and Open-VSX).
+If you are interested to release the extension to GitLab WebIDE, follow the [WebIDE release process](https://gitlab.com/gitlab-org/gitlab-web-ide/-/blob/main/docs/dev/development_environment_setup.md#updating-gitlab-vscode-extension-project).
+
 We release irregularly (see the dates in the [CHANGELOG](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/CHANGELOG.md)).
 
 We release when there is a fix or user facing feature that will provide value to the users.
