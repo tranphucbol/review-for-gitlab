@@ -100,11 +100,18 @@ export class GitLabChatApi {
   ): Promise<AiMessage> {
     if (retry < 0) throw new Error('Could not call the GitLab Duo Chat API.');
 
-    const response = await this.delayHandlerExecution(handler(requestId));
+    const response = await handler(requestId);
 
-    if (response) return response;
+    if (response)
+      return new Promise(resolve => {
+        resolve(response);
+      });
 
-    return this.pullApiResponse(requestId, handler, retry - 1);
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(this.pullApiResponse(requestId, handler, retry - 1));
+      }, this.apiPullingInterval);
+    });
   }
 
   private async sendNewUserPrompt(text: string) {
