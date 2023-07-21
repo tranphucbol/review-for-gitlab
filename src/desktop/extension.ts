@@ -7,7 +7,7 @@ import { extensionState } from './extension_state';
 import { createSnippet } from './commands/create_snippet';
 import { insertSnippet } from './commands/insert_snippet';
 import { validateCiConfig, showMergedCiConfig } from './commands/ci_config_lint_commands';
-import { webviewController } from './webview_controller';
+import { issuableController } from './issuable_controller';
 import { issuableDataProvider } from './tree_view/issuable_data_provider';
 import { currentBranchDataProvider } from './tree_view/current_branch_data_provider';
 import { initializeLogging } from '../common/log';
@@ -123,7 +123,7 @@ const registerCommands = (context: vscode.ExtensionContext) => {
     [USER_COMMANDS.INSERT_SNIPPET]: runWithValidProject(insertSnippet),
     [USER_COMMANDS.VALIDATE_CI_CONFIG]: runWithValidProject(validateCiConfig),
     [USER_COMMANDS.SHOW_MERGED_CI_CONFIG]: runWithValidProject(showMergedCiConfig),
-    [PROGRAMMATIC_COMMANDS.SHOW_RICH_CONTENT]: webviewController.open.bind(webviewController),
+    [PROGRAMMATIC_COMMANDS.SHOW_RICH_CONTENT]: issuableController.open.bind(issuableController),
     [USER_COMMANDS.RESOLVE_THREAD]: toggleResolved,
     [USER_COMMANDS.UNRESOLVE_THREAD]: toggleResolved,
     [USER_COMMANDS.DELETE_COMMENT]: deleteComment,
@@ -223,7 +223,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
     GitLabRemoteFileSystem.OPTIONS,
   );
   registerCommands(context);
-  webviewController.init(context);
+  issuableController.init(context);
   await accountService.init(context).catch(e => {
     handleError(e);
     throw e;
@@ -250,7 +250,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   );
   await extensionState.init(accountService);
   registerSidebarTreeDataProviders();
-  registerRepositoryRootProvider(webviewController, pendingWebviewController);
+  registerRepositoryRootProvider(issuableController, pendingWebviewController);
   await migrateCredentials(context, accountService).catch(e => handleError(e));
   await migrateSelectedProjects(selectedProjectStore, accountService).catch(e => handleError(e));
 

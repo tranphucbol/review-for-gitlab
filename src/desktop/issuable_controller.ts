@@ -51,7 +51,7 @@ async function initPanelIfActive(
   });
 }
 
-class WebviewController implements RepositoryRootWebviewProvider {
+class IssuableController implements RepositoryRootWebviewProvider {
   context?: vscode.ExtensionContext;
 
   openedPanels: Record<string, IssuableWebviewPanel | undefined> = {};
@@ -199,4 +199,4 @@ class WebviewController implements RepositoryRootWebviewProvider {
   }
 }
 
-export const webviewController = new WebviewController();
+export const issuableController = new IssuableController();
