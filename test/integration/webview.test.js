@@ -1,7 +1,5 @@
 const assert = require('assert');
-const vscode = require('vscode');
 const sinon = require('sinon');
-const EventEmitter = require('events');
 const { graphql } = require('msw');
 const { issuableController } = require('../../src/desktop/issuable_controller');
 const openIssueResponse = require('./fixtures/rest/open_issue.json');
@@ -9,19 +7,11 @@ const { projectWithIssueDiscussions, note2 } = require('./fixtures/graphql/discu
 
 const { getServer, createJsonEndpoint } = require('./test_infrastructure/mock_server');
 const { getRepositoryRoot } = require('./test_infrastructure/helpers');
-
-const waitForMessage = (panel, type) =>
-  new Promise(resolve => {
-    const sub = panel.webview.onDidReceiveMessage(message => {
-      if (message.type !== type) return;
-      sub.dispose();
-      resolve(message);
-    });
-  });
+const { WebviewMock } = require('./test_infrastructure/webview_mock');
 
 describe('GitLab Issuable webview', () => {
   let server;
-  let webviewPanel;
+  let webviewMock;
   const sandbox = sinon.createSandbox();
 
   before(async () => {
@@ -51,39 +41,16 @@ describe('GitLab Issuable webview', () => {
     ]);
   });
 
-  /*
-  This method replaces the mechanism that the Webview panel uses for sending messages between
-  the extension and the webview. This is necessary since we can't control the webview and so
-  we need to be able to simulate events triggered by the webview and see that the extension
-  handles them well.
-  */
-  const replacePanelEventSystem = () => {
-    const { createWebviewPanel } = vscode.window;
-    sandbox.stub(vscode.window, 'createWebviewPanel').callsFake((viewType, title, column) => {
-      const panel = createWebviewPanel(viewType, title, column);
-      const eventEmitter = new EventEmitter();
-      sandbox
-        .stub(panel.webview, 'postMessage')
-        .callsFake(message => eventEmitter.emit('', message));
-      sandbox.stub(panel.webview, 'onDidReceiveMessage').callsFake(listener => {
-        eventEmitter.on('', listener);
-        return { dispose: () => {} };
-      });
-      // this simulates real behaviour where the webview initializes Vue app and that sends a `appReady` message
-      setTimeout(() => {
-        eventEmitter.emit('', { command: 'appReady' });
-      }, 1);
-      return panel;
-    });
-  };
-
   beforeEach(async () => {
     server.resetHandlers();
-    replacePanelEventSystem();
-    webviewPanel = await issuableController.open(openIssueResponse, getRepositoryRoot());
+    webviewMock = new WebviewMock(sandbox);
+    webviewMock.mockNextWebView();
+
+    await issuableController.open(openIssueResponse, getRepositoryRoot());
   });
 
   afterEach(async () => {
+    await webviewMock.webview.dispose();
     sandbox.restore();
   });
 
@@ -92,17 +59,17 @@ describe('GitLab Issuable webview', () => {
   });
 
   it('sends a message', async () => {
-    webviewPanel.webview.postMessage({
+    webviewMock.postMessage({
       command: 'saveNote',
       note: 'Hello',
     });
-    const sentMessage = await waitForMessage(webviewPanel, 'noteSaved');
+    const sentMessage = await webviewMock.waitForMessage(m => m.type === 'noteSaved');
     assert.strictEqual(sentMessage.type, 'noteSaved');
     assert.strictEqual(sentMessage.status, undefined);
   });
 
   it('adds the correct panel icon', () => {
-    const { dark, light } = webviewPanel.iconPath;
+    const { dark, light } = webviewMock.webview.iconPath;
     assert.match(dark.path, /src\/assets\/images\/dark\/issues.svg$/);
     assert.match(light.path, /src\/assets\/images\/light\/issues.svg$/);
   });
@@ -110,13 +77,14 @@ describe('GitLab Issuable webview', () => {
   it('substitutes the resource URLs in the HTML markup', () => {
     const resources = ['webviews/issuable/assets/app\\.js', 'webviews/issuable/assets/index\\.css'];
     resources.forEach(r => {
-      assert.match(webviewPanel.webview.html, new RegExp(r, 'gm'));
+      assert.match(webviewMock.webview.webview.html, new RegExp(r, 'gm'));
     });
   });
 
   it('adds nonce to all script tags', () => {
-    const allScriptTags = webviewPanel.webview.html.match(/<script/).length;
-    const scriptTagsWithNonce = webviewPanel.webview.html.match(/<script nonce="\w+"/).length;
+    const allScriptTags = webviewMock.webview.webview.html.match(/<script/).length;
+    const scriptTagsWithNonce =
+      webviewMock.webview.webview.html.match(/<script nonce="\w+"/).length;
     assert.strictEqual(
       allScriptTags,
       scriptTagsWithNonce,
@@ -125,15 +93,20 @@ describe('GitLab Issuable webview', () => {
   });
 
   it('reveals existing panel instead of creating a new one', async () => {
-    const revealSpy = sandbox.spy(webviewPanel, 'reveal');
+    const revealSpy = sandbox.spy(webviewMock.webview, 'reveal');
     const samePanel = await issuableController.open(openIssueResponse, getRepositoryRoot());
     assert(revealSpy.called);
-    assert.strictEqual(samePanel, webviewPanel);
+    assert.strictEqual(samePanel, webviewMock.webview);
   });
 
   it('creates a new panel if the previous one got disposed', async () => {
-    webviewPanel.dispose();
+    const oldView = webviewMock.webview;
+
+    webviewMock.webview.dispose();
+    webviewMock = new WebviewMock(sandbox);
+    webviewMock.mockNextWebView();
     const newPanel = await issuableController.open(openIssueResponse, getRepositoryRoot());
-    assert.notStrictEqual(newPanel, webviewPanel);
+
+    assert.notStrictEqual(newPanel, oldView);
   });
 });
