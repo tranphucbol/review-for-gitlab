@@ -2,8 +2,8 @@ import { vi, expect, it, describe } from 'vitest';
 import { mount } from '@vue/test-utils';
 import LabelNote from './LabelNote.vue';
 
-const addedLabelEvent = require('../../../../test/integration/fixtures/rest/label_events/added_normal.json');
-const scopedLabelEvent = require('../../../../test/integration/fixtures/rest/label_events/added_scoped.json');
+const addedLabelEvent = require('../../../../../test/integration/fixtures/rest/label_events/added_normal.json');
+const scopedLabelEvent = require('../../../../../test/integration/fixtures/rest/label_events/added_scoped.json');
 
 describe('LabelNote', () => {
   let wrapper;

@@ -7,7 +7,7 @@ const {
   multipleNotes,
   note1TextSnippet,
   note2TextSnippet,
-} = require('../../../../test/integration/fixtures/graphql/discussions');
+} = require('../../../../../test/integration/fixtures/graphql/discussions');
 
 const getReplyButton = wrapper => wrapper.find('.js-reply');
 const getCollapseButton = wrapper => wrapper.find('.js-collapse');

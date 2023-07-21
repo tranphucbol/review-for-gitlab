@@ -11,10 +11,10 @@ export async function cleanDesktopBuild() {
   await run('rm', ['-rf', 'dist-desktop']);
 }
 
-export async function prepareIssuable() {
-  await run('npm', ['run', '--prefix', path.join(root, 'webviews/issuable'), 'build']);
+export async function prepareWebviews() {
+  await run('npm', ['run', '--prefix', path.join(root, 'webviews/vue'), 'build']);
   await copy(
-    path.join(root, 'webviews/issuable/dist'),
+    path.join(root, 'webviews/vue/dist/issuable'),
     path.join(root, 'dist-desktop/webviews/issuable'),
   );
 }
@@ -78,14 +78,16 @@ export async function preparePackageFiles() {
   await run('cp', ['-R', path.join(root, 'node_modules'), path.join(root, 'dist-desktop')]);
 }
 
-export async function watchIssuable(signal) {
-  const dirpath = path.join(root, 'webviews/issuable/dist');
-  if (!fs.existsSync(dirpath)) fs.mkdirSync(dirpath);
+export async function watchWebviews(signal) {
+  const dirpath = path.join(root, 'webviews/vue/dist/issuable');
+  if (!fs.existsSync(dirpath)) fs.mkdirSync(dirpath, { recursive: true });
   fs.symlinkSync(
-    path.join(root, 'webviews/issuable/dist'),
+    path.join(root, 'webviews/vue/dist/issuable'),
     path.join(root, 'dist-desktop/webviews/issuable'),
   );
-  await run('npm', ['run', '--prefix', path.join(root, 'webviews/issuable'), 'watch'], { signal });
+  await run('npm', ['run', '--prefix', path.join(root, 'webviews/vue'), 'watch'], {
+    signal,
+  });
 }
 
 export async function buildDesktop() {
@@ -95,7 +97,7 @@ export async function buildDesktop() {
   await prepareDistDirs();
 
   await Promise.all([
-    prepareIssuable(),
+    prepareWebviews(),
     copyPendingJobAssets(),
     checkAndBuildExtension(['--minify']),
     generateAssets(packageJson),
