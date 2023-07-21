@@ -163,7 +163,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     );
 
     let response: CodeSuggestionsResponse;
-    let model: Model = { engine: '', name: '' }; // Defaults for telemetry of failed requests
+    let model: Model = { engine: '', name: '', lang: '' }; // Defaults for telemetry of failed requests
 
     try {
       this.stateManager.setState(CodeSuggestionsState.LOADING);

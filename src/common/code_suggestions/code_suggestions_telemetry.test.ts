@@ -7,11 +7,13 @@ describe('CodeSuggestionsTelemetry', () => {
   const codegenModel: Model = {
     engine: 'gitlab-native',
     name: 'codegen-v2-1.0.0',
+    lang: 'c',
   };
 
   const codegenTelemetry: Telemetry = {
     model_name: codegenModel.name,
     model_engine: codegenModel.engine,
+    lang: codegenModel.lang,
     accepts: 0,
     errors: 0,
     requests: 0,
@@ -43,6 +45,7 @@ describe('CodeSuggestionsTelemetry', () => {
     const bisonModel: Model = {
       engine: 'code-bison',
       name: 'v2-1.0.0',
+      lang: 'python',
     };
 
     telemetry.incRequestCount(codegenModel);
@@ -55,6 +58,7 @@ describe('CodeSuggestionsTelemetry', () => {
       {
         model_engine: bisonModel.engine,
         model_name: bisonModel.name,
+        lang: bisonModel.lang,
         requests: 1,
         errors: 1,
         accepts: 0,

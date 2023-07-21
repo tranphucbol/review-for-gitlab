@@ -35,7 +35,11 @@ const mockCompletions = {
   choices: [{ text: choice }],
   model: { name: 'ensemble', engine: 'codegen' },
 };
-
+const telemetryModel = {
+  name: 'testModel',
+  engine: 'testEngine',
+  lang: 'c',
+};
 const mockPosition = {
   line: 0,
   character: mockPrompt.length,
@@ -343,7 +347,7 @@ describe('CodeSuggestionsProvider', () => {
     });
 
     it('sends correct accepted value when it is increased in telemetry', async () => {
-      codeSuggestionsTelemetry.incAcceptCount({ name: 'testModel', engine: 'testEngine' });
+      codeSuggestionsTelemetry.incAcceptCount(telemetryModel);
       await getCompletionsWithDefaultArgs(glcp);
       const body = lastFetchCallBody();
 
@@ -355,11 +359,11 @@ describe('CodeSuggestionsProvider', () => {
       const getLoggedMessage = () => jest.mocked(log.debug).mock.calls[1][0];
 
       it('logs the telemetry details', async () => {
-        codeSuggestionsTelemetry.incAcceptCount({ name: 'testModel', engine: 'testEngine' });
+        codeSuggestionsTelemetry.incAcceptCount(telemetryModel);
         await getCompletionsWithDefaultArgs(glcp);
 
         expect(getLoggedMessage()).toContain(
-          'AI Assist: fetching completions ... (telemetry: [{"model_engine":"testEngine","model_name":"testModel","requests":0,"accepts":1,"errors":0}])',
+          'AI Assist: fetching completions ... (telemetry: [{"model_engine":"testEngine","model_name":"testModel","lang":"c","requests":0,"accepts":1,"errors":0}])',
         );
       });
     });
