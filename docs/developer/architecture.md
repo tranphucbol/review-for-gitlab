@@ -110,12 +110,12 @@ We periodically check for changes (every 30 seconds). [`CurrentBranchRefresher`]
 
 [Webview](https://code.visualstudio.com/api/extension-guides/webview) is an API that allows extensions to show a custom web page into an editor tab.
 
-We use Webview to show merge request and issue details (`webviews/issuable`). We use a separate NPM module with its tests and build system (`webpack`, `babel`). This NPM module contains a Vue app that is compiled into dist `js` files. `src/desktop/webview_controller.js` is placed in the extension project, and initializes the whole Webview.
+We use Webview to show merge request and issue details (`webviews/issuable`). We use a separate NPM module with its tests and build system (`webpack`, `babel`). This NPM module contains a Vue app that is compiled into dist `js` files. `src/desktop/issuable_controller.js` is placed in the extension project, and initializes the whole Webview.
 
 ```mermaid
 graph LR;
 subgraph extension
-A[GitLab Worflow] --> B[webview_controller]
+A[GitLab Worflow] --> B[issuable_controller]
 end
 subgraph webview
 B --> C["dist/app.js"]

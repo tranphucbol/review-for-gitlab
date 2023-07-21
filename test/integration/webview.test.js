@@ -3,7 +3,7 @@ const vscode = require('vscode');
 const sinon = require('sinon');
 const EventEmitter = require('events');
 const { graphql } = require('msw');
-const { webviewController } = require('../../src/desktop/webview_controller');
+const { issuableController } = require('../../src/desktop/issuable_controller');
 const openIssueResponse = require('./fixtures/rest/open_issue.json');
 const { projectWithIssueDiscussions, note2 } = require('./fixtures/graphql/discussions');
 
@@ -19,7 +19,7 @@ const waitForMessage = (panel, type) =>
     });
   });
 
-describe('GitLab webview', () => {
+describe('GitLab Issuable webview', () => {
   let server;
   let webviewPanel;
   const sandbox = sinon.createSandbox();
@@ -80,7 +80,7 @@ describe('GitLab webview', () => {
   beforeEach(async () => {
     server.resetHandlers();
     replacePanelEventSystem();
-    webviewPanel = await webviewController.open(openIssueResponse, getRepositoryRoot());
+    webviewPanel = await issuableController.open(openIssueResponse, getRepositoryRoot());
   });
 
   afterEach(async () => {
@@ -126,14 +126,14 @@ describe('GitLab webview', () => {
 
   it('reveals existing panel instead of creating a new one', async () => {
     const revealSpy = sandbox.spy(webviewPanel, 'reveal');
-    const samePanel = await webviewController.open(openIssueResponse, getRepositoryRoot());
+    const samePanel = await issuableController.open(openIssueResponse, getRepositoryRoot());
     assert(revealSpy.called);
     assert.strictEqual(samePanel, webviewPanel);
   });
 
   it('creates a new panel if the previous one got disposed', async () => {
     webviewPanel.dispose();
-    const newPanel = await webviewController.open(openIssueResponse, getRepositoryRoot());
+    const newPanel = await issuableController.open(openIssueResponse, getRepositoryRoot());
     assert.notStrictEqual(newPanel, webviewPanel);
   });
 });
