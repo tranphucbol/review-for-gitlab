@@ -3,33 +3,79 @@ import { GitLabChatController } from './gitlab_chat_controller';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { GitLabChatRecord } from './gitlab_chat_record';
 
+const apiMock = { processNewUserPrompt: jest.fn() };
+
+jest.mock('./gitlab_chat_api', () => ({
+  GitLabChatApi: jest.fn().mockImplementation(() => apiMock),
+}));
+
+const viewMock = {
+  addRecord: jest.fn(),
+  updateRecord: jest.fn(),
+  show: jest.fn(),
+  onViewMessage: jest.fn(),
+  resolveWebviewView: jest.fn(),
+};
+
+jest.mock('./gitlab_chat_view', () => ({
+  GitLabChatView: jest.fn().mockImplementation(() => viewMock),
+}));
+
 describe('GitLabChatController', () => {
-  let context: vscode.ExtensionContext;
   let platformManager: GitLabPlatformManager;
   let controller: GitLabChatController;
 
   beforeEach(() => {
-    controller = new GitLabChatController(context, platformManager);
+    controller = new GitLabChatController(platformManager);
+    apiMock.processNewUserPrompt = jest
+      .fn()
+      .mockReturnValue({ text: 'api response', requestId: 'uniqueId' });
+  });
+
+  describe('resolveWebviewView', () => {
+    const webview = {} as Partial<vscode.WebviewView> as vscode.WebviewView;
+
+    it('delegates to view', async () => {
+      await controller.resolveWebviewView(webview);
+
+      expect(viewMock.resolveWebviewView).toHaveBeenCalledWith(webview);
+    });
+
+    it('restores chat history', async () => {
+      controller.chatHistory.push(
+        new GitLabChatRecord({ author: 'user', text: 'ping' }),
+        new GitLabChatRecord({ author: 'gitLabChat', text: 'pong' }),
+      );
+
+      await controller.resolveWebviewView(webview);
+
+      expect(viewMock.addRecord).toHaveBeenNthCalledWith(1, controller.chatHistory[0]);
+      expect(viewMock.addRecord).toHaveBeenNthCalledWith(2, controller.chatHistory[1]);
+    });
   });
 
   describe('processNewUserRecord', () => {
     let record: GitLabChatRecord;
 
     beforeEach(() => {
-      controller.view.addRecord = jest.fn();
-      controller.view.updateRecord = jest.fn();
-      controller.api.processNewUserPrompt = jest
-        .fn()
-        .mockReturnValue({ text: 'api response', requestId: 'uniqueId' });
-
       record = new GitLabChatRecord({ author: 'user', text: 'hello' });
     });
 
     describe('before the api call', () => {
       beforeEach(() => {
-        controller.api.processNewUserPrompt = jest.fn(() => {
+        apiMock.processNewUserPrompt = jest.fn(() => {
           throw new Error('asd');
         });
+      });
+
+      it('shows the view', async () => {
+        try {
+          await controller.processNewUserRecord(record);
+        } catch (e) {
+          /* empty */
+        }
+
+        expect(viewMock.show).toHaveBeenCalled();
       });
 
       it('sends new user record and pending response record to the view before the API call', async () => {
@@ -39,8 +85,11 @@ describe('GitLabChatController', () => {
           /* empty */
         }
 
-        expect(controller.view.addRecord).toHaveBeenNthCalledWith(1, record);
-        expect(controller.view.addRecord).toHaveBeenNthCalledWith(
+        expect(viewMock.addRecord).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({ text: 'hello', state: 'ready', author: 'user' }),
+        );
+        expect(viewMock.addRecord).toHaveBeenNthCalledWith(
           2,
           expect.objectContaining({ text: '...', state: 'pending', author: 'gitLabChat' }),
         );
@@ -55,7 +104,9 @@ describe('GitLabChatController', () => {
           /* empty */
         }
 
-        expect(controller.chatHistory[0]).toEqual(record);
+        expect(controller.chatHistory[0]).toEqual(
+          expect.objectContaining({ text: 'hello', state: 'ready', author: 'user' }),
+        );
         expect(controller.chatHistory[1]).toEqual(
           expect.objectContaining({ text: '...', state: 'pending', author: 'gitLabChat' }),
         );
@@ -65,7 +116,7 @@ describe('GitLabChatController', () => {
     it('sends update of the view when API response is received', async () => {
       await controller.processNewUserRecord(record);
 
-      expect(controller.view.addRecord).toHaveBeenCalledWith(
+      expect(viewMock.addRecord).toHaveBeenCalledWith(
         expect.objectContaining({
           text: 'api response',
           state: 'ready',
@@ -80,7 +131,13 @@ describe('GitLabChatController', () => {
 
       await controller.processNewUserRecord(record);
 
-      expect(controller.chatHistory[0]).toEqual(record);
+      expect(controller.chatHistory[0]).toEqual(
+        expect.objectContaining({
+          text: 'hello',
+          state: 'ready',
+          author: 'user',
+        }),
+      );
       expect(controller.chatHistory[1]).toEqual(
         expect.objectContaining({
           text: 'api response',

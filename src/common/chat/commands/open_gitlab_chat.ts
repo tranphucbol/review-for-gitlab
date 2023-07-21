@@ -7,5 +7,5 @@ export const COMMAND_OPEN_GITLAB_CHAT = 'gl.openChat';
  */
 
 export const openGitLabChat = async (controller: GitLabChatController) => {
-  await controller.view.show();
+  await controller.showChat();
 };

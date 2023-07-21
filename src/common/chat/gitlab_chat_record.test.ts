@@ -14,12 +14,14 @@ describe('GitLabChatRecord', () => {
     record = new GitLabChatRecord({
       author: 'user',
       text: '',
-      type: 'explainThisCode',
+      type: 'explainCode',
+      requestId: '123',
       state: 'pending',
       payload: { code: '1' },
     });
-    expect(record.type).toEqual('explainThisCode');
+    expect(record.type).toEqual('explainCode');
     expect(record.state).toEqual('pending');
+    expect(record.requestId).toEqual('123');
     expect(record.payload).toEqual({ code: '1' });
   });
 

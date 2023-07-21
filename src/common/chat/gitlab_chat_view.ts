@@ -5,52 +5,56 @@ import { log } from '../log';
 
 export const CHAT_SIDEBAR_VIEW_ID = 'gl.chatView';
 
-interface ChatViewMessage {
-  eventType: string;
-  text?: string;
-  record?: GitLabChatRecord;
+interface FocusCommand {
+  eventType: 'focus';
 }
 
-export interface IChatController {
-  processNewUserRecord(record: GitLabChatRecord): void;
-  chatHistory: GitLabChatRecord[];
-  context: vscode.ExtensionContext;
+interface RecordCommand {
+  eventType: 'newRecord' | 'updateRecord';
+  record: GitLabChatRecord;
 }
 
-export class GitLabChatView implements vscode.WebviewViewProvider {
-  private chatView?: vscode.WebviewView;
+export type ViewCommand = FocusCommand | RecordCommand;
 
-  private controller: IChatController;
+interface NewPromptMessage {
+  eventType: 'newPrompt';
+  record: {
+    text: string;
+  };
+}
 
-  constructor(controller: IChatController) {
-    this.controller = controller;
-  }
+export type ViewMessage = NewPromptMessage;
+
+export class GitLabChatView {
+  #chatView?: vscode.WebviewView;
+
+  #messageEmitter = new vscode.EventEmitter<ViewMessage>();
+
+  onViewMessage = this.#messageEmitter.event;
 
   async resolveWebviewView(webviewView: vscode.WebviewView) {
-    this.chatView = webviewView;
+    this.#chatView = webviewView;
 
-    this.chatView.webview.options = {
+    this.#chatView.webview.options = {
       enableScripts: true,
     };
 
-    this.chatView.webview.html = this.getViewSource();
+    this.#chatView.webview.html = this.getViewSource();
 
-    await waitForWebview(this.chatView.webview);
+    await waitForWebview(this.#chatView.webview);
 
-    this.chatView.webview.onDidReceiveMessage(this.handleChatViewMessage, this);
+    this.#chatView.webview.onDidReceiveMessage(m => this.#messageEmitter.fire(m));
 
-    this.chatView.onDidDispose(() => {
-      this.chatView = undefined;
+    this.#chatView.onDidDispose(() => {
+      this.#chatView = undefined;
     }, this);
-
-    this.controller.chatHistory.forEach(this.addRecord, this);
 
     await this.focusInput();
   }
 
   async show() {
-    if (this.chatView) {
-      this.chatView.show();
+    if (this.#chatView) {
+      this.#chatView.show();
     } else {
       await vscode.commands.executeCommand(`${CHAT_SIDEBAR_VIEW_ID}.focus`);
     }
@@ -59,38 +63,30 @@ export class GitLabChatView implements vscode.WebviewViewProvider {
   }
 
   async addRecord(record: GitLabChatRecord) {
-    await this.sendChatViewMessage({
-      eventType: record.author === 'user' ? 'newPrompt' : 'newResponse',
+    await this.sendChatViewCommand({
+      eventType: 'newRecord',
       record,
     });
   }
 
   async updateRecord(record: GitLabChatRecord) {
-    await this.sendChatViewMessage({
+    await this.sendChatViewCommand({
       eventType: 'updateRecord',
       record,
     });
   }
 
   private async focusInput() {
-    await this.sendChatViewMessage({ eventType: 'focus' });
+    await this.sendChatViewCommand({ eventType: 'focus' });
   }
 
-  private async handleChatViewMessage(message: ChatViewMessage) {
-    if (message.eventType !== 'newPrompt' || !message.text) return;
-
-    const record = new GitLabChatRecord({ author: 'user', text: message.text });
-
-    await this.controller.processNewUserRecord(record);
-  }
-
-  private async sendChatViewMessage(message: ChatViewMessage) {
-    if (!this.chatView) {
+  private async sendChatViewCommand(message: ViewCommand) {
+    if (!this.#chatView) {
       log.warn('Trying to send webview chat message without a webview.');
       return;
     }
 
-    await this.chatView.webview.postMessage(message);
+    await this.#chatView.webview.postMessage(message);
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -146,7 +142,9 @@ export class GitLabChatView implements vscode.WebviewViewProvider {
             event.preventDefault();
             vscode.postMessage({
               eventType: 'newPrompt',
-              text: chatRequestArea.value
+              record: {
+                text: chatRequestArea.value
+              }
             });
             chatRequestArea.value = null;
           }
@@ -163,7 +161,7 @@ export class GitLabChatView implements vscode.WebviewViewProvider {
             messageBlock.id = "message-"+message.record.id;
             messageBlock.classList.add('message');
 
-            if (message.eventType == "newPrompt") {
+            if (message.record.author == "user") {
               messageBlock.classList.add('prompt');
             }else{
               messageBlock.classList.add('response');

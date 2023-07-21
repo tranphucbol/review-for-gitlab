@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
-import { GitLabChatView } from './gitlab_chat_view';
 import { activateChat } from './gitlab_chat';
+import { GitLabChatController } from './gitlab_chat_controller';
 
 jest.mock('vscode');
 
@@ -16,7 +16,10 @@ describe('activateChat', () => {
 
     vscode.window.registerWebviewViewProvider = jest.fn();
 
-    vscode.commands.registerCommand = jest.fn().mockReturnValueOnce('command1');
+    vscode.commands.registerCommand = jest
+      .fn()
+      .mockReturnValueOnce('command1')
+      .mockReturnValueOnce('command2');
   });
 
   it('registers view provider', () => {
@@ -24,7 +27,10 @@ describe('activateChat', () => {
 
     expect(vscode.window.registerWebviewViewProvider).toHaveBeenCalledWith(
       'gl.chatView',
-      expect.any(GitLabChatView),
+      expect.any(GitLabChatController),
+      {
+        webviewOptions: { retainContextWhenHidden: true },
+      },
     );
   });
 
@@ -37,6 +43,13 @@ describe('activateChat', () => {
       expect.any(Function),
     );
 
+    expect(vscode.commands.registerCommand).toHaveBeenNthCalledWith(
+      2,
+      'gl.explainSelectedCode',
+      expect.any(Function),
+    );
+
     expect(context.subscriptions[1]).toEqual('command1');
+    expect(context.subscriptions[2]).toEqual('command2');
   });
 });
