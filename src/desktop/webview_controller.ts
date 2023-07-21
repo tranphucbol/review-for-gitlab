@@ -16,6 +16,7 @@ import { RepositoryRootWebviewProvider } from './commands/run_with_valid_project
 import { waitForWebview } from '../common/utils/wait_for_webview';
 
 const webviewResourcePaths = {
+  // These are the paths to the resources in `dist-desktop/`
   appScriptUri: 'webviews/issuable/assets/app.js',
   styleUri: 'webviews/issuable/assets/index.css',
 } as const;
@@ -76,8 +77,8 @@ class WebviewController implements RepositoryRootWebviewProvider {
       .readFileSync(path.join(this.context.extensionPath, 'webviews/issuable/index.html'), 'UTF-8')
       .replace(/{{nonce}}/gm, nonce)
       .replace(/<script /g, `<script nonce="${nonce}"`)
-      .replace('/assets/index.css', styleUri.toString())
-      .replace('/assets/app.js', appScriptUri.toString());
+      .replace('/issuable/assets/index.css', styleUri.toString())
+      .replace('/issuable/assets/app.js', appScriptUri.toString());
   }
 
   private createPanel(issuable: RestIssuable) {
@@ -87,7 +88,7 @@ class WebviewController implements RepositoryRootWebviewProvider {
     return vscode.window.createWebviewPanel(WEBVIEW_WORKFLOW, title, vscode.ViewColumn.One, {
       enableScripts: true,
       localResourceRoots: [
-        vscode.Uri.file(path.join(this.context.extensionPath, 'webviews/issuable')),
+        vscode.Uri.file(path.join(this.context.extensionPath, 'webviews')),
         vscode.Uri.file(path.join(this.context.extensionPath, 'assets')),
       ],
       retainContextWhenHidden: true,

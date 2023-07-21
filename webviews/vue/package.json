@@ -1,15 +1,15 @@
 {
-  "name": "issuable",
+  "name": "vue-webviews",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "watch": "vite build --watch",
+    "build": "vite --config issuable/vite.config.js build",
+    "watch": "vite --config issuable/vite.config.js build --watch",
     "test": "vitest",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
-    "format": "prettier --write src/"
+    "format": "prettier --write issuable/src/"
   },
   "dependencies": {
     "@vue/compat": "^3.3.4",

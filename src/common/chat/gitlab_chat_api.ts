@@ -125,7 +125,7 @@ export class GitLabChatApi {
     return this.pullApiResponse(requestId, this.getChatHistory.bind(this));
   }
 
-  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
   async processNewUserFeedback(responseId: string, feedback: string) {
     // feedback values: ['helpful','unhelpful','wrong']
   }

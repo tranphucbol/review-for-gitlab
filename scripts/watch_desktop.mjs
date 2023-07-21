@@ -5,7 +5,7 @@ import {
   copyPendingJobAssets,
   prepareDistDirs,
   watchDesktop,
-  watchIssuable,
+  watchWebviews,
 } from './utils/desktop_jobs.mjs';
 import { createDesktopPackageJson } from './utils/packages.mjs';
 
@@ -24,7 +24,7 @@ async function main() {
   process.on('exit', () => abortController.abort());
 
   watchDesktop(abortController.signal);
-  watchIssuable(abortController.signal);
+  watchWebviews(abortController.signal);
 }
 
 main();

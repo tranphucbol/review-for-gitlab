@@ -4,7 +4,7 @@ import Note from './Note.vue';
 
 const {
   noteOnDiffWithSuggestion,
-} = require('../../../../test/integration/fixtures/graphql/discussions');
+} = require('../../../../../test/integration/fixtures/graphql/discussions');
 
 describe('Note', () => {
   let wrapper;

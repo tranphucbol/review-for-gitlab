@@ -3,7 +3,7 @@ node_modules
 .vscode-test-web/
 .history
 .DS_Store
-webviews/issuable/dist
+webviews/vue/**/dist
 dist-desktop/
 dist-browser/
 /coverage/

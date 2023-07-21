@@ -123,6 +123,9 @@ C --> D[initialize App.vue]
 end
 ```
 
+When creating a folder for a new webview, make sure to copy `webviews/vue/index-copy-this-into-a-new-webview-folder.html` as `index.html`
+into your webview's root and adjust it for your needs. The file contains a good-practices boilerplate to deal with `Content-Security-Policy`.
+
 To further understand how the extension communicates with Webview, read the [Webview extension guide](https://code.visualstudio.com/api/extension-guides/webview).
 
 ### Accounts (`src/desktop/accounts/account_service.ts`) (desktop-only)

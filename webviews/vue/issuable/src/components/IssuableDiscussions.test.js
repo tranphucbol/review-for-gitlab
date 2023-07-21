@@ -12,8 +12,8 @@ const {
   note1TextSnippet,
   note2TextSnippet,
   systemNoteTextSnippet,
-} = require('../../../../test/integration/fixtures/graphql/discussions');
-const labelNote = require('../../../../test/integration/fixtures/rest/label_events/added_normal.json');
+} = require('../../../../../test/integration/fixtures/graphql/discussions');
+const labelNote = require('../../../../../test/integration/fixtures/rest/label_events/added_normal.json');
 
 const partOfLabelNote = 'addedCategory:Editor Extension';
 

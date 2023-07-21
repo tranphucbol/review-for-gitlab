@@ -28,9 +28,10 @@ export default defineConfig({
     // sourcemap: 'inline',
     sourcemap: false,
     rollupOptions: {
+      input: 'issuable/index.html',
       output: {
-        entryFileNames: `assets/app.js`,
-        assetFileNames: `assets/[name].[ext]`,
+        entryFileNames: `issuable/assets/app.js`,
+        assetFileNames: `issuable/assets/[name].[ext]`,
       },
     },
   },
