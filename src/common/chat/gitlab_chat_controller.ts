@@ -1,26 +1,53 @@
 import * as vscode from 'vscode';
 import { GitLabChatRecord } from './gitlab_chat_record';
-import { GitLabChatView, IChatController } from './gitlab_chat_view';
+import { GitLabChatView, ViewMessage } from './gitlab_chat_view';
 import { GitLabChatApi } from './gitlab_chat_api';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
+import { log } from '../log';
 
-export class GitLabChatController implements IChatController {
-  public chatHistory: GitLabChatRecord[];
+export class GitLabChatController implements vscode.WebviewViewProvider {
+  readonly chatHistory: GitLabChatRecord[];
 
-  public view: GitLabChatView;
+  readonly #view: GitLabChatView;
 
-  public context: vscode.ExtensionContext;
+  readonly #api: GitLabChatApi;
 
-  public api: GitLabChatApi;
-
-  constructor(context: vscode.ExtensionContext, manager: GitLabPlatformManager) {
+  constructor(manager: GitLabPlatformManager) {
     this.chatHistory = [];
-    this.context = context;
-    this.api = new GitLabChatApi(manager);
-    this.view = new GitLabChatView(this);
+    this.#api = new GitLabChatApi(manager);
+    this.#view = new GitLabChatView();
+    this.#view.onViewMessage(this.viewMessageHandler.bind(this));
+  }
+
+  async resolveWebviewView(webviewView: vscode.WebviewView) {
+    await this.#view.resolveWebviewView(webviewView);
+
+    this.chatHistory.forEach(async record => {
+      await this.#view.addRecord(record);
+    }, this);
+  }
+
+  async viewMessageHandler(message: ViewMessage) {
+    switch (message.eventType) {
+      case 'newPrompt': {
+        if (!message.record.text) return;
+
+        await this.processNewPrompt(message.record.text);
+        break;
+      }
+      default:
+        log.warn(`Unhandled chat-webview message ${message.eventType}`);
+        break;
+    }
+  }
+
+  async showChat() {
+    await this.#view.show();
   }
 
   async processNewUserRecord(record: GitLabChatRecord) {
+    await this.#view.show();
+
     await this.addToChat(record);
 
     const responseRecord = new GitLabChatRecord({
@@ -31,17 +58,23 @@ export class GitLabChatController implements IChatController {
 
     await this.addToChat(responseRecord);
 
-    const { text, requestId } = await this.api.processNewUserPrompt(record.text);
+    const { text, requestId } = await this.#api.processNewUserPrompt(record.text);
 
     responseRecord.text = text ?? '';
     responseRecord.state = 'ready';
     responseRecord.requestId = requestId;
 
-    await this.view.updateRecord(responseRecord);
+    await this.#view.updateRecord(responseRecord);
+  }
+
+  private async processNewPrompt(promptText: string) {
+    const record = new GitLabChatRecord({ author: 'user', text: promptText });
+
+    await this.processNewUserRecord(record);
   }
 
   private async addToChat(record: GitLabChatRecord) {
     this.chatHistory.push(record);
-    await this.view.addRecord(record);
+    await this.#view.addRecord(record);
   }
 }

@@ -48,7 +48,7 @@
         {
           "type": "webview",
           "id": "gl.chatView",
-          "name": "GitLab Duo Chat",
+          "name": "GitLab Duo: Chat",
           "when": "config.gitlab.featureFlags.chat"
         }
       ]
@@ -62,8 +62,18 @@
       {
         "command": "gl.openChat",
         "title": "Open Chat",
-        "category": "GitLab Duo",
-        "when": "config.gitlab.featureFlags.chat"
+        "category": "GitLab Duo"
+      },
+      {
+        "command": "gl.explainSelectedCode",
+        "title": "Explain Selected Code",
+        "category": "GitLab Duo"
+      }
+    ],
+    "submenus": [
+      {
+        "id": "gl.gitlabDuo",
+        "label": "GitLab Duo"
       }
     ],
     "menus": {
@@ -71,9 +81,38 @@
         {
           "command": "gl.openChat",
           "when": "config.gitlab.featureFlags.chat"
+        },
+        {
+          "command": "gl.explainSelectedCode",
+          "when": "config.gitlab.featureFlags.chat && editorHasSelection"
+        }
+      ],
+      "editor/context": [
+        {
+          "group": "z_commands",
+          "submenu": "gl.gitlabDuo"
+        }
+      ],
+      "gl.gitlabDuo": [
+        {
+          "command": "gl.explainSelectedCode",
+          "group": "navigation",
+          "when": "config.gitlab.featureFlags.chat && editorHasSelection"
         }
       ]
     },
+    "keybindings": [
+      {
+        "command": "gl.openChat",
+        "when": "config.gitlab.featureFlags.chat",
+        "key": "alt+c alt+c"
+      },
+      {
+        "command": "gl.explainSelectedCode",
+        "when": "config.gitlab.featureFlags.chat && editorHasSelection",
+        "key": "alt+c alt+e"
+      }
+    ],
     "configuration": {
       "title": "GitLab Workflow (GitLab VSCode Extension)",
       "properties": {

@@ -6,13 +6,13 @@ describe('openGitLabChat', () => {
 
   beforeEach(() => {
     controller = {
-      view: { show: jest.fn() },
+      showChat: jest.fn(),
     } as unknown as Partial<GitLabChatController> as GitLabChatController;
   });
 
   it('shows the view when command is executed', async () => {
     await openGitLabChat(controller);
 
-    expect(controller.view.show).toHaveBeenCalled();
+    expect(controller.showChat).toHaveBeenCalled();
   });
 });

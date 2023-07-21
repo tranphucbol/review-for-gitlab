@@ -1,17 +1,13 @@
 import * as vscode from 'vscode';
 import { GitLabChatView } from './gitlab_chat_view';
-import { GitLabChatController } from './gitlab_chat_controller';
-import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { GitLabChatRecord } from './gitlab_chat_record';
 
 jest.mock('../utils/wait_for_webview');
 
 describe('GitLabChatView', () => {
   let view: GitLabChatView;
-  let controller: GitLabChatController;
-  let platformManager: GitLabPlatformManager;
-  let context: vscode.ExtensionContext;
   let webview: vscode.WebviewView;
+  const viewProcessCallback = jest.fn();
 
   beforeEach(() => {
     webview = {
@@ -23,8 +19,8 @@ describe('GitLabChatView', () => {
       show: jest.fn(),
     } as Partial<vscode.WebviewView> as vscode.WebviewView;
 
-    controller = new GitLabChatController(context, platformManager);
-    view = new GitLabChatView(controller);
+    view = new GitLabChatView();
+    view.onViewMessage(viewProcessCallback);
   });
 
   describe('resolveWebviewView', () => {
@@ -38,26 +34,8 @@ describe('GitLabChatView', () => {
     it('sets message processing and dispose callbacks', async () => {
       await view.resolveWebviewView(webview);
 
-      expect(webview.webview.onDidReceiveMessage).toBeCalledWith(expect.any(Function), view);
+      expect(webview.webview.onDidReceiveMessage).toBeCalledWith(expect.any(Function));
       expect(webview.onDidDispose).toBeCalledWith(expect.any(Function), view);
-    });
-
-    it('restores chat history', async () => {
-      controller.chatHistory = [
-        new GitLabChatRecord({ author: 'user', text: 'ping' }),
-        new GitLabChatRecord({ author: 'gitLabChat', text: 'pong' }),
-      ];
-
-      await view.resolveWebviewView(webview);
-
-      expect(webview.webview.postMessage).toHaveBeenNthCalledWith(1, {
-        eventType: 'newPrompt',
-        record: controller.chatHistory[0],
-      });
-      expect(webview.webview.postMessage).toHaveBeenNthCalledWith(2, {
-        eventType: 'newResponse',
-        record: controller.chatHistory[1],
-      });
     });
 
     it('sends focus event', async () => {
@@ -92,20 +70,12 @@ describe('GitLabChatView', () => {
     });
 
     describe('addRecord', () => {
-      it('sends newPrompt view message', async () => {
+      it('sends newRecord view message', async () => {
         const record = new GitLabChatRecord({ author: 'user', text: 'hello' });
 
         await view.addRecord(record);
 
-        expect(webview.webview.postMessage).toBeCalledWith({ eventType: 'newPrompt', record });
-      });
-
-      it('sends newResponse view message', async () => {
-        const record = new GitLabChatRecord({ author: 'gitLabChat', text: 'hello' });
-
-        await view.addRecord(record);
-
-        expect(webview.webview.postMessage).toBeCalledWith({ eventType: 'newResponse', record });
+        expect(webview.webview.postMessage).toBeCalledWith({ eventType: 'newRecord', record });
       });
     });
 
@@ -116,14 +86,6 @@ describe('GitLabChatView', () => {
         await view.updateRecord(record);
 
         expect(webview.webview.postMessage).toBeCalledWith({ eventType: 'updateRecord', record });
-      });
-
-      it('sends newResponse view message', async () => {
-        const record = new GitLabChatRecord({ author: 'gitLabChat', text: 'hello' });
-
-        await view.addRecord(record);
-
-        expect(webview.webview.postMessage).toBeCalledWith({ eventType: 'newResponse', record });
       });
     });
   });
