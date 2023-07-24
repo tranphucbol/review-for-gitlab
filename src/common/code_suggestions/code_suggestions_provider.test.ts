@@ -7,7 +7,11 @@ import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { project } from '../test_utils/entities';
 import { log } from '../log';
 import { CIRCUIT_BREAK_INTERVAL_MS, CodeSuggestionsProvider } from './code_suggestions_provider';
-import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_suggestions_state';
+import {
+  CodeSuggestionsStateManager,
+  GlobalCodeSuggestionsState,
+  VisibleCodeSuggestionsState,
+} from './code_suggestions_state';
 import { GitLabProject } from '../platform/gitlab_project';
 import { COMMAND_CODE_SUGGESTION_ACCEPTED } from './commands/code_suggestion_accepted';
 
@@ -193,35 +197,35 @@ describe('CodeSuggestionsProvider', () => {
     let glcp: CodeSuggestionsProvider;
 
     beforeEach(() => {
-      stateManager.setState(CodeSuggestionsState.OK);
+      stateManager.setGlobalState(GlobalCodeSuggestionsState.READY);
       glcp = new CodeSuggestionsProvider({ manager, stateManager, noDebounce: true });
     });
 
     it('sets state to loading on request', async () => {
       const stateTracker = jest.fn();
-      const subscription = stateManager.onDidChangeState(stateTracker);
+      const subscription = stateManager.onDidChangeVisibleState(stateTracker);
 
       await getCompletionsWithDefaultArgs(glcp);
 
-      expect(stateTracker).toHaveBeenCalledWith(CodeSuggestionsState.LOADING);
+      expect(stateTracker).toHaveBeenCalledWith(VisibleCodeSuggestionsState.LOADING);
       subscription.dispose();
     });
 
     it('sets state to ok on succesful request', async () => {
       await getCompletionsWithDefaultArgs(glcp);
-      expect(stateManager.getState()).toBe(CodeSuggestionsState.OK);
+      expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.READY);
     });
 
     it('sets state to error on failed request', async () => {
       asMock(fetch).mockRejectedValueOnce(new Error());
       await getCompletionsWithDefaultArgs(glcp);
-      expect(stateManager.getState()).toBe(CodeSuggestionsState.ERROR);
+      expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.ERROR);
     });
 
     it('sets state to error when completion is requested with no active project', async () => {
       asMock(manager.getForActiveProject).mockResolvedValueOnce(null);
       await getCompletionsWithDefaultArgs(glcp);
-      expect(stateManager.getState()).toBe(CodeSuggestionsState.ERROR);
+      expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.ERROR);
     });
   });
 

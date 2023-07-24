@@ -1,35 +1,74 @@
 import * as vscode from 'vscode';
 
-export const enum CodeSuggestionsState {
-  LOADING = 'code-suggestions-loading',
-  DISABLED = 'code-suggestions-disabled',
-  OK = 'code-suggestions-ok',
-  ERROR = 'code-suggestions-error',
-  UNSUPPORTED_LANGUAGE = 'code-suggestions-unsupported-language',
-}
+type ValueOf<T> = T[keyof T];
+
+export type GlobalCodeSuggestionsState = ValueOf<typeof GlobalCodeSuggestionsState>;
+export const GlobalCodeSuggestionsState = {
+  DISABLED_VIA_SETTINGS: 'code-suggestions-global-disabled-via-settings',
+  READY: 'code-suggestions-global-ready',
+} as const;
+
+export type TemporaryCodeSuggestionsState = ValueOf<typeof TemporaryCodeSuggestionsState>;
+export const TemporaryCodeSuggestionsState = {
+  ERROR: 'code-suggestions-error',
+  LOADING: 'code-suggestions-loading',
+} as const;
+
+export type VisibleCodeSuggestionsState = ValueOf<typeof VisibleCodeSuggestionsState>;
+export const VisibleCodeSuggestionsState = {
+  ...GlobalCodeSuggestionsState,
+  ...TemporaryCodeSuggestionsState,
+  UNSUPPORTED_LANGUAGE: 'code-suggestions-document-unsupported-language',
+} as const;
 
 export class CodeSuggestionsStateManager {
-  #state: CodeSuggestionsState = CodeSuggestionsState.DISABLED;
+  #globalState: GlobalCodeSuggestionsState = GlobalCodeSuggestionsState.DISABLED_VIA_SETTINGS;
 
-  #changeStateEmitter = new vscode.EventEmitter<CodeSuggestionsState>();
+  #temporaryState: TemporaryCodeSuggestionsState | null = null;
 
-  onDidChangeState = this.#changeStateEmitter.event;
+  isUnsupportedLanguageDocument = false;
 
-  getState() {
-    return this.#state;
+  #changeVisibleStateEmitter = new vscode.EventEmitter<VisibleCodeSuggestionsState>();
+
+  onDidChangeVisibleState = this.#changeVisibleStateEmitter.event;
+
+  getVisibleState(): VisibleCodeSuggestionsState {
+    if (this.#globalState === GlobalCodeSuggestionsState.DISABLED_VIA_SETTINGS) {
+      return this.#globalState;
+    }
+
+    if (this.isUnsupportedLanguageDocument) {
+      return VisibleCodeSuggestionsState.UNSUPPORTED_LANGUAGE;
+    }
+
+    return this.#temporaryState || this.#globalState;
   }
 
-  setState(newState: CodeSuggestionsState) {
-    if (this.#state !== newState) {
-      if (
-        this.#state === CodeSuggestionsState.UNSUPPORTED_LANGUAGE &&
-        ![CodeSuggestionsState.OK, CodeSuggestionsState.DISABLED].includes(newState)
-      ) {
-        return;
-      }
+  updateState(handler: () => void) {
+    const previousVisibleState = this.getVisibleState();
+    handler();
+    const newVisibleState = this.getVisibleState();
 
-      this.#state = newState;
-      this.#changeStateEmitter.fire(newState);
+    if (previousVisibleState !== newVisibleState) {
+      this.#changeVisibleStateEmitter.fire(newVisibleState);
     }
+  }
+
+  setGlobalState(newState: GlobalCodeSuggestionsState) {
+    this.updateState(() => {
+      this.#globalState = newState;
+    });
+  }
+
+  setTemporaryState(newState: TemporaryCodeSuggestionsState | null) {
+    this.updateState(() => {
+      this.#temporaryState = newState;
+    });
+  }
+
+  setUnsupportedLanguageDocument(newState: boolean) {
+    this.updateState(() => {
+      this.isUnsupportedLanguageDocument = newState;
+    });
   }
 }

@@ -7,7 +7,10 @@ import { CodeSuggestionsTokenManager, CompletionToken } from './code_suggestions
 import { CircuitBreaker } from './circuit_breaker';
 import { Model, Telemetry, codeSuggestionsTelemetry } from './code_suggestions_telemetry';
 import { GitLabProject } from '../platform/gitlab_project';
-import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_suggestions_state';
+import {
+  CodeSuggestionsStateManager,
+  TemporaryCodeSuggestionsState,
+} from './code_suggestions_state';
 import { AI_ASSISTED_CODE_SUGGESTIONS_API_URL } from './constants';
 import { prettyJson } from '../utils/json';
 import { COMMAND_CODE_SUGGESTION_ACCEPTED } from './commands/code_suggestion_accepted';
@@ -142,7 +145,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       log.warn(
         'AI Assist: could not obtain suggestions, there is no active project. Open GitLab project to continue',
       );
-      this.stateManager.setState(CodeSuggestionsState.ERROR);
+      this.stateManager.setTemporaryState(TemporaryCodeSuggestionsState.ERROR);
       return [];
     }
     const prompt = CodeSuggestionsProvider.#getPrompt(document, position, platform);
@@ -166,9 +169,9 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     let model: Model = { engine: '', name: '' }; // Defaults for telemetry of failed requests
 
     try {
-      this.stateManager.setState(CodeSuggestionsState.LOADING);
+      this.stateManager.setTemporaryState(TemporaryCodeSuggestionsState.LOADING);
       response = await this.fetchCompletions(platform, token, prompt);
-      this.stateManager.setState(CodeSuggestionsState.OK);
+      this.stateManager.setTemporaryState(null);
 
       if (response.model !== undefined) model = response.model;
 
@@ -189,7 +192,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     } catch (e) {
       log.error(`AI Assist: Error fetching completions: ${e.toString()}`);
       this.circuitBreaker.error();
-      this.stateManager.setState(CodeSuggestionsState.ERROR);
+      this.stateManager.setTemporaryState(TemporaryCodeSuggestionsState.ERROR);
 
       codeSuggestionsTelemetry.incRequestCount(model);
       codeSuggestionsTelemetry.incErrorCount(model);
