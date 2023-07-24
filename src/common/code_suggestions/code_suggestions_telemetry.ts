@@ -1,11 +1,13 @@
 export interface Model {
   engine: string;
   name: string;
+  lang?: string;
 }
 
 export interface Telemetry {
   model_engine: string;
   model_name: string;
+  lang?: string;
   requests: number;
   accepts: number;
   errors: number;
@@ -15,11 +17,12 @@ type ModelKey = string;
 
 const DELIMITER = '\u200B'; // zero width space minimises chance of conflict with model name or engine characters
 
-const modelToKey = (m: Model): ModelKey => `${m.engine}${DELIMITER}${m.name}`;
+const modelToKey = (m: Model): ModelKey => `${m.engine}${DELIMITER}${m.name}${DELIMITER}${m.lang}`;
 
 const createEmptyTelemetry = (m: Model): Telemetry => ({
   model_engine: m.engine,
   model_name: m.name,
+  lang: m.lang,
   requests: 0,
   accepts: 0,
   errors: 0,
