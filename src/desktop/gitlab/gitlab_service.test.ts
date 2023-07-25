@@ -13,6 +13,7 @@ import { HelpError } from '../errors/help_error';
 import { testCredentials } from '../test_utils/test_credentials';
 import { getProject } from '../../common/gitlab/api/get_project';
 import { gqlProject, project } from '../../common/test_utils/entities';
+import { GetRequest, PostRequest } from '../../common/platform/web_ide';
 
 jest.mock('graphql-request');
 jest.mock('../accounts/account_service');
@@ -406,6 +407,51 @@ describe('gitlab_service', () => {
         expect(params.get('report_type')).toEqual('reportType1,reportType2');
         expect(params.get('severity')).toEqual('severityLevel1,severityLevel2');
         expect(params.get('confidence')).toEqual('confidenceLevel1,confidenceLevel2');
+      });
+    });
+  });
+
+  describe('fetchFromApi', () => {
+    beforeEach(() => {
+      asMock(fetch).mockResolvedValue(crossFetchResponse());
+    });
+
+    describe('with GET request', () => {
+      const request: GetRequest<string> = {
+        method: 'GET',
+        type: 'rest',
+        path: '/project',
+        headers: { test: 'header' },
+      };
+
+      it('handles custom headers', async () => {
+        await service.fetchFromApi(request);
+        expect(fetch).toHaveBeenCalledWith(
+          'https://gitlab.example.com/api/v4/project',
+          expect.objectContaining({
+            headers: expect.objectContaining({ test: 'header' }),
+          }),
+        );
+      });
+    });
+
+    describe('with POST request', () => {
+      const request: PostRequest<string> = {
+        method: 'POST',
+        type: 'rest',
+        path: '/project',
+        headers: { test: 'header' },
+      };
+
+      it('handles custom headers', async () => {
+        await service.fetchFromApi(request);
+        expect(fetch).toHaveBeenCalledWith(
+          'https://gitlab.example.com/api/v4/project',
+          expect.objectContaining({
+            method: 'POST',
+            headers: expect.objectContaining({ test: 'header' }),
+          }),
+        );
       });
     });
   });
