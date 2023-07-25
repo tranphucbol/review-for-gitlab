@@ -1,3 +1,14 @@
+# [3.69.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.68.4...v3.69.0) (2023-07-25)
+
+
+### Features
+
+* Add language to code suggestions telemetry ([1ce24e3](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/1ce24e38025cd2b942c62832caf71823d1c5bbae))
+* introduce "explain selected code" command for GitLab Duo Chat ([1afd135](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/1afd1359b9f9e193117f07676e0887f1da1c7fb3))
+* support terraform in code suggestions ([9125ee9](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/9125ee931e0a19fb0ef9b72ceb7a7ec4601a60f6))
+
+
+
 ## [3.68.4](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.68.3...v3.68.4) (2023-07-20)
 
 ### Bug fixes
