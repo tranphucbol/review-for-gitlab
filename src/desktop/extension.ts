@@ -4,6 +4,7 @@ import * as openers from './commands/openers';
 import * as tokenInput from './token_input';
 import { accountService } from './accounts/account_service';
 import { extensionState } from './extension_state';
+import { setupCodeSuggestionsPromo } from './code_suggestions_promo';
 import { createSnippet } from './commands/create_snippet';
 import { insertSnippet } from './commands/insert_snippet';
 import { validateCiConfig, showMergedCiConfig } from './commands/ci_config_lint_commands';
@@ -231,6 +232,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   selectedProjectStore.init(context);
   registerCiCompletion(context);
   setupYamlSupport(context);
+  setupCodeSuggestionsPromo(context);
   vscode.window.registerUriHandler(gitlabUriHandler);
   context.subscriptions.push(gitExtensionWrapper);
 
