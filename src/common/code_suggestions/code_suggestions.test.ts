@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { project } from '../test_utils/entities';
 import { CodeSuggestions } from './code_suggestions';
-import { CodeSuggestionsState } from './code_suggestions_state';
+import { VisibleCodeSuggestionsState } from './code_suggestions_state';
 
 jest.mock('./code_suggestions_state');
 jest.mock('./code_suggestions_status_bar_item');
@@ -34,8 +34,8 @@ describe('CodeSuggestions', () => {
   describe('state updates', () => {
     it.each`
       isEnabledInSettings | codeSuggestionState
-      ${false}            | ${CodeSuggestionsState.DISABLED}
-      ${true}             | ${CodeSuggestionsState.OK}
+      ${false}            | ${VisibleCodeSuggestionsState.DISABLED_VIA_SETTINGS}
+      ${true}             | ${VisibleCodeSuggestionsState.READY}
     `(
       'sets state to $codeSuggestionState when code suggestions setting is $isEnabledInSettings',
       ({ isEnabledInSettings, codeSuggestionState }) => {
@@ -48,7 +48,9 @@ describe('CodeSuggestions', () => {
         ).mock.calls;
         configurationChangeListener({ affectsConfiguration: () => true });
 
-        expect(codeSuggestions.stateManager.setState).toHaveBeenCalledWith(codeSuggestionState);
+        expect(codeSuggestions.stateManager.setGlobalState).toHaveBeenCalledWith(
+          codeSuggestionState,
+        );
       },
     );
 
@@ -59,8 +61,8 @@ describe('CodeSuggestions', () => {
         document: { languageId: 'some-unsupported' },
       } as unknown as vscode.TextEditor);
 
-      expect(codeSuggestions.stateManager.setState).toHaveBeenCalledWith(
-        CodeSuggestionsState.UNSUPPORTED_LANGUAGE,
+      expect(codeSuggestions.stateManager.setUnsupportedLanguageDocument).toHaveBeenCalledWith(
+        true,
       );
     });
   });

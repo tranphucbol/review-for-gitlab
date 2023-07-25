@@ -3,7 +3,7 @@ import { AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES } from './constants';
 import { log } from '../log';
 import { CodeSuggestionsProvider } from './code_suggestions_provider';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
-import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_suggestions_state';
+import { CodeSuggestionsStateManager, GlobalCodeSuggestionsState } from './code_suggestions_state';
 import { CodeSuggestionsStatusBarItem } from './code_suggestions_status_bar_item';
 import {
   AI_ASSISTED_CODE_SUGGESTIONS_MODE,
@@ -25,11 +25,9 @@ export class CodeSuggestions {
     const updateCodeSuggestionsStateForEditor = (editor?: vscode.TextEditor) => {
       if (!editor) return;
 
-      if (AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.includes(editor.document.languageId)) {
-        this.stateManager.setState(CodeSuggestionsState.OK);
-      } else {
-        this.stateManager.setState(CodeSuggestionsState.UNSUPPORTED_LANGUAGE);
-      }
+      this.stateManager.setUnsupportedLanguageDocument(
+        !AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.includes(editor.document.languageId),
+      );
     };
 
     const register = () => {
@@ -46,11 +44,11 @@ export class CodeSuggestions {
     const enableOrDisableSuggestions = () => {
       if (getAiAssistedCodeSuggestionsConfiguration().enabled) {
         log.debug('Enabling code completion');
-        this.stateManager.setState(CodeSuggestionsState.OK);
+        this.stateManager.setGlobalState(GlobalCodeSuggestionsState.READY);
         register();
       } else {
         log.debug('Disabling code completion');
-        this.stateManager.setState(CodeSuggestionsState.DISABLED);
+        this.stateManager.setGlobalState(GlobalCodeSuggestionsState.DISABLED_VIA_SETTINGS);
         this.providerDisposable?.dispose();
         this.activeTextEditorChangeDisposable?.dispose();
       }

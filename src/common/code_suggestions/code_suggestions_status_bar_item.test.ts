@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { CodeSuggestionsStatusBarItem } from './code_suggestions_status_bar_item';
-import { CodeSuggestionsState, CodeSuggestionsStateManager } from './code_suggestions_state';
+import { CodeSuggestionsStateManager, GlobalCodeSuggestionsState } from './code_suggestions_state';
 
 jest.mock('./code_suggestions');
 
@@ -35,7 +35,7 @@ describe('code suggestions status bar item', () => {
   });
 
   it('updates when state manager changes state', () => {
-    codeSuggestionsStateManager.setState(CodeSuggestionsState.OK);
+    codeSuggestionsStateManager.setGlobalState(GlobalCodeSuggestionsState.READY);
     expect(fakeStatusBarItem.text).toBe('$(gitlab-code-suggestions-enabled)');
   });
 });
