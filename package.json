@@ -124,7 +124,7 @@
         "gitlab.aiAssistedCodeSuggestions.enabled": {
           "description": "Enable code completion (Beta)",
           "type": "boolean",
-          "default": false
+          "default": true
         }
       }
     },
