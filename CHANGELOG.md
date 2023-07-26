@@ -1,3 +1,18 @@
+# [3.70.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.69.0...v3.70.0) (2023-07-26)
+
+
+### Features
+
+* enable code suggestions by default ([6129a92](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/6129a9288b786cf41527165394b17bf7e429b277))
+* introduce promotional banner ([f45489c](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/f45489c4d9f31f243e8d6164cd20e96ab8bde092))
+
+
+### Performance Improvements
+
+* dont wait for 5 seconds if chat response is ready ([8da7e31](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/8da7e318727833c8b68c3517dd73f04eaa497c3c))
+
+
+
 # [3.69.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.68.4...v3.69.0) (2023-07-25)
 
 
