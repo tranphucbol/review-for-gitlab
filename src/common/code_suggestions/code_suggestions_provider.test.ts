@@ -6,7 +6,11 @@ import { codeSuggestionsTelemetry } from './code_suggestions_telemetry';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { project } from '../test_utils/entities';
 import { log } from '../log';
-import { CIRCUIT_BREAK_INTERVAL_MS, CodeSuggestionsProvider } from './code_suggestions_provider';
+import {
+  CIRCUIT_BREAK_INTERVAL_MS,
+  CodeSuggestionPrompt,
+  CodeSuggestionsProvider,
+} from './code_suggestions_provider';
 import {
   CodeSuggestionsStateManager,
   GlobalCodeSuggestionsState,
@@ -14,7 +18,14 @@ import {
 } from './code_suggestions_state';
 import { GitLabProject } from '../platform/gitlab_project';
 import { COMMAND_CODE_SUGGESTION_ACCEPTED } from './commands/code_suggestion_accepted';
+import { GITLAB_AI_ASSISTED_CODE_SUGGESTIONS_API_PATH } from './constants';
+import {
+  ExtensionConfiguration,
+  getExtensionConfiguration,
+} from '../utils/extension_configuration';
+import { ApiRequest, fetchFromApi, PostRequest } from '../platform/web_ide';
 
+jest.mock('../utils/extension_configuration');
 jest.mock('../log');
 jest.mock('../fetch_logged');
 
@@ -49,22 +60,35 @@ const mockPosition = {
   character: mockPrompt.length,
 } as vscode.Position;
 
+const fetchFromApiMock = jest.fn(
+  async <T>(): Promise<T> =>
+    ({
+      access_token: '123',
+      expires_in: 0,
+      created_at: 0,
+    }) as unknown as T,
+) as fetchFromApi;
+
+function stubFeatureFlags(featureFlags = {}) {
+  const flags = {
+    debug: true,
+    featureFlags: { ...featureFlags },
+    customQueries: [],
+  } as ExtensionConfiguration;
+  jest.mocked(getExtensionConfiguration).mockReturnValue(flags);
+}
+
 function createManager(project: GitLabProject): GitLabPlatformManager {
   return {
     getForActiveProject: jest.fn(async () => ({
       project,
-      fetchFromApi: async <T>(): Promise<T> =>
-        ({
-          access_token: '123',
-          expires_in: 0,
-          created_at: 0,
-        }) as unknown as T,
+      fetchFromApi: fetchFromApiMock,
       getUserAgentHeader: () => ({}),
     })),
   };
 }
 
-const manager = createManager(project);
+let manager = createManager(project);
 const cancellationToken = new vscode.CancellationTokenSource().token;
 
 const stateManager = new CodeSuggestionsStateManager();
@@ -89,6 +113,10 @@ describe('CodeSuggestionsProvider', () => {
     character: 1,
   } as vscode.Position;
 
+  beforeEach(() => {
+    stubFeatureFlags();
+  });
+
   describe('getCompletions', () => {
     const projectForSelfManaged: GitLabProject = {
       gqlId: 'gid://my-gitlab/Project/5261717',
@@ -99,23 +127,98 @@ describe('CodeSuggestionsProvider', () => {
       webUrl: 'https://gitlab.example.com/gitlab-org/gitlab-vscode-extension',
     };
 
-    it('should construct a payload with line above, line below, file name, prompt version, project id and path', async () => {
-      const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({ manager, stateManager });
-      await glcp.getCompletions({ document: testDocument, position, cancellationToken });
+    describe('without codeSuggestionsViaMonolith feature', () => {
+      beforeEach(() => {
+        stubFeatureFlags({ codeSuggestionsViaMonolith: false });
+      });
 
-      const inputBody = crossFetchCallArgument();
+      it('should construct a payload with line above, line below, file name, prompt version, project id and path', async () => {
+        const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
+          manager,
+          stateManager,
+        });
+        await glcp.getCompletions({ document: testDocument, position, cancellationToken });
 
-      expect(inputBody.prompt_version).toBe(1);
-      expect(inputBody.current_file.content_above_cursor).toBe('before');
-      expect(inputBody.current_file.content_below_cursor).toBe('after');
-      expect(inputBody.current_file.file_name).toBe('test.js');
-      expect(inputBody.prompt_version).toBe(1);
-      expect(inputBody.project_id).toBe(project.restId);
-      expect(inputBody.project_path).toBe(project.namespaceWithPath);
+        const inputBody = crossFetchCallArgument();
+
+        expect(inputBody.prompt_version).toBe(1);
+        expect(inputBody.current_file.content_above_cursor).toBe('before');
+        expect(inputBody.current_file.content_below_cursor).toBe('after');
+        expect(inputBody.current_file.file_name).toBe('test.js');
+        expect(inputBody.prompt_version).toBe(1);
+        expect(inputBody.project_id).toBe(project.restId);
+        expect(inputBody.project_path).toBe(project.namespaceWithPath);
+      });
+    });
+
+    describe('with codeSuggestionsViaMonolith feature', () => {
+      beforeEach(() => {
+        stubFeatureFlags({ codeSuggestionsViaMonolith: true });
+      });
+
+      const filterCodeSuggestionRequest = ([request]: ApiRequest<unknown>[]) =>
+        request.type === 'rest' &&
+        request.method === 'POST' &&
+        request.path === GITLAB_AI_ASSISTED_CODE_SUGGESTIONS_API_PATH;
+
+      const codeSuggestionMonolithCalls = () =>
+        jest
+          .mocked(fetchFromApiMock)
+          .mock.calls.filter(filterCodeSuggestionRequest) as unknown as PostRequest<unknown>[][];
+
+      it('should add custom authorisation headers to request', async () => {
+        const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
+          manager,
+          stateManager,
+        });
+        await glcp.getCompletions({ document: testDocument, position, cancellationToken });
+
+        const calls = codeSuggestionMonolithCalls();
+        const codeSuggestionRequest = calls[0][0];
+        const headers = {
+          'X-Gitlab-Authentication-Type': 'oidc',
+          'X-Gitlab-Oidc-Token': '123',
+        };
+
+        expect(calls.length).toBe(1);
+        expect(codeSuggestionRequest.headers).toMatchObject(headers);
+      });
+
+      it('should construct a payload with line above, line below, file name, prompt version, project id and path', async () => {
+        const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
+          manager,
+          stateManager,
+        });
+        await glcp.getCompletions({ document: testDocument, position, cancellationToken });
+
+        const calls = codeSuggestionMonolithCalls();
+        const inputBody = calls[0][0].body as CodeSuggestionPrompt;
+
+        expect(calls).toHaveLength(1);
+        expect(inputBody.prompt_version).toBe(1);
+        expect(inputBody.current_file.content_above_cursor).toBe('before');
+        expect(inputBody.current_file.content_below_cursor).toBe('after');
+        expect(inputBody.current_file.file_name).toBe('test.js');
+        expect(inputBody.prompt_version).toBe(1);
+        expect(inputBody.project_id).toBe(project.restId);
+        expect(inputBody.project_path).toBe(project.namespaceWithPath);
+      });
+
+      it('should use model gateway API directly unless targeting SaaS', async () => {
+        manager = createManager(projectForSelfManaged);
+        const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
+          manager,
+          stateManager,
+        });
+        await glcp.getCompletions({ document: testDocument, position, cancellationToken });
+
+        expect(codeSuggestionMonolithCalls()).toHaveLength(0);
+        expect(crossFetchCallArgument).not.toThrow();
+      });
     });
 
     it('should not send project id and path unless targeting SaaS', async () => {
-      const manager = createManager(projectForSelfManaged);
+      manager = createManager(projectForSelfManaged);
       const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({ manager, stateManager });
       await glcp.getCompletions({ document: testDocument, position, cancellationToken });
 

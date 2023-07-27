@@ -11,9 +11,14 @@ import {
   CodeSuggestionsStateManager,
   TemporaryCodeSuggestionsState,
 } from './code_suggestions_state';
-import { AI_ASSISTED_CODE_SUGGESTIONS_API_URL } from './constants';
+import {
+  MODEL_GATEWAY_AI_ASSISTED_CODE_SUGGESTIONS_API_URL,
+  GITLAB_AI_ASSISTED_CODE_SUGGESTIONS_API_PATH,
+} from './constants';
 import { prettyJson } from '../utils/json';
 import { COMMAND_CODE_SUGGESTION_ACCEPTED } from './commands/code_suggestion_accepted';
+import { PostRequest } from '../platform/web_ide';
+import { getExtensionConfiguration } from '../utils/extension_configuration';
 
 export const CIRCUIT_BREAK_INTERVAL_MS = 10000;
 export const MAX_ERRORS_BEFORE_CIRCUIT_BREAK = 4;
@@ -39,13 +44,15 @@ interface CurrentFile {
   file_name: string;
 }
 
-interface CodeSuggestionPrompt {
+export interface CodeSuggestionPrompt {
   current_file: CurrentFile;
   prompt_version: number;
   project_id?: number;
   project_path?: string;
   telemetry: Telemetry[];
 }
+
+const isSaasProject = (project: GitLabProject) => project.webUrl.startsWith(GITLAB_COM_URL);
 
 export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvider {
   private server: string;
@@ -85,7 +92,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
   }
 
   static #getServer(): string {
-    const serverUrl = new URL(AI_ASSISTED_CODE_SUGGESTIONS_API_URL);
+    const serverUrl = new URL(MODEL_GATEWAY_AI_ASSISTED_CODE_SUGGESTIONS_API_URL);
     log.debug(`AI Assist: Using server: ${serverUrl.href}`);
     return serverUrl.href;
   }
@@ -106,8 +113,6 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     );
 
     const fileName = document.uri.path.split('/').pop() || '';
-
-    const isSaasProject = (project: GitLabProject) => project.webUrl.startsWith(GITLAB_COM_URL);
 
     const projectInfo = isSaasProject(platform.project)
       ? { project_id: platform.project.restId, project_path: platform.project.namespaceWithPath }
@@ -148,6 +153,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       this.stateManager.setTemporaryState(TemporaryCodeSuggestionsState.ERROR);
       return [];
     }
+
     const prompt = CodeSuggestionsProvider.#getPrompt(document, position, platform);
 
     // FIXME: when we start supporting SM, we need to get the token from the **platform**, now the project might not match the token
@@ -170,7 +176,20 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
 
     try {
       this.stateManager.setTemporaryState(TemporaryCodeSuggestionsState.LOADING);
-      response = await this.fetchCompletions(platform, token, prompt);
+      if (
+        getExtensionConfiguration().featureFlags.forceCodeSuggestionsViaMonolith ||
+        (isSaasProject(platform.project) &&
+          getExtensionConfiguration().featureFlags.codeSuggestionsViaMonolith)
+      ) {
+        response = await CodeSuggestionsProvider.#fetchCompletionsFromGitLab(
+          platform,
+          token,
+          prompt,
+        );
+      } else {
+        response = await this.fetchCompletions(platform, token, prompt);
+      }
+
       this.stateManager.setTemporaryState(null);
 
       if (response.model !== undefined) model = response.model;
@@ -267,6 +286,29 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
 
     const data = await response.json();
     return data;
+  }
+
+  static async #fetchCompletionsFromGitLab(
+    platform: GitLabPlatform,
+    token: CompletionToken,
+    prompt: CodeSuggestionPrompt,
+  ): Promise<CodeSuggestionsResponse> {
+    log.debug(`AI Assist: fetching completions via monolith...`);
+    const codeSuggestionRequest: PostRequest<CodeSuggestionsResponse> = {
+      type: 'rest',
+      method: 'POST',
+      path: GITLAB_AI_ASSISTED_CODE_SUGGESTIONS_API_PATH,
+      body: prompt,
+      headers: {
+        ...platform.getUserAgentHeader(),
+        'X-Gitlab-Authentication-Type': 'oidc',
+        'X-Gitlab-Oidc-Token': token.access_token,
+      },
+    };
+
+    const response = await platform.fetchFromApi(codeSuggestionRequest);
+
+    return response;
   }
 
   private async handleErrorReponse(response: Response) {
