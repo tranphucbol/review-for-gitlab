@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { ItemModel } from '../item_model';
 
-import { GqlSecurityFindingReport } from '../../../gitlab/graphql/get_security_finding_report';
+import { GqlSecurityFindingReport } from '../../../gitlab/security_findings/api/get_security_finding_report';
 import { SecurityFindingsGroupItem } from './security_findings_group_item';
 
 export type SecurityResultsType = 'NO_SCANS_FOUND' | 'RUNNING' | 'COMPLETE';
@@ -37,10 +37,10 @@ export class SecurityResultsItemModel extends ItemModel {
       const addedSecurityFindings = this.#securityReport.added;
       const fixedSecurityFindings = this.#securityReport.fixed;
 
-      if (addedSecurityFindings.nodes.length > 0) {
+      if (addedSecurityFindings.length > 0) {
         securityFindingGroups.push(new SecurityFindingsGroupItem('ADDED', addedSecurityFindings));
       }
-      if (fixedSecurityFindings.nodes.length > 0) {
+      if (fixedSecurityFindings.length > 0) {
         securityFindingGroups.push(new SecurityFindingsGroupItem('FIXED', fixedSecurityFindings));
       }
     }

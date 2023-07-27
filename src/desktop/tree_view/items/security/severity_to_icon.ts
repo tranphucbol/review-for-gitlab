@@ -1,14 +1,14 @@
 import { ThemeIcon } from 'vscode';
 
-export type Severity = 'info' | 'low' | 'medium' | 'high' | 'critical' | 'unknown';
+export type Severity = 'INFO' | 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | 'UNKNOWN';
 
 export const SEVERITY_ICON_MAP: Record<Severity, string> = {
-  info: 'issues',
-  low: 'circle-filled',
-  medium: 'triangle-down',
-  high: 'debug-breakpoint-log-unverified',
-  critical: 'debug-breakpoint-data',
-  unknown: 'question',
+  INFO: 'issues',
+  LOW: 'circle-filled',
+  MEDIUM: 'triangle-down',
+  HIGH: 'debug-breakpoint-log-unverified',
+  CRITICAL: 'debug-breakpoint-data',
+  UNKNOWN: 'question',
 };
 
 export function severityToIcon(severity: Severity): ThemeIcon {

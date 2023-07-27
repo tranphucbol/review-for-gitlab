@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { ItemModel } from '../item_model';
 
-import { GqlSecurityFinding } from '../../../gitlab/graphql/get_security_finding_report';
+import { GqlSecurityFinding } from '../../../gitlab/security_findings/api/get_security_finding_report';
 import { SecurityFindingItem } from './security_finding_item';
 import { severityToIcon, Severity } from './severity_to_icon';
 

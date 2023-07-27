@@ -44,4 +44,5 @@ export const REQUIRED_VERSIONS = {
   CI_CONFIG_VALIDATIONS: '13.6.0',
   MR_DISCUSSIONS: '13.9.0',
   MR_MERGE_QUICK_ACTION: '14.9.0', // https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/545
+  SECURITY_FINDINGS: '16.1.0',
 };

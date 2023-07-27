@@ -58,10 +58,10 @@ export class CurrentBranchDataProvider
   }
 
   static getSecurityReportType(state: BranchState): SecurityResultsType {
-    if (!state.mr || !state.securityFindings?.hasSecurityReports) {
+    if (!state.mr || !state.securityFindings) {
       return 'NO_SCANS_FOUND';
     }
-    if (state.securityFindings?.hasSecurityReports && state.pipeline?.status === 'running') {
+    if (state.securityFindings && state.pipeline?.status === 'running') {
       return 'RUNNING';
     }
     return 'COMPLETE';
@@ -111,6 +111,7 @@ export class CurrentBranchDataProvider
         this.state.projectInRepository.pointer.repository.rootFsPath,
         this.state.issues,
       );
+
       if (getExtensionConfiguration().featureFlags[SECURITY_SCANS_FEATURE_FLAG]) {
         const securityFindingsItem = CurrentBranchDataProvider.createSecurityFindingsItem(
           this.state,

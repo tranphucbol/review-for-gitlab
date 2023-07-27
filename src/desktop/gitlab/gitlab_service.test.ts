@@ -6,7 +6,7 @@ import { DEFAULT_FETCH_RESPONSE } from '../../common/__mocks__/fetch_logged';
 import { CustomQueryType } from '../../common/gitlab/custom_query_type';
 import { CustomQuery } from '../../common/gitlab/custom_query';
 import { asMock } from '../test_utils/as_mock';
-import { externalStatus, mr, securityReport, securityReportFinding } from '../test_utils/entities';
+import { externalStatus, mr, securityReportFinding } from '../test_utils/entities';
 import { getExtensionConfiguration } from '../../common/utils/extension_configuration';
 import { getHttpAgentOptions } from './http/get_http_agent_options';
 import { HelpError } from '../errors/help_error';
@@ -14,6 +14,7 @@ import { testCredentials } from '../test_utils/test_credentials';
 import { getProject } from '../../common/gitlab/api/get_project';
 import { gqlProject, project } from '../../common/test_utils/entities';
 import { GetRequest, PostRequest } from '../../common/platform/web_ide';
+import { UnsupportedVersionError } from '../errors/unsupported_version_error';
 
 jest.mock('graphql-request');
 jest.mock('../accounts/account_service');
@@ -114,13 +115,6 @@ describe('gitlab_service', () => {
         'https://gitlab.example.com/api/v4/projects/baz%2Fbat/repository/files/foo/raw?ref=bar',
         expect.anything(),
       );
-    });
-  });
-
-  describe('getSecurityFindingReport', () => {
-    it('returns the security report', async () => {
-      const report = await service.getSecurityFindingReport(mr);
-      expect(report).toEqual(securityReport);
     });
   });
 
@@ -600,6 +594,38 @@ describe('gitlab_service', () => {
       });
 
       await expect(result).rejects.toThrowError(/Refreshing OAuth token has failed: 400/);
+    });
+  });
+
+  describe('validateVersion', () => {
+    const TEST_CURRENT_VERSION = '10.1.2';
+    const TEST_FEATURE_NAME = 'Test Feature Name';
+    const TEST_NEXT_VERSION = '10.2.0';
+    const TEST_PREV_VERSION = '10.1.1';
+    const mock = jest.spyOn(GitLabService.prototype, 'getVersion');
+
+    beforeAll(() => {
+      mock.mockImplementation(() => Promise.resolve(TEST_CURRENT_VERSION));
+    });
+
+    afterAll(() => {
+      mock.mockRestore();
+    });
+
+    it('rejects when current version is less than feature version', async () => {
+      const featureVersion = TEST_NEXT_VERSION;
+
+      await expect(service.validateVersion(TEST_FEATURE_NAME, featureVersion)).rejects.toThrow(
+        new UnsupportedVersionError(TEST_FEATURE_NAME, TEST_CURRENT_VERSION, featureVersion),
+      );
+    });
+
+    it('resolves when current version is gte than feature version', async () => {
+      const featureVersion = TEST_PREV_VERSION;
+
+      await expect(
+        service.validateVersion(TEST_FEATURE_NAME, featureVersion),
+      ).resolves.toBeUndefined();
     });
   });
 });

@@ -1,10 +1,16 @@
 import { Disposable } from 'vscode';
 import { BranchState, TagState } from '../current_branch_refresher';
-import { mr, pipeline, job, issue, projectInRepository } from '../test_utils/entities';
+import {
+  mr,
+  pipeline,
+  job,
+  issue,
+  projectInRepository,
+  securityReport,
+} from '../test_utils/entities';
 import { CurrentBranchDataProvider } from './current_branch_data_provider';
 import { ItemModel } from './items/item_model';
 import { PipelineItemModel } from './items/pipeline_item_model';
-import { GqlSecurityFindingReport } from '../gitlab/graphql/get_security_finding_report';
 import { asMock } from '../test_utils/as_mock';
 import { getExtensionConfiguration } from '../../common/utils/extension_configuration';
 import { SECURITY_SCANS_FEATURE_FLAG } from '../constants';
@@ -114,7 +120,6 @@ describe('CurrentBranchDataProvider', () => {
       it('does not render item', async () => {
         currentBranchProvider.refresh({
           ...branchState,
-          securityFindings: { hasSecurityReports: false } as GqlSecurityFindingReport,
           pipeline: { ...pipeline, status: 'running' },
         });
 
@@ -132,8 +137,9 @@ describe('CurrentBranchDataProvider', () => {
       it('renders no scans found', async () => {
         currentBranchProvider.refresh({
           ...branchState,
-          securityFindings: { hasSecurityReports: false } as GqlSecurityFindingReport,
           pipeline: { ...pipeline, status: 'running' },
+          mr: undefined,
+          securityFindings: securityReport,
         });
 
         const [, , , securityItem] = await currentBranchProvider.getChildren(undefined);
@@ -143,8 +149,8 @@ describe('CurrentBranchDataProvider', () => {
       it('renders scanning state', async () => {
         currentBranchProvider.refresh({
           ...branchState,
-          securityFindings: { hasSecurityReports: true } as GqlSecurityFindingReport,
           pipeline: { ...pipeline, status: 'running' },
+          securityFindings: securityReport,
         });
 
         const [, , , securityItem] = await currentBranchProvider.getChildren(undefined);
@@ -154,8 +160,8 @@ describe('CurrentBranchDataProvider', () => {
       it('renders complete state', async () => {
         currentBranchProvider.refresh({
           ...branchState,
-          securityFindings: { hasSecurityReports: true } as GqlSecurityFindingReport,
           pipeline: { ...pipeline, status: 'success' },
+          securityFindings: securityReport,
         });
 
         const [, , , securityItem] = await currentBranchProvider.getChildren(undefined);
