@@ -1,3 +1,12 @@
+# [3.71.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.70.0...v3.71.0) (2023-07-27)
+
+
+### Features
+
+* swap mocked security report  data for real data ([d0a7459](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/d0a74590b3e6118917c924eaf1b5a92524eacb22))
+
+
+
 # [3.70.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.69.0...v3.70.0) (2023-07-26)
 
 
