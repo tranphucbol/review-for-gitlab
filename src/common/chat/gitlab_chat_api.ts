@@ -10,24 +10,24 @@ interface RawAiMessage {
 
 interface AiMessage {
   requestId: string;
-  text?: string;
+  content?: string;
   errors?: string[];
 }
 
 type PullableRequest = (requestId: string) => Promise<AiMessage | undefined>;
 
 const parseAiMessage = (message: RawAiMessage): AiMessage => {
-  const result = { requestId: message.requestId, errors: message.errors, text: undefined };
+  const result = { requestId: message.requestId, errors: message.errors, content: undefined };
 
   if (message.errors && message.errors.length > 0) return result;
 
-  let text;
+  let content;
   try {
-    text = JSON.parse(message.content).content;
+    content = JSON.parse(message.content).content;
   } catch (e) {
-    text = message.content;
+    content = message.content;
   }
-  result.text = text;
+  result.content = content;
 
   return result;
 };

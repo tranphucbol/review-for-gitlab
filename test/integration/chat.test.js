@@ -59,45 +59,45 @@ describe('GitLab Duo Chat', () => {
     webviewMock.emulateViewMessage({
       eventType: 'newPrompt',
       record: {
-        text: 'hi!',
+        content: 'hi!',
       },
     });
 
     const userMessage = await webviewMock.waitForMessage(
-      m => m.eventType === 'newRecord' && m.record.author === 'user',
+      m => m.eventType === 'newRecord' && m.record.role === 'user',
     );
-    assert.strictEqual(userMessage.record.text, 'hi!');
+    assert.strictEqual(userMessage.record.content, 'hi!');
 
     const responseMessage = await webviewMock.waitForMessage(
-      m => m.eventType === 'updateRecord' && m.record.author === 'gitLabChat',
+      m => m.eventType === 'updateRecord' && m.record.role === 'assistant',
     );
 
     assert.strictEqual(
-      responseMessage.record.text,
+      responseMessage.record.content,
       newResponseResponse.aiMessages.nodes[0].content,
     );
   });
 
   it('allows commands to send custom prompts to the chat', async () => {
     const record = {
-      author: 'user',
+      role: 'user',
       type: 'explainCode',
-      text: 'MyCustomCommand',
+      content: 'MyCustomCommand',
     };
 
     controller.processNewUserRecord(record);
 
     const userMessage = await webviewMock.waitForMessage(
-      m => m.eventType === 'newRecord' && m.record.author === 'user',
+      m => m.eventType === 'newRecord' && m.record.role === 'user',
     );
-    assert.strictEqual(userMessage.record.text, 'MyCustomCommand');
+    assert.strictEqual(userMessage.record.content, 'MyCustomCommand');
 
     const responseMessage = await webviewMock.waitForMessage(
-      m => m.eventType === 'updateRecord' && m.record.author === 'gitLabChat',
+      m => m.eventType === 'updateRecord' && m.record.role === 'assistant',
     );
 
     assert.strictEqual(
-      responseMessage.record.text,
+      responseMessage.record.content,
       newResponseResponse.aiMessages.nodes[0].content,
     );
   });
