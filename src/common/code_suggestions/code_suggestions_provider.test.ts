@@ -19,13 +19,8 @@ import {
 import { GitLabProject } from '../platform/gitlab_project';
 import { COMMAND_CODE_SUGGESTION_ACCEPTED } from './commands/code_suggestion_accepted';
 import { GITLAB_AI_ASSISTED_CODE_SUGGESTIONS_API_PATH } from './constants';
-import {
-  ExtensionConfiguration,
-  getExtensionConfiguration,
-} from '../utils/extension_configuration';
-import { ApiRequest, fetchFromApi, PostRequest } from '../platform/web_ide';
+import { ApiRequest, PostRequest } from '../platform/web_ide';
 
-jest.mock('../utils/extension_configuration');
 jest.mock('../log');
 jest.mock('../fetch_logged');
 
@@ -34,9 +29,10 @@ jest.mock('../fetch_logged');
  */
 const asMock = (mockFn: unknown) => mockFn as jest.Mock;
 
-const crossFetchCallArgument = () => JSON.parse(asMock(fetch).mock.calls[0][1].body);
+const crossFetchCalls = () => asMock(fetch).mock.calls;
+const crossFetchCallArgument = () => JSON.parse(crossFetchCalls()[0][1].body);
 const lastFetchCallBody = () =>
-  JSON.parse(asMock(fetch).mock.calls[asMock(fetch).mock.calls.length - 1][1].body);
+  JSON.parse(asMock(fetch).mock.calls[crossFetchCalls().length - 1][1].body);
 
 const mockPrompt = 'const areaOfCube = ';
 const mockDocumentPartial: Partial<vscode.TextDocument> = {
@@ -60,25 +56,16 @@ const mockPosition = {
   character: mockPrompt.length,
 } as vscode.Position;
 
-const fetchFromApiMock = jest.fn(
-  async <T>(): Promise<T> =>
-    ({
-      access_token: '123',
-      expires_in: 0,
-      created_at: 0,
-    }) as unknown as T,
-) as fetchFromApi;
+const token = {
+  access_token: '123',
+  expires_in: 0,
+  created_at: 0,
+};
 
-function stubFeatureFlags(featureFlags = {}) {
-  const flags = {
-    debug: true,
-    featureFlags: { ...featureFlags },
-    customQueries: [],
-  } as ExtensionConfiguration;
-  jest.mocked(getExtensionConfiguration).mockReturnValue(flags);
-}
-
-function createManager(project: GitLabProject): GitLabPlatformManager {
+function createManager(
+  project: GitLabProject,
+  fetchFromApiMock = jest.fn().mockResolvedValue(token),
+): GitLabPlatformManager {
   return {
     getForActiveProject: jest.fn(async () => ({
       project,
@@ -97,6 +84,16 @@ function getCompletionsWithDefaultArgs(glcp: CodeSuggestionsProvider) {
   return glcp.getCompletions({ document: mockDocument, position: mockPosition, cancellationToken });
 }
 
+const filterCodeSuggestionRequest = ([request]: ApiRequest<unknown>[]) =>
+  request.type === 'rest' &&
+  request.method === 'POST' &&
+  request.path === GITLAB_AI_ASSISTED_CODE_SUGGESTIONS_API_PATH;
+
+const codeSuggestionMonolithCalls = (mocked: jest.Mock) =>
+  jest
+    .mocked(mocked)
+    .mock.calls.filter(filterCodeSuggestionRequest) as unknown as PostRequest<unknown>[][];
+
 describe('CodeSuggestionsProvider', () => {
   const testDocument = {
     getText(range: vscode.Range): string {
@@ -113,10 +110,6 @@ describe('CodeSuggestionsProvider', () => {
     character: 1,
   } as vscode.Position;
 
-  beforeEach(() => {
-    stubFeatureFlags();
-  });
-
   describe('getCompletions', () => {
     const projectForSelfManaged: GitLabProject = {
       gqlId: 'gid://my-gitlab/Project/5261717',
@@ -127,53 +120,44 @@ describe('CodeSuggestionsProvider', () => {
       webUrl: 'https://gitlab.example.com/gitlab-org/gitlab-vscode-extension',
     };
 
-    describe('without codeSuggestionsViaMonolith feature', () => {
-      beforeEach(() => {
-        stubFeatureFlags({ codeSuggestionsViaMonolith: false });
+    describe('without new GitLab monolith code suggestion API available', () => {
+      const fetchFromApiMock = jest.fn().mockImplementation(request => {
+        if (request.path === '/code_suggestions/tokens') {
+          return Promise.resolve(token);
+        }
+        // eslint-disable-next-line prefer-promise-reject-errors
+        return Promise.reject({ status: 403 });
       });
 
-      it('should construct a payload with line above, line below, file name, prompt version, project id and path', async () => {
+      it('after receiving 403 should make consecutive calls to legacy API', async () => {
         const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
-          manager,
+          manager: createManager(project, fetchFromApiMock),
           stateManager,
         });
+
         await glcp.getCompletions({ document: testDocument, position, cancellationToken });
 
-        const inputBody = crossFetchCallArgument();
+        expect(codeSuggestionMonolithCalls(fetchFromApiMock).length).toBe(1);
+        expect(crossFetchCalls().length).toBe(1);
 
-        expect(inputBody.prompt_version).toBe(1);
-        expect(inputBody.current_file.content_above_cursor).toBe('before');
-        expect(inputBody.current_file.content_below_cursor).toBe('after');
-        expect(inputBody.current_file.file_name).toBe('test.js');
-        expect(inputBody.prompt_version).toBe(1);
-        expect(inputBody.project_id).toBe(project.restId);
-        expect(inputBody.project_path).toBe(project.namespaceWithPath);
+        await glcp.getCompletions({ document: testDocument, position, cancellationToken });
+
+        expect(codeSuggestionMonolithCalls(fetchFromApiMock).length).toBe(1);
+        expect(crossFetchCalls().length).toBe(2);
       });
     });
 
-    describe('with codeSuggestionsViaMonolith feature', () => {
-      beforeEach(() => {
-        stubFeatureFlags({ codeSuggestionsViaMonolith: true });
-      });
-
-      const filterCodeSuggestionRequest = ([request]: ApiRequest<unknown>[]) =>
-        request.type === 'rest' &&
-        request.method === 'POST' &&
-        request.path === GITLAB_AI_ASSISTED_CODE_SUGGESTIONS_API_PATH;
-
-      const codeSuggestionMonolithCalls = () =>
-        jest
-          .mocked(fetchFromApiMock)
-          .mock.calls.filter(filterCodeSuggestionRequest) as unknown as PostRequest<unknown>[][];
+    describe('with new GitLab monolith code suggestion API available', () => {
+      const fetchFromApiMock = jest.fn().mockResolvedValue(token);
 
       it('should add custom authorisation headers to request', async () => {
         const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
-          manager,
+          manager: createManager(project, fetchFromApiMock),
           stateManager,
         });
         await glcp.getCompletions({ document: testDocument, position, cancellationToken });
 
-        const calls = codeSuggestionMonolithCalls();
+        const calls = codeSuggestionMonolithCalls(fetchFromApiMock);
         const codeSuggestionRequest = calls[0][0];
         const headers = {
           'X-Gitlab-Authentication-Type': 'oidc',
@@ -186,12 +170,12 @@ describe('CodeSuggestionsProvider', () => {
 
       it('should construct a payload with line above, line below, file name, prompt version, project id and path', async () => {
         const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
-          manager,
+          manager: createManager(project, fetchFromApiMock),
           stateManager,
         });
         await glcp.getCompletions({ document: testDocument, position, cancellationToken });
 
-        const calls = codeSuggestionMonolithCalls();
+        const calls = codeSuggestionMonolithCalls(fetchFromApiMock);
         const inputBody = calls[0][0].body as CodeSuggestionPrompt;
 
         expect(calls).toHaveLength(1);
@@ -212,7 +196,7 @@ describe('CodeSuggestionsProvider', () => {
         });
         await glcp.getCompletions({ document: testDocument, position, cancellationToken });
 
-        expect(codeSuggestionMonolithCalls()).toHaveLength(0);
+        expect(codeSuggestionMonolithCalls(fetchFromApiMock)).toHaveLength(0);
         expect(crossFetchCallArgument).not.toThrow();
       });
     });
