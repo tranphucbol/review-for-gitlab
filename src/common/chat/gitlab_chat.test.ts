@@ -28,9 +28,6 @@ describe('activateChat', () => {
     expect(vscode.window.registerWebviewViewProvider).toHaveBeenCalledWith(
       'gl.chatView',
       expect.any(GitLabChatController),
-      {
-        webviewOptions: { retainContextWhenHidden: true },
-      },
     );
   });
 

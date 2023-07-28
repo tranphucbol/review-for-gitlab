@@ -42,6 +42,10 @@ export class GitLabChatView {
 
   onViewMessage = this.#messageEmitter.event;
 
+  #visibilityEmitter = new vscode.EventEmitter<void>();
+
+  onDidBecomeVisible = this.#visibilityEmitter.event;
+
   constructor(context: vscode.ExtensionContext) {
     this.#context = context;
   }
@@ -58,6 +62,9 @@ export class GitLabChatView {
     await waitForWebview(this.#chatView.webview);
 
     this.#chatView.webview.onDidReceiveMessage(m => this.#messageEmitter.fire(m));
+    this.#chatView.onDidChangeVisibility(() => {
+      if (this.#chatView?.visible) this.#visibilityEmitter.fire();
+    });
 
     this.#chatView.onDidDispose(() => {
       this.#chatView = undefined;

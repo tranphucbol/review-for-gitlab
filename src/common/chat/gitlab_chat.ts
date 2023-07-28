@@ -13,10 +13,7 @@ export const activateChat = (context: vscode.ExtensionContext, manager: GitLabPl
 
   // sidebar view
   context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider(CHAT_SIDEBAR_VIEW_ID, controller, {
-      // FIXME: Replace `retainContextWhenHidden` with `get\setState` after we migrate the webview to vue.
-      webviewOptions: { retainContextWhenHidden: true },
-    }),
+    vscode.window.registerWebviewViewProvider(CHAT_SIDEBAR_VIEW_ID, controller),
   );
 
   // commands

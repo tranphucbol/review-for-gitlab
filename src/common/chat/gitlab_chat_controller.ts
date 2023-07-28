@@ -17,14 +17,12 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
     this.#api = new GitLabChatApi(manager);
     this.#view = new GitLabChatView(context);
     this.#view.onViewMessage(this.viewMessageHandler.bind(this));
+    this.#view.onDidBecomeVisible(this.restoreHistory.bind(this));
   }
 
   async resolveWebviewView(webviewView: vscode.WebviewView) {
     await this.#view.resolveWebviewView(webviewView);
-
-    this.chatHistory.forEach(async record => {
-      await this.#view.addRecord(record);
-    }, this);
+    await this.restoreHistory();
   }
 
   async viewMessageHandler(message: ViewMessage) {
@@ -65,6 +63,12 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
     responseRecord.requestId = requestId;
 
     await this.#view.updateRecord(responseRecord);
+  }
+
+  private async restoreHistory() {
+    this.chatHistory.forEach(async record => {
+      await this.#view.addRecord(record);
+    }, this);
   }
 
   private async processNewPrompt(promptText: string) {

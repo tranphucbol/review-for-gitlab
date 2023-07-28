@@ -50,6 +50,7 @@ class WebviewMock {
       vscode.ViewColumn.One,
     );
     webview.show = () => {};
+    webview.onDidChangeVisibility = () => {};
 
     this.#sandbox.stub(webview.webview, 'postMessage').callsFake(message => {
       this.#eventEmitter.emit('', message);
