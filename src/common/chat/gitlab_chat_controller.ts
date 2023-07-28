@@ -30,8 +30,6 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
   async viewMessageHandler(message: ViewMessage) {
     switch (message.eventType) {
       case 'newPrompt': {
-        if (!message.record.content) return;
-
         await this.processNewPrompt(message.record.content);
         break;
       }
@@ -46,6 +44,8 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
   }
 
   async processNewUserRecord(record: GitLabChatRecord) {
+    if (!record.content) return;
+
     await this.#view.show();
 
     await this.addToChat(record);
@@ -58,11 +58,12 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
 
     await this.addToChat(responseRecord);
 
-    const { content, requestId } = await this.#api.processNewUserPrompt(record.content);
+    const { content, requestId, errors } = await this.#api.processNewUserPrompt(record.content);
 
-    responseRecord.content = content ?? '';
-    responseRecord.state = 'ready';
+    responseRecord.content = content;
+    responseRecord.errors = errors;
     responseRecord.requestId = requestId;
+    responseRecord.state = 'ready';
 
     await this.#view.updateRecord(responseRecord);
   }
