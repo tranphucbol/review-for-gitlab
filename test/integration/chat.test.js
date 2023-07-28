@@ -1,6 +1,8 @@
+const vscode = require('vscode');
 const assert = require('assert');
 const sinon = require('sinon');
 const { graphql } = require('msw');
+// const proxyquire = require('proxyquire');
 const { GitLabChatController } = require('../../src/common/chat/gitlab_chat_controller');
 const {
   gitlabPlatformManagerDesktop,
@@ -15,6 +17,7 @@ describe('GitLab Duo Chat', () => {
   let controller;
   const sandbox = sinon.createSandbox();
   let webviewMock;
+  let contextMock;
 
   before(async () => {
     server = getServer([
@@ -24,8 +27,20 @@ describe('GitLab Duo Chat', () => {
   });
 
   beforeEach(async () => {
+    contextMock = {
+      extensionUri: vscode.Uri.file('foo/bar'),
+    };
+
+    const fs = { ...vscode.workspace.fs };
+    Object.defineProperty(fs, 'readFile', {
+      value: sinon.stub().resolves(Buffer.from('Foo Bar')),
+      configurable: true,
+      writable: true,
+    });
+    sandbox.stub(vscode.workspace, 'fs').value(fs);
+
     server.resetHandlers();
-    controller = new GitLabChatController(gitlabPlatformManagerDesktop);
+    controller = new GitLabChatController(gitlabPlatformManagerDesktop, contextMock);
     webviewMock = new WebviewMock(sandbox);
 
     await controller.resolveWebviewView(webviewMock.webview);

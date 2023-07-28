@@ -4,12 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vite --config issuable/vite.config.js build",
-    "watch": "vite --config issuable/vite.config.js build --watch",
+    "issuable": "vite --config issuable/vite.config.js build",
+    "issuable-watch": "vite --config issuable/vite.config.js build --watch",
+    "chat": "vite --config gitlab_duo_chat/vite.config.js build",
+    "chat-watch": "vite --config gitlab_duo_chat/vite.config.js build --watch",
+    "build": "rm -rf dist/ && concurrently 'npm:chat' 'npm:issuable'",
+    "watch": "rm -rf dist/ && concurrently 'npm:chat-watch' 'npm:issuable-watch'",
     "test": "vitest",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
-    "format": "prettier --write issuable/src/"
+    "format": "prettier --write **/src/"
   },
   "dependencies": {
     "@vue/compat": "^3.3.4",
@@ -21,6 +25,7 @@
     "@vitejs/plugin-vue": "^4.2.3",
     "@vue/eslint-config-prettier": "^7.1.0",
     "@vue/test-utils": "^2.4.0",
+    "concurrently": "^8.2.0",
     "dayjs": "^1.11.8",
     "dompurify": "^3.0.4",
     "eslint": "^8.39.0",

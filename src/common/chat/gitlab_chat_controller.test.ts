@@ -26,7 +26,7 @@ describe('GitLabChatController', () => {
   let controller: GitLabChatController;
 
   beforeEach(() => {
-    controller = new GitLabChatController(platformManager);
+    controller = new GitLabChatController(platformManager, {} as vscode.ExtensionContext);
     apiMock.processNewUserPrompt = jest
       .fn()
       .mockReturnValue({ text: 'api response', requestId: 'uniqueId' });

@@ -1,46 +1,18 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { copyFile, writeFile } from 'node:fs/promises';
-// eslint-disable-next-line import/no-unresolved
-import { copy } from 'fs-extra/esm';
+import { copyFile } from 'node:fs/promises';
 import { root, run } from './run_utils.mjs';
-import { createDesktopPackageJson, prettyPrint } from './packages.mjs';
-import { generateFont } from './generate_font.mjs';
+import { createDesktopPackageJson } from './packages.mjs';
+import { prepareWebviews, generateAssets, writePackageJson, commonJobs } from './common_jobs.mjs';
+import { ENVIRONMENTS } from '../constants.mjs';
 
-export async function cleanDesktopBuild() {
-  await run('rm', ['-rf', 'dist-desktop']);
-}
-
-export async function prepareWebviews() {
-  await run('npm', ['run', '--prefix', path.join(root, 'webviews/vue'), 'build']);
-  await copy(
-    path.join(root, 'webviews/vue/dist/issuable'),
-    path.join(root, 'dist-desktop/webviews/issuable'),
-  );
-}
-
-export async function prepareDistDirs() {
-  fs.mkdirSync(path.join(root, 'dist-desktop'));
-  fs.mkdirSync(path.join(root, 'dist-desktop/webviews'));
-  fs.mkdirSync(path.join(root, 'dist-desktop/assets'));
-}
-
-export async function generateAssets(packageJson) {
-  return Promise.all([
-    copy(path.join(root, 'src/assets'), path.join(root, 'dist-desktop/assets')),
-    generateFont(packageJson, 'dist-desktop'),
-  ]);
-}
+const desktopWebviews = ['gitlab_duo_chat', 'issuable'];
 
 export async function copyPendingJobAssets() {
   return copyFile(
     path.join(root, 'webviews/pendingjob.html'),
     path.join(root, `dist-desktop/webviews/pendingjob.html`),
   );
-}
-
-export async function writeDesktopPackageJson(json) {
-  await writeFile(path.join(root, 'dist-desktop/package.json'), prettyPrint(json));
 }
 
 export async function compileSource() {
@@ -79,12 +51,11 @@ export async function preparePackageFiles() {
 }
 
 export async function watchWebviews(signal) {
-  const dirpath = path.join(root, 'webviews/vue/dist/issuable');
-  if (!fs.existsSync(dirpath)) fs.mkdirSync(dirpath, { recursive: true });
-  fs.symlinkSync(
-    path.join(root, 'webviews/vue/dist/issuable'),
-    path.join(root, 'dist-desktop/webviews/issuable'),
-  );
+  desktopWebviews.forEach(webview => {
+    const dirpath = path.join(root, `webviews/vue/dist/${webview}`);
+    if (!fs.existsSync(dirpath)) fs.mkdirSync(dirpath, { recursive: true });
+    fs.symlinkSync(dirpath, path.join(root, `dist-desktop/webviews/${webview}`));
+  });
   await run('npm', ['run', '--prefix', path.join(root, 'webviews/vue'), 'watch'], {
     signal,
   });
@@ -93,24 +64,23 @@ export async function watchWebviews(signal) {
 export async function buildDesktop() {
   const packageJson = createDesktopPackageJson();
 
-  await cleanDesktopBuild();
-  await prepareDistDirs();
+  await commonJobs(ENVIRONMENTS.DESKTOP);
 
   await Promise.all([
-    prepareWebviews(),
+    prepareWebviews(desktopWebviews, ENVIRONMENTS.DESKTOP),
     copyPendingJobAssets(),
     checkAndBuildExtension(['--minify']),
-    generateAssets(packageJson),
+    generateAssets(packageJson, ENVIRONMENTS.DESKTOP),
   ]);
 
   // we need to wait for `tsc` to compile so we can replace package.json
-  await writeDesktopPackageJson(packageJson);
+  await writePackageJson(packageJson, ENVIRONMENTS.DESKTOP);
 }
 
 export async function watchDesktop(signal) {
   const packageJson = createDesktopPackageJson();
   await compileSource();
-  await writeDesktopPackageJson(packageJson);
+  await writePackageJson(packageJson, ENVIRONMENTS.DESKTOP);
   await buildExtension(['--watch'], signal);
 }
 

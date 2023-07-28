@@ -7,10 +7,10 @@ import { handleError } from '../common/errors/handle_error';
 import { isMr } from './utils/is_mr';
 import { makeHtmlLinksAbsolute } from './utils/make_html_links_absolute';
 import { GitLabService } from './gitlab/gitlab_service';
+import { generateSecret } from '../common/utils/generate_secret';
 import { gitlabProjectRepository } from './gitlab/gitlab_project_repository';
 import { ProjectInRepository } from './gitlab/new_project';
 import { getGitLabService } from './gitlab/get_gitlab_service';
-import { generateSecret } from './utils/generate_secret';
 import { WEBVIEW_WORKFLOW } from './constants';
 import { RepositoryRootWebviewProvider } from './commands/run_with_valid_project';
 import { waitForWebview } from '../common/utils/wait_for_webview';
@@ -68,7 +68,7 @@ class IssuableController implements RepositoryRootWebviewProvider {
     }, {}) as WebviewResources;
   }
 
-  private replaceResources(panel: vscode.WebviewPanel) {
+  private async replaceResources(panel: vscode.WebviewPanel) {
     assert(this.context);
     const { appScriptUri, styleUri } = this.getResources(panel);
     const nonce = generateSecret();
@@ -172,7 +172,7 @@ class IssuableController implements RepositoryRootWebviewProvider {
     const projectInRepository = gitlabProjectRepository.getProjectOrFail(repositoryRoot);
 
     const panel = this.createPanel(issuable);
-    const html = this.replaceResources(panel);
+    const html = await this.replaceResources(panel);
     panel.webview.html = html;
     panel.iconPath = this.getIconPathForIssuable(issuable);
     panel.repositoryRoot = repositoryRoot;
