@@ -37,18 +37,18 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "gitlab-workflow",
-          "title": "GitLab Workflow",
+          "id": "gitlab-duo",
+          "title": "GitLab Duo",
           "icon": "assets/images/light/gitlab-logo.svg"
         }
       ]
     },
     "views": {
-      "gitlab-workflow": [
+      "gitlab-duo": [
         {
           "type": "webview",
           "id": "gl.chatView",
-          "name": "GitLab Duo: Chat",
+          "name": "Chat",
           "when": "config.gitlab.featureFlags.chat"
         }
       ]

@@ -75,7 +75,10 @@ export class GitLabChatView {
 
   async show() {
     if (this.#chatView) {
-      this.#chatView.show();
+      if (!this.#chatView.visible) {
+        this.#chatView.show();
+        await waitForWebview(this.#chatView.webview);
+      }
     } else {
       await vscode.commands.executeCommand(`${CHAT_SIDEBAR_VIEW_ID}.focus`);
     }

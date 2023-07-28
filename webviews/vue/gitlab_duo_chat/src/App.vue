@@ -1,6 +1,7 @@
 <script>
 import { onUpdated, toRaw } from 'vue';
 import AiGenieChatMessage from './components/AiGenieChatMessage.vue';
+import PaperAirplaneIcon from './components/icons/PaperAirplaneIcon.vue';
 
 const vscode = acquireVsCodeApi();
 
@@ -8,6 +9,7 @@ export default {
   name: 'GitLabDuoChat',
   components: {
     AiGenieChatMessage,
+    PaperAirplaneIcon,
   },
   data() {
     return {
@@ -51,11 +53,19 @@ export default {
     },
     newRecord(record) {
       this.chatMessages.push(record);
+      this.scrollBottom();
     },
     updateRecord(record) {
       const index = this.chatMessages.findIndex(r => r.id === record.id);
 
       this.chatMessages[index] = record;
+
+      this.scrollBottom();
+    },
+    scrollBottom() {
+      setTimeout(() => {
+        window.scrollTo(0, document.body.scrollHeight);
+      }, 20); // TODO: replace this hack with proper CSS.
     },
     attachToVsCodeState() {
       onUpdated(() => {
@@ -65,7 +75,7 @@ export default {
       });
 
       const currentState = window.vsCodeApi.getState();
-      if (currentState.promptDraft) {
+      if (currentState && currentState.promptDraft) {
         this.promptDraft = currentState.promptDraft;
       }
     },
@@ -80,7 +90,8 @@ export default {
       this.promptDraft = null;
     },
     handleKeyPress(event) {
-      if (event.key === 'Enter' && event.shiftKey) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
         this.submitPrompt();
       }
     },
@@ -96,35 +107,112 @@ export default {
     <div id="chatHistory">
       <ai-genie-chat-message v-for="message in chatMessages" :key="message.id" :message="message" />
     </div>
-    <div id="promptForm">
-      <hr />
-      <textarea
-        rows="1"
-        placeholder="Ask a question"
-        ref="promptTextarea"
-        v-model="promptDraft"
-        @keypress="handleKeyPress"
-      ></textarea>
-      <button id="submitPrompt" @click.prevent="submitPrompt">Send</button>
-    </div>
     <div class="footer">
-      <p>
-        May provide inappropriate responses not representative of GitLab's views. Do not input
-        personal data.
-      </p>
+      <div id="promptForm">
+        <div>
+          <textarea
+            rows="1"
+            placeholder="Ask a question"
+            ref="promptTextarea"
+            v-model="promptDraft"
+            @keypress="handleKeyPress"
+          ></textarea>
+        </div>
+        <div class="submit-button">
+          <button type="submit" @click.prevent="submitPrompt">
+            <paper-airplane-icon />
+          </button>
+        </div>
+      </div>
+      <div>
+        <p>
+          <small>
+            May provide inappropriate responses not representative of GitLab's views. Do not input
+            personal data.
+          </small>
+        </p>
+      </div>
     </div>
   </div>
 </template>
 <style lang="scss">
+:root {
+  --font-family: var(--vscode-font-family);
+}
+* {
+  box-sizing: border-box;
+}
 .header {
   text-align: center;
   width: 100%;
   margin-bottom: 10px;
 }
+.footer {
+  position: sticky;
+  bottom: 0;
+  border-top: 1px solid var(--vscode-sideBar-border);
+  padding-top: 1rem;
+  padding-bottom: 0.25rem;
+  background-color: var(--vscode-sideBar-background);
+}
+#chatHistory {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
 #promptForm {
+  max-width: 100%;
+  min-height: 2.5rem;
+  flex-grow: 1;
+  box-shadow: inset 0 0 0 1px var(--vscode-input-border);
+  border-radius: 0.25rem;
+  vertical-align: top;
+  position: relative;
+
   textarea {
-    width: 100%;
+    width: calc(100% - 40px);
+    max-height: 240px;
+    border-style: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     resize: none;
+    height: 100%;
+    padding: 0.75rem 0.5rem 0.75rem 0.5rem;
+    box-shadow: none;
+    border-radius: 0.25rem;
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+    background-color: transparent;
+    outline: none;
+    color: var(--vscode-editor-foreground);
+  }
+
+  .submit-button {
+    display: flex;
+
+    button {
+      padding: 0.5rem;
+      background-color: var(--vscode-button-background);
+      box-shadow: inset 0 0 0 1px var(--vscode-button-border);
+      color: var(--vscode-button-foreground);
+      cursor: pointer;
+      border-width: 0;
+      flex-shrink: 0;
+      border: none;
+      border-radius: 0.25rem;
+
+      position: absolute;
+      bottom: 0.25rem;
+      right: 0.25rem;
+
+      svg {
+        width: 16px;
+        height: 16px;
+        vertical-align: -3px;
+        fill: currentColor;
+      }
+    }
   }
 }
 </style>
