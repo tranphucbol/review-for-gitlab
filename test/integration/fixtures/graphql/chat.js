@@ -19,7 +19,14 @@ const newResponseResponse = {
   },
 };
 
+const noMessageResponse = {
+  aiMessages: {
+    nodes: [],
+  },
+};
+
 module.exports = {
   newPromptResponse,
   newResponseResponse,
+  noMessageResponse,
 };

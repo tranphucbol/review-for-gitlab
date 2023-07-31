@@ -7,10 +7,18 @@ const { GitLabChatController } = require('../../src/common/chat/gitlab_chat_cont
 const {
   gitlabPlatformManagerDesktop,
 } = require('../../src/desktop/gitlab/gitlab_platform_desktop');
-const { newPromptResponse, newResponseResponse } = require('./fixtures/graphql/chat');
+const {
+  newPromptResponse,
+  newResponseResponse,
+  noMessageResponse,
+} = require('./fixtures/graphql/chat');
 const { WebviewMock } = require('./test_infrastructure/webview_mock');
 
 const { getServer } = require('./test_infrastructure/mock_server');
+
+const { API_PULLING } = require('../../src/common/chat/gitlab_chat_api');
+
+API_PULLING.interval = 1; // wait only 1ms between pulling attempts.
 
 describe('GitLab Duo Chat', () => {
   let server;
@@ -100,5 +108,28 @@ describe('GitLab Duo Chat', () => {
       responseMessage.record.content,
       newResponseResponse.aiMessages.nodes[0].content,
     );
+  });
+
+  describe('with no response available after all pulling attempts', () => {
+    beforeEach(() => {
+      server.use(
+        graphql.query('getAiMessages', (req, res, ctx) => res(ctx.data(noMessageResponse))),
+      );
+    });
+
+    it('sets error in the message', async () => {
+      webviewMock.emulateViewMessage({
+        eventType: 'newPrompt',
+        record: {
+          content: 'hi!',
+        },
+      });
+
+      const responseMessage = await webviewMock.waitForMessage(
+        m => m.eventType === 'updateRecord' && m.record.role === 'assistant',
+      );
+
+      assert.equal(responseMessage.record.errors[0], 'Reached timeout while fetching response.');
+    });
   });
 });

@@ -2,42 +2,42 @@ import { gql } from 'graphql-request';
 import { GraphQLRequest } from '../platform/web_ide';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 
-interface RawAiMessage {
-  content: string;
-  errors?: string[];
-  requestId: string;
-}
-
 interface AiMessage {
   requestId: string;
+  role: string;
   content?: string;
-  errors?: string[];
+  errors: string[];
 }
 
 type PullableRequest = (requestId: string) => Promise<AiMessage | undefined>;
 
-const parseAiMessage = (message: RawAiMessage): AiMessage => {
-  const result = { requestId: message.requestId, errors: message.errors, content: undefined };
+const parseAiMessage = (message: AiMessage): AiMessage => {
+  const result = message;
 
-  if (message.errors && message.errors.length > 0) return result;
+  if (result.errors.length > 0 || !result.content) return result;
 
-  let content;
   try {
-    content = JSON.parse(message.content).content;
+    result.content = JSON.parse(result.content).content;
   } catch (e) {
-    content = message.content;
+    // no-op. keep raw content
   }
-  result.content = content;
 
   return result;
 };
 
+const errorResponse = (requestId: string, errors: string[]): AiMessage => ({
+  requestId,
+  errors,
+  role: 'system',
+});
+
+export const API_PULLING = {
+  interval: 5000,
+  maxRetries: 10,
+};
+
 export class GitLabChatApi {
-  private manager: GitLabPlatformManager;
-
-  protected readonly apiPullingInterval: number = 5000; // ms
-
-  private readonly apiPullingRetryCount = 10;
+  #manager: GitLabPlatformManager;
 
   static readonly getAiMessagesQuery = gql`
     query getAiMessages($requestIds: [ID!]) {
@@ -63,26 +63,18 @@ export class GitLabChatApi {
   `;
 
   constructor(manager: GitLabPlatformManager) {
-    this.manager = manager;
-  }
-
-  private delayHandlerExecution<T>(handler: Promise<T>): Promise<T> {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve(handler);
-      }, this.apiPullingInterval);
-    });
+    this.#manager = manager;
   }
 
   private async currentPlatform() {
-    const platform = await this.manager.getForActiveProject(false);
+    const platform = await this.#manager.getForActiveProject(false);
     if (!platform) throw new Error('Platform is missing!');
 
     return platform;
   }
 
   private async getChatHistory(requestId: string): Promise<AiMessage | undefined> {
-    const request: GraphQLRequest<{ aiMessages: { nodes: RawAiMessage[] } }> = {
+    const request: GraphQLRequest<{ aiMessages: { nodes: AiMessage[] } }> = {
       type: 'graphql',
       query: GitLabChatApi.getAiMessagesQuery,
       variables: { requestIds: [requestId] },
@@ -96,9 +88,12 @@ export class GitLabChatApi {
   private async pullApiResponse(
     requestId: string,
     handler: PullableRequest,
-    retry = this.apiPullingRetryCount,
+    retry = API_PULLING.maxRetries,
   ): Promise<AiMessage> {
-    if (retry < 0) throw new Error('Could not call the GitLab Duo Chat API.');
+    if (retry <= 0)
+      return new Promise(resolve => {
+        resolve(errorResponse(requestId, ['Reached timeout while fetching response.']));
+      });
 
     const response = await handler(requestId);
 
@@ -110,24 +105,30 @@ export class GitLabChatApi {
     return new Promise(resolve => {
       setTimeout(() => {
         resolve(this.pullApiResponse(requestId, handler, retry - 1));
-      }, this.apiPullingInterval);
+      }, API_PULLING.interval);
     });
   }
 
   private async sendNewUserPrompt(text: string) {
     const platform = await this.currentPlatform();
-    const request: GraphQLRequest<{ aiAction: { requestId: string } }> = {
+    const request: GraphQLRequest<{ aiAction: { requestId: string; errors: string[] } }> = {
       type: 'graphql',
       query: GitLabChatApi.aiChatActionMutation,
       variables: { resourceId: platform.project.gqlId, question: text },
     };
     const response = await platform.fetchFromApi(request);
 
-    return response.aiAction.requestId;
+    return response.aiAction;
   }
 
   async processNewUserPrompt(text: string): Promise<AiMessage> {
-    const requestId = await this.sendNewUserPrompt(text);
+    const { requestId, errors } = await this.sendNewUserPrompt(text);
+
+    if (errors.length > 0) {
+      return new Promise(resolve => {
+        resolve(errorResponse(requestId, errors));
+      });
+    }
 
     return this.pullApiResponse(requestId, this.getChatHistory.bind(this));
   }

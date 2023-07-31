@@ -15,7 +15,7 @@ export default {
   },
   computed: {
     messageContent() {
-      return this.message.content || this.message.errors[0];
+      return this.message.errors[0] || this.message.content;
     },
   },
   methods: {

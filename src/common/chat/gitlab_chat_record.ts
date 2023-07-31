@@ -7,7 +7,7 @@ type ChatRecordType = 'general' | 'explainCode';
 export class GitLabChatRecord {
   role: ChatRecordRole;
 
-  content: string;
+  content?: string;
 
   id: string;
 
@@ -19,6 +19,8 @@ export class GitLabChatRecord {
 
   type: ChatRecordType;
 
+  errors: string[];
+
   constructor({
     type,
     role,
@@ -26,13 +28,15 @@ export class GitLabChatRecord {
     state,
     requestId,
     payload,
+    errors,
   }: {
     type?: ChatRecordType;
     role: ChatRecordRole;
-    content: string;
+    content?: string;
     requestId?: string;
     state?: ChatRecordState;
     payload?: object;
+    errors?: string[];
   }) {
     this.role = role;
     this.type = type ?? 'general';
@@ -40,6 +44,7 @@ export class GitLabChatRecord {
     this.state = state ?? 'ready';
     this.payload = payload ?? {};
     this.requestId = requestId;
+    this.errors = errors ?? [];
     this.id = uuidv4();
   }
 }
