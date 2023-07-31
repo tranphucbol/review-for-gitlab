@@ -1,4 +1,5 @@
 <script>
+import { onUpdated, toRaw } from 'vue';
 import AiGenieChatMessage from './components/AiGenieChatMessage.vue';
 
 const vscode = acquireVsCodeApi();
@@ -21,6 +22,9 @@ export default {
   },
   onBeforeDestroy() {
     window.removeEventListener('message', this.handleExtensionMessageEvent);
+  },
+  mounted() {
+    this.attachToVsCodeState();
   },
   methods: {
     handleExtensionMessageEvent(event) {
@@ -52,6 +56,18 @@ export default {
       const index = this.chatMessages.findIndex(r => r.id === record.id);
 
       this.chatMessages[index] = record;
+    },
+    attachToVsCodeState() {
+      onUpdated(() => {
+        window.vsCodeApi.setState({
+          promptDraft: toRaw(this.promptDraft),
+        });
+      });
+
+      const currentState = window.vsCodeApi.getState();
+      if (currentState.promptDraft) {
+        this.promptDraft = currentState.promptDraft;
+      }
     },
     // form related stuff.
     submitPrompt() {

@@ -26,6 +26,7 @@ describe('GitLabChatView', () => {
         asWebviewUri: jest.fn().mockImplementation(url => url),
       } as Partial<vscode.Webview> as vscode.Webview,
       onDidDispose: jest.fn(),
+      onDidChangeVisibility: jest.fn(),
       show: jest.fn(),
     } as Partial<vscode.WebviewView> as vscode.WebviewView;
 
@@ -49,6 +50,7 @@ describe('GitLabChatView', () => {
 
     it('sets message processing and dispose callbacks', () => {
       expect(webview.webview.onDidReceiveMessage).toBeCalledWith(expect.any(Function));
+      expect(webview.onDidChangeVisibility).toBeCalledWith(expect.any(Function));
       expect(webview.onDidDispose).toBeCalledWith(expect.any(Function), view);
     });
 

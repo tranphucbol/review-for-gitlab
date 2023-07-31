@@ -14,6 +14,7 @@ const viewMock = {
   updateRecord: jest.fn(),
   show: jest.fn(),
   onViewMessage: jest.fn(),
+  onDidBecomeVisible: jest.fn(),
   resolveWebviewView: jest.fn(),
 };
 
