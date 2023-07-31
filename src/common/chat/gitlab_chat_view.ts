@@ -27,7 +27,7 @@ export type ViewCommand = FocusCommand | RecordCommand;
 interface NewPromptMessage {
   eventType: 'newPrompt';
   record: {
-    text: string;
+    content: string;
   };
 }
 

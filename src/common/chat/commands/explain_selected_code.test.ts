@@ -29,8 +29,8 @@ describe('explainSelectedCode', () => {
     await explainSelectedCode(controller);
     expect(controller.processNewUserRecord).toHaveBeenCalledWith(
       expect.objectContaining({
-        text: 'Explain this code\n\n```\nhello\n```',
-        author: 'user',
+        content: 'Explain this code\n\n```\nhello\n```',
+        role: 'user',
         type: 'explainCode',
         payload: {
           selectedText: 'hello',

@@ -1,13 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 
-type ChatRecordAuthor = 'user' | 'gitLabChat';
+type ChatRecordRole = 'user' | 'assistant' | 'system';
 type ChatRecordState = 'pending' | 'ready';
 type ChatRecordType = 'general' | 'explainCode';
 
 export class GitLabChatRecord {
-  author: ChatRecordAuthor;
+  role: ChatRecordRole;
 
-  text: string;
+  content: string;
 
   id: string;
 
@@ -21,22 +21,22 @@ export class GitLabChatRecord {
 
   constructor({
     type,
-    author,
-    text,
+    role,
+    content,
     state,
     requestId,
     payload,
   }: {
     type?: ChatRecordType;
-    author: ChatRecordAuthor;
-    text: string;
+    role: ChatRecordRole;
+    content: string;
     requestId?: string;
     state?: ChatRecordState;
     payload?: object;
   }) {
-    this.author = author;
+    this.role = role;
     this.type = type ?? 'general';
-    this.text = text;
+    this.content = content;
     this.state = state ?? 'ready';
     this.payload = payload ?? {};
     this.requestId = requestId;

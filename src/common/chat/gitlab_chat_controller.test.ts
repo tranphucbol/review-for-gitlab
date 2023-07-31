@@ -29,7 +29,7 @@ describe('GitLabChatController', () => {
     controller = new GitLabChatController(platformManager, {} as vscode.ExtensionContext);
     apiMock.processNewUserPrompt = jest
       .fn()
-      .mockReturnValue({ text: 'api response', requestId: 'uniqueId' });
+      .mockReturnValue({ content: 'api response', requestId: 'uniqueId' });
   });
 
   describe('resolveWebviewView', () => {
@@ -43,8 +43,8 @@ describe('GitLabChatController', () => {
 
     it('restores chat history', async () => {
       controller.chatHistory.push(
-        new GitLabChatRecord({ author: 'user', text: 'ping' }),
-        new GitLabChatRecord({ author: 'gitLabChat', text: 'pong' }),
+        new GitLabChatRecord({ role: 'user', content: 'ping' }),
+        new GitLabChatRecord({ role: 'assistant', content: 'pong' }),
       );
 
       await controller.resolveWebviewView(webview);
@@ -58,7 +58,7 @@ describe('GitLabChatController', () => {
     let record: GitLabChatRecord;
 
     beforeEach(() => {
-      record = new GitLabChatRecord({ author: 'user', text: 'hello' });
+      record = new GitLabChatRecord({ role: 'user', content: 'hello' });
     });
 
     describe('before the api call', () => {
@@ -87,11 +87,11 @@ describe('GitLabChatController', () => {
 
         expect(viewMock.addRecord).toHaveBeenNthCalledWith(
           1,
-          expect.objectContaining({ text: 'hello', state: 'ready', author: 'user' }),
+          expect.objectContaining({ content: 'hello', state: 'ready', role: 'user' }),
         );
         expect(viewMock.addRecord).toHaveBeenNthCalledWith(
           2,
-          expect.objectContaining({ text: '...', state: 'pending', author: 'gitLabChat' }),
+          expect.objectContaining({ content: '...', state: 'pending', role: 'assistant' }),
         );
       });
 
@@ -105,10 +105,10 @@ describe('GitLabChatController', () => {
         }
 
         expect(controller.chatHistory[0]).toEqual(
-          expect.objectContaining({ text: 'hello', state: 'ready', author: 'user' }),
+          expect.objectContaining({ content: 'hello', state: 'ready', role: 'user' }),
         );
         expect(controller.chatHistory[1]).toEqual(
-          expect.objectContaining({ text: '...', state: 'pending', author: 'gitLabChat' }),
+          expect.objectContaining({ content: '...', state: 'pending', role: 'assistant' }),
         );
       });
     });
@@ -118,9 +118,9 @@ describe('GitLabChatController', () => {
 
       expect(viewMock.addRecord).toHaveBeenCalledWith(
         expect.objectContaining({
-          text: 'api response',
+          content: 'api response',
           state: 'ready',
-          author: 'gitLabChat',
+          role: 'assistant',
           requestId: 'uniqueId',
         }),
       );
@@ -133,16 +133,16 @@ describe('GitLabChatController', () => {
 
       expect(controller.chatHistory[0]).toEqual(
         expect.objectContaining({
-          text: 'hello',
+          content: 'hello',
           state: 'ready',
-          author: 'user',
+          role: 'user',
         }),
       );
       expect(controller.chatHistory[1]).toEqual(
         expect.objectContaining({
-          text: 'api response',
+          content: 'api response',
           state: 'ready',
-          author: 'gitLabChat',
+          role: 'assistant',
           requestId: 'uniqueId',
         }),
       );

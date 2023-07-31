@@ -28,9 +28,9 @@ export const explainSelectedCode = async (controller: GitLabChatController) => {
   const selectedText = getSelectedText();
 
   const record = new GitLabChatRecord({
-    author: 'user',
+    role: 'user',
     type: 'explainCode',
-    text: `Explain this code\n\n\`\`\`\n${selectedText}\n\`\`\``,
+    content: `Explain this code\n\n\`\`\`\n${selectedText}\n\`\`\``,
     payload: { selectedText },
   });
 

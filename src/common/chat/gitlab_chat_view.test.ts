@@ -125,7 +125,7 @@ describe('GitLabChatView', () => {
 
     describe('addRecord', () => {
       it('sends newRecord view message', async () => {
-        const record = new GitLabChatRecord({ author: 'user', text: 'hello' });
+        const record = new GitLabChatRecord({ role: 'user', content: 'hello' });
 
         await view.addRecord(record);
 
@@ -135,7 +135,7 @@ describe('GitLabChatView', () => {
 
     describe('updateRecord', () => {
       it('sends updateRecord view message', async () => {
-        const record = new GitLabChatRecord({ author: 'user', text: 'hello' });
+        const record = new GitLabChatRecord({ role: 'user', content: 'hello' });
 
         await view.updateRecord(record);
 

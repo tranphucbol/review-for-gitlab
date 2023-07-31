@@ -57,7 +57,7 @@ describe('GitLabChatApi', () => {
       expect(aiMessagesQuery.query).toBe(GitLabChatApi.getAiMessagesQuery);
 
       const expectedMessage = mockedQueryResponse.aiMessages.nodes[0];
-      expect(response.text).toBe(expectedMessage.content);
+      expect(response.content).toBe(expectedMessage.content);
       expect(response.requestId).toBe(expectedMessage.requestId);
     });
 

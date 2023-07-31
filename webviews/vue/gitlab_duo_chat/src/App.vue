@@ -10,7 +10,7 @@ export default {
       vscode.postMessage({
         eventType: 'newPrompt',
         record: {
-          text: chatRequestArea.value,
+          content: chatRequestArea.value,
         },
       });
       chatRequestArea.value = null;
@@ -28,13 +28,13 @@ export default {
       messageBlock.id = `message-${message.record.id}`;
       messageBlock.classList.add('message');
 
-      if (message.record.author === 'user') {
+      if (message.record.role === 'user') {
         messageBlock.classList.add('prompt');
       } else {
         messageBlock.classList.add('response');
       }
 
-      messageBlock.append(message.record.text);
+      messageBlock.append(message.record.content);
 
       return messageBlock;
     };
@@ -46,7 +46,7 @@ export default {
     };
 
     const updateMessage = message => {
-      document.getElementById(`message-${message.record.id}`).innerHTML = message.record.text;
+      document.getElementById(`message-${message.record.id}`).innerHTML = message.record.content;
     };
 
     const handleExtensionMessageEvent = event => {
@@ -187,13 +187,13 @@ export default {
           messageBlock.id = 'message-' + message.record.id;
           messageBlock.classList.add('message');
 
-          if (message.record.author == 'user') {
+          if (message.record.rol == 'user') {
             messageBlock.classList.add('prompt');
           } else {
             messageBlock.classList.add('response');
           }
 
-          messageBlock.append(message.record.text);
+          messageBlock.append(message.record.content);
 
           return messageBlock;
         };
@@ -205,7 +205,7 @@ export default {
         };
 
         const updateMessage = function (message) {
-          document.getElementById('message-' + message.record.id).innerHTML = message.record.text;
+          document.getElementById('message-' + message.record.id).innerHTML = message.record.content;
         };
 
         const handleExtensionMessageEvent = function (event) {
