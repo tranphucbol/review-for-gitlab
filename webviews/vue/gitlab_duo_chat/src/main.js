@@ -1,8 +1,11 @@
 import Vue from 'vue';
 import App from './App.vue';
+import vSafeHtmlDirective from './directives/SafeHtmlDirective';
 
 Vue.config.productionTip = false;
 
-new Vue({
-  render: h => h(App),
-}).$mount('#app');
+const app = Vue.createApp(App);
+
+app.directive('safe-html', vSafeHtmlDirective);
+
+app.mount('#app');

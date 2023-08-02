@@ -1,6 +1,6 @@
 import { Disposable, Webview } from 'vscode';
 
-const WAIT_TIMEOUT_MS = 500;
+const WAIT_TIMEOUT_MS = 1000;
 
 /**
  * waitForWebview is a function that should be used before you start communicating with the webview, it ensures that the webview app is initialized.
