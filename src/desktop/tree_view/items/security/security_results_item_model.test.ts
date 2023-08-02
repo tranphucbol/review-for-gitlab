@@ -5,7 +5,7 @@ describe('SecurityResultsItemModel', () => {
   describe('types', () => {
     it('has no scans', () => {
       const item = new SecurityResultsItemModel('NO_SCANS_FOUND', securityReport).getTreeItem();
-      expect(item.label).toBe('No scans found');
+      expect(item.label).toBe('No security scans found');
     });
 
     it('is running', () => {
