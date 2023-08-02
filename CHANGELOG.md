@@ -1,3 +1,12 @@
+## [3.72.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.72.0...v3.72.1) (2023-08-02)
+
+
+### Bug Fixes
+
+* Update mediator command calls ([49db7e8](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/49db7e87e62a1b73aceb357ec4b28e24f17c4aec))
+
+
+
 # [3.72.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.71.0...v3.72.0) (2023-08-02)
 
 
