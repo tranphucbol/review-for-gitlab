@@ -1,3 +1,13 @@
+# [3.72.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.71.0...v3.72.0) (2023-08-02)
+
+
+### Features
+
+* added the GitLab Duo Chat webview ([05aa83c](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/05aa83c2f29baa8bf396dec4a3295d4efaf822db))
+* improve chat ui ([c7a109c](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/c7a109c8c44b4dff56fc2d94d7e93441767f615b))
+
+
+
 # [3.71.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.70.0...v3.71.0) (2023-07-27)
 
 
