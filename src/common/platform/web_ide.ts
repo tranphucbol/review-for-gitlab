@@ -6,9 +6,13 @@
  * ------------------------------------
  */
 
+// why: `TReturnType` helps encapsulate the full request type when used with `fetchFromApi`
+/* eslint @typescript-eslint/no-unused-vars: ["error", { "varsIgnorePattern": "TReturnType" }] */
+
 // region: Mediator commands -------------------------------------------
 export const COMMAND_FETCH_FROM_API = `gitlab-web-ide.mediator.fetch-from-api`;
 export const COMMAND_FETCH_BUFFER_FROM_API = `gitlab-web-ide.mediator.fetch-buffer-from-api`;
+export const COMMAND_MEDIATOR_TOKEN = `gitlab-web-ide.mediator.mediator-token`;
 export const COMMAND_GET_CONFIG = `gitlab-web-ide.mediator.get-config`;
 
 // Return type from `COMMAND_FETCH_BUFFER_FROM_API`
@@ -22,8 +26,10 @@ export interface InteropConfig {
 }
 
 // region: API types ---------------------------------------------------
-// why: `TReturnType` helps encapsulate the full request type when used with `fetchFromApi`
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+/**
+ * The response body is parsed as JSON and it's up to the client to ensure it
+ * matches the TReturnType
+ */
 export interface PostRequest<TReturnType> {
   type: 'rest';
   method: 'POST';
@@ -37,8 +43,10 @@ export interface PostRequest<TReturnType> {
   headers?: Record<string, string>;
 }
 
-// why: `TReturnType` helps encapsulate the full request type when used with `fetchFromApi`
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+/**
+ * The response body is parsed as JSON and it's up to the client to ensure it
+ * matches the TReturnType
+ */
 interface GetRequestBase<TReturnType> {
   method: 'GET';
   /**
@@ -59,8 +67,6 @@ export interface GetBufferRequest extends GetRequestBase<Uint8Array> {
   type: 'rest-buffer';
 }
 
-// why: `TReturnType` helps encapsulate the full request type when used with `fetchFromApi`
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface GraphQLRequest<TReturnType> {
   type: 'graphql';
   query: string;

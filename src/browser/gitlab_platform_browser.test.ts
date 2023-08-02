@@ -1,12 +1,19 @@
 import * as vscode from 'vscode';
-import { COMMAND_FETCH_FROM_API, COMMAND_GET_CONFIG } from '../common/platform/web_ide';
+import {
+  COMMAND_FETCH_FROM_API,
+  COMMAND_GET_CONFIG,
+  COMMAND_MEDIATOR_TOKEN,
+} from '../common/platform/web_ide';
 import { gqlProject, project } from '../common/test_utils/entities';
 import { createGitLabPlatformManagerBrowser } from './gitlab_platform_browser';
 import { GitLabPlatform, GitLabPlatformManager } from '../common/platform/gitlab_platform';
 
+const FAKE_MEDIATOR_TOKEN = 'fake-mediator-token';
+
 describe('createGitLabPlatformManagerBrowser', () => {
   const mockCommandsForInitialSetup = () => {
-    jest.mocked(vscode.commands.executeCommand).mockImplementation(async (cmd, arg) => {
+    jest.mocked(vscode.commands.executeCommand).mockImplementation(async (cmd, token, arg) => {
+      // what: token arg isn't used in mock implementation, but we add assertion in the `it`
       if (cmd === COMMAND_GET_CONFIG) {
         return { projectPath: 'gitlab-org/gitlab' };
       }
@@ -15,6 +22,9 @@ describe('createGitLabPlatformManagerBrowser', () => {
         arg?.variables.namespaceWithPath === 'gitlab-org/gitlab'
       ) {
         return { project: gqlProject };
+      }
+      if (cmd === COMMAND_MEDIATOR_TOKEN) {
+        return FAKE_MEDIATOR_TOKEN;
       }
       throw new Error(`Unexpected command ${cmd} with arg ${JSON.stringify(arg)}`);
     });
@@ -38,6 +48,10 @@ describe('createGitLabPlatformManagerBrowser', () => {
     it('calls mediator commands to get config and project from WebIDE', async () => {
       expect(platform).toBeDefined();
       expect(platform?.project).toEqual(project);
+      expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
+        COMMAND_GET_CONFIG,
+        FAKE_MEDIATOR_TOKEN,
+      );
     });
 
     it('forwards all calls to fetchFromApi to the mediator command', async () => {
@@ -55,6 +69,7 @@ describe('createGitLabPlatformManagerBrowser', () => {
       expect(result).toEqual(testResponse);
       expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
         COMMAND_FETCH_FROM_API,
+        FAKE_MEDIATOR_TOKEN,
         testRequest,
       );
     });
