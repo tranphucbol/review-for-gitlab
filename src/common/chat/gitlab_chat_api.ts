@@ -1,6 +1,33 @@
 import { gql } from 'graphql-request';
 import { GraphQLRequest } from '../platform/web_ide';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
+import { pullHandler } from './api/pulling';
+
+export const AI_ACTIONS = {
+  chat: gql`
+    mutation chat($question: String!, $resourceId: AiModelID!) {
+      aiAction(input: { chat: { resourceId: $resourceId, content: $question } }) {
+        requestId
+        errors
+      }
+    }
+  `,
+};
+
+type aiActionResponseType = { requestId: string; errors: string[] };
+
+export const AI_MESSAGES_QUERY = gql`
+  query getAiMessages($requestIds: [ID!]) {
+    aiMessages(requestIds: $requestIds, roles: [ASSISTANT]) {
+      nodes {
+        requestId
+        role
+        content
+        errors
+      }
+    }
+  }
+`;
 
 interface AiMessage {
   requestId: string;
@@ -8,8 +35,6 @@ interface AiMessage {
   content?: string;
   errors: string[];
 }
-
-type PullableRequest = (requestId: string) => Promise<AiMessage | undefined>;
 
 const parseAiMessage = (message: AiMessage): AiMessage => {
   const result = message;
@@ -31,39 +56,27 @@ const errorResponse = (requestId: string, errors: string[]): AiMessage => ({
   role: 'system',
 });
 
-export const API_PULLING = {
-  interval: 5000,
-  maxRetries: 10,
-};
-
 export class GitLabChatApi {
   #manager: GitLabPlatformManager;
 
-  static readonly getAiMessagesQuery = gql`
-    query getAiMessages($requestIds: [ID!]) {
-      aiMessages(requestIds: $requestIds, roles: [ASSISTANT]) {
-        nodes {
-          id
-          requestId
-          content
-          errors
-          role
-        }
-      }
-    }
-  `;
-
-  static readonly aiChatActionMutation = gql`
-    mutation chat($question: String!, $resourceId: AiModelID!) {
-      aiAction(input: { chat: { resourceId: $resourceId, content: $question } }) {
-        requestId
-        errors
-      }
-    }
-  `;
-
   constructor(manager: GitLabPlatformManager) {
     this.#manager = manager;
+  }
+
+  async processNewUserPrompt(question: string): Promise<AiMessage> {
+    return this.processAiAction(AI_ACTIONS.chat, { question });
+  }
+
+  private async processAiAction(actionQuery: string, variables: object): Promise<AiMessage> {
+    const { requestId, errors } = await this.sendAiAction(actionQuery, variables);
+
+    if (errors.length > 0) {
+      return new Promise(resolve => {
+        resolve(errorResponse(requestId, errors));
+      });
+    }
+
+    return this.pullAiMessage(requestId);
   }
 
   private async currentPlatform() {
@@ -73,10 +86,10 @@ export class GitLabChatApi {
     return platform;
   }
 
-  private async getChatHistory(requestId: string): Promise<AiMessage | undefined> {
+  private async getAiMessage(requestId: string): Promise<AiMessage | undefined> {
     const request: GraphQLRequest<{ aiMessages: { nodes: AiMessage[] } }> = {
       type: 'graphql',
-      query: GitLabChatApi.getAiMessagesQuery,
+      query: AI_MESSAGES_QUERY,
       variables: { requestIds: [requestId] },
     };
     const platform = await this.currentPlatform();
@@ -85,56 +98,31 @@ export class GitLabChatApi {
     return history.aiMessages.nodes.map(parseAiMessage)[0];
   }
 
-  private async pullApiResponse(
-    requestId: string,
-    handler: PullableRequest,
-    retry = API_PULLING.maxRetries,
-  ): Promise<AiMessage> {
-    if (retry <= 0)
+  private async pullAiMessage(requestId: string): Promise<AiMessage> {
+    const response = await pullHandler(() => this.getAiMessage(requestId));
+
+    if (!response)
       return new Promise(resolve => {
         resolve(errorResponse(requestId, ['Reached timeout while fetching response.']));
       });
 
-    const response = await handler(requestId);
-
-    if (response)
-      return new Promise(resolve => {
-        resolve(response);
-      });
-
     return new Promise(resolve => {
-      setTimeout(() => {
-        resolve(this.pullApiResponse(requestId, handler, retry - 1));
-      }, API_PULLING.interval);
+      resolve(response);
     });
   }
 
-  private async sendNewUserPrompt(text: string) {
+  private async sendAiAction(
+    actionQuery: string,
+    variables: object,
+  ): Promise<aiActionResponseType> {
     const platform = await this.currentPlatform();
-    const request: GraphQLRequest<{ aiAction: { requestId: string; errors: string[] } }> = {
+    const request: GraphQLRequest<{ aiAction: aiActionResponseType }> = {
       type: 'graphql',
-      query: GitLabChatApi.aiChatActionMutation,
-      variables: { resourceId: platform.project.gqlId, question: text },
+      query: actionQuery,
+      variables: { resourceId: platform.project.gqlId, ...variables },
     };
     const response = await platform.fetchFromApi(request);
 
     return response.aiAction;
-  }
-
-  async processNewUserPrompt(text: string): Promise<AiMessage> {
-    const { requestId, errors } = await this.sendNewUserPrompt(text);
-
-    if (errors.length > 0) {
-      return new Promise(resolve => {
-        resolve(errorResponse(requestId, errors));
-      });
-    }
-
-    return this.pullApiResponse(requestId, this.getChatHistory.bind(this));
-  }
-
-  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
-  async processNewUserFeedback(responseId: string, feedback: string) {
-    // feedback values: ['helpful','unhelpful','wrong']
   }
 }

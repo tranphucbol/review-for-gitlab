@@ -1,7 +1,8 @@
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { project as currentProject } from '../test_utils/entities';
 import { GitLabProject } from '../platform/gitlab_project';
-import { GitLabChatApi, API_PULLING } from './gitlab_chat_api';
+import { GitLabChatApi, AI_ACTIONS, AI_MESSAGES_QUERY } from './gitlab_chat_api';
+import { API_PULLING } from './api/pulling';
 
 API_PULLING.interval = 1; // wait only 1ms between pulling attempts.
 
@@ -33,7 +34,7 @@ describe('GitLabChatApi', () => {
   ): GitLabPlatformManager => {
     makeApiRequest = jest.fn(async <T>(params: any): Promise<T> => {
       let response;
-      if (params?.query === GitLabChatApi.aiChatActionMutation) {
+      if (params?.query === AI_ACTIONS.chat) {
         response = mutationContent as T;
       } else {
         response = queryContent as T;
@@ -59,8 +60,8 @@ describe('GitLabChatApi', () => {
 
       const [[aiActionMutation], [aiMessagesQuery]] = makeApiRequest.mock.calls;
 
-      expect(aiActionMutation.query).toBe(GitLabChatApi.aiChatActionMutation);
-      expect(aiMessagesQuery.query).toBe(GitLabChatApi.getAiMessagesQuery);
+      expect(aiActionMutation.query).toBe(AI_ACTIONS.chat);
+      expect(aiMessagesQuery.query).toBe(AI_MESSAGES_QUERY);
 
       const expectedMessage = mockedQueryResponse.aiMessages.nodes[0];
       expect(response.content).toBe(expectedMessage.content);
@@ -68,17 +69,11 @@ describe('GitLabChatApi', () => {
       expect(response.errors).toStrictEqual(expectedMessage.errors);
     });
 
-    it('attempts 10 pulls for chat response and returns an error', async () => {
+    it('returns an error if pulling timeout is reached', async () => {
       const manager = createManager(currentProject, mockedEmptyQueryResponse);
       const gitlabChatApi = new GitLabChatApi(manager);
 
       const response = await gitlabChatApi.processNewUserPrompt(mockPrompt);
-
-      const [[aiActionMutation], [aiMessagesQuery]] = makeApiRequest.mock.calls;
-
-      expect(aiActionMutation.query).toBe(GitLabChatApi.aiChatActionMutation);
-      expect(aiMessagesQuery.query).toBe(GitLabChatApi.getAiMessagesQuery);
-      expect(makeApiRequest).toBeCalledTimes(11);
 
       expect(response.requestId).toBe(mockedMutationResponse.aiAction.requestId);
       expect(response.errors).toContainEqual('Reached timeout while fetching response.');
