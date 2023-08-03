@@ -19,6 +19,7 @@ import { prettyJson } from '../utils/json';
 import { COMMAND_CODE_SUGGESTION_ACCEPTED } from './commands/code_suggestion_accepted';
 import { PostRequest } from '../platform/web_ide';
 import { getExtensionConfiguration } from '../utils/extension_configuration';
+import { LegacyApiFallbackConfig } from './legacy_api_fallback_config';
 
 export const CIRCUIT_BREAK_INTERVAL_MS = 10000;
 export const MAX_ERRORS_BEFORE_CIRCUIT_BREAK = 4;
@@ -69,6 +70,8 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
 
   private stateManager: CodeSuggestionsStateManager;
 
+  private legacyApiFallbackConfig: LegacyApiFallbackConfig;
+
   private circuitBreaker = new CircuitBreaker(
     MAX_ERRORS_BEFORE_CIRCUIT_BREAK,
     CIRCUIT_BREAK_INTERVAL_MS,
@@ -87,6 +90,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     this.debouncedCall = undefined;
     this.noDebounce = noDebounce;
     this.tokenManager = new CodeSuggestionsTokenManager(manager);
+    this.legacyApiFallbackConfig = new LegacyApiFallbackConfig();
     this.manager = manager;
     this.stateManager = stateManager;
   }
@@ -174,18 +178,15 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     let response: CodeSuggestionsResponse;
     let model: Model = { engine: '', name: '', lang: '' }; // Defaults for telemetry of failed requests
 
+    const gitlabMonolithApiAvailable = (project: GitLabProject) =>
+      !this.legacyApiFallbackConfig.shouldUseModelGateway() &&
+      (getExtensionConfiguration().featureFlags.forceCodeSuggestionsViaMonolith ||
+        isSaasProject(project));
+
     try {
       this.stateManager.setTemporaryState(TemporaryCodeSuggestionsState.LOADING);
-      if (
-        getExtensionConfiguration().featureFlags.forceCodeSuggestionsViaMonolith ||
-        (isSaasProject(platform.project) &&
-          getExtensionConfiguration().featureFlags.codeSuggestionsViaMonolith)
-      ) {
-        response = await CodeSuggestionsProvider.#fetchCompletionsFromGitLab(
-          platform,
-          token,
-          prompt,
-        );
+      if (gitlabMonolithApiAvailable(platform.project)) {
+        response = await this.fetchCompletionsFromGitLab(platform, token, prompt);
       } else {
         response = await this.fetchCompletions(platform, token, prompt);
       }
@@ -288,7 +289,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     return data;
   }
 
-  static async #fetchCompletionsFromGitLab(
+  async fetchCompletionsFromGitLab(
     platform: GitLabPlatform,
     token: CompletionToken,
     prompt: CodeSuggestionPrompt,
@@ -306,8 +307,20 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       },
     };
 
-    const response = await platform.fetchFromApi(codeSuggestionRequest);
-
+    let response: CodeSuggestionsResponse;
+    // Temporary handling for graduall rollout of new API, once API
+    // is globaly available all error handling should be removed
+    // https://gitlab.com/gitlab-org/gitlab/-/issues/419809
+    try {
+      response = await platform.fetchFromApi(codeSuggestionRequest);
+    } catch (e) {
+      if ('status' in e && e.status === 403) {
+        this.legacyApiFallbackConfig.fallbackToModelGateway();
+        response = await this.fetchCompletions(platform, token, prompt);
+      } else {
+        throw e;
+      }
+    }
     return response;
   }
 
