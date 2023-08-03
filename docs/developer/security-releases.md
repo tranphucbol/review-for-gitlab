@@ -97,7 +97,7 @@ Validate that the security issue is fixed in production.
 
 ### Backport the fix to the [Extension Repo](https://gitlab.com/gitlab-org/gitlab-vscode-extension)
 
-1. [Create an MR](https://gitlab.com/gitlab-org/security/gitlab-vscode-extension/-/merge_requests/new?merge_request%5Bsource_project_id%5D=47566511&merge_request%5Bsource_branch%5D=&merge_request%5Btarget_project_id%5D=35104827&merge_request%5Btarget_branch%5D=main) from the security project:
+1. [Create an MR](https://gitlab.com/gitlab-org/security/gitlab-vscode-extension/-/merge_requests/new?merge_request%5Bsource_project_id%5D=18897919&merge_request%5Bsource_branch%5D=&merge_request%5Btarget_project_id%5D=5261717&merge_request%5Btarget_branch%5D=main) from the security project:
    - **Source project:** `gitlab-org/security/gitlab-vscode-extension`
    - **Source branch:** The patch release branch (for example `security-v2.2.0`)
    - **Target project:** `gitlab-org/gitlab-vscode-extension`
