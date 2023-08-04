@@ -16,7 +16,7 @@ const { WebviewMock } = require('./test_infrastructure/webview_mock');
 
 const { getServer } = require('./test_infrastructure/mock_server');
 
-const { API_PULLING } = require('../../src/common/chat/gitlab_chat_api');
+const { API_PULLING } = require('../../src/common/chat/api/pulling');
 
 API_PULLING.interval = 1; // wait only 1ms between pulling attempts.
 
