@@ -1,3 +1,12 @@
+## [3.72.3](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.72.2...v3.72.3) (2023-08-04)
+
+
+### Bug Fixes
+
+* use nonce to load chat webview app ([d98ba99](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/d98ba99620cb3d4579f5f1b7b3df57b4f72afabd))
+
+
+
 ## [3.72.2](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.72.1...v3.72.2) (2023-08-03)
 
 
