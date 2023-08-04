@@ -95,8 +95,7 @@ export default {
   margin-bottom: 0.75rem;
   padding: 0.5rem 0.75rem 0.5rem 0.75rem;
   border-radius: 0.5rem;
-  border: 1px solid var(--vscode-editorWidget-border);
-  color: var(--vscode-editor-foreground);
+  color: var(--vscode-foreground);
   pre {
     overflow-x: auto;
     border: 1px dotted var(--vscode-editorWidget-border);
