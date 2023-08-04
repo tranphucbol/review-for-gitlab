@@ -1,14 +1,9 @@
 <script>
 import { renderMarkdown } from '../utils';
-
-const GENIE_CHAT_MODEL_ROLES = {
-  user: 'user',
-  system: 'system',
-  assistant: 'assistant',
-};
+import { CHAT_MODEL_ROLES } from '../constants';
 
 export default {
-  name: 'AiGenieChatMessage',
+  name: 'DuoChatMessage',
   props: {
     message: {
       type: Object,
@@ -22,19 +17,17 @@ export default {
     isPending() {
       return this.message.state === 'pending';
     },
-  },
-  methods: {
-    isAssistantMessage(message) {
-      return message.role.toLowerCase() === GENIE_CHAT_MODEL_ROLES.assistant;
+    isAssistantMessage() {
+      return this.message.role.toLowerCase() === CHAT_MODEL_ROLES.assistant;
     },
-    isUserMessage(message) {
-      return message.role.toLowerCase() === GENIE_CHAT_MODEL_ROLES.user;
+    isUserMessage() {
+      return this.message.role.toLowerCase() === CHAT_MODEL_ROLES.user;
     },
-    isSystemMessage(message) {
-      return message.role.toLowerCase() === GENIE_CHAT_MODEL_ROLES.system;
+    isSystemMessage() {
+      return this.message.role.toLowerCase() === CHAT_MODEL_ROLES.system;
     },
-    hasErrors(message) {
-      return message.errors.length > 0;
+    hasErrors() {
+      return this.message.errors.length > 0;
     },
   },
 };
@@ -43,10 +36,10 @@ export default {
   <div
     class="message"
     :class="{
-      prompt: isUserMessage(message),
-      response: isAssistantMessage(message),
-      system: isSystemMessage(message),
-      'with-errors': hasErrors(message),
+      prompt: isUserMessage,
+      response: isAssistantMessage,
+      system: isSystemMessage,
+      'with-errors': hasErrors,
     }"
   >
     <template v-if="isPending">
