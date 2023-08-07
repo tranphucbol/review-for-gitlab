@@ -1,17 +1,10 @@
 import * as vscode from 'vscode';
 import { GitLabChatRecord } from './gitlab_chat_record';
-import { waitForWebview } from '../utils/wait_for_webview';
-import { generateSecret } from '../utils/generate_secret';
+import { waitForWebview } from '../utils/webviews/wait_for_webview';
 import { log } from '../log';
+import { prepareWebviewSource } from '../utils/webviews/prepare_webview_source';
 
 export const CHAT_SIDEBAR_VIEW_ID = 'gl.chatView';
-
-const webviewResourcePaths = {
-  appScriptUri: 'webviews/gitlab_duo_chat/assets/app.js',
-  styleUri: 'webviews/gitlab_duo_chat/assets/index.css',
-} as const;
-
-type WebviewResources = Record<keyof typeof webviewResourcePaths, vscode.Uri>;
 
 interface FocusCommand {
   eventType: 'focus';
@@ -57,7 +50,11 @@ export class GitLabChatView {
       enableScripts: true,
     };
 
-    this.#chatView.webview.html = await this.getViewSource();
+    this.#chatView.webview.html = await prepareWebviewSource(
+      this.#chatView.webview,
+      this.#context,
+      'gitlab_duo_chat',
+    );
 
     await waitForWebview(this.#chatView.webview);
 
@@ -111,38 +108,5 @@ export class GitLabChatView {
     }
 
     await this.#chatView.webview.postMessage(message);
-  }
-
-  private getResources(): WebviewResources {
-    return Object.entries(webviewResourcePaths).reduce((acc, [key, value]) => {
-      if (!this.#chatView) return acc;
-      const segments = value.split('/');
-      const uri = vscode.Uri.joinPath(this.#context.extensionUri, ...segments);
-      return { ...acc, [key]: this.#chatView.webview.asWebviewUri(uri) };
-    }, {}) as WebviewResources;
-  }
-
-  private async getViewSource(): Promise<string> {
-    if (!this.#chatView)
-      return new Promise<string>(resolve => {
-        resolve('');
-      });
-    const nonce = generateSecret();
-
-    const { appScriptUri, styleUri } = this.getResources();
-    const fileUri = vscode.Uri.joinPath(
-      this.#context.extensionUri,
-      'webviews',
-      'gitlab_duo_chat',
-      'index.html',
-    );
-    const contentArray = await vscode.workspace.fs.readFile(fileUri);
-    const fileContent = new TextDecoder().decode(contentArray);
-
-    return fileContent
-      .replace(/{{nonce}}/gm, nonce)
-      .replace(/<script /g, `<script nonce="${nonce}" `)
-      .replace('/gitlab_duo_chat/assets/index.css', styleUri.toString())
-      .replace('/gitlab_duo_chat/assets/app.js', appScriptUri.toString());
   }
 }

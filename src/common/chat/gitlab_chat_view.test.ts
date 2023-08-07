@@ -1,29 +1,24 @@
 import * as vscode from 'vscode';
 import { GitLabChatView } from './gitlab_chat_view';
 import { GitLabChatRecord } from './gitlab_chat_record';
+import { prepareWebviewSource } from '../utils/webviews/prepare_webview_source';
 
-jest.mock('../utils/wait_for_webview');
-jest.mock('../utils/generate_secret', () => ({
-  generateSecret: jest.fn().mockReturnValue('123'),
+jest.mock('../utils/webviews/wait_for_webview');
+jest.mock('../utils/webviews/prepare_webview_source', () => ({
+  prepareWebviewSource: jest.fn().mockReturnValue('preparedWebviewSource'),
 }));
 
-const dummyHTML = 'Foo Bar';
-
 describe('GitLabChatView', () => {
-  let context: vscode.ExtensionContext;
+  const context = {} as Partial<vscode.ExtensionContext> as vscode.ExtensionContext;
   let view: GitLabChatView;
   let webview: vscode.WebviewView;
   const viewProcessCallback = jest.fn();
 
   beforeEach(() => {
-    context = {
-      extensionUri: vscode.Uri.file('/foo/bar'),
-    } as Partial<vscode.ExtensionContext> as vscode.ExtensionContext;
     webview = {
       webview: {
         onDidReceiveMessage: jest.fn(),
         postMessage: jest.fn(),
-        asWebviewUri: jest.fn().mockImplementation(url => url),
       } as Partial<vscode.Webview> as vscode.Webview,
       onDidDispose: jest.fn(),
       onDidChangeVisibility: jest.fn(),
@@ -32,10 +27,6 @@ describe('GitLabChatView', () => {
 
     view = new GitLabChatView(context);
     view.onViewMessage(viewProcessCallback);
-
-    (vscode.workspace.fs.readFile as jest.Mock).mockImplementation(() =>
-      Promise.resolve(new TextEncoder().encode(dummyHTML)),
-    );
   });
 
   describe('resolveWebviewView', () => {
@@ -59,45 +50,9 @@ describe('GitLabChatView', () => {
     });
 
     it('updates the view with correct html content', async () => {
-      const inputHTML = `
-      <!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta http-equiv="Content-Security-Policy" content="img-src vscode-resource: https:; script-src 'nonce-{{nonce}}';">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>GitLab Workflow</title>
-          <script type="module" crossorigin src="/gitlab_duo_chat/assets/app.js"></script>
-          <link rel="stylesheet" href="/gitlab_duo_chat/assets/index.css">
-        </head>
-        <body>
-          <div id="app"></div>
-          
-        </body>
-      </html>
-      `;
-      const expectedHTML = `
-      <!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta http-equiv="Content-Security-Policy" content="img-src vscode-resource: https:; script-src 'nonce-123';">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>GitLab Workflow</title>
-          <script nonce="123" type="module" crossorigin src="file:///foo/bar/webviews/gitlab_duo_chat/assets/app.js"></script>
-          <link rel="stylesheet" href="file:///foo/bar/webviews/gitlab_duo_chat/assets/index.css">
-        </head>
-        <body>
-          <div id="app"></div>
-          
-        </body>
-      </html>
-      `;
-      (vscode.workspace.fs.readFile as jest.Mock).mockImplementation(() =>
-        Promise.resolve(new TextEncoder().encode(inputHTML)),
-      );
       await view.resolveWebviewView(webview);
-      expect(webview.webview.html).toBe(expectedHTML);
+      expect(webview.webview.html).toBe('preparedWebviewSource');
+      expect(prepareWebviewSource).toBeCalledWith(webview.webview, context, 'gitlab_duo_chat');
     });
   });
 

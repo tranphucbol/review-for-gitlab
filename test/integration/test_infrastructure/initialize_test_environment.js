@@ -44,8 +44,12 @@ const initializeTestEnvironment = async testRoot => {
   process.env.GITLAB_WORKFLOW_TOKEN = 'abcd-secret';
   extensionState.init(accountService);
   registerRepositoryRootProvider(issuableController, pendingWebviewController);
-  pendingWebviewController.init({ extensionPath: `${testRoot}/../..` });
-  issuableController.init({ extensionPath: `${testRoot}/../..` });
+  const context = {
+    extensionPath: `${testRoot}/../..`,
+    extensionUri: vscode.Uri.file(`${testRoot}/../..`),
+  };
+  pendingWebviewController.init(context);
+  issuableController.init(context);
   selectedProjectStore.init({ globalState: new InMemoryMemento() });
   const ext = vscode.extensions.getExtension('gitlab.gitlab-workflow');
   // run the extension activation and project load with a mock server
