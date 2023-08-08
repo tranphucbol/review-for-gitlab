@@ -5,6 +5,10 @@ import {
   COMMAND_EXPLAIN_SELECTED_CODE,
   explainSelectedCode,
 } from './commands/explain_selected_code';
+import {
+  COMMAND_NEW_CHAT_CONVERSATION,
+  newChatConversation,
+} from './commands/new_chat_conversation';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { CHAT_SIDEBAR_VIEW_ID } from './gitlab_chat_view';
 
@@ -23,6 +27,9 @@ export const activateChat = (context: vscode.ExtensionContext, manager: GitLabPl
     }),
     vscode.commands.registerCommand(COMMAND_EXPLAIN_SELECTED_CODE, async () => {
       await explainSelectedCode(controller);
+    }),
+    vscode.commands.registerCommand(COMMAND_NEW_CHAT_CONVERSATION, async () => {
+      await newChatConversation(controller);
     }),
   );
 };

@@ -29,28 +29,42 @@ export default {
     hasErrors() {
       return this.message.errors.length > 0;
     },
+    isNewConversationCommand() {
+      return this.message.type === 'newConversation';
+    },
   },
 };
 </script>
 <template>
-  <div
-    class="message"
-    :class="{
-      prompt: isUserMessage,
-      response: isAssistantMessage,
-      system: isSystemMessage,
-      'with-errors': hasErrors,
-    }"
-  >
-    <template v-if="isPending">
-      <div class="ai-genie-loader">
-        <div class="ai-genie-loader__dot ai-genie-loader__dot--1"></div>
-        <div class="ai-genie-loader__dot ai-genie-loader__dot--2"></div>
-        <div class="ai-genie-loader__dot ai-genie-loader__dot--3"></div>
+  <div>
+    <template v-if="isNewConversationCommand">
+      <div class="conversation-delimiter">
+        <hr />
+        <span>New chat</span>
+        <hr />
       </div>
     </template>
     <template v-else>
-      <p v-safe-html="messageContent"></p>
+      <div
+        class="message"
+        :class="{
+          prompt: isUserMessage,
+          response: isAssistantMessage,
+          system: isSystemMessage,
+          'with-errors': hasErrors,
+        }"
+      >
+        <template v-if="isPending">
+          <div class="ai-genie-loader">
+            <div class="ai-genie-loader__dot ai-genie-loader__dot--1"></div>
+            <div class="ai-genie-loader__dot ai-genie-loader__dot--2"></div>
+            <div class="ai-genie-loader__dot ai-genie-loader__dot--3"></div>
+          </div>
+        </template>
+        <template v-else>
+          <p v-safe-html="messageContent"></p>
+        </template>
+      </div>
     </template>
   </div>
 </template>
@@ -86,6 +100,20 @@ export default {
 
   &__dot--2 {
     animation-delay: -0.15s;
+  }
+}
+.conversation-delimiter {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--vscode-disabledForeground);
+
+  hr {
+    flex-grow: 1;
+    margin: 1.5rem 0;
+    border: 0;
+    border-top: 1px solid var(--vscode-widget-border);
+    overflow: hidden;
   }
 }
 .message {
