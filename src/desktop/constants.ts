@@ -17,6 +17,7 @@ export const DO_NOT_SHOW_YAML_SUGGESTION = 'DO_NOT_SHOW_YAML_SUGGESTION';
 export const DISMISSED_CODE_SUGGESTIONS_PROMO = 'DISMISSED_CODE_SUGGESTIONS_PROMO';
 export const WEBVIEW_WORKFLOW = 'glWorkflow';
 export const WEBVIEW_PENDING_JOB = 'gitlab.waitForPendingJob';
+export const WEBVIEW_SECURITY_FINDING = 'gitlab.viewSecurityFinding';
 
 export const CHANGE_TYPE_QUERY_KEY = 'changeType';
 export const HAS_COMMENTS_QUERY_KEY = 'hasComments';

@@ -1,3 +1,4 @@
+import * as vscode from 'vscode';
 import { SecurityFindingItem } from './security_finding_item';
 import { securityReport } from '../../../test_utils/entities';
 import { severityToIcon, Severity } from './severity_to_icon';
@@ -12,6 +13,10 @@ describe('SecurityFindingItem', () => {
 
       expect(item.label).toBe(TEST_FINDING.title);
       expect(item.iconPath).toEqual(severityToIcon(severity));
+
+      const command = item.command as vscode.Command;
+      expect(command.command).toBe('gl.viewSecurityFinding');
+      expect(command.arguments?.[0]).toEqual(TEST_FINDING);
     },
   );
 });

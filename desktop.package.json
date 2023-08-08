@@ -297,6 +297,11 @@
         "enablement": "gitlab.canScrollToBottom",
         "category": "GitLab",
         "icon": "$(fold-down)"
+      },
+      {
+        "command": "gl.viewSecurityFinding",
+        "title": "View Security finding details",
+        "category": "GitLab"
       }
     ],
     "menus": {
