@@ -2,9 +2,15 @@ import { gitlabPlatformManagerDesktop } from './gitlab_platform_desktop';
 import { getActiveProjectOrSelectOne, getActiveProject } from '../commands/run_with_valid_project';
 import { projectInRepository } from '../test_utils/entities';
 import { gqlProject, project } from '../../common/test_utils/entities';
-import { getGitLabService } from './get_gitlab_service';
+import { getGitLabService, getGitLabServiceForAccount } from './get_gitlab_service';
 import { asMock } from '../test_utils/as_mock';
 import { GetRequest } from '../../common/platform/web_ide';
+import { pickAccount } from './pick_account';
+import { testCredentials } from '../test_utils/test_credentials';
+
+jest.mock('./pick_account', () => ({
+  pickAccount: jest.fn(),
+}));
 
 jest.mock('../commands/run_with_valid_project', () => ({
   getActiveProject: jest.fn(),
@@ -13,6 +19,7 @@ jest.mock('../commands/run_with_valid_project', () => ({
 
 jest.mock('./get_gitlab_service', () => ({
   getGitLabService: jest.fn(),
+  getGitLabServiceForAccount: jest.fn(),
 }));
 
 describe('gitlabPlatformManagerDesktop', () => {
@@ -62,12 +69,44 @@ describe('gitlabPlatformManagerDesktop', () => {
     });
   });
 
+  describe('getForAcount', () => {
+    it('fetches the platform for active account when an active account exists', async () => {
+      (pickAccount as jest.Mock).mockImplementation(() => testCredentials('https://example.com'));
+
+      const platform = await gitlabPlatformManagerDesktop.getForActiveAccount();
+      expect(platform).toBeDefined();
+      expect(pickAccount).toHaveBeenCalledTimes(1);
+    });
+
+    it('returns undefined when there is no account', async () => {
+      (pickAccount as jest.Mock).mockResolvedValue(undefined);
+
+      const platform = await gitlabPlatformManagerDesktop.getForActiveAccount();
+      expect(platform).toBeUndefined();
+      expect(pickAccount).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('fetchFromApi', () => {
     const req: GetRequest<string> = {
       type: 'rest',
       method: 'GET',
       path: '/test',
     };
+
+    describe('with GitLabPlatformForActiveAccount', () => {
+      it('calls fetchFromApi', async () => {
+        (pickAccount as jest.Mock).mockImplementation(() => testCredentials('https://example.com'));
+        (getGitLabServiceForAccount as jest.Mock).mockReturnValue({
+          fetchFromApi: async () => gqlProject,
+        });
+
+        const platform = await gitlabPlatformManagerDesktop.getForActiveAccount();
+        const result = await platform?.fetchFromApi(req);
+        expect(result).toBe(gqlProject);
+        expect(getGitLabServiceForAccount).toHaveBeenCalledTimes(1);
+      });
+    });
 
     it('calls fetchFromApi', async () => {
       asMock(getActiveProject).mockResolvedValue(projectInRepository);

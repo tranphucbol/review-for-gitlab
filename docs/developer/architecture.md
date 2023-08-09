@@ -32,7 +32,7 @@ Based on these environments, the extension source code lives in three different 
 Because the WebIDE and Desktop environments are very different, we built abstraction over the way how get GitLab project data and how we make API calls:
 
 ```ts
-export interface GitLabPlatform {
+export interface GitLabPlatformForActiveProject {
   project: GitLabProject;
 
   fetchFromApi: fetchFromApi;
@@ -41,7 +41,7 @@ export interface GitLabPlatform {
 
 _(this abstraction will grow as we port more features)_
 
-All code in `common` folder has to call either [VS Code API](https://code.visualstudio.com/api/references/vscode-api) that is available in Browser or the `GitLabPlatform`. The `common` code **must not** invoke any `browser` or `desktop` code or any Browser or Node.js APIs.
+All code in `common` folder has to call either [VS Code API](https://code.visualstudio.com/api/references/vscode-api) that is available in Browser or the `GitLabPlatformForActiveProject`. The `common` code **must not** invoke any `browser` or `desktop` code or any Browser or Node.js APIs.
 
 ## `desktop`
 

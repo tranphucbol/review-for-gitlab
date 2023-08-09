@@ -20,6 +20,7 @@ import { GitLabProject } from '../platform/gitlab_project';
 import { COMMAND_CODE_SUGGESTION_ACCEPTED } from './commands/code_suggestion_accepted';
 import { GITLAB_AI_ASSISTED_CODE_SUGGESTIONS_API_PATH } from './constants';
 import { ApiRequest, PostRequest } from '../platform/web_ide';
+import { LegacyApiFallbackConfig } from './legacy_api_fallback_config';
 
 jest.mock('../log');
 jest.mock('../fetch_logged');
@@ -30,7 +31,6 @@ jest.mock('../fetch_logged');
 const asMock = (mockFn: unknown) => mockFn as jest.Mock;
 
 const crossFetchCalls = () => asMock(fetch).mock.calls;
-const crossFetchCallArgument = () => JSON.parse(crossFetchCalls()[0][1].body);
 const lastFetchCallBody = () =>
   JSON.parse(asMock(fetch).mock.calls[crossFetchCalls().length - 1][1].body);
 
@@ -79,7 +79,13 @@ function createManager(
 ): GitLabPlatformManager {
   return {
     getForActiveProject: jest.fn(async () => ({
+      type: 'project' as const,
       project,
+      fetchFromApi: fetchFromApiMock,
+      getUserAgentHeader: () => ({}),
+    })),
+    getForActiveAccount: jest.fn(async () => ({
+      type: 'account' as const,
       fetchFromApi: fetchFromApiMock,
       getUserAgentHeader: () => ({}),
     })),
@@ -87,6 +93,22 @@ function createManager(
 }
 
 let manager = createManager(project);
+
+function createLegacyApiFallbackConfig(shouldUseModelGateway: boolean): LegacyApiFallbackConfig {
+  return {
+    tryAgainAfterTimestamp: 0,
+    retryDelayMS: 1,
+    manager,
+    isLegacyVersion: false,
+    fallbackToModelGateway: jest.fn(),
+    shouldUseModelGateway: jest.fn().mockReturnValue(shouldUseModelGateway),
+    flagLegacyVersion: jest.fn(),
+    verifyGitLabVersion: jest.fn(),
+  } as unknown as LegacyApiFallbackConfig;
+}
+
+let legacyApiFallbackConfig: LegacyApiFallbackConfig;
+
 const cancellationToken = new vscode.CancellationTokenSource().token;
 
 const stateManager = new CodeSuggestionsStateManager();
@@ -140,50 +162,45 @@ describe('CodeSuggestionsProvider', () => {
         return Promise.reject({ status: 403 });
       });
 
-      it('after receiving 403 should make consecutive calls to legacy API', async () => {
+      it('after receiving 403 flags API as legacy and retries', async () => {
+        legacyApiFallbackConfig = createLegacyApiFallbackConfig(false);
         const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
           manager: createManager(project, fetchFromApiMock),
+          legacyApiFallbackConfig,
           stateManager,
         });
+
+        expect(legacyApiFallbackConfig.fallbackToModelGateway).toHaveBeenCalledTimes(0);
 
         await glcp.getCompletions({ document: testDocument, position, cancellationToken });
 
         expect(codeSuggestionMonolithCalls(fetchFromApiMock).length).toBe(1);
         expect(crossFetchCalls().length).toBe(1);
+        expect(legacyApiFallbackConfig.fallbackToModelGateway).toHaveBeenCalledTimes(1);
+      });
 
+      it('should use model gateway API directly when flagged as legacy', async () => {
+        const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
+          manager,
+          legacyApiFallbackConfig: createLegacyApiFallbackConfig(true),
+          stateManager,
+        });
         await glcp.getCompletions({ document: testDocument, position, cancellationToken });
 
-        expect(codeSuggestionMonolithCalls(fetchFromApiMock).length).toBe(1);
-        expect(crossFetchCalls().length).toBe(2);
+        expect(codeSuggestionMonolithCalls(fetchFromApiMock)).toHaveLength(0);
+        expect(crossFetchCalls()).toHaveLength(1);
       });
     });
 
     describe('with new GitLab monolith code suggestion API available', () => {
-      const fetchFromApiMock = jest.fn().mockResolvedValue(token);
-
-      it('should add custom authorisation headers to request', async () => {
-        const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
-          manager: createManager(project, fetchFromApiMock),
-          stateManager,
-        });
-        await glcp.getCompletions({ document: testDocument, position, cancellationToken });
-
-        const calls = codeSuggestionMonolithCalls(fetchFromApiMock);
-        const codeSuggestionRequest = calls[0][0];
-        const headers = {
-          'X-Gitlab-Authentication-Type': 'oidc',
-          'X-Gitlab-Oidc-Token': '123',
-        };
-
-        expect(calls.length).toBe(1);
-        expect(codeSuggestionRequest.headers).toMatchObject(headers);
+      const fetchFromApiMock = jest.fn();
+      const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
+        manager: createManager(project, fetchFromApiMock),
+        legacyApiFallbackConfig: createLegacyApiFallbackConfig(false),
+        stateManager,
       });
 
       it('should construct a payload with line above, line below, file name, prompt version, project id and path', async () => {
-        const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
-          manager: createManager(project, fetchFromApiMock),
-          stateManager,
-        });
         await glcp.getCompletions({ document: testDocument, position, cancellationToken });
 
         const calls = codeSuggestionMonolithCalls(fetchFromApiMock);
@@ -198,29 +215,39 @@ describe('CodeSuggestionsProvider', () => {
         expect(inputBody.project_id).toBe(project.restId);
         expect(inputBody.project_path).toBe(project.namespaceWithPath);
       });
-
-      it('should use model gateway API directly unless targeting SaaS', async () => {
-        manager = createManager(projectForSelfManaged);
-        const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
-          manager,
-          stateManager,
-        });
-        await glcp.getCompletions({ document: testDocument, position, cancellationToken });
-
-        expect(codeSuggestionMonolithCalls(fetchFromApiMock)).toHaveLength(0);
-        expect(crossFetchCallArgument).not.toThrow();
-      });
     });
 
     it('should not send project id and path unless targeting SaaS', async () => {
-      manager = createManager(projectForSelfManaged);
-      const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({ manager, stateManager });
+      const fetchFromApiMock = jest.fn();
+      const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
+        manager: createManager(projectForSelfManaged, fetchFromApiMock),
+        legacyApiFallbackConfig: createLegacyApiFallbackConfig(false),
+        stateManager,
+      });
+
       await glcp.getCompletions({ document: testDocument, position, cancellationToken });
 
-      const inputBody = crossFetchCallArgument();
+      const calls = codeSuggestionMonolithCalls(fetchFromApiMock);
+      const inputBody = calls[0][0].body as CodeSuggestionPrompt;
 
       expect(inputBody.project_id).toBe(undefined);
       expect(inputBody.project_path).toBe(undefined);
+    });
+
+    it('should request suggestions even without project', async () => {
+      const fetchFromApiMock = jest.fn();
+      manager = createManager(projectForSelfManaged, fetchFromApiMock);
+      const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
+        manager,
+        legacyApiFallbackConfig: createLegacyApiFallbackConfig(false),
+        stateManager,
+      });
+
+      jest.mocked(manager).getForActiveProject.mockResolvedValue(undefined);
+
+      await glcp.getCompletions({ document: testDocument, position, cancellationToken });
+
+      expect(manager.getForActiveAccount).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -235,6 +262,7 @@ describe('CodeSuggestionsProvider', () => {
       const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
         manager,
         stateManager,
+        legacyApiFallbackConfig,
         noDebounce: true,
       });
       glcp.getCompletions = jest.fn().mockResolvedValue(mockInlineCompletions);
@@ -254,6 +282,11 @@ describe('CodeSuggestionsProvider', () => {
   });
 
   describe(`circuit breaking`, () => {
+    beforeEach(() => {
+      manager = createManager(project);
+      legacyApiFallbackConfig = createLegacyApiFallbackConfig(true);
+    });
+
     const turnOnCircuitBreaker = async (glcp: CodeSuggestionsProvider) => {
       await getCompletionsWithDefaultArgs(glcp);
       await getCompletionsWithDefaultArgs(glcp);
@@ -262,7 +295,7 @@ describe('CodeSuggestionsProvider', () => {
     };
 
     it(`starts breaking after 4 errors`, async () => {
-      const glcp = new CodeSuggestionsProvider({ manager, stateManager });
+      const glcp = new CodeSuggestionsProvider({ manager, stateManager, legacyApiFallbackConfig });
 
       glcp.fetchCompletions = jest.fn().mockRejectedValue(new Error('test problem'));
 
@@ -277,7 +310,11 @@ describe('CodeSuggestionsProvider', () => {
 
     describe("after circuit breaker's break time elapses", () => {
       it('fetches completions again', async () => {
-        const glcp = new CodeSuggestionsProvider({ manager, stateManager });
+        const glcp = new CodeSuggestionsProvider({
+          manager,
+          stateManager,
+          legacyApiFallbackConfig,
+        });
         glcp.fetchCompletions = jest.fn().mockRejectedValue(new Error('test problem'));
 
         await turnOnCircuitBreaker(glcp);
@@ -299,8 +336,14 @@ describe('CodeSuggestionsProvider', () => {
     let glcp: CodeSuggestionsProvider;
 
     beforeEach(() => {
+      manager = createManager(project);
       stateManager.setGlobalState(GlobalCodeSuggestionsState.READY);
-      glcp = new CodeSuggestionsProvider({ manager, stateManager, noDebounce: true });
+      glcp = new CodeSuggestionsProvider({
+        manager,
+        stateManager,
+        noDebounce: true,
+        legacyApiFallbackConfig: createLegacyApiFallbackConfig(true),
+      });
     });
 
     it('sets state to loading on request', async () => {
@@ -324,8 +367,9 @@ describe('CodeSuggestionsProvider', () => {
       expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.ERROR);
     });
 
-    it('sets state to error when completion is requested with no active project', async () => {
+    it('sets state to error when completion is requested with no active account', async () => {
       asMock(manager.getForActiveProject).mockResolvedValueOnce(null);
+      asMock(manager.getForActiveAccount).mockResolvedValueOnce(null);
       await getCompletionsWithDefaultArgs(glcp);
       expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.ERROR);
     });
@@ -336,7 +380,13 @@ describe('CodeSuggestionsProvider', () => {
 
     beforeEach(() => {
       codeSuggestionsTelemetry.resetCounts();
-      glcp = new CodeSuggestionsProvider({ manager, stateManager, noDebounce: true });
+      manager = createManager(project);
+      glcp = new CodeSuggestionsProvider({
+        manager,
+        stateManager,
+        noDebounce: true,
+        legacyApiFallbackConfig: createLegacyApiFallbackConfig(true),
+      });
     });
 
     it('increases requests count for success request', async () => {

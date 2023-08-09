@@ -1,13 +1,80 @@
-export class LegacyApiFallbackConfig {
-  #tryAgainAfterTimestamp = 0;
+import { coerce, gte, valid } from 'semver';
+import { GitLabPlatformManager } from '../platform/gitlab_platform';
+import { GetRequest } from '../platform/web_ide';
+import { NEW_CODE_SUGGESTION_GITLAB_RELEASE } from './constants';
+import { log } from '../log';
 
-  readonly #retryDelayMS = 60 * 60 * 1000;
+export class LegacyApiFallbackConfig {
+  private tryAgainAfterTimestamp = 0;
+
+  private readonly retryDelayMS = 60 * 60 * 1000;
+
+  private manager;
+
+  private isLegacyVersion;
+
+  constructor(manager: GitLabPlatformManager) {
+    this.manager = manager;
+    this.isLegacyVersion = true;
+  }
 
   fallbackToModelGateway() {
-    this.#tryAgainAfterTimestamp = Date.now() + this.#retryDelayMS;
+    this.tryAgainAfterTimestamp = Date.now() + this.retryDelayMS;
   }
 
   shouldUseModelGateway() {
-    return Date.now() < this.#tryAgainAfterTimestamp;
+    return this.isLegacyVersion || Date.now() < this.tryAgainAfterTimestamp;
+  }
+
+  flagLegacyVersion() {
+    this.isLegacyVersion = true;
+  }
+
+  async verifyGitLabVersion() {
+    if (!valid(NEW_CODE_SUGGESTION_GITLAB_RELEASE)) {
+      log.error(
+        `Incorrect min GitLab version configured, falling back to legacy code suggestions API`,
+      );
+      this.flagLegacyVersion();
+      return;
+    }
+
+    const platform = await this.manager.getForActiveAccount();
+    if (!platform) {
+      log.error(`Could not intialise API client, falling back to legacy code suggestions API`);
+      this.flagLegacyVersion();
+      return;
+    }
+
+    const versionReq: GetRequest<{ version: string }> = {
+      type: 'rest',
+      method: 'GET',
+      path: '/version',
+    };
+    const { version } = await platform.fetchFromApi(versionReq);
+    if (!version) {
+      log.error(`Could not fetch version from API, falling back to legacy code suggestions API`);
+      this.flagLegacyVersion();
+      return;
+    }
+
+    const parsedVersion = coerce(version);
+    if (!parsedVersion) {
+      log.error(
+        `Could not parse version from "${version}", falling back to legacy code suggestions API`,
+      );
+      this.flagLegacyVersion();
+      return;
+    }
+
+    if (!gte(parsedVersion, NEW_CODE_SUGGESTION_GITLAB_RELEASE)) {
+      log.warn(
+        `GitLab version ${parsedVersion} is not new enough, falling back to legacy code suggestions API`,
+      );
+      this.flagLegacyVersion();
+      return;
+    }
+
+    this.isLegacyVersion = false;
   }
 }

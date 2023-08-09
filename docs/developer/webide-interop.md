@@ -2,7 +2,7 @@
 
 As the [Architecture](./architecture.md) document explains, this extension can run in the browser in WebIDE.
 
-This document explains how we package the extension WebIDE and how the browser `GitLabPlatform` implements calling GitLab API and getting the project context.
+This document explains how we package the extension WebIDE and how the browser `GitLabPlatformForActiveProject` implements calling GitLab API and getting the project context.
 
 ## Diagrams
 
@@ -54,4 +54,4 @@ The Workflow extension needs access to two objects out of the VS Code runtime:
 
 The extension gets access to these two objects through mediator commands.
 
-The `gitlab_platform_browser.ts` then uses these mediator commands to implement the `GitLabPlatform` interface.
+The `gitlab_platform_browser.ts` then uses these mediator commands to implement the `GitLabPlatformForActiveProject` interface.

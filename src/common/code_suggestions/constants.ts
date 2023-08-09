@@ -2,6 +2,8 @@ export const MODEL_GATEWAY_AI_ASSISTED_CODE_SUGGESTIONS_API_URL =
   'https://codesuggestions.gitlab.com/v2/completions';
 export const GITLAB_AI_ASSISTED_CODE_SUGGESTIONS_API_PATH = '/code_suggestions/completions';
 export const AI_ASSISTED_CODE_SUGGESTIONS_CONFIG_NAMESPACE = 'gitlab.aiAssistedCodeSuggestions';
+export const NEW_CODE_SUGGESTION_GITLAB_RELEASE = '16.3.0';
+
 // this list matches predefined list in the model gateway
 // https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/blob/main/codesuggestions/suggestions/prompt.py#L29-44
 export const AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES = [

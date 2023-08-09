@@ -19,17 +19,24 @@ jest.mock('./code_suggestions_state', () => ({
 jest.mock('./code_suggestions_provider');
 jest.mock('./code_suggestions_status_bar_item');
 
+const apiClientMock = jest.fn().mockResolvedValue({
+  access_token: '1123',
+  expires_in: 0,
+  created_at: 0,
+});
+
 const manager: GitLabPlatformManager = {
   getForActiveProject: async () => ({
+    type: 'project' as const,
     project,
-    fetchFromApi: async <T>(): Promise<T> =>
-      ({
-        access_token: '123',
-        expires_in: 0,
-        created_at: 0,
-      }) as unknown as T,
+    fetchFromApi: apiClientMock,
     getUserAgentHeader: () => ({}),
   }),
+  getForActiveAccount: jest.fn(async () => ({
+    type: 'account' as const,
+    fetchFromApi: apiClientMock,
+    getUserAgentHeader: () => ({}),
+  })),
 };
 
 describe('CodeSuggestions', () => {
@@ -103,6 +110,19 @@ describe('CodeSuggestions', () => {
       expect(codeSuggestions.stateManager.setUnsupportedLanguageDocument).toHaveBeenCalledWith(
         true,
       );
+    });
+
+    it('request GitLab version check when switching document', () => {
+      codeSuggestions.legacyApiFallbackConfig.verifyGitLabVersion = jest.fn(async () => {});
+      expect(codeSuggestions.legacyApiFallbackConfig.verifyGitLabVersion).toHaveBeenCalledTimes(0);
+
+      const [[editorChangeListener]] = jest.mocked(vscode.window.onDidChangeActiveTextEditor).mock
+        .calls;
+      editorChangeListener({
+        document: { languageId: 'ruby' },
+      } as unknown as vscode.TextEditor);
+
+      expect(codeSuggestions.legacyApiFallbackConfig.verifyGitLabVersion).toHaveBeenCalledTimes(1);
     });
   });
 });

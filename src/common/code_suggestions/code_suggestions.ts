@@ -10,6 +10,7 @@ import {
   getAiAssistedCodeSuggestionsConfiguration,
 } from '../utils/extension_configuration';
 import { COMMAND_TOGGLE_CODE_SUGGESTIONS, toggleCodeSuggestions } from './commands/toggle';
+import { LegacyApiFallbackConfig } from './legacy_api_fallback_config';
 
 export class CodeSuggestions {
   stateManager = new CodeSuggestionsStateManager();
@@ -22,6 +23,8 @@ export class CodeSuggestions {
 
   activeTextEditorChangeDisposable?: vscode.Disposable;
 
+  legacyApiFallbackConfig: LegacyApiFallbackConfig;
+
   constructor(manager: GitLabPlatformManager) {
     this.toggleSuggestionsCommand = vscode.commands.registerCommand(
       COMMAND_TOGGLE_CODE_SUGGESTIONS,
@@ -30,18 +33,28 @@ export class CodeSuggestions {
 
     this.statusBarItem = new CodeSuggestionsStatusBarItem(this.stateManager);
 
+    this.legacyApiFallbackConfig = new LegacyApiFallbackConfig(manager);
+
     const updateCodeSuggestionsStateForEditor = (editor?: vscode.TextEditor) => {
       if (!editor) return;
 
       this.stateManager.setUnsupportedLanguageDocument(
         !AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.includes(editor.document.languageId),
       );
+
+      this.legacyApiFallbackConfig
+        .verifyGitLabVersion()
+        .catch(() => this.legacyApiFallbackConfig.flagLegacyVersion());
     };
 
     const register = () => {
       this.providerDisposable = vscode.languages.registerInlineCompletionItemProvider(
         AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.map(language => ({ language })),
-        new CodeSuggestionsProvider({ manager, stateManager: this.stateManager }),
+        new CodeSuggestionsProvider({
+          manager,
+          legacyApiFallbackConfig: this.legacyApiFallbackConfig,
+          stateManager: this.stateManager,
+        }),
       );
       updateCodeSuggestionsStateForEditor(vscode.window.activeTextEditor);
       this.activeTextEditorChangeDisposable = vscode.window.onDidChangeActiveTextEditor(

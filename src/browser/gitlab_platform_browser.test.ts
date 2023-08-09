@@ -6,7 +6,11 @@ import {
 } from '../common/platform/web_ide';
 import { gqlProject, project } from '../common/test_utils/entities';
 import { createGitLabPlatformManagerBrowser } from './gitlab_platform_browser';
-import { GitLabPlatform, GitLabPlatformManager } from '../common/platform/gitlab_platform';
+import {
+  GitLabPlatformForActiveProject,
+  GitLabPlatformForActiveAccount,
+  GitLabPlatformManager,
+} from '../common/platform/gitlab_platform';
 
 const FAKE_MEDIATOR_TOKEN = 'fake-mediator-token';
 
@@ -31,47 +35,81 @@ describe('createGitLabPlatformManagerBrowser', () => {
   };
 
   describe('functionality', () => {
-    let platform: GitLabPlatform | undefined;
     let manager: GitLabPlatformManager;
 
     beforeEach(async () => {
       mockCommandsForInitialSetup();
 
       manager = await createGitLabPlatformManagerBrowser();
-      platform = await manager.getForActiveProject(false);
     });
 
     afterEach(() => {
       jest.clearAllMocks();
     });
 
-    it('calls mediator commands to get config and project from WebIDE', async () => {
-      expect(platform).toBeDefined();
-      expect(platform?.project).toEqual(project);
-      expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
-        COMMAND_GET_CONFIG,
-        FAKE_MEDIATOR_TOKEN,
-      );
+    describe('without GitLab hosted project', () => {
+      let platform: GitLabPlatformForActiveAccount | undefined;
+
+      beforeEach(async () => {
+        platform = await manager.getForActiveAccount();
+      });
+
+      it('forwards all calls to fetchFromApi to the mediator command', async () => {
+        expect(platform).toBeDefined();
+
+        jest.resetAllMocks();
+
+        const testRequest = { type: 'rest', method: 'GET', path: '/test' } as const;
+        const testResponse = { value: 'test' };
+
+        jest.mocked(vscode.commands.executeCommand).mockResolvedValue(testResponse);
+
+        const result = await platform?.fetchFromApi(testRequest);
+
+        expect(result).toEqual(testResponse);
+        expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
+          COMMAND_FETCH_FROM_API,
+          FAKE_MEDIATOR_TOKEN,
+          testRequest,
+        );
+      });
     });
 
-    it('forwards all calls to fetchFromApi to the mediator command', async () => {
-      expect(platform).toBeDefined();
+    describe('with GitLab hosted project', () => {
+      let platform: GitLabPlatformForActiveProject | undefined;
 
-      jest.resetAllMocks();
+      beforeEach(async () => {
+        platform = await manager.getForActiveProject(false);
+      });
 
-      const testRequest = { type: 'rest', method: 'GET', path: '/test' } as const;
-      const testResponse = { value: 'test' };
+      it('calls mediator commands to get config and project from WebIDE', async () => {
+        expect(platform).toBeDefined();
+        expect(platform?.project).toEqual(project);
+        expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
+          COMMAND_GET_CONFIG,
+          FAKE_MEDIATOR_TOKEN,
+        );
+      });
 
-      jest.mocked(vscode.commands.executeCommand).mockResolvedValue(testResponse);
+      it('forwards all calls to fetchFromApi to the mediator command', async () => {
+        expect(platform).toBeDefined();
 
-      const result = await platform?.fetchFromApi(testRequest);
+        jest.resetAllMocks();
 
-      expect(result).toEqual(testResponse);
-      expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
-        COMMAND_FETCH_FROM_API,
-        FAKE_MEDIATOR_TOKEN,
-        testRequest,
-      );
+        const testRequest = { type: 'rest', method: 'GET', path: '/test' } as const;
+        const testResponse = { value: 'test' };
+
+        jest.mocked(vscode.commands.executeCommand).mockResolvedValue(testResponse);
+
+        const result = await platform?.fetchFromApi(testRequest);
+
+        expect(result).toEqual(testResponse);
+        expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
+          COMMAND_FETCH_FROM_API,
+          FAKE_MEDIATOR_TOKEN,
+          testRequest,
+        );
+      });
     });
   });
 });
