@@ -143,7 +143,7 @@ describe('CurrentBranchDataProvider', () => {
         });
 
         const [, , , securityItem] = await currentBranchProvider.getChildren(undefined);
-        expect((securityItem as ItemModel).getTreeItem().label).toBe('No scans found');
+        expect((securityItem as ItemModel).getTreeItem().label).toBe('No security scans found');
       });
 
       it('renders scanning state', async () => {

@@ -19,7 +19,7 @@ export class SecurityResultsItemModel extends ItemModel {
 
   getTreeItem(): vscode.TreeItem {
     if (this.#securityResultsType === 'NO_SCANS_FOUND') {
-      return new vscode.TreeItem('No scans found');
+      return new vscode.TreeItem('No security scans found');
     }
 
     const description = this.#securityResultsType === 'RUNNING' ? 'In progress' : 'Complete';
