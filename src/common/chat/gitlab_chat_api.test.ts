@@ -1,3 +1,4 @@
+import assert from 'assert';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { project as currentProject } from '../test_utils/entities';
 import { GitLabProject } from '../platform/gitlab_project';
@@ -15,7 +16,11 @@ const mockedFailedMutationResponse = {
 };
 
 const mockedQueryResponse = {
-  aiMessages: { nodes: [{ content: 'test', requestId: '123', errors: ['bar'] }] },
+  aiMessages: {
+    nodes: [
+      { content: 'test', requestId: '123', errors: ['bar'], timestamp: '2023-01-01 01:01:01' },
+    ],
+  },
 };
 
 const mockedEmptyQueryResponse = {
@@ -64,15 +69,19 @@ describe('GitLabChatApi', () => {
 
       const response = await gitlabChatApi.processNewUserPrompt(mockPrompt);
 
+      assert(response.type === 'message');
+
       const [[aiActionMutation], [aiMessagesQuery]] = makeApiRequest.mock.calls;
 
       expect(aiActionMutation.query).toBe(AI_ACTIONS.chat);
       expect(aiMessagesQuery.query).toBe(AI_MESSAGES_QUERY);
 
       const expectedMessage = mockedQueryResponse.aiMessages.nodes[0];
+
       expect(response.content).toBe(expectedMessage.content);
       expect(response.requestId).toBe(expectedMessage.requestId);
       expect(response.errors).toStrictEqual(expectedMessage.errors);
+      expect(response.timestamp).toStrictEqual(expectedMessage.timestamp);
     });
 
     it('returns an error if pulling timeout is reached', async () => {

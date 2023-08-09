@@ -28,9 +28,11 @@ describe('GitLabChatController', () => {
 
   beforeEach(() => {
     controller = new GitLabChatController(platformManager, {} as vscode.ExtensionContext);
-    apiMock.processNewUserPrompt = jest
-      .fn()
-      .mockReturnValue({ content: 'api response', requestId: 'uniqueId' });
+    apiMock.processNewUserPrompt = jest.fn().mockReturnValue({
+      content: 'api response',
+      requestId: 'uniqueId',
+      timestamp: '2023-01-01 01:01:01',
+    });
   });
 
   describe('resolveWebviewView', () => {
@@ -144,14 +146,23 @@ describe('GitLabChatController', () => {
       });
     });
 
-    it('sends update of the view when API response is received', async () => {
+    it('sends updates of the view when API response is received', async () => {
       await controller.processNewUserRecord(record);
 
-      expect(viewMock.addRecord).toHaveBeenCalledWith(
+      expect(viewMock.updateRecord).toHaveBeenCalledWith(
         expect.objectContaining({
           content: 'api response',
           state: 'ready',
           role: 'assistant',
+          requestId: 'uniqueId',
+          timestamp: Date.parse('2023-01-01 01:01:01'),
+        }),
+      );
+      expect(viewMock.updateRecord).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: record.content,
+          state: 'ready',
+          role: record.role,
           requestId: 'uniqueId',
         }),
       );
@@ -177,6 +188,21 @@ describe('GitLabChatController', () => {
           requestId: 'uniqueId',
         }),
       );
+    });
+
+    it('does not change record timestamp when api returns an error', async () => {
+      const timestampBefore = record.timestamp;
+
+      apiMock.processNewUserPrompt = jest.fn(() => ({
+        type: 'error',
+        errors: ['timeout'],
+        requestId: 'requestId',
+        role: 'system',
+      }));
+
+      await controller.processNewUserRecord(record);
+
+      expect(record.timestamp).toStrictEqual(timestampBefore);
     });
   });
 });

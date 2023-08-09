@@ -17,6 +17,8 @@ export class GitLabChatRecord {
 
   payload?: object;
 
+  timestamp: number;
+
   type: ChatRecordType;
 
   errors: string[];
@@ -29,6 +31,7 @@ export class GitLabChatRecord {
     requestId,
     payload,
     errors,
+    timestamp,
   }: {
     type?: ChatRecordType;
     role: ChatRecordRole;
@@ -37,6 +40,7 @@ export class GitLabChatRecord {
     state?: ChatRecordState;
     payload?: object;
     errors?: string[];
+    timestamp?: string;
   }) {
     this.role = role;
     this.content = content;
@@ -46,6 +50,11 @@ export class GitLabChatRecord {
     this.requestId = requestId;
     this.errors = errors ?? [];
     this.id = uuidv4();
+    this.timestamp = timestamp ? Date.parse(timestamp) : Date.now();
+  }
+
+  setTimestamp(timestamp?: string) {
+    this.timestamp = timestamp ? Date.parse(timestamp) : Date.now();
   }
 
   private detectType(): ChatRecordType {
