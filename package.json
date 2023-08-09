@@ -68,6 +68,11 @@
         "command": "gl.explainSelectedCode",
         "title": "Explain Selected Code",
         "category": "GitLab Duo"
+      },
+      {
+        "command": "gl.newChatConversation",
+        "title": "Start new chat conversation",
+        "category": "GitLab Duo"
       }
     ],
     "submenus": [
@@ -85,6 +90,10 @@
         {
           "command": "gl.explainSelectedCode",
           "when": "config.gitlab.featureFlags.chat && editorHasSelection && gitlab:validState"
+        },
+        {
+          "command": "gl.newChatConversation",
+          "when": "config.gitlab.featureFlags.chat && gitlab:validState"
         }
       ],
       "editor/context": [
@@ -105,12 +114,17 @@
       {
         "command": "gl.openChat",
         "when": "config.gitlab.featureFlags.chat && gitlab:validState",
-        "key": "alt+c alt+c"
+        "key": "alt+o"
       },
       {
         "command": "gl.explainSelectedCode",
         "when": "config.gitlab.featureFlags.chat && editorHasSelection && gitlab:validState",
-        "key": "alt+c alt+e"
+        "key": "alt+e"
+      },
+      {
+        "command": "gl.newChatConversation",
+        "when": "config.gitlab.featureFlags.chat && gitlab:validState",
+        "key": "alt+n"
       }
     ],
     "configuration": {

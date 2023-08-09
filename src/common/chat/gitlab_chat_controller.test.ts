@@ -112,6 +112,36 @@ describe('GitLabChatController', () => {
           expect.objectContaining({ content: '...', state: 'pending', role: 'assistant' }),
         );
       });
+
+      describe('with newChatConversation command', () => {
+        beforeEach(() => {
+          record = new GitLabChatRecord({ role: 'user', content: '/reset' });
+        });
+
+        it('sends only new user record and doesnt wait for response', async () => {
+          try {
+            await controller.processNewUserRecord(record);
+          } catch (e) {
+            /* empty */
+          }
+
+          expect(viewMock.addRecord).toHaveBeenNthCalledWith(
+            1,
+            expect.objectContaining({ content: '/reset', state: 'ready', role: 'user' }),
+          );
+          expect(viewMock.addRecord).toHaveBeenCalledTimes(1);
+
+          expect(controller.chatHistory[0]).toEqual(
+            expect.objectContaining({
+              content: '/reset',
+              state: 'ready',
+              role: 'user',
+              type: 'newConversation',
+            }),
+          );
+          expect(controller.chatHistory.length).toEqual(1);
+        });
+      });
     });
 
     it('sends update of the view when API response is received', async () => {

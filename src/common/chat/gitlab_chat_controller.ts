@@ -48,22 +48,30 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
 
     await this.addToChat(record);
 
-    const responseRecord = new GitLabChatRecord({
-      role: 'assistant',
-      content: '...',
-      state: 'pending',
-    });
+    switch (record.type) {
+      case 'newConversation': {
+        await this.#api.processNewUserPrompt(record.content);
+        break;
+      }
+      default: {
+        const responseRecord = new GitLabChatRecord({
+          role: 'assistant',
+          content: '...',
+          state: 'pending',
+        });
 
-    await this.addToChat(responseRecord);
+        await this.addToChat(responseRecord);
 
-    const { content, requestId, errors } = await this.#api.processNewUserPrompt(record.content);
+        const { content, requestId, errors } = await this.#api.processNewUserPrompt(record.content);
 
-    responseRecord.content = content;
-    responseRecord.errors = errors;
-    responseRecord.requestId = requestId;
-    responseRecord.state = 'ready';
+        responseRecord.content = content;
+        responseRecord.errors = errors;
+        responseRecord.requestId = requestId;
+        responseRecord.state = 'ready';
 
-    await this.#view.updateRecord(responseRecord);
+        await this.#view.updateRecord(responseRecord);
+      }
+    }
   }
 
   private async restoreHistory() {
