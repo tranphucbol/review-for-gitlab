@@ -34,10 +34,10 @@ export const getAllSecurityReports = async (
       reportTypes.map(t => gitlabService.fetchFromApi(getSecurityFindingsReport(project, mr, t))),
     );
     const findings = reports
-      .map(r => r?.project.mergeRequest.findingReportsComparer.report)
+      ?.map(r => r?.project.mergeRequest.findingReportsComparer?.report)
       .filter(notNullOrUndefined);
 
-    if (!findings.length) return undefined;
+    if (!findings?.length) return undefined;
     return findings.reduce((acc, report) => mergeReports(acc, report));
   } catch (e) {
     throw new UserFriendlyError(
