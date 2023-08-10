@@ -57,10 +57,11 @@ class WebviewMock {
     });
     this.#sandbox.stub(webview.webview, 'onDidReceiveMessage').callsFake(listener => {
       this.#eventEmitter.on('', listener);
+
+      setTimeout(async () => await this.emulateViewMessage({ command: 'appReady' }), 1);
+
       return { dispose: () => {} };
     });
-
-    setTimeout(() => this.emulateViewMessage({ command: 'appReady' }), 10);
 
     return webview;
   }

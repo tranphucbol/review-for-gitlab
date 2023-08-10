@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import assert from 'assert';
@@ -7,21 +6,13 @@ import { handleError } from '../common/errors/handle_error';
 import { isMr } from './utils/is_mr';
 import { makeHtmlLinksAbsolute } from './utils/make_html_links_absolute';
 import { GitLabService } from './gitlab/gitlab_service';
-import { generateSecret } from '../common/utils/generate_secret';
 import { gitlabProjectRepository } from './gitlab/gitlab_project_repository';
 import { ProjectInRepository } from './gitlab/new_project';
 import { getGitLabService } from './gitlab/get_gitlab_service';
 import { WEBVIEW_WORKFLOW } from './constants';
 import { RepositoryRootWebviewProvider } from './commands/run_with_valid_project';
-import { waitForWebview } from '../common/utils/wait_for_webview';
-
-const webviewResourcePaths = {
-  // These are the paths to the resources in `dist-desktop/`
-  appScriptUri: 'webviews/issuable/assets/app.js',
-  styleUri: 'webviews/issuable/assets/index.css',
-} as const;
-
-type WebviewResources = Record<keyof typeof webviewResourcePaths, vscode.Uri>;
+import { waitForWebview } from '../common/utils/webviews/wait_for_webview';
+import { prepareWebviewSource } from '../common/utils/webviews/prepare_webview_source';
 
 export type IssuableWebviewPanel = vscode.WebviewPanel & {
   repositoryRoot?: string;
@@ -58,27 +49,6 @@ class IssuableController implements RepositoryRootWebviewProvider {
 
   init(context: vscode.ExtensionContext) {
     this.context = context;
-  }
-
-  private getResources(panel: vscode.WebviewPanel): WebviewResources {
-    return Object.entries(webviewResourcePaths).reduce((acc, [key, value]) => {
-      assert(this.context);
-      const uri = vscode.Uri.file(path.join(this.context.extensionPath, value));
-      return { ...acc, [key]: panel.webview.asWebviewUri(uri) };
-    }, {}) as WebviewResources;
-  }
-
-  private async replaceResources(panel: vscode.WebviewPanel) {
-    assert(this.context);
-    const { appScriptUri, styleUri } = this.getResources(panel);
-    const nonce = generateSecret();
-
-    return fs
-      .readFileSync(path.join(this.context.extensionPath, 'webviews/issuable/index.html'), 'UTF-8')
-      .replace(/{{nonce}}/gm, nonce)
-      .replace(/<script /g, `<script nonce="${nonce}"`)
-      .replace('/issuable/assets/index.css', styleUri.toString())
-      .replace('/issuable/assets/app.js', appScriptUri.toString());
   }
 
   private createPanel(issuable: RestIssuable) {
@@ -172,8 +142,7 @@ class IssuableController implements RepositoryRootWebviewProvider {
     const projectInRepository = gitlabProjectRepository.getProjectOrFail(repositoryRoot);
 
     const panel = this.createPanel(issuable);
-    const html = await this.replaceResources(panel);
-    panel.webview.html = html;
+    panel.webview.html = await prepareWebviewSource(panel.webview, this.context, 'issuable');
     panel.iconPath = this.getIconPathForIssuable(issuable);
     panel.repositoryRoot = repositoryRoot;
 
