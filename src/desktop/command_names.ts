@@ -58,6 +58,7 @@ export const USER_COMMANDS = {
   RETRY_FAILED_PIPELINE_JOBS: 'gl.retryFailedPipelineJobs',
   CANCEL_PIPELINE: 'gl.cancelPipeline',
   AUTHENTICATE: 'gl.authenticate',
+  VIEW_SECURITY_FINDING: 'gl.viewSecurityFinding',
 };
 
 /*

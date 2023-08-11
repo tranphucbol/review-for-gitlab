@@ -14,6 +14,7 @@ import { currentBranchDataProvider } from './tree_view/current_branch_data_provi
 import { initializeLogging } from '../common/log';
 import { handleError } from '../common/errors/handle_error';
 import { GitContentProvider } from './review/git_content_provider';
+import { GqlSecurityFinding } from './gitlab/security_findings/api/get_security_finding_report';
 import {
   REVIEW_URI_SCHEME,
   REMOTE_URI_SCHEME,
@@ -88,6 +89,7 @@ import { saveRawJobTrace } from './ci/save_raw_job_trace';
 import { JobLogFoldingProvider } from './ci/job_log_folding_provider';
 import { scrollToBottom } from './ci/scroll_to_bottom_command';
 import { pendingWebviewController } from './ci/pending_job_webview_controller';
+import { securityFindingWebviewController } from './ci/security_finding_controller';
 import { JobItemModel } from './tree_view/items/job_item_model';
 import { gitlabPlatformManagerDesktop } from './gitlab/gitlab_platform_desktop';
 import { activateCommon } from '../common/main';
@@ -159,6 +161,8 @@ const registerCommands = (context: vscode.ExtensionContext) => {
     [USER_COMMANDS.WAIT_FOR_PENDING_JOB]: async (item: JobItemModel) => {
       await pendingWebviewController.waitForPendingJob(item);
     },
+    [USER_COMMANDS.VIEW_SECURITY_FINDING]: (item: GqlSecurityFinding) =>
+      securityFindingWebviewController.open(item),
     [USER_COMMANDS.SAVE_RAW_JOB_TRACE]: saveRawJobTrace,
     [USER_COMMANDS.SCROLL_TO_BOTTOM]: scrollToBottom,
     [USER_COMMANDS.EXECUTE_JOB]: executeJob,
@@ -265,6 +269,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
       gitlabProjectRepository.init(),
       currentBranchRefresher.refresh(),
       pendingWebviewController.init(context),
+      securityFindingWebviewController.init(context),
       activateCommon(context, gitlabPlatformManagerDesktop, outputChannel),
     ]).catch(e => handleError(e)),
   );

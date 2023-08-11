@@ -15,6 +15,13 @@ export async function copyPendingJobAssets() {
   );
 }
 
+export async function copySecurityFindingAssets() {
+  return copyFile(
+    path.join(root, 'webviews/security_finding.html'),
+    path.join(root, `dist-desktop/webviews/security_finding.html`),
+  );
+}
+
 export async function compileSource() {
   await run('tsc', ['-p', root]);
 }
@@ -69,6 +76,7 @@ export async function buildDesktop() {
   await Promise.all([
     prepareWebviews(desktopWebviews, ENVIRONMENTS.DESKTOP),
     copyPendingJobAssets(),
+    copySecurityFindingAssets(),
     checkAndBuildExtension(['--minify']),
     generateAssets(packageJson, ENVIRONMENTS.DESKTOP),
   ]);

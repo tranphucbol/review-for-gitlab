@@ -33,10 +33,12 @@ export const getAllSecurityReports = async (
     const reports = await Promise.all(
       reportTypes.map(t => gitlabService.fetchFromApi(getSecurityFindingsReport(project, mr, t))),
     );
-    return reports
-      .map(r => r?.project.mergeRequest.findingReportsComparer.report)
-      .filter(notNullOrUndefined)
-      .reduce((acc, report) => mergeReports(acc, report));
+    const findings = reports
+      ?.map(r => r?.project.mergeRequest.findingReportsComparer?.report)
+      .filter(notNullOrUndefined);
+
+    if (!findings?.length) return undefined;
+    return findings.reduce((acc, report) => mergeReports(acc, report));
   } catch (e) {
     throw new UserFriendlyError(
       `Couldn't request Security Report. For more information, review the extension logs.`,
