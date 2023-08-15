@@ -4,7 +4,19 @@ import { project } from '../test_utils/entities';
 import { CodeSuggestions } from './code_suggestions';
 import { VisibleCodeSuggestionsState } from './code_suggestions_state';
 
-jest.mock('./code_suggestions_state');
+jest.mock('./code_suggestions_state', () => ({
+  ...jest.requireActual('./code_suggestions_state'),
+  CodeSuggestionsStateManager: function CodeSuggestionsStateManager() {
+    return {
+      isEnabled: jest.fn().mockResolvedValue(true),
+      setGlobalState: jest.fn(),
+      onDidChangeEnabledState: jest.fn(),
+      setUnsupportedLanguageDocument: jest.fn(),
+    };
+  },
+}));
+
+jest.mock('./code_suggestions_provider');
 jest.mock('./code_suggestions_status_bar_item');
 
 const manager: GitLabPlatformManager = {
@@ -29,6 +41,33 @@ describe('CodeSuggestions', () => {
 
   afterEach(() => {
     codeSuggestions.dispose();
+  });
+
+  describe('code suggestions registration', () => {
+    let changeListener: (enabled: boolean) => void;
+
+    beforeEach(() => {
+      [[changeListener]] = jest.mocked(
+        codeSuggestions.stateManager.onDidChangeEnabledState,
+      ).mock.calls;
+    });
+
+    it('registers code suggestion provider when state becomes enabled', () => {
+      jest.mocked(codeSuggestions.stateManager.isEnabled).mockReturnValue(true);
+      jest.mocked(vscode.languages.registerInlineCompletionItemProvider).mockClear();
+
+      changeListener(true);
+
+      expect(vscode.languages.registerInlineCompletionItemProvider).toHaveBeenCalled();
+    });
+
+    it('unregisters code suggestion provider when state becomes disabled', () => {
+      jest.mocked(codeSuggestions.stateManager.isEnabled).mockReturnValue(false);
+
+      changeListener(false);
+
+      expect(codeSuggestions.providerDisposable?.dispose).toHaveBeenCalled();
+    });
   });
 
   describe('state updates', () => {

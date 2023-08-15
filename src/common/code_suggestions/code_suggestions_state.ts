@@ -17,6 +17,7 @@ export const TemporaryCodeSuggestionsState = {
 export type VisibleCodeSuggestionsState = ValueOf<typeof VisibleCodeSuggestionsState>;
 export const VisibleCodeSuggestionsState = {
   ...GlobalCodeSuggestionsState,
+  DISABLED_BY_USER: 'code-suggestions-disabled-by-user',
   ...TemporaryCodeSuggestionsState,
   UNSUPPORTED_LANGUAGE: 'code-suggestions-document-unsupported-language',
 } as const;
@@ -24,20 +25,37 @@ export const VisibleCodeSuggestionsState = {
 export class CodeSuggestionsStateManager {
   #globalState: GlobalCodeSuggestionsState = GlobalCodeSuggestionsState.DISABLED_VIA_SETTINGS;
 
+  #isDisabledByUserForSession = false;
+
   #temporaryState: TemporaryCodeSuggestionsState | null = null;
 
-  isUnsupportedLanguageDocument = false;
+  #isUnsupportedLanguageDocument = false;
 
   #changeVisibleStateEmitter = new vscode.EventEmitter<VisibleCodeSuggestionsState>();
 
   onDidChangeVisibleState = this.#changeVisibleStateEmitter.event;
+
+  #changeEnabledStateEmitter = new vscode.EventEmitter<boolean>();
+
+  onDidChangeEnabledState = this.#changeEnabledStateEmitter.event;
+
+  isEnabled() {
+    return !(
+      this.#globalState === GlobalCodeSuggestionsState.DISABLED_VIA_SETTINGS ||
+      this.#isDisabledByUserForSession
+    );
+  }
 
   getVisibleState(): VisibleCodeSuggestionsState {
     if (this.#globalState === GlobalCodeSuggestionsState.DISABLED_VIA_SETTINGS) {
       return this.#globalState;
     }
 
-    if (this.isUnsupportedLanguageDocument) {
+    if (this.#isDisabledByUserForSession) {
+      return VisibleCodeSuggestionsState.DISABLED_BY_USER;
+    }
+
+    if (this.#isUnsupportedLanguageDocument) {
       return VisibleCodeSuggestionsState.UNSUPPORTED_LANGUAGE;
     }
 
@@ -46,17 +64,24 @@ export class CodeSuggestionsStateManager {
 
   updateState(handler: () => void) {
     const previousVisibleState = this.getVisibleState();
+    const previousEnabled = this.isEnabled();
     handler();
     const newVisibleState = this.getVisibleState();
+    const newEnabled = this.isEnabled();
 
     if (previousVisibleState !== newVisibleState) {
       this.#changeVisibleStateEmitter.fire(newVisibleState);
+    }
+
+    if (previousEnabled !== newEnabled) {
+      this.#changeEnabledStateEmitter.fire(newEnabled);
     }
   }
 
   setGlobalState(newState: GlobalCodeSuggestionsState) {
     this.updateState(() => {
       this.#globalState = newState;
+      this.#isDisabledByUserForSession = false;
     });
   }
 
@@ -66,9 +91,15 @@ export class CodeSuggestionsStateManager {
     });
   }
 
+  setTemporaryDisabled(newState: boolean) {
+    this.updateState(() => {
+      this.#isDisabledByUserForSession = newState;
+    });
+  }
+
   setUnsupportedLanguageDocument(newState: boolean) {
     this.updateState(() => {
-      this.isUnsupportedLanguageDocument = newState;
+      this.#isUnsupportedLanguageDocument = newState;
     });
   }
 }

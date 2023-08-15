@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { createStatusBarItem } from '../utils/create_status_bar_item';
 import { CodeSuggestionsStateManager, VisibleCodeSuggestionsState } from './code_suggestions_state';
+import { COMMAND_TOGGLE_CODE_SUGGESTIONS } from './commands/toggle';
 
 type CodeSuggestionsStatuses = Record<
   VisibleCodeSuggestionsState,
@@ -28,6 +29,10 @@ const CODE_SUGGESTIONS_STATUSES: CodeSuggestionsStatuses = {
     text: '$(gitlab-code-suggestions-disabled)',
     tooltip: 'Code suggestions are not supported for this language',
   },
+  [VisibleCodeSuggestionsState.DISABLED_BY_USER]: {
+    text: '$(gitlab-code-suggestions-disabled)',
+    tooltip: 'Code suggestions are disabled per user request. Click to enable',
+  },
 };
 
 export class CodeSuggestionsStatusBarItem {
@@ -50,6 +55,7 @@ export class CodeSuggestionsStatusBarItem {
       id: 'gl.status.code_suggestions',
       name: 'GitLab Workflow: Code Suggestions',
       initialText: '$(gitlab-code-suggestions-disabled)',
+      command: COMMAND_TOGGLE_CODE_SUGGESTIONS,
     });
     this.updateCodeSuggestionsItem(state.getVisibleState());
     this.#codeSuggestionsStateSubscription = state.onDidChangeVisibleState(e =>

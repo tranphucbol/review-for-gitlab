@@ -7,6 +7,17 @@ import {
 
 describe('Code suggestions state manager', () => {
   let stateManager: CodeSuggestionsStateManager;
+
+  function itShouldIgnoreAnyTemporaryStateAndReturn(state: VisibleCodeSuggestionsState) {
+    it('should ignore any temporary state', () => {
+      Object.values(TemporaryState).forEach(temporaryState => {
+        stateManager.setTemporaryState(temporaryState);
+
+        expect(stateManager.getVisibleState()).toBe(state);
+      });
+    });
+  }
+
   beforeEach(() => {
     stateManager = new CodeSuggestionsStateManager();
   });
@@ -22,18 +33,30 @@ describe('Code suggestions state manager', () => {
       expect(stateManager.getVisibleState()).toBe(state);
     });
 
-    it('should ignore any temporary state', () => {
-      Object.values(TemporaryState).forEach(temporaryState => {
-        stateManager.setTemporaryState(temporaryState);
+    it('should ignore temporary disabled flag', () => {
+      stateManager.setTemporaryDisabled(true);
 
-        expect(stateManager.getVisibleState()).toBe(state);
-      });
+      expect(stateManager.getVisibleState()).toBe(state);
     });
+
+    itShouldIgnoreAnyTemporaryStateAndReturn(state);
   });
 
   describe('when global state is ready', () => {
     beforeEach(() => {
       stateManager.setGlobalState(GlobalState.READY);
+    });
+
+    describe('when is temporary disabled', () => {
+      beforeEach(() => {
+        stateManager.setTemporaryDisabled(true);
+      });
+
+      it('should report as temporary disabled', () => {
+        expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.DISABLED_BY_USER);
+      });
+
+      itShouldIgnoreAnyTemporaryStateAndReturn(VisibleCodeSuggestionsState.DISABLED_BY_USER);
     });
 
     describe('when in document with unsupported language', () => {
@@ -47,15 +70,7 @@ describe('Code suggestions state manager', () => {
         );
       });
 
-      it('should ignore any temporary state', () => {
-        Object.values(TemporaryState).forEach(temporaryState => {
-          stateManager.setTemporaryState(temporaryState);
-
-          expect(stateManager.getVisibleState()).toBe(
-            VisibleCodeSuggestionsState.UNSUPPORTED_LANGUAGE,
-          );
-        });
-      });
+      itShouldIgnoreAnyTemporaryStateAndReturn(VisibleCodeSuggestionsState.UNSUPPORTED_LANGUAGE);
     });
 
     it('should report state as ready', () => {

@@ -9,17 +9,25 @@ import {
   AI_ASSISTED_CODE_SUGGESTIONS_MODE,
   getAiAssistedCodeSuggestionsConfiguration,
 } from '../utils/extension_configuration';
+import { COMMAND_TOGGLE_CODE_SUGGESTIONS, toggleCodeSuggestions } from './commands/toggle';
 
 export class CodeSuggestions {
   stateManager = new CodeSuggestionsStateManager();
 
   statusBarItem: CodeSuggestionsStatusBarItem;
 
+  toggleSuggestionsCommand?: vscode.Disposable;
+
   providerDisposable?: vscode.Disposable;
 
   activeTextEditorChangeDisposable?: vscode.Disposable;
 
   constructor(manager: GitLabPlatformManager) {
+    this.toggleSuggestionsCommand = vscode.commands.registerCommand(
+      COMMAND_TOGGLE_CODE_SUGGESTIONS,
+      () => toggleCodeSuggestions({ stateManager: this.stateManager }),
+    );
+
     this.statusBarItem = new CodeSuggestionsStatusBarItem(this.stateManager);
 
     const updateCodeSuggestionsStateForEditor = (editor?: vscode.TextEditor) => {
@@ -42,29 +50,38 @@ export class CodeSuggestions {
     };
 
     const enableOrDisableSuggestions = () => {
-      if (getAiAssistedCodeSuggestionsConfiguration().enabled) {
+      const enabled = this.stateManager.isEnabled();
+      if (enabled) {
         log.debug('Enabling code completion');
-        this.stateManager.setGlobalState(GlobalCodeSuggestionsState.READY);
         register();
       } else {
         log.debug('Disabling code completion');
-        this.stateManager.setGlobalState(GlobalCodeSuggestionsState.DISABLED_VIA_SETTINGS);
         this.providerDisposable?.dispose();
         this.activeTextEditorChangeDisposable?.dispose();
       }
     };
+    const syncExtensionGlobalState = () => {
+      const newState = getAiAssistedCodeSuggestionsConfiguration().enabled
+        ? GlobalCodeSuggestionsState.READY
+        : GlobalCodeSuggestionsState.DISABLED_VIA_SETTINGS;
+      this.stateManager.setGlobalState(newState);
+    };
 
-    enableOrDisableSuggestions();
     vscode.workspace.onDidChangeConfiguration(e => {
       if (e.affectsConfiguration(AI_ASSISTED_CODE_SUGGESTIONS_MODE)) {
-        enableOrDisableSuggestions();
+        syncExtensionGlobalState();
       }
     });
+    syncExtensionGlobalState();
+
+    this.stateManager.onDidChangeEnabledState(enableOrDisableSuggestions);
+    enableOrDisableSuggestions();
   }
 
   dispose() {
     this.statusBarItem?.dispose();
     this.providerDisposable?.dispose();
     this.activeTextEditorChangeDisposable?.dispose();
+    this.toggleSuggestionsCommand?.dispose();
   }
 }
