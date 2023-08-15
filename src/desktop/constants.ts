@@ -1,8 +1,5 @@
 import vscode from 'vscode';
 
-// Feature Flags
-export const SECURITY_SCANS_FEATURE_FLAG = 'securityScansFlag';
-
 export const REVIEW_URI_SCHEME = 'gl-review';
 export const MERGED_YAML_URI_SCHEME = 'gl-merged-ci-yaml';
 export const JOB_LOG_URI_SCHEME = 'gl-job-log';

@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
-import { SECURITY_SCANS_FEATURE_FLAG } from '../constants';
-import { getExtensionConfiguration } from '../../common/utils/extension_configuration';
 import { ErrorItem } from './items/error_item';
 import { ItemModel } from './items/item_model';
 import { MrItemModel } from './items/mr_item_model';
 import { IssueItem } from './items/issue_item';
 import { PipelineItemModel } from './items/pipeline_item_model';
+import { isEnabled, FeatureFlag } from '../../common/feature_flags';
+
 import {
   SecurityResultsItemModel,
   SecurityResultsType,
@@ -112,7 +112,7 @@ export class CurrentBranchDataProvider
         this.state.issues,
       );
 
-      if (getExtensionConfiguration().featureFlags[SECURITY_SCANS_FEATURE_FLAG]) {
+      if (isEnabled(FeatureFlag.SecurityScans)) {
         const securityFindingsItem = CurrentBranchDataProvider.createSecurityFindingsItem(
           this.state,
         );
