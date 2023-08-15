@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import fetch from '../fetch_logged';
 
-import { codeSuggestionsTelemetry } from './code_suggestions_telemetry';
+import { codeSuggestionsTelemetry, Experiment } from './code_suggestions_telemetry';
 
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { project } from '../test_utils/entities';
@@ -42,9 +42,20 @@ const mockDocumentPartial: Partial<vscode.TextDocument> = {
 };
 const mockDocument = mockDocumentPartial as unknown as vscode.TextDocument;
 const choice = '(side) => ';
+const experiments: Experiment[] = [
+  {
+    name: 'exp_truncate_suffix',
+    variant: 0,
+  },
+  {
+    name: 'exp_trim_completions',
+    variant: 1,
+  },
+];
 const mockCompletions = {
   choices: [{ text: choice }],
   model: { name: 'ensemble', engine: 'codegen' },
+  experiments,
 };
 const telemetryModel = {
   name: 'testModel',
@@ -364,6 +375,17 @@ describe('CodeSuggestionsProvider', () => {
       expect(body.telemetry[0].model_engine).toBe('codegen');
       expect(body.telemetry[0].model_name).toBe('ensemble');
     });
+
+    it('sends experiments information with the telemetry', async () => {
+      asMock(fetch).mockResolvedValue({ ok: true, json: async () => mockCompletions });
+      await getCompletionsWithDefaultArgs(glcp);
+      await getCompletionsWithDefaultArgs(glcp);
+
+      const body = lastFetchCallBody();
+
+      expect(body.telemetry[0].experiments).toStrictEqual(experiments);
+    });
+
     it('increases requests count for success request', async () => {
       await getCompletionsWithDefaultArgs(glcp);
       await getCompletionsWithDefaultArgs(glcp);
@@ -454,7 +476,7 @@ describe('CodeSuggestionsProvider', () => {
         await getCompletionsWithDefaultArgs(glcp);
 
         expect(getLoggedMessage()).toContain(
-          'AI Assist: fetching completions ... (telemetry: [{"model_engine":"testEngine","model_name":"testModel","lang":"c","requests":0,"accepts":1,"errors":0}])',
+          'AI Assist: fetching completions ... (telemetry: [{"model_engine":"testEngine","model_name":"testModel","lang":"c","experiments":[],"requests":0,"accepts":1,"errors":0}])',
         );
       });
     });

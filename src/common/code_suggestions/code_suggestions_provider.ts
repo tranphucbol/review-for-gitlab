@@ -5,7 +5,12 @@ import { GITLAB_COM_URL } from '../constants';
 import { GitLabPlatform, GitLabPlatformManager } from '../platform/gitlab_platform';
 import { CodeSuggestionsTokenManager, CompletionToken } from './code_suggestions_token_manager';
 import { CircuitBreaker } from './circuit_breaker';
-import { Model, Telemetry, codeSuggestionsTelemetry } from './code_suggestions_telemetry';
+import {
+  Experiment,
+  Model,
+  Telemetry,
+  codeSuggestionsTelemetry,
+} from './code_suggestions_telemetry';
 import { GitLabProject } from '../platform/gitlab_project';
 import {
   CodeSuggestionsStateManager,
@@ -33,6 +38,7 @@ interface Choice {
 interface CodeSuggestionsResponse {
   id: string;
   model: Model;
+  experiments: Experiment[];
   object: string;
   created: number;
   choices: Choice[];
@@ -177,6 +183,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
 
     let response: CodeSuggestionsResponse;
     let model: Model = { engine: '', name: '', lang: '' }; // Defaults for telemetry of failed requests
+    let experiments: Experiment[] = [];
 
     const gitlabMonolithApiAvailable = (project: GitLabProject) =>
       !this.legacyApiFallbackConfig.shouldUseModelGateway() &&
@@ -194,6 +201,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       this.stateManager.setTemporaryState(null);
 
       if (response.model !== undefined) model = response.model;
+      if (response.experiments !== undefined) experiments = response.experiments;
 
       this.circuitBreaker.success();
 
@@ -202,6 +210,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
 
       if (!cancellationToken.isCancellationRequested) {
         // Keep track of this request for next send..
+        codeSuggestionsTelemetry.storeExperiments(model, experiments);
         codeSuggestionsTelemetry.incRequestCount(model);
       } else {
         log.debug(
@@ -214,6 +223,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       this.circuitBreaker.error();
       this.stateManager.setTemporaryState(TemporaryCodeSuggestionsState.ERROR);
 
+      codeSuggestionsTelemetry.storeExperiments(model, experiments);
       codeSuggestionsTelemetry.incRequestCount(model);
       codeSuggestionsTelemetry.incErrorCount(model);
       return [];

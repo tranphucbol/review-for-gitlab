@@ -1,6 +1,11 @@
 import * as vscode from 'vscode';
 import { compareBy } from '../utils/compare_by';
-import { CodeSuggestionsTelemetry, Model, Telemetry } from './code_suggestions_telemetry';
+import {
+  CodeSuggestionsTelemetry,
+  Experiment,
+  Model,
+  Telemetry,
+} from './code_suggestions_telemetry';
 
 describe('CodeSuggestionsTelemetry', () => {
   let telemetry: CodeSuggestionsTelemetry;
@@ -11,10 +16,22 @@ describe('CodeSuggestionsTelemetry', () => {
     lang: 'c',
   };
 
+  const experiments: Experiment[] = [
+    {
+      name: 'exp_truncate_suffix',
+      variant: 0,
+    },
+    {
+      name: 'exp_trim_completions',
+      variant: 1,
+    },
+  ];
+
   const codegenTelemetry: Telemetry = {
     model_name: codegenModel.name,
     model_engine: codegenModel.engine,
     lang: codegenModel.lang,
+    experiments: [],
     accepts: 0,
     errors: 0,
     requests: 0,
@@ -28,6 +45,12 @@ describe('CodeSuggestionsTelemetry', () => {
     beforeEach(() => {
       // @ts-expect-error vscode is mocked, so it is writable here
       vscode.env.isTelemetryEnabled = true;
+    });
+
+    it('stores experiments', () => {
+      telemetry.storeExperiments(codegenModel, experiments);
+
+      expect(telemetry.toArray()).toEqual([{ ...codegenTelemetry, experiments }]);
     });
 
     it('increases request count', () => {
@@ -55,9 +78,11 @@ describe('CodeSuggestionsTelemetry', () => {
         lang: 'python',
       };
 
+      telemetry.storeExperiments(codegenModel, experiments);
       telemetry.incRequestCount(codegenModel);
       telemetry.incAcceptCount(codegenModel);
 
+      telemetry.storeExperiments(bisonModel, experiments);
       telemetry.incRequestCount(bisonModel);
       telemetry.incErrorCount(bisonModel);
 
@@ -66,11 +91,12 @@ describe('CodeSuggestionsTelemetry', () => {
           model_engine: bisonModel.engine,
           model_name: bisonModel.name,
           lang: bisonModel.lang,
+          experiments,
           requests: 1,
           errors: 1,
           accepts: 0,
         },
-        { ...codegenTelemetry, requests: 1, accepts: 1 },
+        { ...codegenTelemetry, experiments, requests: 1, accepts: 1 },
       ]);
     });
   });
@@ -80,6 +106,7 @@ describe('CodeSuggestionsTelemetry', () => {
       // @ts-expect-error vscode is mocked, so it is writable here
       vscode.env.isTelemetryEnabled = false;
 
+      telemetry.storeExperiments(codegenModel, experiments);
       telemetry.incRequestCount(codegenModel);
       telemetry.incAcceptCount(codegenModel);
       telemetry.incErrorCount(codegenModel);
@@ -94,7 +121,7 @@ describe('CodeSuggestionsTelemetry', () => {
       vscode.env.isTelemetryEnabled = true;
 
       expect(telemetry.toArray()).toEqual([
-        { ...codegenTelemetry, accepts: 1, errors: 1, requests: 1 },
+        { ...codegenTelemetry, experiments, accepts: 1, errors: 1, requests: 1 },
       ]);
     });
   });

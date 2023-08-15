@@ -6,10 +6,16 @@ export interface Model {
   lang?: string;
 }
 
+export interface Experiment {
+  name: string;
+  variant: number;
+}
+
 export interface Telemetry {
   model_engine: string;
   model_name: string;
   lang?: string;
+  experiments?: Experiment[];
   requests: number;
   accepts: number;
   errors: number;
@@ -25,6 +31,7 @@ const createEmptyTelemetry = (m: Model): Telemetry => ({
   model_engine: m.engine,
   model_name: m.name,
   lang: m.lang,
+  experiments: [],
   requests: 0,
   accepts: 0,
   errors: 0,
@@ -32,6 +39,10 @@ const createEmptyTelemetry = (m: Model): Telemetry => ({
 
 export class CodeSuggestionsTelemetry {
   #telemetryByModel: Record<ModelKey, Telemetry> = {};
+
+  storeExperiments(model: Model, experiments: Experiment[]) {
+    this.#getTelemetry(model).experiments = experiments;
+  }
 
   incRequestCount(model: Model) {
     this.#getTelemetry(model).requests += 1;
