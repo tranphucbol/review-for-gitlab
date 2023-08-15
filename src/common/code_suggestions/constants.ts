@@ -30,5 +30,6 @@ export const AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES = [
   'vue',
   // The following languages are supported as infrastructure providers
   // See https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html#supported-languages
-  'tf',
+  'terraform',
+  'terragrunt',
 ];
