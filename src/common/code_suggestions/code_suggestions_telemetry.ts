@@ -1,3 +1,5 @@
+import * as vscode from 'vscode';
+
 export interface Model {
   engine: string;
   name: string;
@@ -55,7 +57,9 @@ export class CodeSuggestionsTelemetry {
   }
 
   toArray() {
-    return Object.values(this.#telemetryByModel);
+    const { isTelemetryEnabled } = vscode.env;
+
+    return isTelemetryEnabled ? Object.values(this.#telemetryByModel) : [];
   }
 }
 
