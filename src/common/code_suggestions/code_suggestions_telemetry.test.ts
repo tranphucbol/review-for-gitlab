@@ -1,3 +1,4 @@
+import * as vscode from 'vscode';
 import { compareBy } from '../utils/compare_by';
 import { CodeSuggestionsTelemetry, Model, Telemetry } from './code_suggestions_telemetry';
 
@@ -23,47 +24,78 @@ describe('CodeSuggestionsTelemetry', () => {
     telemetry = new CodeSuggestionsTelemetry();
   });
 
-  it('increases request count', () => {
-    telemetry.incRequestCount(codegenModel);
+  describe('when telemetry is enabled', () => {
+    beforeEach(() => {
+      // @ts-expect-error vscode is mocked, so it is writable here
+      vscode.env.isTelemetryEnabled = true;
+    });
 
-    expect(telemetry.toArray()).toEqual([{ ...codegenTelemetry, requests: 1 }]);
+    it('increases request count', () => {
+      telemetry.incRequestCount(codegenModel);
+
+      expect(telemetry.toArray()).toEqual([{ ...codegenTelemetry, requests: 1 }]);
+    });
+
+    it('increases accept count', () => {
+      telemetry.incAcceptCount(codegenModel);
+
+      expect(telemetry.toArray()).toEqual([{ ...codegenTelemetry, accepts: 1 }]);
+    });
+
+    it('increases error count', () => {
+      telemetry.incErrorCount(codegenModel);
+
+      expect(telemetry.toArray()).toEqual([{ ...codegenTelemetry, errors: 1 }]);
+    });
+
+    it('handles multiple models', () => {
+      const bisonModel: Model = {
+        engine: 'code-bison',
+        name: 'v2-1.0.0',
+        lang: 'python',
+      };
+
+      telemetry.incRequestCount(codegenModel);
+      telemetry.incAcceptCount(codegenModel);
+
+      telemetry.incRequestCount(bisonModel);
+      telemetry.incErrorCount(bisonModel);
+
+      expect(telemetry.toArray().sort(compareBy('model_engine'))).toEqual([
+        {
+          model_engine: bisonModel.engine,
+          model_name: bisonModel.name,
+          lang: bisonModel.lang,
+          requests: 1,
+          errors: 1,
+          accepts: 0,
+        },
+        { ...codegenTelemetry, requests: 1, accepts: 1 },
+      ]);
+    });
   });
 
-  it('increases accept count', () => {
-    telemetry.incAcceptCount(codegenModel);
+  describe('when telemetry is disabled', () => {
+    beforeEach(() => {
+      // @ts-expect-error vscode is mocked, so it is writable here
+      vscode.env.isTelemetryEnabled = false;
 
-    expect(telemetry.toArray()).toEqual([{ ...codegenTelemetry, accepts: 1 }]);
-  });
+      telemetry.incRequestCount(codegenModel);
+      telemetry.incAcceptCount(codegenModel);
+      telemetry.incErrorCount(codegenModel);
+    });
 
-  it('increases error count', () => {
-    telemetry.incErrorCount(codegenModel);
+    it('does not expose any telemetry data', () => {
+      expect(telemetry.toArray()).toEqual([]);
+    });
 
-    expect(telemetry.toArray()).toEqual([{ ...codegenTelemetry, errors: 1 }]);
-  });
+    it('exposes tracked stats when telemetry becomes enabled', () => {
+      // @ts-expect-error vscode is mocked, so it is writable here
+      vscode.env.isTelemetryEnabled = true;
 
-  it('handles multiple models', () => {
-    const bisonModel: Model = {
-      engine: 'code-bison',
-      name: 'v2-1.0.0',
-      lang: 'python',
-    };
-
-    telemetry.incRequestCount(codegenModel);
-    telemetry.incAcceptCount(codegenModel);
-
-    telemetry.incRequestCount(bisonModel);
-    telemetry.incErrorCount(bisonModel);
-
-    expect(telemetry.toArray().sort(compareBy('model_engine'))).toEqual([
-      {
-        model_engine: bisonModel.engine,
-        model_name: bisonModel.name,
-        lang: bisonModel.lang,
-        requests: 1,
-        errors: 1,
-        accepts: 0,
-      },
-      { ...codegenTelemetry, requests: 1, accepts: 1 },
-    ]);
+      expect(telemetry.toArray()).toEqual([
+        { ...codegenTelemetry, accepts: 1, errors: 1, requests: 1 },
+      ]);
+    });
   });
 });

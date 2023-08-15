@@ -71,6 +71,7 @@ module.exports = {
     getExtension: jest.fn(),
   },
   env: {
+    isTelemetryEnabled: true,
     uriScheme: 'vscode',
     clipboard: {
       writeText: jest.fn(),
