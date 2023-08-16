@@ -1,3 +1,26 @@
+# [3.73.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.72.3...v3.73.0) (2023-08-16)
+
+
+### Bug Fixes
+
+* Handle security findings project roles ([b840523](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/b8405233fd8caa68cfc9389fa38e0db9caef51aa))
+* handle security findings when report is empty ([6302a8c](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/6302a8cb6f59c862352fe8c3254665a63c21520b))
+* Hello world command showing up in Web IDE ([5434c10](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/5434c10e4a2803d302e474511b78827ad4d37c83))
+* properly mark terraform/terragrunt as supported languages ([24df900](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/24df900e3bcb553d982d3f10449a966d6792b258))
+* respect vscode telemetry settings ([c0ea55a](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/c0ea55a5a1daa9fccb4ec32638ee9dbae5fdd1f6))
+
+
+### Features
+
+* Add code suggestions experiments data ([0bf93a6](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/0bf93a67979a9ebf1518aef0f394b685c5ad0301))
+* add Duo Chat toggle setting ([1a151de](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/1a151de85b3310e57647c66cd95af7a6f8ddf8ff))
+* Add reset command to GitLab Duo Chat ([99a83ad](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/99a83ad449ebbfa40b3aea7d54cbdb84605f9330))
+* add webview for security findings ([fac29a0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/fac29a012e91d2f82abf75a3b329883889e550a0))
+* hide chat window unless gitlab account is connected ([f7a77cd](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/f7a77cd1d1d223449e9e802e878b1077c711e4ac))
+* Update GitLab Duo icon ([183eadd](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/183eaddc724a083c5e1c85a3830253ab3ebcf3da))
+
+
+
 ## [3.72.3](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.72.2...v3.72.3) (2023-08-04)
 
 
