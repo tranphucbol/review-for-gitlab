@@ -40,3 +40,13 @@ export function getAiAssistedCodeSuggestionsConfiguration(): AiAssistedCodeSugge
     enabled: aiAssistedCodeSuggestionsConfig.enabled,
   };
 }
+
+export function setAiAssistedCodeSuggestionsConfiguration(
+  config: AiAssistedCodeSuggestionsConfiguration,
+) {
+  const aiAssistedCodeSuggestionsConfig = vscode.workspace.getConfiguration(
+    AI_ASSISTED_CODE_SUGGESTIONS_CONFIG_NAMESPACE,
+  );
+
+  return aiAssistedCodeSuggestionsConfig.update('enabled', Boolean(config.enabled));
+}

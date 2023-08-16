@@ -52,7 +52,7 @@ module.exports = {
     registerCommand: jest.fn(),
   },
   languages: {
-    registerInlineCompletionItemProvider: jest.fn(),
+    registerInlineCompletionItemProvider: jest.fn().mockReturnValue({ dispose: jest.fn() }),
   },
   workspace: {
     openTextDocument: jest.fn(),
