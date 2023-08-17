@@ -76,6 +76,7 @@ module.exports = {
     clipboard: {
       writeText: jest.fn(),
     },
+    onDidChangeTelemetryEnabled: jest.fn(),
   },
   CommentMode: { Editing: 0, Preview: 1 },
   StatusBarAlignment: { Left: 0 },
