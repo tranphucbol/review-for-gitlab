@@ -13,11 +13,12 @@ import { ItemModel } from './items/item_model';
 import { PipelineItemModel } from './items/pipeline_item_model';
 import { asMock } from '../test_utils/as_mock';
 import { getExtensionConfiguration } from '../../common/utils/extension_configuration';
-import { SECURITY_SCANS_FEATURE_FLAG } from '../constants';
+import { FeatureFlag, isEnabled } from '../../common/feature_flags';
 
 jest.mock('./items/mr_item_model');
 jest.mock('./items/pipeline_item_model');
 jest.mock('../../common/utils/extension_configuration');
+jest.mock('../../common/feature_flags');
 
 const isItemModel = (object: any): object is ItemModel => typeof object.dispose === 'function';
 const branchState: BranchState = {
@@ -117,6 +118,10 @@ describe('CurrentBranchDataProvider', () => {
 
   describe('Security findings item', () => {
     describe('security scans flag off', () => {
+      beforeEach(() => {
+        jest.mocked(isEnabled).mockImplementation(feature => feature !== FeatureFlag.SecurityScans);
+      });
+
       it('does not render item', async () => {
         currentBranchProvider.refresh({
           ...branchState,
@@ -129,9 +134,7 @@ describe('CurrentBranchDataProvider', () => {
     });
     describe('security scans flag on', () => {
       beforeEach(() => {
-        asMock(getExtensionConfiguration).mockReturnValue({
-          featureFlags: { [SECURITY_SCANS_FEATURE_FLAG]: true },
-        });
+        jest.mocked(isEnabled).mockImplementation(feature => feature === FeatureFlag.SecurityScans);
       });
 
       it('renders no scans found', async () => {

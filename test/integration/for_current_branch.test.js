@@ -1,5 +1,6 @@
 const assert = require('assert');
 const dayjs = require('dayjs');
+const { graphql } = require('msw');
 const {
   CurrentBranchDataProvider,
 } = require('../../src/desktop/tree_view/current_branch_data_provider');
@@ -7,6 +8,7 @@ const closingIssueResponse = require('./fixtures/rest/closing_issue.json');
 const openIssueResponse = require('./fixtures/rest/open_issue.json');
 const pipelinesResponse = require('./fixtures/rest/pipelines.json');
 const openMergeRequestResponse = require('./fixtures/rest/open_mr.json');
+const securtyFindingsResponse = require('./fixtures/graphql/security_findings.json');
 const {
   getServer,
   createQueryJsonEndpoint,
@@ -43,6 +45,10 @@ describe('GitLab tree view for current branch', () => {
   );
   const issueEndpoint = createJsonEndpoint('/projects/278964/issues/219925', openIssueResponse);
 
+  const getMRSecurityReportQuery = graphql.query('getMRSecurityReport', (req, res, ctx) =>
+    res(ctx.data(securtyFindingsResponse)),
+  );
+
   beforeEach(() => {
     dataProvider = new CurrentBranchDataProvider();
     refresher = new CurrentBranchRefresher();
@@ -55,7 +61,7 @@ describe('GitLab tree view for current branch', () => {
   });
 
   it('shows detached pipeline and mr for the current branch', async () => {
-    server = getServer([pipelinesForMrEndpoint, mrEndpoint]);
+    server = getServer([pipelinesForMrEndpoint, mrEndpoint, getMRSecurityReportQuery]);
     await refresher.refresh();
     const forCurrentBranch = await dataProvider.getChildren();
     assert.deepStrictEqual(
@@ -64,12 +70,19 @@ describe('GitLab tree view for current branch', () => {
         'Pipeline #47',
         '!33824 · Web IDE - remove unused actions (mappings)',
         'No closing issue found',
+        'Security scanning',
       ],
     );
   });
 
   it('shows standard pipeline, mr and closing issue for the current branch', async () => {
-    server = getServer([pipelinesEndpoint, mrEndpoint, issueEndpoint, closingIssuesEndpoint]);
+    server = getServer([
+      pipelinesEndpoint,
+      mrEndpoint,
+      issueEndpoint,
+      closingIssuesEndpoint,
+      getMRSecurityReportQuery,
+    ]);
     await refresher.refresh();
     const forCurrentBranch = await dataProvider.getChildren();
     assert.deepStrictEqual(
@@ -78,12 +91,18 @@ describe('GitLab tree view for current branch', () => {
         'Pipeline #47',
         '!33824 · Web IDE - remove unused actions (mappings)',
         '#219925 · Change primary button for editing on files',
+        'Security scanning',
       ],
     );
   });
 
   it('handles error for pipeline API request', async () => {
-    server = getServer([mrEndpoint, issueEndpoint, closingIssuesEndpoint]);
+    server = getServer([
+      mrEndpoint,
+      issueEndpoint,
+      closingIssuesEndpoint,
+      getMRSecurityReportQuery,
+    ]);
     await refresher.refresh();
     const forCurrentBranch = await dataProvider.getChildren();
     assert.deepStrictEqual(
@@ -92,22 +111,28 @@ describe('GitLab tree view for current branch', () => {
         'No pipeline found',
         '!33824 · Web IDE - remove unused actions (mappings)',
         '#219925 · Change primary button for editing on files',
+        'Security scanning',
       ],
     );
   });
 
   it('handles error for MR API request', async () => {
-    server = getServer([pipelinesEndpoint]);
+    server = getServer([pipelinesEndpoint, getMRSecurityReportQuery]);
     await refresher.refresh();
     const forCurrentBranch = await dataProvider.getChildren();
     assert.deepStrictEqual(
       forCurrentBranch.map(i => dataProvider.getTreeItem(i).label),
-      ['Pipeline #47', 'No merge request found', 'No closing issue found'],
+      [
+        'Pipeline #47',
+        'No merge request found',
+        'No closing issue found',
+        'No security scans found',
+      ],
     );
   });
 
   it('handles error for issue API request', async () => {
-    server = getServer([pipelinesEndpoint, mrEndpoint]);
+    server = getServer([pipelinesEndpoint, mrEndpoint, getMRSecurityReportQuery]);
     await refresher.refresh();
     const forCurrentBranch = await dataProvider.getChildren();
     assert.deepStrictEqual(
@@ -116,6 +141,7 @@ describe('GitLab tree view for current branch', () => {
         'Pipeline #47',
         '!33824 · Web IDE - remove unused actions (mappings)',
         'No closing issue found',
+        'Security scanning',
       ],
     );
   });

@@ -13,11 +13,10 @@ import { GitLabService } from './gitlab/gitlab_service';
 import { getTagsForHead } from './git/get_tags_for_head';
 import { DetachedHeadError } from './errors/detached_head_error';
 import { GqlSecurityFindingReport } from './gitlab/security_findings/api/get_security_finding_report';
-import { SECURITY_SCANS_FEATURE_FLAG } from './constants';
-import { getExtensionConfiguration } from '../common/utils/extension_configuration';
 import { getPipelinesForRef } from './gitlab/api/get_pipelines_for_ref';
 import { getPipelineAndMrForBranch } from './gitlab/get_pipeline_and_mr_for_branch';
 import { getAllSecurityReports } from './gitlab/security_findings/get_all_security_reports';
+import { isEnabled, FeatureFlag } from '../common/feature_flags';
 
 export interface BranchState {
   type: 'branch';
@@ -181,7 +180,7 @@ export class CurrentBranchRefresher {
       );
       const jobs = await getJobs(projectInRepository, pipeline);
       const minimalIssues = mr ? await gitLabService.getMrClosingIssues(project, mr.iid) : [];
-      if (mr && getExtensionConfiguration().featureFlags[SECURITY_SCANS_FEATURE_FLAG]) {
+      if (mr && isEnabled(FeatureFlag.SecurityScans)) {
         securityFindings = await getAllSecurityReports(
           gitLabService,
           projectInRepository.project,

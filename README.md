@@ -17,6 +17,7 @@ This extension integrates GitLab into Visual Studio Code. After you [set up the 
   or build a [custom search](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/custom-queries.md)
   to meet your needs.
 - [**Create and review merge requests**](#merge-request-reviews).
+- [**View security findings in your current branch**](#security-findings)
 - [**Validate your GitLab CI/CD configuration**](#validate-gitlab-cicd-configuration) locally with a [command](#commands).
 - [**Manage your pipelines**](#pipeline-actions). View your [pipeline status](#status-bar---details)
   and open the related merge request. With [advanced pipeline actions](#pipeline-actions),
@@ -34,7 +35,7 @@ If you face an issue, check out our [list of known issues](https://gitlab.com/gi
 
 ## Minimum supported version
 
-This extension supports GitLab versions 13.0 and later. Even though most of the extension's features work with older versions, we currently don't actively support GitLab instances below version 13.0.
+This extension supports GitLab versions 16.1 and later. Even though most of the extension's features work with older versions, we currently don't actively support GitLab instances below version 16.1.
 
 To find your GitLab version, visit `/help` (like `https://gitlab.com/help`).
 
@@ -182,6 +183,12 @@ You can see the issue and MR details by clicking on the issue item or by expandi
 To view the output of a job directly in VS Code, on the left sidebar, select the job. The output is updated automatically. To view the latest output, select **Scroll to Bottom**.
 
 ![view-job-output.png](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/9555acfd02253cb506d2b5e50dee7fde885fbddf/docs/assets/view-job-output.png)
+
+### Security findings
+
+If your project includes [Secure](https://about.gitlab.com/features/?stage=secure) features, then security findings are displayed for the currently checked out branch after you've opened a merge request for that branch and scans have completed. Secure features must be [configured](https://docs.gitlab.com/ee/user/application_security/secure_your_application.html).
+
+![_security_findings.gif](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d2887f4b98821a32ae861b2b7f45d3edbcac614e/docs/assets/security_findings.gif)
 
 ### Pipeline actions
 
