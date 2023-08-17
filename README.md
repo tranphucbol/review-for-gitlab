@@ -188,7 +188,7 @@ To view the output of a job directly in VS Code, on the left sidebar, select the
 
 If your project includes [Secure](https://about.gitlab.com/features/?stage=secure) features, then security findings are displayed for the currently checked out branch after you've opened a merge request for that branch and scans have completed. Secure features must be [configured](https://docs.gitlab.com/ee/user/application_security/secure_your_application.html).
 
-![_security_findings.gif](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/61cbf9c85b97e874b0574507ab52a83ae8769c86/docs/assets/security_findings.gif)
+![_security_findings.gif](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d2887f4b98821a32ae861b2b7f45d3edbcac614e/docs/assets/security_findings.gif)
 
 ### Pipeline actions
 
