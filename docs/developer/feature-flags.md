@@ -23,12 +23,32 @@ Open your `settings.json` and add configuration property similar to example belo
 
 ## Working with feature flags while contributing to the extension
 
+### Defining a feature flag
+
+Add your feature flag to the `common/feature_flags/constants.ts` module. You can
+also set a default value for the feature flag which allows enabling the feature
+flag by default in future releases:
+
+```typescript
+// Add your feature flag here
+export enum FeatureFlag {
+  Snippets = 'snippets',
+}
+
+// Set the feature flag default value here
+export const FEATURE_FLAGS_DEFAULT_VALUES = {
+  [FeatureFlag.Snippets]: true,
+};
+```
+
+### Checking if a feature flag is enabled
+
 Example of checking feature flag state in the source code
 
 ```typescript
-import { getExtensionConfiguration } from 'common/utils/extension_configuration';
+import { isEnabled, FeatureFlag } from 'common/feature_flags';
 
-if (getExtensionConfiguration().featureFlags['snippets']) {
+if (isEnabled(FeatureFlag.Snippets)) {
   // snippets are enabled
 }
 ```
@@ -38,6 +58,6 @@ Example of checking feature flag state in `package.json`
 ```
 {
   "command": "gl.createSnippet",
-  "when": "config.gitlab.featureFlags.snippets"
+  "when": "gitlab.featureFlags.snippets"
 }
 ```

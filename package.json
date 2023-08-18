@@ -49,7 +49,7 @@
           "type": "webview",
           "id": "gl.chatView",
           "name": "Chat",
-          "when": "config.gitlab.duoChat.enabled && config.gitlab.featureFlags.chat && gitlab:validState"
+          "when": "config.gitlab.duoChat.enabled && gitlab.featureFlags.chat && gitlab:validState"
         }
       ]
     },
@@ -85,15 +85,15 @@
       "commandPalette": [
         {
           "command": "gl.openChat",
-          "when": "config.gitlab.duoChat.enabled && config.gitlab.featureFlags.chat && gitlab:validState"
+          "when": "config.gitlab.duoChat.enabled && gitlab.featureFlags.chat && gitlab:validState"
         },
         {
           "command": "gl.explainSelectedCode",
-          "when": "config.gitlab.duoChat.enabled && config.gitlab.featureFlags.chat && gitlab:validState && editorHasSelection"
+          "when": "config.gitlab.duoChat.enabled && gitlab.featureFlags.chat && gitlab:validState && editorHasSelection"
         },
         {
           "command": "gl.newChatConversation",
-          "when": "config.gitlab.duoChat.enabled && config.gitlab.featureFlags.chat && gitlab:validState"
+          "when": "config.gitlab.duoChat.enabled && gitlab.featureFlags.chat && gitlab:validState"
         }
       ],
       "editor/context": [
@@ -106,24 +106,24 @@
         {
           "command": "gl.explainSelectedCode",
           "group": "navigation",
-          "when": "config.gitlab.duoChat.enabled && config.gitlab.featureFlags.chat && gitlab:validState && editorHasSelection"
+          "when": "config.gitlab.duoChat.enabled && gitlab.featureFlags.chat && gitlab:validState && editorHasSelection"
         }
       ]
     },
     "keybindings": [
       {
         "command": "gl.openChat",
-        "when": "config.gitlab.duoChat.enabled && config.gitlab.featureFlags.chat && gitlab:validState",
+        "when": "config.gitlab.duoChat.enabled && gitlab.featureFlags.chat && gitlab:validState",
         "key": "alt+o"
       },
       {
         "command": "gl.explainSelectedCode",
-        "when": "config.gitlab.duoChat.enabled && config.gitlab.featureFlags.chat && gitlab:validState && editorHasSelection",
+        "when": "config.gitlab.duoChat.enabled && gitlab.featureFlags.chat && gitlab:validState && editorHasSelection",
         "key": "alt+e"
       },
       {
         "command": "gl.newChatConversation",
-        "when": "config.gitlab.duoChat.enabled && config.gitlab.featureFlags.chat && gitlab:validState",
+        "when": "config.gitlab.duoChat.enabled && gitlab.featureFlags.chat && gitlab:validState",
         "key": "alt+n"
       }
     ],
