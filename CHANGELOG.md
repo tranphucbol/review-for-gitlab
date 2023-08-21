@@ -1,3 +1,14 @@
+# [3.74.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.73.0...v3.74.0) (2023-08-21)
+
+
+### Features
+
+* add toggle on/off for code suggestions ([efee9a1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/efee9a13b96f41e461e270299c870706269fc63e))
+* Enable security findings ([d2887f4](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/d2887f4b98821a32ae861b2b7f45d3edbcac614e))
+* Remove project requirement from Code Suggestions ([d1ae632](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/d1ae632dbeac03cec379cd635c1291bd9734aa05))
+
+
+
 # [3.73.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.72.3...v3.73.0) (2023-08-16)
 
 
