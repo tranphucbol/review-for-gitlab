@@ -33,5 +33,3 @@ export const activateChat = (context: vscode.ExtensionContext, manager: GitLabPl
     }),
   );
 };
-
-export const GITLAB_CHAT_FEATURE_FLAG = 'chat';

@@ -12,6 +12,7 @@ import {
   codeSuggestionsTelemetry,
 } from './code_suggestions_telemetry';
 import { GitLabProject } from '../platform/gitlab_project';
+import { isEnabled, FeatureFlag } from '../feature_flags';
 import {
   CodeSuggestionsStateManager,
   TemporaryCodeSuggestionsState,
@@ -23,7 +24,6 @@ import {
 import { prettyJson } from '../utils/json';
 import { COMMAND_CODE_SUGGESTION_ACCEPTED } from './commands/code_suggestion_accepted';
 import { PostRequest } from '../platform/web_ide';
-import { getExtensionConfiguration } from '../utils/extension_configuration';
 import { LegacyApiFallbackConfig } from './legacy_api_fallback_config';
 
 export const CIRCUIT_BREAK_INTERVAL_MS = 10000;
@@ -188,7 +188,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
 
     const gitlabMonolithApiAvailable =
       !this.legacyApiFallbackConfig.shouldUseModelGateway() ||
-      getExtensionConfiguration().featureFlags.forceCodeSuggestionsViaMonolith;
+      isEnabled(FeatureFlag.ForceCodeSuggestionsViaMonolith);
 
     try {
       this.stateManager.setTemporaryState(TemporaryCodeSuggestionsState.LOADING);
