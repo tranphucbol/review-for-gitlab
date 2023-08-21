@@ -4,9 +4,8 @@ import { GitLabProject } from './gitlab_project';
 /**
  * GitLabPlatform interface provides methods to fetch GitLab projects and make API requests.
  */
-export interface GitLabPlatform {
-  project: GitLabProject;
 
+export interface GitLabPlatformBase {
   fetchFromApi: fetchFromApi;
 
   /**
@@ -14,6 +13,15 @@ export interface GitLabPlatform {
    * (e.g. when calling Model Gateway for code suggestions)
    */
   getUserAgentHeader(): Record<string, string>;
+}
+
+export interface GitLabPlatformForActiveProject extends GitLabPlatformBase {
+  type: 'project';
+  project: GitLabProject;
+}
+
+export interface GitLabPlatformForActiveAccount extends GitLabPlatformBase {
+  type: 'account';
 }
 
 export interface GitLabPlatformManager {
@@ -28,5 +36,14 @@ export interface GitLabPlatformManager {
    * @param userInitiated - Indicates whether the user initiated the action.
    * @returns A Promise that resolves with the fetched GitLabProject or undefined if an active project does not exist.
    */
-  getForActiveProject(userInitiated: boolean): Promise<GitLabPlatform | undefined>;
+  getForActiveProject(userInitiated: boolean): Promise<GitLabPlatformForActiveProject | undefined>;
+
+  /**
+   * Returns a GitLabPlatform for the active account
+   *
+   * This is how we decide what is "active account":
+   *  - If the user has signed in to a single GitLab account, it will return that account.
+   *  - If the user has signed in to multiple GitLab accounts, a UI picker will request the user to choose the desired account.
+   */
+  getForActiveAccount(): Promise<GitLabPlatformForActiveAccount | undefined>;
 }

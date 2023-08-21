@@ -40,14 +40,20 @@ export const createGitLabPlatformManagerBrowser: () => Promise<GitLabPlatformMan
     }
 
     const gitLabProject = convertToGitLabProject(project);
+    const platformBase = {
+      fetchFromApi,
+      // browser won't let us change User-Agent header
+      // so we don't have to construct it
+      getUserAgentHeader: () => ({}),
+    };
+
     return {
       getForActiveProject: () =>
         Promise.resolve({
+          type: 'project',
           project: gitLabProject,
-          fetchFromApi,
-          // browser won't let us change User-Agent header
-          // so we don't have to construct it
-          getUserAgentHeader: () => ({}),
+          ...platformBase,
         }),
+      getForActiveAccount: async () => ({ type: 'account', ...platformBase }),
     };
   };

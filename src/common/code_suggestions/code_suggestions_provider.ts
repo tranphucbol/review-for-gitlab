@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import fetch from '../fetch_logged';
 import { log } from '../log';
 import { GITLAB_COM_URL } from '../constants';
-import { GitLabPlatform, GitLabPlatformManager } from '../platform/gitlab_platform';
+import { GitLabPlatformBase, GitLabPlatformManager } from '../platform/gitlab_platform';
 import { CodeSuggestionsTokenManager, CompletionToken } from './code_suggestions_token_manager';
 import { CircuitBreaker } from './circuit_breaker';
 import {
@@ -86,17 +86,19 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
   constructor({
     manager,
     stateManager,
+    legacyApiFallbackConfig,
     noDebounce = false,
   }: {
     manager: GitLabPlatformManager;
     stateManager: CodeSuggestionsStateManager;
+    legacyApiFallbackConfig: LegacyApiFallbackConfig;
     noDebounce?: boolean;
   }) {
     this.server = CodeSuggestionsProvider.#getServer();
     this.debouncedCall = undefined;
     this.noDebounce = noDebounce;
     this.tokenManager = new CodeSuggestionsTokenManager(manager);
-    this.legacyApiFallbackConfig = new LegacyApiFallbackConfig();
+    this.legacyApiFallbackConfig = legacyApiFallbackConfig;
     this.manager = manager;
     this.stateManager = stateManager;
   }
@@ -112,7 +114,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
   static #getPrompt(
     document: vscode.TextDocument,
     position: vscode.Position,
-    platform: GitLabPlatform,
+    project: GitLabProject | undefined,
   ): CodeSuggestionPrompt {
     const contentBeforeCursor = document.getText(
       new vscode.Range(0, 0, position.line, position.character),
@@ -124,9 +126,10 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
 
     const fileName = document.uri.path.split('/').pop() || '';
 
-    const projectInfo = isSaasProject(platform.project)
-      ? { project_id: platform.project.restId, project_path: platform.project.namespaceWithPath }
-      : {};
+    const projectInfo =
+      project && isSaasProject(project)
+        ? { project_id: project.restId, project_path: project.namespaceWithPath }
+        : {};
 
     const payload = {
       prompt_version: 1,
@@ -155,7 +158,8 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       return [];
     }
 
-    const platform = await this.manager.getForActiveProject(false);
+    const platform =
+      (await this.manager.getForActiveProject(false)) || (await this.manager.getForActiveAccount());
     if (!platform) {
       log.warn(
         'AI Assist: could not obtain suggestions, there is no active project. Open GitLab project to continue',
@@ -164,15 +168,12 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       return [];
     }
 
-    const prompt = CodeSuggestionsProvider.#getPrompt(document, position, platform);
-
-    // FIXME: when we start supporting SM, we need to get the token from the **platform**, now the project might not match the token
-    // Also, passing the project to the API might get deprecated: https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/merge_requests/143#note_1419849871
-    const token = await this.tokenManager.getToken();
-    if (!token) {
-      log.error('AI Assist: Could not fetch token');
-      return [];
+    let project;
+    if (platform.type === 'project') {
+      project = platform.project;
     }
+
+    const prompt = CodeSuggestionsProvider.#getPrompt(document, position, project);
 
     log.debug(
       `AI Assist: fetching completions ... (telemetry: ${prettyJson(
@@ -185,16 +186,23 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     let model: Model = { engine: '', name: '', lang: '' }; // Defaults for telemetry of failed requests
     let experiments: Experiment[] = [];
 
-    const gitlabMonolithApiAvailable = (project: GitLabProject) =>
-      !this.legacyApiFallbackConfig.shouldUseModelGateway() &&
-      (getExtensionConfiguration().featureFlags.forceCodeSuggestionsViaMonolith ||
-        isSaasProject(project));
+    const gitlabMonolithApiAvailable =
+      !this.legacyApiFallbackConfig.shouldUseModelGateway() ||
+      getExtensionConfiguration().featureFlags.forceCodeSuggestionsViaMonolith;
 
     try {
       this.stateManager.setTemporaryState(TemporaryCodeSuggestionsState.LOADING);
-      if (gitlabMonolithApiAvailable(platform.project)) {
-        response = await this.fetchCompletionsFromGitLab(platform, token, prompt);
+      if (gitlabMonolithApiAvailable) {
+        response = await this.fetchCompletionsFromGitLab(platform, prompt);
       } else {
+        // FIXME: when we start supporting SM, we need to get the token from the **platform**, now the project might not match the token
+        // Also, passing the project to the API might get deprecated: https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/merge_requests/143#note_1419849871
+        const token = await this.tokenManager.getToken();
+        if (!token) {
+          log.error('AI Assist: Could not fetch token');
+          return [];
+        }
+
         response = await this.fetchCompletions(platform, token, prompt);
       }
 
@@ -274,7 +282,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
   }
 
   async fetchCompletions(
-    platform: GitLabPlatform,
+    platform: GitLabPlatformBase,
     token: CompletionToken,
     prompt: CodeSuggestionPrompt,
   ): Promise<CodeSuggestionsResponse> {
@@ -300,8 +308,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
   }
 
   async fetchCompletionsFromGitLab(
-    platform: GitLabPlatform,
-    token: CompletionToken,
+    platform: GitLabPlatformBase,
     prompt: CodeSuggestionPrompt,
   ): Promise<CodeSuggestionsResponse> {
     log.debug(`AI Assist: fetching completions via monolith...`);
@@ -310,11 +317,6 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       method: 'POST',
       path: GITLAB_AI_ASSISTED_CODE_SUGGESTIONS_API_PATH,
       body: prompt,
-      headers: {
-        ...platform.getUserAgentHeader(),
-        'X-Gitlab-Authentication-Type': 'oidc',
-        'X-Gitlab-Oidc-Token': token.access_token,
-      },
     };
 
     let response: CodeSuggestionsResponse;
@@ -326,6 +328,10 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     } catch (e) {
       if ('status' in e && e.status === 403) {
         this.legacyApiFallbackConfig.fallbackToModelGateway();
+        const token = await this.tokenManager.getToken();
+        if (!token) {
+          throw new Error('AI Assist: Could not fetch token');
+        }
         response = await this.fetchCompletions(platform, token, prompt);
       } else {
         throw e;

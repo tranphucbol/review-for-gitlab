@@ -10,7 +10,13 @@ describe('CodeSuggestionsTokenManager', () => {
       makeApiRequest = jest.fn(async <T>(): Promise<T> => response as unknown as T);
       return {
         getForActiveProject: async () => ({
+          type: 'project',
           project,
+          fetchFromApi: jest.fn().mockRejectedValue('This path should never execute'),
+          getUserAgentHeader: () => ({}),
+        }),
+        getForActiveAccount: async () => ({
+          type: 'account',
           fetchFromApi: makeApiRequest,
           getUserAgentHeader: () => ({}),
         }),

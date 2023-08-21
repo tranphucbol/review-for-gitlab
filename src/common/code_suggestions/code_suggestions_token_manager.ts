@@ -32,7 +32,7 @@ export class CodeSuggestionsTokenManager {
       }
     }
 
-    const platform = await this.manager.getForActiveProject(false);
+    const platform = await this.manager.getForActiveAccount();
     if (!platform) {
       return undefined;
     }

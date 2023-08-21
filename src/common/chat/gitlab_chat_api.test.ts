@@ -44,7 +44,13 @@ describe('GitLabChatApi', () => {
 
     return {
       getForActiveProject: jest.fn(async () => ({
+        type: 'project' as const,
         project,
+        fetchFromApi: makeApiRequest,
+        getUserAgentHeader: () => ({}),
+      })),
+      getForActiveAccount: jest.fn(async () => ({
+        type: 'account' as const,
         fetchFromApi: makeApiRequest,
         getUserAgentHeader: () => ({}),
       })),
