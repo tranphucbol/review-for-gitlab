@@ -2,6 +2,7 @@ import { GitLabProject } from '../../../common/platform/gitlab_project';
 import { UserFriendlyError } from '../../errors/user_friendly_error';
 import { notNullOrUndefined } from '../../utils/not_null_or_undefined';
 import { GitLabService } from '../gitlab_service';
+import { log } from '../../../common/log';
 import {
   GqlSecurityFindingReport,
   getSecurityFindingsReport,
@@ -27,7 +28,13 @@ export const getAllSecurityReports = async (
   project: GitLabProject,
   mr: RestMr,
 ): Promise<GqlSecurityFindingReport | undefined> => {
-  await gitlabService.validateVersion('Security Findings', REQUIRED_VERSIONS.SECURITY_FINDINGS);
+  try {
+    await gitlabService.validateVersion('Security Findings', REQUIRED_VERSIONS.SECURITY_FINDINGS);
+  } catch (e) {
+    log.warn(e);
+    return undefined;
+  }
+
   try {
     // We cannot batch queries at the moment, and we can't pass in multiple report types in one query
     const reports = await Promise.all(

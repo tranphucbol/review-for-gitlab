@@ -2,6 +2,7 @@ import { getAllSecurityReports } from './get_all_security_reports';
 import { securityReport, mr } from '../../test_utils/entities';
 import { project } from '../../../common/test_utils/entities';
 import { GitLabService } from '../gitlab_service';
+import { log } from '../../../common/log';
 import {
   GetSecurityFindingsReportQuery,
   reportTypes,
@@ -11,6 +12,7 @@ import { ApiRequest } from '../../../common/platform/web_ide';
 import { UserFriendlyError } from '../../errors/user_friendly_error';
 
 jest.mock('../gitlab_service');
+jest.mock('../../../common/log');
 
 const createMockGitLabService = (): jest.Mocked<GitLabService> => {
   const partialService: jest.Mocked<Partial<GitLabService>> = {
@@ -79,11 +81,12 @@ describe('getAllSecurityReports', () => {
 
   it('checks minimum gitlab instance version', async () => {
     const testError = new Error('test');
+    const getLoggedMessage = () => jest.mocked(log.warn).mock.calls[0][0];
+
     service.validateVersion.mockRejectedValue(testError);
 
-    await expect(getAllSecurityReports(service, project, mr)).rejects.toThrow(
-      new UserFriendlyError('test', testError),
-    );
+    await getAllSecurityReports(service, project, mr);
+    expect(getLoggedMessage()).toEqual(testError);
 
     expect(service.validateVersion).toHaveBeenCalledWith('Security Findings', '16.1.0');
   });
