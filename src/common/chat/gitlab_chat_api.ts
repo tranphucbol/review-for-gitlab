@@ -14,7 +14,9 @@ export const AI_ACTIONS = {
   `,
 };
 
-type aiActionResponseType = { requestId: string; errors: string[] };
+type AiActionResponseType = {
+  aiAction: { requestId: string; errors: string[] };
+};
 
 export const AI_MESSAGES_QUERY = gql`
   query getAiMessages($requestIds: [ID!]) {
@@ -23,23 +25,28 @@ export const AI_MESSAGES_QUERY = gql`
         requestId
         role
         content
+        timestamp
         errors
       }
     }
   }
 `;
 
-interface AiMessage {
-  requestId: string;
-  role: string;
-  content?: string;
-  errors: string[];
-}
+type AiMessagesResponseType = {
+  aiMessages: {
+    nodes: {
+      requestId: string;
+      role: string;
+      content: string;
+      timestamp: string;
+      errors: string[];
+    }[];
+  };
+};
+type AiMessageResponseType = AiMessagesResponseType['aiMessages']['nodes'][0];
 
-const parseAiMessage = (message: AiMessage): AiMessage => {
+const parseMessageContent = <T extends { content: string }>(message: T): T => {
   const result = message;
-
-  if (result.errors.length > 0 || !result.content) return result;
 
   try {
     result.content = JSON.parse(result.content).content;
@@ -50,11 +57,35 @@ const parseAiMessage = (message: AiMessage): AiMessage => {
   return result;
 };
 
-const errorResponse = (requestId: string, errors: string[]): AiMessage => ({
+interface ErrorMessage {
+  type: 'error';
+  requestId: string;
+  role: 'system';
+  errors: string[];
+}
+
+const errorResponse = (requestId: string, errors: string[]): ErrorMessage => ({
   requestId,
   errors,
   role: 'system',
+  type: 'error',
 });
+
+interface SuccessMessage {
+  type: 'message';
+  requestId: string;
+  role: string;
+  content: string;
+  timestamp: string;
+  errors: string[];
+}
+
+const successResponse = (response: AiMessageResponseType): SuccessMessage => ({
+  type: 'message',
+  ...response,
+});
+
+type AiMessage = SuccessMessage | ErrorMessage;
 
 export class GitLabChatApi {
   #manager: GitLabPlatformManager;
@@ -68,7 +99,7 @@ export class GitLabChatApi {
   }
 
   private async processAiAction(actionQuery: string, variables: object): Promise<AiMessage> {
-    const { requestId, errors } = await this.sendAiAction(actionQuery, variables);
+    const { requestId, errors } = (await this.sendAiAction(actionQuery, variables)).aiAction;
 
     if (errors.length > 0) {
       return new Promise(resolve => {
@@ -86,8 +117,8 @@ export class GitLabChatApi {
     return platform;
   }
 
-  private async getAiMessage(requestId: string): Promise<AiMessage | undefined> {
-    const request: GraphQLRequest<{ aiMessages: { nodes: AiMessage[] } }> = {
+  private async getAiMessage(requestId: string): Promise<AiMessageResponseType | undefined> {
+    const request: GraphQLRequest<AiMessagesResponseType> = {
       type: 'graphql',
       query: AI_MESSAGES_QUERY,
       variables: { requestIds: [requestId] },
@@ -95,7 +126,7 @@ export class GitLabChatApi {
     const platform = await this.currentPlatform();
     const history = await platform.fetchFromApi(request);
 
-    return history.aiMessages.nodes.map(parseAiMessage)[0];
+    return history.aiMessages.nodes.map(parseMessageContent)[0];
   }
 
   private async pullAiMessage(requestId: string): Promise<AiMessage> {
@@ -107,22 +138,21 @@ export class GitLabChatApi {
       });
 
     return new Promise(resolve => {
-      resolve(response);
+      resolve(successResponse(response));
     });
   }
 
   private async sendAiAction(
     actionQuery: string,
     variables: object,
-  ): Promise<aiActionResponseType> {
+  ): Promise<AiActionResponseType> {
     const platform = await this.currentPlatform();
-    const request: GraphQLRequest<{ aiAction: aiActionResponseType }> = {
+    const request: GraphQLRequest<AiActionResponseType> = {
       type: 'graphql',
       query: actionQuery,
       variables: { resourceId: platform.project.gqlId, ...variables },
     };
-    const response = await platform.fetchFromApi(request);
 
-    return response.aiAction;
+    return platform.fetchFromApi(request);
   }
 }

@@ -62,13 +62,21 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
 
         await this.addToChat(responseRecord);
 
-        const { content, requestId, errors } = await this.#api.processNewUserPrompt(record.content);
+        const response = await this.#api.processNewUserPrompt(record.content);
 
-        responseRecord.content = content;
-        responseRecord.errors = errors;
-        responseRecord.requestId = requestId;
+        // eslint-disable-next-line no-param-reassign
+        record.requestId = response.requestId;
+
+        if (response.type !== 'error') {
+          responseRecord.content = response.content;
+          responseRecord.setTimestamp(response.timestamp);
+        }
+
+        responseRecord.errors = response.errors;
+        responseRecord.requestId = response.requestId;
         responseRecord.state = 'ready';
 
+        await this.#view.updateRecord(record);
         await this.#view.updateRecord(responseRecord);
       }
     }
