@@ -48,7 +48,7 @@
         {
           "type": "webview",
           "id": "gl.chatView",
-          "name": "Chat",
+          "name": "Chat (Experiment)",
           "when": "config.gitlab.duoChat.enabled && gitlab.featureFlags.chat && gitlab:validState"
         }
       ]
