@@ -144,6 +144,7 @@ describe('CodeSuggestionsProvider', () => {
       return 'after';
     },
     fileName: 'test.js',
+    languageId: 'javascript',
   } as vscode.TextDocument;
 
   const position = {
@@ -219,6 +220,7 @@ describe('CodeSuggestionsProvider', () => {
         expect(inputBody.current_file.content_above_cursor).toBe('before');
         expect(inputBody.current_file.content_below_cursor).toBe('after');
         expect(inputBody.current_file.file_name).toBe('test.js');
+        expect(inputBody.current_file.language_identifier).toBe('javascript');
         expect(inputBody.prompt_version).toBe(1);
         expect(inputBody.project_id).toBe(project.restId);
         expect(inputBody.project_path).toBe(project.namespaceWithPath);
