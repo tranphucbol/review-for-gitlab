@@ -44,7 +44,7 @@
       "script": "lint",
       "problemMatcher": ["$eslint-stylish"],
       "label": "npm: lint",
-      "detail": "eslint --ext .js --ext .ts . && prettier --check '**/*.{js,ts,vue,json}' && npm run --prefix webviews/vue lint"
+      "detail": "eslint --ext .js --ext .ts . && prettier --check '**/*.{js,ts,vue,json}' && npm run --prefix webviews/vue lint && npm run --prefix webviews/vue2 lint"
     }
   ]
 }
