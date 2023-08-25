@@ -5,8 +5,8 @@ import { prepareWebviews, generateAssets, writePackageJson, commonJobs } from '.
 import { ENVIRONMENTS } from '../constants.mjs';
 
 const browserWebviews = {
-  vue: ['gitlab_duo_chat'],
-  vue2: [],
+  vue: [],
+  vue2: ['gitlab_duo_chat'],
 };
 
 function typecheck(signal) {

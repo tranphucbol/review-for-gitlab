@@ -7,8 +7,8 @@ import { prepareWebviews, generateAssets, writePackageJson, commonJobs } from '.
 import { ENVIRONMENTS } from '../constants.mjs';
 
 const desktopWebviews = {
-  vue: ['gitlab_duo_chat', 'issuable'],
-  vue2: [],
+  vue: ['issuable'],
+  vue2: ['gitlab_duo_chat'],
 };
 
 export async function copyPendingJobAssets() {
