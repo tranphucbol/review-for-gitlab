@@ -186,7 +186,7 @@
     "package": "node scripts/package.mjs",
     "publish": "vsce publish",
     "clean": "node scripts/clean.mjs",
-    "lint": "eslint --ext .js --ext .ts --ext .mjs . && prettier --check '**/*.{js,ts,mjs,vue,json,md}' && npm run --prefix webviews/vue lint",
+    "lint": "eslint --ext .js --ext .ts --ext .mjs . && prettier --check '**/*.{js,ts,mjs,vue,json,md}' && npm run --prefix webviews/vue lint && npm run --prefix webviews/vue2 lint",
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "jest",
     "prepare:test:integration": "npm run build:desktop && cp -R node_modules dist-desktop/ && node scripts/create_test_workspace.mjs",
@@ -197,7 +197,7 @@
     "update-ci-variables": "node ./scripts/update_ci_variables.js",
     "create-test-workspace": "npm run build:desktop && node ./scripts/create_workspace_for_test_debugging.js",
     "version": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md",
-    "postinstall": "npm install --prefix webviews/vue && npm run prettier-package-json"
+    "postinstall": "npm install --prefix webviews/vue && npm install --prefix webviews/vue2 && npm run prettier-package-json"
   },
   "devDependencies": {
     "@jest/globals": "^29.5.0",

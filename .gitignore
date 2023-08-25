@@ -4,9 +4,12 @@ node_modules
 .history
 .DS_Store
 webviews/vue/**/dist
+webviews/vue2/**/dist
 dist-desktop/
 dist-browser/
 /coverage/
 /reports/
 .idea/
 test_workspace/
+webviews/vue2/.yarn
+.yarn

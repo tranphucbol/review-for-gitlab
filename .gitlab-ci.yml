@@ -38,6 +38,7 @@ lint:
     - apt-get update && apt-get install -y git
     - npm ci
     - cd webviews/vue && npm ci && cd ../.. # webview dependencies
+    - cd webviews/vue2 && npm ci && cd ../.. # webview dependencies
     - git checkout . # the npm install automatically fixes package.json formatting issues, but we need the CI to discover them so we revert any changes
     - npm run lint
 
@@ -107,6 +108,13 @@ test-webview:
   stage: test
   script:
     - cd webviews/vue
+    - npm ci
+    - npm run test
+
+test-webview2:
+  stage: test
+  script:
+    - cd webviews/vue2
     - npm ci
     - npm run test
 
