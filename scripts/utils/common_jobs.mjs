@@ -18,12 +18,16 @@ export async function cleanBuild(env) {
 }
 
 export async function prepareWebviews(webviews, env) {
-  await run('npm', ['run', '--prefix', path.join(root, 'webviews/vue'), 'build']);
-  webviews.forEach(async webview => {
-    await copy(
-      path.join(root, `webviews/vue/dist/${webview}`),
-      path.join(root, `dist-${env}/webviews/${webview}`),
-    );
+  const targets = Object.keys(webviews);
+
+  targets.forEach(async target => {
+    await run('npm', ['run', '--prefix', path.join(root, `webviews/${target}`), 'build']);
+    webviews[target].forEach(async webview => {
+      await copy(
+        path.join(root, `webviews/${target}/dist/${webview}`),
+        path.join(root, `dist-${env}/webviews/${webview}`),
+      );
+    });
   });
 }
 

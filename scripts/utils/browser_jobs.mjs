@@ -4,7 +4,10 @@ import { createBrowserPackageJson } from './packages.mjs';
 import { prepareWebviews, generateAssets, writePackageJson, commonJobs } from './common_jobs.mjs';
 import { ENVIRONMENTS } from '../constants.mjs';
 
-const browserWebviews = ['gitlab_duo_chat'];
+const browserWebviews = {
+  vue: ['gitlab_duo_chat'],
+  vue2: [],
+};
 
 function typecheck(signal) {
   return run('tsc', ['-p', root, '--noEmit'], { signal });
