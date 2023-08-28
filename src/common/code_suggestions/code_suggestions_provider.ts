@@ -124,8 +124,6 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       new vscode.Range(position.line, position.character, document.lineCount, 0),
     );
 
-    const fileName = document.uri.path.split('/').pop() || '';
-
     const projectInfo =
       project && isSaasProject(project)
         ? { project_id: project.restId, project_path: project.namespaceWithPath }
@@ -134,7 +132,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     const payload = {
       prompt_version: 1,
       current_file: {
-        file_name: fileName,
+        file_name: document.fileName,
         content_above_cursor: contentBeforeCursor,
         content_below_cursor: contentAfterCursor,
       },

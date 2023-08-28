@@ -135,7 +135,7 @@ describe('CodeSuggestionsProvider', () => {
       }
       return 'after';
     },
-    uri: vscode.Uri.parse('file:///file/path/test.js'),
+    fileName: 'test.js',
   } as vscode.TextDocument;
 
   const position = {
