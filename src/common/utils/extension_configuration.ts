@@ -17,6 +17,7 @@ export interface ExtensionConfiguration {
 
 export interface AiAssistedCodeSuggestionsConfiguration {
   enabled: boolean;
+  preferredAccount?: string;
 }
 
 // VS Code returns a value or `null` but undefined is better for using default function arguments
@@ -38,15 +39,20 @@ export function getAiAssistedCodeSuggestionsConfiguration(): AiAssistedCodeSugge
   );
   return {
     enabled: aiAssistedCodeSuggestionsConfig.enabled,
+    preferredAccount: aiAssistedCodeSuggestionsConfig.preferredAccount,
   };
 }
 
-export function setAiAssistedCodeSuggestionsConfiguration(
+export async function setAiAssistedCodeSuggestionsConfiguration(
   config: AiAssistedCodeSuggestionsConfiguration,
 ) {
   const aiAssistedCodeSuggestionsConfig = vscode.workspace.getConfiguration(
     AI_ASSISTED_CODE_SUGGESTIONS_CONFIG_NAMESPACE,
   );
 
-  return aiAssistedCodeSuggestionsConfig.update('enabled', Boolean(config.enabled));
+  await aiAssistedCodeSuggestionsConfig.update('enabled', Boolean(config.enabled));
+
+  if (typeof config.preferredAccount === 'string') {
+    await aiAssistedCodeSuggestionsConfig.update('preferredAccount', config.preferredAccount);
+  }
 }

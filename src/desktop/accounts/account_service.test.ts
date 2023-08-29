@@ -1,6 +1,6 @@
 import { createOAuthAccount, createTokenAccount } from '../test_utils/entities';
 import { SecretStorage } from '../test_utils/secret_storage';
-import { Account, OAuthAccount } from './account';
+import { Account, OAuthAccount } from '../../common/platform/gitlab_account';
 import { AccountService } from './account_service';
 
 const SECRETS_KEY = 'gitlab-tokens';

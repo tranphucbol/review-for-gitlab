@@ -7,7 +7,12 @@ import { hasPresentKey } from '../utils/has_present_key';
 import { notNullOrUndefined } from '../utils/not_null_or_undefined';
 import { removeTrailingSlash } from '../utils/remove_trailing_slash';
 import { uniq } from '../utils/uniq';
-import { Account, makeAccountId, OAuthAccount, TokenAccount } from './account';
+import {
+  Account,
+  makeAccountId,
+  OAuthAccount,
+  TokenAccount,
+} from '../../common/platform/gitlab_account';
 import { Credentials } from './credentials';
 
 interface TokenSecret {

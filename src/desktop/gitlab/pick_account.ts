@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { Account } from '../accounts/account';
+import { Account } from '../../common/platform/gitlab_account';
 import { accountService } from '../accounts/account_service';
 
 export async function pickAccount(): Promise<Account | undefined> {

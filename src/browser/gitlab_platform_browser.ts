@@ -55,5 +55,11 @@ export const createGitLabPlatformManagerBrowser: () => Promise<GitLabPlatformMan
           ...platformBase,
         }),
       getForActiveAccount: async () => ({ type: 'account', ...platformBase }),
+      getForAllAccounts: async () => [
+        {
+          type: 'account',
+          ...platformBase,
+        },
+      ],
     };
   };

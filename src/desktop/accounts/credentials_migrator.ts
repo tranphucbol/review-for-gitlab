@@ -2,7 +2,7 @@ import { ExtensionContext } from 'vscode';
 import { log } from '../../common/log';
 import { notNullOrUndefined } from '../utils/not_null_or_undefined';
 import { removeTrailingSlash } from '../utils/remove_trailing_slash';
-import { makeAccountId } from './account';
+import { makeAccountId } from '../../common/platform/gitlab_account';
 import { AccountService } from './account_service';
 import { getUserForCredentialsOrFail } from './get_user_for_credentials_or_fail';
 

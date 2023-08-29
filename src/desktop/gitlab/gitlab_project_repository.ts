@@ -19,7 +19,7 @@ import { log } from '../../common/log';
 import { jsonStringifyWithSortedKeys } from '../utils/json_stringify_with_sorted_keys';
 import { prettyJson } from '../../common/utils/json';
 import { EnsureLatestPromise } from '../utils/ensure_latest_promise';
-import { Account } from '../accounts/account';
+import { Account } from '../../common/platform/gitlab_account';
 import { tryToGetProjectFromInstance } from './try_to_get_project_from_instance';
 
 interface ParsedProject {

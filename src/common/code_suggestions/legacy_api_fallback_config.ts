@@ -1,8 +1,8 @@
 import { coerce, gte, valid } from 'semver';
-import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { GetRequest } from '../platform/web_ide';
 import { NEW_CODE_SUGGESTION_GITLAB_RELEASE } from './constants';
 import { log } from '../log';
+import { GitLabPlatformManagerForCodeSuggestions } from './gitlab_platform_manager_for_code_suggestions';
 
 export class LegacyApiFallbackConfig {
   private tryAgainAfterTimestamp = 0;
@@ -13,7 +13,7 @@ export class LegacyApiFallbackConfig {
 
   private isLegacyVersion;
 
-  constructor(manager: GitLabPlatformManager) {
+  constructor(manager: GitLabPlatformManagerForCodeSuggestions) {
     this.manager = manager;
     this.isLegacyVersion = true;
   }
@@ -39,7 +39,8 @@ export class LegacyApiFallbackConfig {
       return;
     }
 
-    const platform = await this.manager.getForActiveAccount();
+    const platform = await this.manager.getGitLabPlatform();
+
     if (!platform) {
       log.error(`Could not intialise API client, falling back to legacy code suggestions API`);
       this.flagLegacyVersion();

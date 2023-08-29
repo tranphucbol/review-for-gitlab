@@ -140,6 +140,11 @@
           "type": "boolean",
           "default": true
         },
+        "gitlab.aiAssistedCodeSuggestions.preferredAccount": {
+          "description": "GitLab account to use for code completion",
+          "type": "string",
+          "default": null
+        },
         "gitlab.duoChat.enabled": {
           "description": "Enable GitLab Duo Chat assistant (Beta)",
           "type": "boolean",

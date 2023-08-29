@@ -3,7 +3,7 @@ import { GitRemote, GitRepository } from '../git/new_git';
 import { CustomQueryType } from '../../common/gitlab/custom_query_type';
 import { ProjectInRepository } from '../gitlab/new_project';
 import { ReviewParams as ReviewUriParams } from '../review/review_uri';
-import { makeAccountId, OAuthAccount, TokenAccount } from '../accounts/account';
+import { makeAccountId, OAuthAccount, TokenAccount } from '../../common/platform/gitlab_account';
 import { createFakeRepository } from './fake_git_extension';
 import { InMemoryMemento } from '../../../test/integration/test_infrastructure/in_memory_memento';
 import { SecretStorage } from './secret_storage';

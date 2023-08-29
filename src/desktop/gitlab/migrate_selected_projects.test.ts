@@ -1,6 +1,6 @@
 import { ExtensionContext } from 'vscode';
 import { InMemoryMemento } from '../../../test/integration/test_infrastructure/in_memory_memento';
-import { makeAccountId } from '../accounts/account';
+import { makeAccountId } from '../../common/platform/gitlab_account';
 import { AccountService } from '../accounts/account_service';
 import { createTokenAccount } from '../test_utils/entities';
 import { SecretStorage } from '../test_utils/secret_storage';

@@ -59,6 +59,7 @@ describe('GitLabChatApi', () => {
         fetchFromApi: makeApiRequest,
         getUserAgentHeader: () => ({}),
       })),
+      getForAllAccounts: jest.fn(),
     };
   };
 

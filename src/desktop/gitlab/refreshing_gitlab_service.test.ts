@@ -1,4 +1,4 @@
-import { Account } from '../accounts/account';
+import { Account } from '../../common/platform/gitlab_account';
 import { AccountService } from '../accounts/account_service';
 import { createExtensionContext, createOAuthAccount } from '../test_utils/entities';
 import { RefreshingGitLabService } from './refreshing_gitlab_service';

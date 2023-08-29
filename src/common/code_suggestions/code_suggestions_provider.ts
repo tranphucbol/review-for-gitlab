@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import fetch from '../fetch_logged';
 import { log } from '../log';
 import { GITLAB_COM_URL } from '../constants';
-import { GitLabPlatformBase, GitLabPlatformManager } from '../platform/gitlab_platform';
+import { GitLabPlatformBase } from '../platform/gitlab_platform';
 import { CodeSuggestionsTokenManager, CompletionToken } from './code_suggestions_token_manager';
 import { CircuitBreaker } from './circuit_breaker';
 import {
@@ -25,6 +25,7 @@ import { prettyJson } from '../utils/json';
 import { COMMAND_CODE_SUGGESTION_ACCEPTED } from './commands/code_suggestion_accepted';
 import { PostRequest } from '../platform/web_ide';
 import { LegacyApiFallbackConfig } from './legacy_api_fallback_config';
+import { GitLabPlatformManagerForCodeSuggestions } from './gitlab_platform_manager_for_code_suggestions';
 
 export const CIRCUIT_BREAK_INTERVAL_MS = 10000;
 export const MAX_ERRORS_BEFORE_CIRCUIT_BREAK = 4;
@@ -72,7 +73,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
 
   private tokenManager: CodeSuggestionsTokenManager;
 
-  private manager: GitLabPlatformManager;
+  private manager: GitLabPlatformManagerForCodeSuggestions;
 
   private stateManager: CodeSuggestionsStateManager;
 
@@ -89,7 +90,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     legacyApiFallbackConfig,
     noDebounce = false,
   }: {
-    manager: GitLabPlatformManager;
+    manager: GitLabPlatformManagerForCodeSuggestions;
     stateManager: CodeSuggestionsStateManager;
     legacyApiFallbackConfig: LegacyApiFallbackConfig;
     noDebounce?: boolean;
@@ -158,11 +159,11 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       return [];
     }
 
-    const platform =
-      (await this.manager.getForActiveProject(false)) || (await this.manager.getForActiveAccount());
+    const platform = await this.manager.getGitLabPlatform();
+
     if (!platform) {
       log.warn(
-        'AI Assist: could not obtain suggestions, there is no active project. Open GitLab project to continue',
+        'AI Assist: could not obtain suggestions, there is no active project or GitLab account registered. Open GitLab project to continue',
       );
       this.stateManager.setTemporaryState(TemporaryCodeSuggestionsState.ERROR);
       return [];

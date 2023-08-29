@@ -1,4 +1,4 @@
-import { Credentials } from '../accounts/credentials';
+import { Credentials } from '../../common/platform/gitlab_account';
 
 export const testCredentials = (instanceUrl = 'https://gitlab.example.com'): Credentials => ({
   instanceUrl,

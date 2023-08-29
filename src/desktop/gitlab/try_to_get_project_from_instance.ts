@@ -1,4 +1,4 @@
-import { Account } from '../accounts/account';
+import { Account } from '../../common/platform/gitlab_account';
 import { log } from '../../common/log';
 import { convertToGitLabProject, getProject } from '../../common/gitlab/api/get_project';
 import { getGitLabServiceForAccount } from './get_gitlab_service';

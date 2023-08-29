@@ -3,7 +3,7 @@ import { setupCodeSuggestionsPromo } from './code_suggestions_promo';
 import { DISMISSED_CODE_SUGGESTIONS_PROMO } from './constants';
 import { accountService } from './accounts/account_service';
 import { InMemoryMemento } from '../../test/integration/test_infrastructure/in_memory_memento';
-import { TokenAccount } from './accounts/account';
+import { TokenAccount } from '../common/platform/gitlab_account';
 
 jest.mock('./accounts/account_service', () => ({
   accountService: {

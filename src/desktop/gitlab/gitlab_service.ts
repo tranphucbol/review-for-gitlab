@@ -51,7 +51,7 @@ import {
 import { makeMarkdownLinksAbsolute } from '../utils/make_markdown_links_absolute';
 import { makeHtmlLinksAbsolute } from '../utils/make_html_links_absolute';
 import { HelpError } from '../errors/help_error';
-import { Credentials } from '../accounts/credentials';
+import { Credentials } from '../../common/platform/gitlab_account';
 import { newCreateNoteMutation, oldCreateNoteMutation } from './graphql/create_note';
 import { createQueryString, QueryValue } from '../utils/create_query_string';
 import { ApiRequest, fetchFromApi } from '../../common/platform/web_ide';
