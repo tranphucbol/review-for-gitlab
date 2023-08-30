@@ -8,6 +8,7 @@ import {
 } from './code_suggestions/commands/code_suggestion_accepted';
 import { COMMAND_SHOW_OUTPUT, createShowOutputCommand } from './show_output_command';
 import { activateChat } from './chat/gitlab_chat';
+import { setupTelemetry } from './setup_telemetry';
 
 export const activateCommon = async (
   context: vscode.ExtensionContext,
@@ -15,6 +16,8 @@ export const activateCommon = async (
   outputChannel: vscode.OutputChannel,
 ) => {
   context.subscriptions.push(initializeFeatureFlagContext());
+
+  setupTelemetry();
 
   const commands = {
     [COMMAND_SHOW_OUTPUT]: createShowOutputCommand(outputChannel),
