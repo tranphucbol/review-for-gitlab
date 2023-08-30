@@ -358,6 +358,13 @@ describe('CodeSuggestionsProvider', () => {
       await getCompletionsWithDefaultArgs(glcp);
       expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.ERROR);
     });
+
+    it('sets state to error when completion is requested with no active account', async () => {
+      jest.spyOn(manager, 'getGitLabPlatform').mockResolvedValueOnce(undefined);
+
+      await getCompletionsWithDefaultArgs(glcp);
+      expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.ERROR);
+    });
   });
 
   describe('telemetry', () => {

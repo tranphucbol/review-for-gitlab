@@ -163,7 +163,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
 
     if (!platform) {
       log.warn(
-        'AI Assist: could not obtain suggestions, there is no active project or GitLab account registered. Open GitLab project to continue',
+        'AI Assist: could not obtain suggestions, there is no active project or GitLab account registered. Open GitLab project or authorise to GitLab account with code suggestions enabled to continue.',
       );
       this.stateManager.setTemporaryState(TemporaryCodeSuggestionsState.ERROR);
       return [];

@@ -100,7 +100,7 @@ describe('code_suggestions/GitLabPlatformForCodeSuggestions', () => {
           .mockResolvedValueOnce([gitlabPlatformForAccount]);
       });
 
-      it('returns undefined', async () => {
+      it('returns gitlab platform for that account', async () => {
         expect(await platformManagerForCodeSuggestions.getGitLabPlatform()).toBe(
           gitlabPlatformForAccount,
         );
