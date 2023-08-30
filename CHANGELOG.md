@@ -1,3 +1,20 @@
+# [3.75.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.74.0...v3.75.0) (2023-08-30)
+
+
+### Bug Fixes
+
+* Fix gitlab platform creation for code suggestions ([36debb3](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/36debb321c98d6084f10691c4dd3a973444eccc6))
+* handle security findings validation gracefuly ([3d20b8a](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/3d20b8a090f2a54f467aa70f956b487a76fc777e))
+
+
+### Features
+
+* introduced support for Vue2 webviews ([679c62b](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/679c62b4ffa87f1797f3c16b83028f484ad9fd2a))
+* mark chat window as experiment ([cd46c85](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/cd46c854acfdec51fc81badaf74f1e5161922247))
+* **telemetry:** Added Track Telemetry to Platform ([179fb19](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/179fb19e652380e7e8bd7cc464cda2676c1e9d48)), closes [gitlab-org/modelops/applied-ml/code-suggestions/ai-assist#254](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/issues/254)
+
+
+
 # [3.74.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.73.0...v3.74.0) (2023-08-21)
 
 
