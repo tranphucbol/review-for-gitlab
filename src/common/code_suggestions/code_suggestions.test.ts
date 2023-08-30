@@ -37,6 +37,7 @@ const manager: GitLabPlatformManager = {
     fetchFromApi: apiClientMock,
     getUserAgentHeader: () => ({}),
   })),
+  getForAllAccounts: jest.fn(),
 };
 
 describe('CodeSuggestions', () => {

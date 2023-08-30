@@ -5,7 +5,7 @@ import { openUrl } from '../../commands/openers';
 import { PromiseAdapter, promiseFromEvent } from '../../utils/promise_from_event';
 import { GitLabUriHandler, gitlabUriHandler } from '../../gitlab_uri_handler';
 import { accountService, AccountService } from '../account_service';
-import { OAuthAccount } from '../account';
+import { OAuthAccount } from '../../../common/platform/gitlab_account';
 import { sort } from '../../utils/sort';
 import { OAUTH_CLIENT_ID, OAUTH_REDIRECT_URI } from '../../constants';
 import { GITLAB_COM_URL } from '../../../common/constants';

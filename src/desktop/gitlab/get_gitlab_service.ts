@@ -1,4 +1,4 @@
-import { Account } from '../accounts/account';
+import { Account } from '../../common/platform/gitlab_account';
 import { GitLabService } from './gitlab_service';
 import { ProjectInRepository } from './new_project';
 import { RefreshingGitLabService } from './refreshing_gitlab_service';

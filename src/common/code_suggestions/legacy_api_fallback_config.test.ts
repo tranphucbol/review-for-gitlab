@@ -1,22 +1,24 @@
 import { LegacyApiFallbackConfig } from './legacy_api_fallback_config';
+import { GitLabPlatformManagerForCodeSuggestions } from './gitlab_platform_manager_for_code_suggestions';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 
 const fetchFromApiMock = jest.fn();
 
-const manager: GitLabPlatformManager = {
-  getForActiveProject: jest.fn().mockRejectedValue('This path should not execute'),
-  getForActiveAccount: async () => ({
-    type: 'account',
-    fetchFromApi: fetchFromApiMock,
-    getUserAgentHeader: () => ({}),
-  }),
-};
+const manager = new GitLabPlatformManagerForCodeSuggestions({} as unknown as GitLabPlatformManager);
 
 describe('LegacyApiFallbackConfig', () => {
   let config: LegacyApiFallbackConfig;
 
+  beforeEach(() => {
+    jest.spyOn(manager, 'getGitLabPlatform').mockResolvedValue({
+      type: 'account',
+      fetchFromApi: fetchFromApiMock,
+      getUserAgentHeader: () => ({}),
+    });
+  });
+
   afterEach(() => {
-    fetchFromApiMock.mockClear();
+    jest.clearAllMocks();
   });
 
   describe('for non legacy api', () => {

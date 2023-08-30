@@ -1,5 +1,5 @@
 import { PostRequest } from '../platform/web_ide';
-import { GitLabPlatformManager } from '../platform/gitlab_platform';
+import { GitLabPlatformManagerForCodeSuggestions } from './gitlab_platform_manager_for_code_suggestions';
 
 export interface CompletionToken {
   access_token: string;
@@ -16,11 +16,11 @@ const tokenRequest: PostRequest<CompletionToken> = {
 };
 
 export class CodeSuggestionsTokenManager {
-  private manager: GitLabPlatformManager;
+  private manager: GitLabPlatformManagerForCodeSuggestions;
 
   private currentToken: CompletionToken | undefined;
 
-  constructor(manager: GitLabPlatformManager) {
+  constructor(manager: GitLabPlatformManagerForCodeSuggestions) {
     this.manager = manager;
   }
 
@@ -32,7 +32,7 @@ export class CodeSuggestionsTokenManager {
       }
     }
 
-    const platform = await this.manager.getForActiveAccount();
+    const platform = await this.manager.getGitLabPlatform();
     if (!platform) {
       return undefined;
     }

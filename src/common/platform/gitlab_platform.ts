@@ -1,10 +1,10 @@
 import { fetchFromApi } from './web_ide';
 import { GitLabProject } from './gitlab_project';
+import { Account } from './gitlab_account';
 
 /**
  * GitLabPlatform interface provides methods to fetch GitLab projects and make API requests.
  */
-
 export interface GitLabPlatformBase {
   fetchFromApi: fetchFromApi;
 
@@ -20,8 +20,9 @@ export interface GitLabPlatformForActiveProject extends GitLabPlatformBase {
   project: GitLabProject;
 }
 
-export interface GitLabPlatformForActiveAccount extends GitLabPlatformBase {
+export interface GitLabPlatformForAccount extends GitLabPlatformBase {
   type: 'account';
+  account?: Account;
 }
 
 export interface GitLabPlatformManager {
@@ -45,5 +46,7 @@ export interface GitLabPlatformManager {
    *  - If the user has signed in to a single GitLab account, it will return that account.
    *  - If the user has signed in to multiple GitLab accounts, a UI picker will request the user to choose the desired account.
    */
-  getForActiveAccount(): Promise<GitLabPlatformForActiveAccount | undefined>;
+  getForActiveAccount(): Promise<GitLabPlatformForAccount | undefined>;
+
+  getForAllAccounts(): Promise<GitLabPlatformForAccount[]>;
 }

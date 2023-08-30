@@ -1,6 +1,6 @@
 import { RemoteSource, RemoteSourceProvider } from '../../api/git';
 import { GitLabService } from '../gitlab_service';
-import { Account } from '../../accounts/account';
+import { Account } from '../../../common/platform/gitlab_account';
 import { getGitLabServiceForAccount } from '../get_gitlab_service';
 import {
   GqlProjectWithRepoInfo,

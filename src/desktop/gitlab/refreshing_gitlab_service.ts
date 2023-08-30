@@ -1,5 +1,4 @@
-import { Account } from '../accounts/account';
-import { Credentials } from '../accounts/credentials';
+import { Account, Credentials } from '../../common/platform/gitlab_account';
 import { GitLabService } from './gitlab_service';
 import { TokenExchangeService, tokenExchangeService } from './token_exchange_service';
 

@@ -1,7 +1,7 @@
-import { Credentials } from './credentials';
-
-export const makeAccountId = (instanceUrl: string, userId: string | number) =>
-  `${instanceUrl}|${userId}`;
+export interface Credentials {
+  instanceUrl: string;
+  token: string;
+}
 
 interface AccountBase extends Credentials {
   username: string;
@@ -22,3 +22,6 @@ export type Account = TokenAccount | OAuthAccount;
 
 export const serializeAccountSafe = (account: Account) =>
   JSON.stringify(account, ['instanceUrl', 'id', 'username', 'scopes']);
+
+export const makeAccountId = (instanceUrl: string, userId: string | number) =>
+  `${instanceUrl}|${userId}`;

@@ -1,4 +1,5 @@
 import { GqlProject, convertToGitLabProject } from '../gitlab/api/get_project';
+import { Account } from '../platform/gitlab_account';
 import { GitLabProject } from '../platform/gitlab_project';
 
 export const gqlProject: GqlProject = {
@@ -13,3 +14,11 @@ export const gqlProject: GqlProject = {
 };
 
 export const project: GitLabProject = convertToGitLabProject(gqlProject);
+
+export const account: Account = {
+  username: 'foobar',
+  id: 'foobar',
+  type: 'token',
+  instanceUrl: 'gitlab-instance.xx',
+  token: 'foobar-token',
+};

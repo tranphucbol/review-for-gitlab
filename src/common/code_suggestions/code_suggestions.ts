@@ -11,6 +11,7 @@ import {
 } from '../utils/extension_configuration';
 import { COMMAND_TOGGLE_CODE_SUGGESTIONS, toggleCodeSuggestions } from './commands/toggle';
 import { LegacyApiFallbackConfig } from './legacy_api_fallback_config';
+import { GitLabPlatformManagerForCodeSuggestions } from './gitlab_platform_manager_for_code_suggestions';
 
 export class CodeSuggestions {
   stateManager = new CodeSuggestionsStateManager();
@@ -31,9 +32,11 @@ export class CodeSuggestions {
       () => toggleCodeSuggestions({ stateManager: this.stateManager }),
     );
 
+    const platformManagerForCodeSuggestions = new GitLabPlatformManagerForCodeSuggestions(manager);
+
     this.statusBarItem = new CodeSuggestionsStatusBarItem(this.stateManager);
 
-    this.legacyApiFallbackConfig = new LegacyApiFallbackConfig(manager);
+    this.legacyApiFallbackConfig = new LegacyApiFallbackConfig(platformManagerForCodeSuggestions);
 
     const updateCodeSuggestionsStateForEditor = (editor?: vscode.TextEditor) => {
       if (!editor) return;
@@ -51,7 +54,7 @@ export class CodeSuggestions {
       this.providerDisposable = vscode.languages.registerInlineCompletionItemProvider(
         AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.map(language => ({ language })),
         new CodeSuggestionsProvider({
-          manager,
+          manager: platformManagerForCodeSuggestions,
           legacyApiFallbackConfig: this.legacyApiFallbackConfig,
           stateManager: this.stateManager,
         }),

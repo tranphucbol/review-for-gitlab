@@ -21,6 +21,7 @@ import { COMMAND_CODE_SUGGESTION_ACCEPTED } from './commands/code_suggestion_acc
 import { GITLAB_AI_ASSISTED_CODE_SUGGESTIONS_API_PATH } from './constants';
 import { ApiRequest, PostRequest } from '../platform/web_ide';
 import { LegacyApiFallbackConfig } from './legacy_api_fallback_config';
+import { GitLabPlatformManagerForCodeSuggestions } from './gitlab_platform_manager_for_code_suggestions';
 
 jest.mock('../log');
 jest.mock('../fetch_logged');
@@ -74,22 +75,29 @@ const token = {
 };
 
 function createManager(
-  project: GitLabProject,
+  platformProject?: GitLabProject,
   fetchFromApiMock = jest.fn().mockResolvedValue(token),
-): GitLabPlatformManager {
-  return {
-    getForActiveProject: jest.fn(async () => ({
-      type: 'project' as const,
-      project,
-      fetchFromApi: fetchFromApiMock,
-      getUserAgentHeader: () => ({}),
-    })),
-    getForActiveAccount: jest.fn(async () => ({
-      type: 'account' as const,
-      fetchFromApi: fetchFromApiMock,
-      getUserAgentHeader: () => ({}),
-    })),
-  };
+): GitLabPlatformManagerForCodeSuggestions {
+  const manager = new GitLabPlatformManagerForCodeSuggestions(
+    {} as unknown as GitLabPlatformManager,
+  );
+
+  jest.spyOn(manager, 'getGitLabPlatform').mockResolvedValue(
+    platformProject
+      ? {
+          type: 'project',
+          project: platformProject,
+          fetchFromApi: fetchFromApiMock,
+          getUserAgentHeader: () => ({}),
+        }
+      : {
+          type: 'account',
+          fetchFromApi: fetchFromApiMock,
+          getUserAgentHeader: () => ({}),
+        },
+  );
+
+  return manager;
 }
 
 let manager = createManager(project);
@@ -233,22 +241,6 @@ describe('CodeSuggestionsProvider', () => {
       expect(inputBody.project_id).toBe(undefined);
       expect(inputBody.project_path).toBe(undefined);
     });
-
-    it('should request suggestions even without project', async () => {
-      const fetchFromApiMock = jest.fn();
-      manager = createManager(projectForSelfManaged, fetchFromApiMock);
-      const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
-        manager,
-        legacyApiFallbackConfig: createLegacyApiFallbackConfig(false),
-        stateManager,
-      });
-
-      jest.mocked(manager).getForActiveProject.mockResolvedValue(undefined);
-
-      await glcp.getCompletions({ document: testDocument, position, cancellationToken });
-
-      expect(manager.getForActiveAccount).toHaveBeenCalledTimes(1);
-    });
   });
 
   describe('provideInlineCompletionItems', () => {
@@ -368,8 +360,8 @@ describe('CodeSuggestionsProvider', () => {
     });
 
     it('sets state to error when completion is requested with no active account', async () => {
-      asMock(manager.getForActiveProject).mockResolvedValueOnce(null);
-      asMock(manager.getForActiveAccount).mockResolvedValueOnce(null);
+      jest.spyOn(manager, 'getGitLabPlatform').mockResolvedValueOnce(undefined);
+
       await getCompletionsWithDefaultArgs(glcp);
       expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.ERROR);
     });

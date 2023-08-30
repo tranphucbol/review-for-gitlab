@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { ExtensionState } from './extension_state';
 import { accountService } from './accounts/account_service';
 import { gitExtensionWrapper } from './git/git_extension_wrapper';
-import { Account } from './accounts/account';
+import { Account } from '../common/platform/gitlab_account';
 import { createTokenAccount } from './test_utils/entities';
 
 describe('extension_state', () => {

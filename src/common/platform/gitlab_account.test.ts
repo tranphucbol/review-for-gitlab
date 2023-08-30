@@ -1,6 +1,6 @@
-import { serializeAccountSafe } from './account';
+import { serializeAccountSafe } from './gitlab_account';
 
-describe('accounts/account', () => {
+describe('accounts/gitlab_account', () => {
   describe('serializeAccountSafe', () => {
     it('only includes safe properties', () => {
       const safeProps = {
