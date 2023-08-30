@@ -10,7 +10,6 @@ export default function buildConfigForWebview(name) {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
       },
     },
-    root: `./${name}`,
     build: {
       // TODO: split the config into dev and prod versions and enable inline sourcemaps in the dev
       // you can set sourcemaps to 'inline' for webview debugging
@@ -20,7 +19,6 @@ export default function buildConfigForWebview(name) {
       rollupOptions: {
         input: `${name}/index.html`,
         output: {
-          dir: 'dist',
           entryFileNames: `${name}/assets/app.js`,
           assetFileNames: `${name}/assets/[name].[ext]`,
         },

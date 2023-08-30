@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "watch": "vite build --watch",
+    "chat": "vite --config gitlab_duo_chat/vite.config.js build",
+    "chat-watch": "vite --config gitlab_duo_chat/vite.config.js build --watch",
+    "build": "rm -rf dist/ && npm run chat",
+    "watch": "rm -rf dist/ && npm run chat-watch",
     "test": "",
     "preview": "vite preview --port 4173",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"

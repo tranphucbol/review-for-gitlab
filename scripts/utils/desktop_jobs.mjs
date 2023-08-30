@@ -6,7 +6,10 @@ import { createDesktopPackageJson } from './packages.mjs';
 import { prepareWebviews, generateAssets, writePackageJson, commonJobs } from './common_jobs.mjs';
 import { ENVIRONMENTS } from '../constants.mjs';
 
-const desktopWebviews = ['gitlab_duo_chat', 'issuable'];
+const desktopWebviews = {
+  vue: ['issuable'],
+  vue2: ['gitlab_duo_chat'],
+};
 
 export async function copyPendingJobAssets() {
   return copyFile(
@@ -57,14 +60,17 @@ export async function preparePackageFiles() {
   await run('cp', ['-R', path.join(root, 'node_modules'), path.join(root, 'dist-desktop')]);
 }
 
-export async function watchWebviews(signal) {
-  desktopWebviews.forEach(webview => {
-    const dirpath = path.join(root, `webviews/vue/dist/${webview}`);
-    if (!fs.existsSync(dirpath)) fs.mkdirSync(dirpath, { recursive: true });
-    fs.symlinkSync(dirpath, path.join(root, `dist-desktop/webviews/${webview}`));
-  });
-  await run('npm', ['run', '--prefix', path.join(root, 'webviews/vue'), 'watch'], {
-    signal,
+export function watchWebviews(signal) {
+  const targets = Object.keys(desktopWebviews);
+  targets.forEach(async target => {
+    desktopWebviews[target].forEach(webview => {
+      const dirpath = path.join(root, `webviews/${target}/dist/${webview}`);
+      if (!fs.existsSync(dirpath)) fs.mkdirSync(dirpath, { recursive: true });
+      fs.symlinkSync(dirpath, path.join(root, `dist-desktop/webviews/${webview}`));
+    });
+    await run('npm', ['run', '--prefix', path.join(root, `webviews/${target}`), 'watch'], {
+      signal,
+    });
   });
 }
 
