@@ -22,9 +22,31 @@ import { GITLAB_AI_ASSISTED_CODE_SUGGESTIONS_API_PATH } from './constants';
 import { ApiRequest, PostRequest } from '../platform/web_ide';
 import { LegacyApiFallbackConfig } from './legacy_api_fallback_config';
 import { GitLabPlatformManagerForCodeSuggestions } from './gitlab_platform_manager_for_code_suggestions';
+import {
+  CodeSuggestionsTelemetryManager,
+  CodeSuggestionTelemetryState,
+} from './code_suggestions_telemetry_manager';
 
 jest.mock('../log');
 jest.mock('../fetch_logged');
+
+jest.mock('./code_suggestions_telemetry_manager', () => ({
+  CodeSuggestionsTelemetryManager: {
+    updateSuggestionState: jest.fn(),
+    createSuggestion: jest.fn().mockReturnValue('123'),
+  },
+  CodeSuggestionTelemetryState: {
+    REQUESTED: 'REQUESTED',
+    LOADED: 'LOADED',
+    ACCEPTED: 'ACCEPTED',
+    ERROR: 'ERROR',
+    SHOWN: 'SHOWN',
+  },
+}));
+
+const { updateSuggestionState } = jest.requireMock(
+  './code_suggestions_telemetry_manager',
+).CodeSuggestionsTelemetryManager;
 
 /**
  * @deprecated use jest.mocked() instead
@@ -523,6 +545,67 @@ describe('CodeSuggestionsProvider', () => {
           'AI Assist: fetching completions ... (telemetry: [{"model_engine":"testEngine","model_name":"testModel","lang":"c","experiments":[],"requests":0,"accepts":1,"errors":0}])',
         );
       });
+    });
+  });
+
+  describe('telemetryManager', () => {
+    let glcp: CodeSuggestionsProvider;
+
+    beforeEach(() => {
+      manager = createManager(project);
+      glcp = new CodeSuggestionsProvider({
+        manager,
+        stateManager,
+        noDebounce: true,
+        legacyApiFallbackConfig: createLegacyApiFallbackConfig(true),
+      });
+    });
+
+    it('should call create suggestion on the manager', async () => {
+      await getCompletionsWithDefaultArgs(glcp);
+      expect(CodeSuggestionsTelemetryManager.createSuggestion).toBeCalled();
+    });
+
+    it('should call telemetry manager update suggestion state in the order of Loaded, Shown', async () => {
+      await getCompletionsWithDefaultArgs(glcp);
+      expect(updateSuggestionState.mock.calls[0]).toEqual([
+        '123',
+        CodeSuggestionTelemetryState.LOADED,
+      ]);
+      expect(updateSuggestionState.mock.calls[1]).toEqual([
+        '123',
+        CodeSuggestionTelemetryState.SHOWN,
+      ]);
+    });
+
+    it('should send a state of cancelled when suggestion is cancelled', async () => {
+      const cancelToken = new vscode.CancellationTokenSource().token;
+      cancelToken.isCancellationRequested = true;
+
+      await glcp.getCompletions({
+        document: mockDocument,
+        position: mockPosition,
+        cancellationToken: cancelToken,
+      });
+
+      expect(updateSuggestionState.mock.calls[0]).toEqual([
+        '123',
+        CodeSuggestionTelemetryState.LOADED,
+      ]);
+      expect(updateSuggestionState.mock.calls[1]).toEqual([
+        '123',
+        CodeSuggestionTelemetryState.CANCELLED,
+      ]);
+    });
+
+    it('should send a state of error when the request errors out', async () => {
+      asMock(fetch).mockRejectedValueOnce(new Error());
+      await getCompletionsWithDefaultArgs(glcp);
+
+      expect(updateSuggestionState.mock.calls[0]).toEqual([
+        '123',
+        CodeSuggestionTelemetryState.ERROR,
+      ]);
     });
   });
 });

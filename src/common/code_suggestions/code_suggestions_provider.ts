@@ -26,6 +26,10 @@ import { COMMAND_CODE_SUGGESTION_ACCEPTED } from './commands/code_suggestion_acc
 import { PostRequest } from '../platform/web_ide';
 import { LegacyApiFallbackConfig } from './legacy_api_fallback_config';
 import { GitLabPlatformManagerForCodeSuggestions } from './gitlab_platform_manager_for_code_suggestions';
+import {
+  CodeSuggestionTelemetryState,
+  CodeSuggestionsTelemetryManager,
+} from './code_suggestions_telemetry_manager';
 
 export const CIRCUIT_BREAK_INTERVAL_MS = 10000;
 export const MAX_ERRORS_BEFORE_CIRCUIT_BREAK = 4;
@@ -169,7 +173,6 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     }
 
     const platform = await this.manager.getGitLabPlatform();
-
     if (!platform) {
       log.warn(
         'AI Assist: could not obtain suggestions, there is no active project or GitLab account registered. Open GitLab project or authorise to GitLab account with code suggestions enabled to continue.',
@@ -178,10 +181,24 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       return [];
     }
 
+    let instanceUrl;
     let project;
     if (platform.type === 'project') {
       project = platform.project;
+      instanceUrl = project.webUrl;
     }
+
+    if (platform.type === 'account') {
+      instanceUrl = platform.account?.instanceUrl;
+    }
+
+    const gitlabRealm = instanceUrl?.startsWith(GITLAB_COM_URL) ? 'saas' : 'self-managed';
+
+    // if previous suggestion exists (user has not accepted it) it means it was rejected and user request new one
+    const traceID = CodeSuggestionsTelemetryManager.createSuggestion(
+      document.languageId,
+      gitlabRealm,
+    );
 
     const prompt = CodeSuggestionsProvider.#getPrompt(document, position, project);
 
@@ -215,6 +232,11 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
 
         response = await this.fetchCompletions(platform, token, prompt);
       }
+      // right after request with suggestion comes back emit: suggestion_loaded
+      CodeSuggestionsTelemetryManager.updateSuggestionState(
+        traceID,
+        CodeSuggestionTelemetryState.LOADED,
+      );
 
       this.stateManager.setTemporaryState(null);
 
@@ -231,6 +253,11 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
         codeSuggestionsTelemetry.storeExperiments(model, experiments);
         codeSuggestionsTelemetry.incRequestCount(model);
       } else {
+        //  emit: suggestion_cancelled
+        CodeSuggestionsTelemetryManager.updateSuggestionState(
+          traceID,
+          CodeSuggestionTelemetryState.CANCELLED,
+        );
         log.debug(
           'Code suggestions result is discarded because the completion request has been cancelled by the VS Code',
         );
@@ -244,6 +271,11 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       codeSuggestionsTelemetry.storeExperiments(model, experiments);
       codeSuggestionsTelemetry.incRequestCount(model);
       codeSuggestionsTelemetry.incErrorCount(model);
+      // emit: suggestion_error
+      CodeSuggestionsTelemetryManager.updateSuggestionState(
+        traceID,
+        CodeSuggestionTelemetryState.ERROR,
+      );
       return [];
     }
     const choices = response.choices || [];
@@ -254,8 +286,14 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     const acceptedCommand: vscode.Command = {
       title: 'Code Suggestion Accepted',
       command: COMMAND_CODE_SUGGESTION_ACCEPTED,
-      arguments: [model],
+      arguments: [model, traceID],
     };
+
+    // right before suggestions are returned emit: suggestion_shown
+    CodeSuggestionsTelemetryManager.updateSuggestionState(
+      traceID,
+      CodeSuggestionTelemetryState.SHOWN,
+    );
 
     return choices.map(
       choice =>
