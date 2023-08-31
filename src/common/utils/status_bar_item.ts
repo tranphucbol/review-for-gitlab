@@ -1,5 +1,10 @@
 import * as vscode from 'vscode';
 
+export interface IStatus {
+  text: string;
+  tooltip: string;
+}
+
 export const createStatusBarItem = ({
   priority,
   id,
@@ -28,3 +33,10 @@ export const createStatusBarItem = ({
 
   return statusBarItem;
 };
+
+export function setStatusBar(item: vscode.StatusBarItem, { text, tooltip }: IStatus) {
+  /* eslint-disable no-param-reassign */
+  item.text = text;
+  item.tooltip = tooltip;
+  /* eslint-enable no-param-reassign */
+}

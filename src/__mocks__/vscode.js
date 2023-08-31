@@ -1,9 +1,13 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
+const jestMockVSCode = require('jest-mock-vscode');
+
 const { Uri } = require('../desktop/test_utils/uri');
 const { EventEmitter } = require('../desktop/test_utils/event_emitter');
 const { FileType } = require('../desktop/test_utils/file_type');
 const { FileSystemError } = require('../desktop/test_utils/file_system_error');
 
 module.exports = {
+  ...jestMockVSCode,
   TreeItem: function TreeItem(labelOrUri, collapsibleState) {
     this.collapsibleState = collapsibleState;
     if (typeof labelOrUri === 'string') {

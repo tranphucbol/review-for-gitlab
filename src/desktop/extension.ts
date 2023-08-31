@@ -1,4 +1,5 @@
 import vscode from 'vscode';
+import { NodeModule, LanguageClient, TransportKind } from 'vscode-languageclient/node';
 import { install as installSourceMapSupport } from 'source-map-support';
 import * as openers from './commands/openers';
 import * as tokenInput from './token_input';
@@ -95,6 +96,14 @@ import { gitlabPlatformManagerDesktop } from './gitlab/gitlab_platform_desktop';
 import { activateCommon } from '../common/main';
 import { wrapCommandWithCatch } from '../common/utils/wrap_command_with_catch';
 import { setupTelemetry } from './setup_telemetry_desktop';
+import {
+  LANGUAGE_CLIENT_OPTIONS,
+  LANGUAGE_SERVER_ID,
+  LANGUAGE_SERVER_NAME,
+  registerLanguageServer,
+} from '../common/language_server';
+import { createCodeSuggestionStatusBar } from '../common/code_suggestions/code_suggestions_status_bar_item';
+import { CodeSuggestions } from '../common/code_suggestions/code_suggestions';
 
 const registerSidebarTreeDataProviders = () => {
   vscode.window.registerTreeDataProvider('issuesAndMrs', issuableDataProvider);
@@ -263,6 +272,12 @@ export const activate = async (context: vscode.ExtensionContext) => {
   await migrateCredentials(context, accountService).catch(e => handleError(e));
   await migrateSelectedProjects(selectedProjectStore, accountService).catch(e => handleError(e));
 
+  if (getExtensionConfiguration().languageServer) {
+    startLanguageServer(context);
+  } else {
+    context.subscriptions.push(new CodeSuggestions(gitlabPlatformManagerDesktop));
+  }
+
   // we don't want to hold the extension startup by waiting on VS Code and GitLab API
   doNotAwait(
     Promise.all([
@@ -277,3 +292,30 @@ export const activate = async (context: vscode.ExtensionContext) => {
     ]).catch(e => handleError(e)),
   );
 };
+
+function startLanguageServer(context: vscode.ExtensionContext) {
+  const exec: NodeModule = {
+    module: context.asAbsolutePath('./assets/language-server/node/main.js'),
+    transport: {
+      kind: TransportKind.socket,
+      port: 6789,
+    },
+  };
+
+  const client = new LanguageClient(
+    LANGUAGE_SERVER_ID,
+    LANGUAGE_SERVER_NAME,
+    {
+      debug: {
+        ...exec,
+        options: {
+          execArgv: ['--nolazy', '--inspect=6010'],
+        },
+      },
+      run: exec,
+    },
+    LANGUAGE_CLIENT_OPTIONS,
+  );
+
+  registerLanguageServer(context, client, createCodeSuggestionStatusBar(), accountService);
+}

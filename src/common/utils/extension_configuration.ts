@@ -14,6 +14,7 @@ export interface ExtensionConfiguration {
   debug: boolean;
   featureFlags: Record<string, boolean>;
   customQueries: CustomQuery[];
+  languageServer: boolean;
 }
 
 export interface AiAssistedCodeSuggestionsConfiguration {
@@ -26,11 +27,13 @@ const turnNullToUndefined = <T>(val: T | null | undefined): T | undefined => val
 
 export function getExtensionConfiguration(): ExtensionConfiguration {
   const workspaceConfig = vscode.workspace.getConfiguration(CONFIG_NAMESPACE);
+
   return {
-    pipelineGitRemoteName: turnNullToUndefined(workspaceConfig.pipelineGitRemoteName),
-    featureFlags: workspaceConfig.featureFlags ?? {},
-    debug: workspaceConfig.debug,
-    customQueries: workspaceConfig.customQueries || [],
+    pipelineGitRemoteName: turnNullToUndefined(workspaceConfig?.pipelineGitRemoteName),
+    featureFlags: workspaceConfig?.featureFlags ?? {},
+    debug: workspaceConfig?.debug || false,
+    customQueries: workspaceConfig?.customQueries || [],
+    languageServer: workspaceConfig?.languageServer || false,
   };
 }
 

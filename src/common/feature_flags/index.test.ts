@@ -15,6 +15,7 @@ describe('feature_flags/index', () => {
       debug: false,
       featureFlags,
       customQueries: [],
+      languageServer: false,
     });
   };
 
