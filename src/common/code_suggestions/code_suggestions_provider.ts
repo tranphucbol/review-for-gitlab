@@ -130,10 +130,19 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
         ? { project_id: project.restId, project_path: project.namespaceWithPath }
         : {};
 
+    // We need only the relative file path for the prompt
+    let docFileName = document.fileName;
+    if (vscode.workspace.workspaceFolders !== undefined) {
+      vscode.workspace.workspaceFolders.forEach(wsFolder => {
+        const wsPath = wsFolder.uri.path;
+        docFileName = docFileName.replace(wsPath, '');
+      });
+    }
+
     const payload = {
       prompt_version: 1,
       current_file: {
-        file_name: document.fileName,
+        file_name: docFileName,
         content_above_cursor: contentBeforeCursor,
         content_below_cursor: contentAfterCursor,
       },
