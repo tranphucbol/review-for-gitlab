@@ -50,6 +50,7 @@ interface CurrentFile {
   content_above_cursor: string;
   content_below_cursor: string;
   file_name: string;
+  language_identifier: string; // https://code.visualstudio.com/docs/languages/identifiers
 }
 
 export interface CodeSuggestionPrompt {
@@ -143,6 +144,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       prompt_version: 1,
       current_file: {
         file_name: docFileName,
+        language_identifier: document.languageId,
         content_above_cursor: contentBeforeCursor,
         content_below_cursor: contentAfterCursor,
       },
