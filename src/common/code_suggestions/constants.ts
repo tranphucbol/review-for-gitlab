@@ -35,3 +35,5 @@ export const AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES = [
   'terraform',
   'terragrunt',
 ];
+
+export const CODE_SUGGESTIONS_MIN_LENGTH = 10;

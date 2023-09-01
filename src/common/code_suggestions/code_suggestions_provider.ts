@@ -20,6 +20,7 @@ import {
 import {
   MODEL_GATEWAY_AI_ASSISTED_CODE_SUGGESTIONS_API_URL,
   GITLAB_AI_ASSISTED_CODE_SUGGESTIONS_API_PATH,
+  CODE_SUGGESTIONS_MIN_LENGTH,
 } from './constants';
 import { prettyJson } from '../utils/json';
 import { COMMAND_CODE_SUGGESTION_ACCEPTED } from './commands/code_suggestion_accepted';
@@ -117,7 +118,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     document: vscode.TextDocument,
     position: vscode.Position,
     project: GitLabProject | undefined,
-  ): CodeSuggestionPrompt {
+  ): CodeSuggestionPrompt | undefined {
     const contentBeforeCursor = document.getText(
       new vscode.Range(0, 0, position.line, position.character),
     );
@@ -125,6 +126,28 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     const contentAfterCursor = document.getText(
       new vscode.Range(position.line, position.character, document.lineCount, 0),
     );
+
+    const contentLength = contentBeforeCursor.length + contentAfterCursor.length;
+    if (contentLength < CODE_SUGGESTIONS_MIN_LENGTH) {
+      log.debug(
+        `Code suggestion: Cancelling Prompt building as content length (${contentLength}) is less than ${CODE_SUGGESTIONS_MIN_LENGTH}`,
+      );
+      return undefined;
+    }
+
+    // Check if we are at the end of the line or only special characters after
+    const currentLine = document.lineAt(position);
+    const lineSuffix = currentLine.text.substring(position.character).trim();
+    if (lineSuffix.length > 0) {
+      const allowedCharactersPastCursorRegex = /^\s*[)}\]"'`]*\s*[:{;,]?\s*$/;
+      if (!allowedCharactersPastCursorRegex.test(lineSuffix)) {
+        log.debug(
+          `Code suggestion: Cancelling Prompt building, as characters after the cursor in that line are not ignorable`,
+        );
+
+        return undefined;
+      }
+    }
 
     const projectInfo =
       project && isSaasProject(project)
@@ -184,6 +207,10 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     }
 
     const prompt = CodeSuggestionsProvider.#getPrompt(document, position, project);
+
+    if (!prompt) {
+      return [];
+    }
 
     log.debug(
       `AI Assist: fetching completions ... (telemetry: ${prettyJson(

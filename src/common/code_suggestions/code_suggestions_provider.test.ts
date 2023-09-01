@@ -143,13 +143,14 @@ describe('CodeSuggestionsProvider', () => {
       }
       return 'after';
     },
+    lineAt: () => ({ text: mockPrompt }) as vscode.TextLine,
     fileName: 'test.js',
     languageId: 'javascript',
-  } as vscode.TextDocument;
+  } as unknown as vscode.TextDocument;
 
   const position = {
     line: 1,
-    character: 1,
+    character: mockPrompt.length,
   } as vscode.Position;
 
   describe('getCompletions', () => {
@@ -242,6 +243,82 @@ describe('CodeSuggestionsProvider', () => {
 
       expect(inputBody.project_id).toBe(undefined);
       expect(inputBody.project_path).toBe(undefined);
+    });
+
+    describe('input prompt', () => {
+      const fetchFromApiMock = jest.fn();
+      const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
+        manager: createManager(project, fetchFromApiMock),
+        legacyApiFallbackConfig: createLegacyApiFallbackConfig(false),
+        stateManager,
+      });
+
+      let testPrompt = '';
+
+      const inputTestDocument = {
+        getText(range: vscode.Range): string {
+          if (range.start.character === 0 && range.start.line === 0) {
+            return testPrompt;
+          }
+          return '';
+        },
+        lineAt: () => ({ text: testPrompt }) as vscode.TextLine,
+      } as unknown as vscode.TextDocument;
+
+      describe('doesnt request a code suggestion', () => {
+        it('if content length is too short ', async () => {
+          testPrompt = 'const';
+
+          const inpMockPosition = {
+            line: 0,
+            character: testPrompt.length,
+          } as vscode.Position;
+
+          await glcp.getCompletions({
+            document: inputTestDocument,
+            position: inpMockPosition,
+            cancellationToken,
+          });
+
+          expect(codeSuggestionMonolithCalls(fetchFromApiMock)).toHaveLength(0);
+        });
+
+        it('if non-ignorable chars after cursor', async () => {
+          testPrompt = 'const testValue = "test"';
+
+          const inpMockPosition = {
+            line: 0,
+            character: testPrompt.length - 4,
+          } as vscode.Position;
+
+          await glcp.getCompletions({
+            document: inputTestDocument,
+            position: inpMockPosition,
+            cancellationToken,
+          });
+
+          expect(codeSuggestionMonolithCalls(fetchFromApiMock)).toHaveLength(0);
+        });
+      });
+
+      describe('request a code suggestion', () => {
+        it('if special characters are past the cursor', async () => {
+          testPrompt = 'const newFunctionForValidatingEMail  = (inp) => {}';
+
+          const inpMockPosition = {
+            line: 0,
+            character: testPrompt.length - 1,
+          } as vscode.Position;
+
+          await glcp.getCompletions({
+            document: inputTestDocument,
+            position: inpMockPosition,
+            cancellationToken,
+          });
+
+          expect(codeSuggestionMonolithCalls(fetchFromApiMock)).toHaveLength(1);
+        });
+      });
     });
   });
 
