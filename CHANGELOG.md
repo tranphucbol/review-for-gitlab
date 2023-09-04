@@ -1,3 +1,19 @@
+# [3.76.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.75.0...v3.76.0) (2023-09-04)
+
+
+### Bug Fixes
+
+* Sends only the relative Path ([822bcd3](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/822bcd3b9d4e9ea5e6f464d938e97cca397df9b3))
+
+
+### Features
+
+* Check for completion feasibility ([7f610ff](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/7f610ff05f2cba24a573ed9de443bdc7942f2ff0))
+* GitLab Duo chat as Vue2 application ([a488be9](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/a488be94d90131ade80854f9bdf91225872dd0c2))
+* send language with Code Suggestions request ([7bb09a1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/7bb09a16b0ebf36f613db968b2e1af6d24af5c4b))
+
+
+
 # [3.75.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.74.0...v3.75.0) (2023-08-30)
 
 
