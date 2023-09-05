@@ -3,7 +3,7 @@ import { GitLabChatController } from './gitlab_chat_controller';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { GitLabChatRecord } from './gitlab_chat_record';
 
-const apiMock = { processNewUserPrompt: jest.fn() };
+const apiMock = { processNewUserPrompt: jest.fn(), pullAiMessage: jest.fn() };
 
 jest.mock('./gitlab_chat_api', () => ({
   GitLabChatApi: jest.fn().mockImplementation(() => apiMock),
@@ -29,6 +29,13 @@ describe('GitLabChatController', () => {
   beforeEach(() => {
     controller = new GitLabChatController(platformManager, {} as vscode.ExtensionContext);
     apiMock.processNewUserPrompt = jest.fn().mockReturnValue({
+      aiAction: {
+        errors: [],
+        requestId: 'uniqueId',
+      },
+    });
+
+    apiMock.pullAiMessage = jest.fn().mockReturnValue({
       content: 'api response',
       requestId: 'uniqueId',
       timestamp: '2023-01-01 01:01:01',
@@ -80,70 +87,6 @@ describe('GitLabChatController', () => {
 
         expect(viewMock.show).toHaveBeenCalled();
       });
-
-      it('sends new user record and pending response record to the view before the API call', async () => {
-        try {
-          await controller.processNewUserRecord(record);
-        } catch (e) {
-          /* empty */
-        }
-
-        expect(viewMock.addRecord).toHaveBeenNthCalledWith(
-          1,
-          expect.objectContaining({ content: 'hello', state: 'ready', role: 'user' }),
-        );
-        expect(viewMock.addRecord).toHaveBeenNthCalledWith(
-          2,
-          expect.objectContaining({ content: '...', state: 'pending', role: 'assistant' }),
-        );
-      });
-
-      it('fills history array', async () => {
-        expect(controller.chatHistory).toEqual([]);
-
-        try {
-          await controller.processNewUserRecord(record);
-        } catch (e) {
-          /* empty */
-        }
-
-        expect(controller.chatHistory[0]).toEqual(
-          expect.objectContaining({ content: 'hello', state: 'ready', role: 'user' }),
-        );
-        expect(controller.chatHistory[1]).toEqual(
-          expect.objectContaining({ content: '...', state: 'pending', role: 'assistant' }),
-        );
-      });
-
-      describe('with newChatConversation command', () => {
-        beforeEach(() => {
-          record = new GitLabChatRecord({ role: 'user', content: '/reset' });
-        });
-
-        it('sends only new user record and doesnt wait for response', async () => {
-          try {
-            await controller.processNewUserRecord(record);
-          } catch (e) {
-            /* empty */
-          }
-
-          expect(viewMock.addRecord).toHaveBeenNthCalledWith(
-            1,
-            expect.objectContaining({ content: '/reset', state: 'ready', role: 'user' }),
-          );
-          expect(viewMock.addRecord).toHaveBeenCalledTimes(1);
-
-          expect(controller.chatHistory[0]).toEqual(
-            expect.objectContaining({
-              content: '/reset',
-              state: 'ready',
-              role: 'user',
-              type: 'newConversation',
-            }),
-          );
-          expect(controller.chatHistory.length).toEqual(1);
-        });
-      });
     });
 
     it('sends updates of the view when API response is received', async () => {
@@ -156,14 +99,6 @@ describe('GitLabChatController', () => {
           role: 'assistant',
           requestId: 'uniqueId',
           timestamp: Date.parse('2023-01-01 01:01:01'),
-        }),
-      );
-      expect(viewMock.updateRecord).toHaveBeenCalledWith(
-        expect.objectContaining({
-          content: record.content,
-          state: 'ready',
-          role: record.role,
-          requestId: 'uniqueId',
         }),
       );
     });
@@ -193,7 +128,7 @@ describe('GitLabChatController', () => {
     it('does not change record timestamp when api returns an error', async () => {
       const timestampBefore = record.timestamp;
 
-      apiMock.processNewUserPrompt = jest.fn(() => ({
+      apiMock.pullAiMessage = jest.fn(() => ({
         type: 'error',
         errors: ['timeout'],
         requestId: 'requestId',
@@ -203,6 +138,32 @@ describe('GitLabChatController', () => {
       await controller.processNewUserRecord(record);
 
       expect(record.timestamp).toStrictEqual(timestampBefore);
+    });
+
+    describe('with newChatConversation command', () => {
+      beforeEach(() => {
+        record = new GitLabChatRecord({ role: 'user', content: '/reset' });
+      });
+
+      it('sends only new user record and doesnt wait for response', async () => {
+        await controller.processNewUserRecord(record);
+
+        expect(viewMock.addRecord).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({ content: '/reset', state: 'ready', role: 'user' }),
+        );
+        expect(viewMock.addRecord).toHaveBeenCalledTimes(1);
+
+        expect(controller.chatHistory[0]).toEqual(
+          expect.objectContaining({
+            content: '/reset',
+            state: 'ready',
+            role: 'user',
+            type: 'newConversation',
+          }),
+        );
+        expect(controller.chatHistory.length).toEqual(1);
+      });
     });
   });
 });

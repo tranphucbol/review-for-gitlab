@@ -11,10 +11,6 @@ const mockedMutationResponse = {
   aiAction: { requestId: '123', errors: [] as string[] },
 };
 
-const mockedFailedMutationResponse = {
-  aiAction: { requestId: '', errors: ['foo'] },
-};
-
 const mockedQueryResponse = {
   aiMessages: {
     nodes: [
@@ -63,22 +59,20 @@ describe('GitLabChatApi', () => {
     };
   };
 
-  describe('processNewUserPrompt', () => {
-    it('sends user prompt as mutation and pulls chat response', async () => {
+  describe('getAiMessage', () => {
+    it('returns first assistant message with given requestId', async () => {
       const manager = createManager(currentProject, mockedQueryResponse);
       const gitlabChatApi = new GitLabChatApi(manager);
 
-      const response = await gitlabChatApi.processNewUserPrompt(mockPrompt);
+      const expectedMessage = mockedQueryResponse.aiMessages.nodes[0];
+
+      const response = await gitlabChatApi.pullAiMessage(expectedMessage.requestId);
 
       assert(response.type === 'message');
 
-      const [[aiActionMutation], [aiMessagesQuery]] = makeApiRequest.mock.calls;
+      const [[aiMessagesQuery]] = makeApiRequest.mock.calls;
 
-      expect(aiActionMutation.query).toBe(AI_ACTIONS.chat);
       expect(aiMessagesQuery.query).toBe(AI_MESSAGES_QUERY);
-
-      const expectedMessage = mockedQueryResponse.aiMessages.nodes[0];
-
       expect(response.content).toBe(expectedMessage.content);
       expect(response.requestId).toBe(expectedMessage.requestId);
       expect(response.errors).toStrictEqual(expectedMessage.errors);
@@ -89,25 +83,25 @@ describe('GitLabChatApi', () => {
       const manager = createManager(currentProject, mockedEmptyQueryResponse);
       const gitlabChatApi = new GitLabChatApi(manager);
 
-      const response = await gitlabChatApi.processNewUserPrompt(mockPrompt);
+      const response = await gitlabChatApi.pullAiMessage('123');
 
-      expect(response.requestId).toBe(mockedMutationResponse.aiAction.requestId);
+      expect(response.requestId).toBe('123');
       expect(response.errors).toContainEqual('Reached timeout while fetching response.');
     });
+  });
 
-    it('returns an error if aiAction failed', async () => {
-      const manager = createManager(
-        currentProject,
-        mockedEmptyQueryResponse,
-        mockedFailedMutationResponse,
-      );
+  describe('processNewUserPrompt', () => {
+    it('sends user prompt as mutation', async () => {
+      const manager = createManager(currentProject, mockedQueryResponse);
       const gitlabChatApi = new GitLabChatApi(manager);
 
       const response = await gitlabChatApi.processNewUserPrompt(mockPrompt);
 
-      expect(response.requestId).toBe(mockedFailedMutationResponse.aiAction.requestId);
-      expect(response.errors).toStrictEqual(mockedFailedMutationResponse.aiAction.errors);
-      expect(makeApiRequest).toBeCalledTimes(1);
+      expect(response.aiAction).toBe(mockedMutationResponse.aiAction);
+
+      const [[aiActionMutation]] = makeApiRequest.mock.calls;
+
+      expect(aiActionMutation.query).toBe(AI_ACTIONS.chat);
     });
   });
 });
