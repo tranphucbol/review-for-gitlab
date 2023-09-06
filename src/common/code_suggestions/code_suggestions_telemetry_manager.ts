@@ -66,7 +66,7 @@ const endStates = [...stateGraph]
   .filter(([, allowedTransitions]) => allowedTransitions.length === 0)
   .map(([state]) => state);
 
-const GC_TIME = 5000;
+const GC_TIME = 30000;
 
 export class CodeSuggestionsTelemetryManager {
   // eslint-disable-next-line no-use-before-define

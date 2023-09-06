@@ -39,8 +39,9 @@ export class Emitter {
 
   private async drainQueue(): Promise<void> {
     if (this.trackingQueue.length > 0) {
-      await this.callback(this.trackingQueue);
+      const copyOfTrackingQueue = this.trackingQueue.map(e => e);
       this.trackingQueue = [];
+      await this.callback(copyOfTrackingQueue);
     }
   }
 
