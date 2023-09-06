@@ -28,7 +28,9 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
   async viewMessageHandler(message: ViewMessage) {
     switch (message.eventType) {
       case 'newPrompt': {
-        await this.processNewPrompt(message.record.content);
+        const record = new GitLabChatRecord({ role: 'user', content: message.record.content });
+
+        await this.processNewUserRecord(record);
         break;
       }
       default:
@@ -46,11 +48,12 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
 
     await this.#view.show();
 
+    await this.sendNewPrompt(record);
     await this.addToChat(record);
 
     switch (record.type) {
       case 'newConversation': {
-        await this.#api.processNewUserPrompt(record.content);
+        // do nothing.
         break;
       }
       default: {
@@ -62,10 +65,11 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
 
         await this.addToChat(responseRecord);
 
-        const response = await this.#api.processNewUserPrompt(record.content);
+        if (!record.requestId) {
+          break;
+        }
 
-        // eslint-disable-next-line no-param-reassign
-        record.requestId = response.requestId;
+        const response = await this.#api.pullAiMessage(record.requestId);
 
         if (response.type !== 'error') {
           responseRecord.content = response.content;
@@ -76,7 +80,6 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
         responseRecord.requestId = response.requestId;
         responseRecord.state = 'ready';
 
-        await this.#view.updateRecord(record);
         await this.#view.updateRecord(responseRecord);
       }
     }
@@ -88,14 +91,19 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
     }, this);
   }
 
-  private async processNewPrompt(promptText: string) {
-    const record = new GitLabChatRecord({ role: 'user', content: promptText });
-
-    await this.processNewUserRecord(record);
-  }
-
   private async addToChat(record: GitLabChatRecord) {
     this.chatHistory.push(record);
     await this.#view.addRecord(record);
+  }
+
+  private async sendNewPrompt(record: GitLabChatRecord) {
+    if (!record.content) throw new Error('Trying to send prompt without content.');
+
+    const actionResponse = await this.#api.processNewUserPrompt(record.content);
+
+    // eslint-disable-next-line no-param-reassign
+    record.requestId = actionResponse.aiAction.requestId;
+    // eslint-disable-next-line no-param-reassign
+    record.errors = actionResponse.aiAction.errors;
   }
 }

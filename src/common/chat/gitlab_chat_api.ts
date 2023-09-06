@@ -14,7 +14,7 @@ export const AI_ACTIONS = {
   `,
 };
 
-type AiActionResponseType = {
+export type AiActionResponseType = {
   aiAction: { requestId: string; errors: string[] };
 };
 
@@ -94,20 +94,21 @@ export class GitLabChatApi {
     this.#manager = manager;
   }
 
-  async processNewUserPrompt(question: string): Promise<AiMessage> {
-    return this.processAiAction(AI_ACTIONS.chat, { question });
+  async processNewUserPrompt(question: string): Promise<AiActionResponseType> {
+    return this.sendAiAction(AI_ACTIONS.chat, { question });
   }
 
-  private async processAiAction(actionQuery: string, variables: object): Promise<AiMessage> {
-    const { requestId, errors } = (await this.sendAiAction(actionQuery, variables)).aiAction;
+  async pullAiMessage(requestId: string): Promise<AiMessage> {
+    const response = await pullHandler(() => this.getAiMessage(requestId));
 
-    if (errors.length > 0) {
+    if (!response)
       return new Promise(resolve => {
-        resolve(errorResponse(requestId, errors));
+        resolve(errorResponse(requestId, ['Reached timeout while fetching response.']));
       });
-    }
 
-    return this.pullAiMessage(requestId);
+    return new Promise(resolve => {
+      resolve(successResponse(response));
+    });
   }
 
   private async currentPlatform() {
@@ -127,19 +128,6 @@ export class GitLabChatApi {
     const history = await platform.fetchFromApi(request);
 
     return history.aiMessages.nodes.map(parseMessageContent)[0];
-  }
-
-  private async pullAiMessage(requestId: string): Promise<AiMessage> {
-    const response = await pullHandler(() => this.getAiMessage(requestId));
-
-    if (!response)
-      return new Promise(resolve => {
-        resolve(errorResponse(requestId, ['Reached timeout while fetching response.']));
-      });
-
-    return new Promise(resolve => {
-      resolve(successResponse(response));
-    });
   }
 
   private async sendAiAction(
