@@ -192,6 +192,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     cancellationToken: vscode.CancellationToken;
   }): Promise<vscode.InlineCompletionItem[]> {
     if (this.circuitBreaker.isBreaking()) {
+      CodeSuggestionsTelemetryManager.rejectOpenedSuggestions();
       return [];
     }
 
@@ -338,6 +339,8 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     context: vscode.InlineCompletionContext,
     cancellationToken: vscode.CancellationToken,
   ): Promise<vscode.InlineCompletionItem[]> {
+    CodeSuggestionsTelemetryManager.rejectOpenedSuggestions();
+
     if (this.debouncedCall !== undefined) {
       clearTimeout(this.debouncedCall);
     }
