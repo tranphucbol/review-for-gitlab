@@ -73,6 +73,11 @@
         "command": "gl.newChatConversation",
         "title": "Start new chat conversation",
         "category": "GitLab Duo"
+      },
+      {
+        "command": "gl.toggleCodeSuggestions",
+        "title": "Toggle Gitlab code suggestions",
+        "category": "Gitlab"
       }
     ],
     "submenus": [
