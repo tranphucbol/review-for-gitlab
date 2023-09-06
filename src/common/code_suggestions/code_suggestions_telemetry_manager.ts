@@ -108,7 +108,7 @@ export class CodeSuggestionsTelemetryManager {
     return suggestionID;
   }
 
-  private static rejectOpenedSuggestions() {
+  static rejectOpenedSuggestions() {
     log.debug(`Telemetry: Reject all opened suggestions`);
 
     this.instance.suggestions.forEach((suggestion, suggestionID) => {

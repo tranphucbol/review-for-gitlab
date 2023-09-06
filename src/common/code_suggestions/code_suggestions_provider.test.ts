@@ -34,6 +34,7 @@ jest.mock('./code_suggestions_telemetry_manager', () => ({
   CodeSuggestionsTelemetryManager: {
     updateSuggestionState: jest.fn(),
     createSuggestion: jest.fn().mockReturnValue('123'),
+    rejectOpenedSuggestions: jest.fn(),
   },
   CodeSuggestionTelemetryState: {
     REQUESTED: 'REQUESTED',
@@ -44,7 +45,7 @@ jest.mock('./code_suggestions_telemetry_manager', () => ({
   },
 }));
 
-const { updateSuggestionState } = jest.requireMock(
+const { updateSuggestionState, rejectOpenedSuggestions } = jest.requireMock(
   './code_suggestions_telemetry_manager',
 ).CodeSuggestionsTelemetryManager;
 
@@ -369,6 +370,7 @@ describe('CodeSuggestionsProvider', () => {
       );
       jest.runAllTimers();
 
+      expect(rejectOpenedSuggestions).toHaveBeenCalled();
       expect(glcp.getCompletions).toHaveBeenCalled();
       jest.runAllTimers();
     });
@@ -398,6 +400,7 @@ describe('CodeSuggestionsProvider', () => {
 
       const result = await getCompletionsWithDefaultArgs(glcp);
       expect(result).toEqual([]);
+      expect(rejectOpenedSuggestions).toHaveBeenCalled();
       expect(glcp.fetchCompletions).not.toHaveBeenCalled();
     });
 
