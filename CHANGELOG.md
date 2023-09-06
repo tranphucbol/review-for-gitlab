@@ -1,3 +1,14 @@
+## [3.76.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.76.0...v3.76.1) (2023-09-06)
+
+
+### Bug Fixes
+
+* **snowplow:** Fixed issues with duplicate events being sent to Snowplow ([e5c4555](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/e5c4555f6b04f990828794c20318a0d103163b1a))
+* **telemetry:** Assure code suggestion telemetry state manager exists ([f0a72fc](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/f0a72fc3d97dcc886fd751213561f96b9ca00139))
+* **telemetry:** Reject open suggestion sooner in the life cycle ([c0ecc68](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/c0ecc6810865fab2b3df66ae37b684abc7a6b96d))
+
+
+
 # [3.76.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.75.0...v3.76.0) (2023-09-04)
 
 
