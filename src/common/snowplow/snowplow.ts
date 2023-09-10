@@ -11,16 +11,7 @@ import fetch from 'cross-fetch';
 import { v4 as uuidv4 } from 'uuid';
 import { Emitter } from './emitter';
 import { log } from '../log';
-
-export type EnabledCallback = () => boolean;
-
-export type SnowplowOptions = {
-  appId: string;
-  endpoint: string;
-  timeInterval: number;
-  maxItems: number;
-  enabled: EnabledCallback;
-};
+import { SnowplowOptions } from './snowplow_options';
 
 /**
  * Adds the 'stm' paramater with the current time to the payload

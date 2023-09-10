@@ -1,4 +1,5 @@
 {
   "browser": "browser",
-  "contributes": {}
+  "contributes": {},
+  "extensionDependencies": ["gitlab.gitlab-web-ide"]
 }

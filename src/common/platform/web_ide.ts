@@ -84,3 +84,10 @@ export type fetchFromApi = <TReturnType>(request: ApiRequest<TReturnType>) => Pr
 
 // The interface of the VSCode mediator command COMMAND_FETCH_BUFFER_FROM_API
 export type fetchBufferFromApi = (request: GetBufferRequest) => Promise<VSCodeBuffer>;
+
+/* API exposed by the Web IDE extension
+ * See https://code.visualstudio.com/api/references/vscode-api#extensions
+ */
+export interface WebIDEExtension {
+  isTelemetryEnabled: () => boolean;
+}

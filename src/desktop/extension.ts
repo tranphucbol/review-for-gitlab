@@ -94,6 +94,7 @@ import { JobItemModel } from './tree_view/items/job_item_model';
 import { gitlabPlatformManagerDesktop } from './gitlab/gitlab_platform_desktop';
 import { activateCommon } from '../common/main';
 import { wrapCommandWithCatch } from '../common/utils/wrap_command_with_catch';
+import { setupTelemetry } from './setup_telemetry_desktop';
 
 const registerSidebarTreeDataProviders = () => {
   vscode.window.registerTreeDataProvider('issuesAndMrs', issuableDataProvider);
@@ -208,6 +209,8 @@ const activateDebugMode = () => {
 export const activate = async (context: vscode.ExtensionContext) => {
   activateDebugMode();
   contextUtils.init(context);
+
+  setupTelemetry();
 
   const outputChannel = vscode.window.createOutputChannel('GitLab Workflow');
   initializeLogging(line => outputChannel.appendLine(line));
