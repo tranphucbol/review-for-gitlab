@@ -218,12 +218,6 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
 
     const gitlabRealm = instanceUrl?.startsWith(GITLAB_COM_URL) ? 'saas' : 'self-managed';
 
-    // if previous suggestion exists (user has not accepted it) it means it was rejected and user request new one
-    const traceID = CodeSuggestionsTelemetryManager.createSuggestion(
-      document.languageId,
-      gitlabRealm,
-    );
-
     const prompt = CodeSuggestionsProvider.#getPrompt(document, position, project);
 
     if (!prompt) {
@@ -235,6 +229,12 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
         codeSuggestionsTelemetry.toArray(),
         0,
       )})`,
+    );
+
+    // if previous suggestion exists (user has not accepted it) it means it was rejected and user request new one
+    const traceID = CodeSuggestionsTelemetryManager.createSuggestion(
+      document.languageId,
+      gitlabRealm,
     );
 
     let response: CodeSuggestionsResponse;
@@ -260,16 +260,18 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
 
         response = await this.fetchCompletions(platform, token, prompt);
       }
-      // right after request with suggestion comes back emit: suggestion_loaded
-      CodeSuggestionsTelemetryManager.updateSuggestionState(
-        traceID,
-        CodeSuggestionTelemetryState.LOADED,
-      );
 
       this.stateManager.setTemporaryState(null);
 
       if (response.model !== undefined) model = response.model;
       if (response.experiments !== undefined) experiments = response.experiments;
+      CodeSuggestionsTelemetryManager.setSuggestionModel(traceID, model.name, model.engine);
+
+      // right after request with suggestion comes back emit: suggestion_loaded
+      CodeSuggestionsTelemetryManager.updateSuggestionState(
+        traceID,
+        CodeSuggestionTelemetryState.LOADED,
+      );
 
       this.circuitBreaker.success();
 

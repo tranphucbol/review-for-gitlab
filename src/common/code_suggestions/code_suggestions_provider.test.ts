@@ -35,6 +35,7 @@ jest.mock('./code_suggestions_telemetry_manager', () => ({
     updateSuggestionState: jest.fn(),
     createSuggestion: jest.fn().mockReturnValue('123'),
     rejectOpenedSuggestions: jest.fn(),
+    setSuggestionModel: jest.fn(),
   },
   CodeSuggestionTelemetryState: {
     REQUESTED: 'REQUESTED',
@@ -45,7 +46,7 @@ jest.mock('./code_suggestions_telemetry_manager', () => ({
   },
 }));
 
-const { updateSuggestionState, rejectOpenedSuggestions } = jest.requireMock(
+const { updateSuggestionState, rejectOpenedSuggestions, setSuggestionModel } = jest.requireMock(
   './code_suggestions_telemetry_manager',
 ).CodeSuggestionsTelemetryManager;
 
@@ -675,6 +676,16 @@ describe('CodeSuggestionsProvider', () => {
       expect(updateSuggestionState.mock.calls[1]).toEqual([
         '123',
         CodeSuggestionTelemetryState.CANCELLED,
+      ]);
+    });
+
+    it('should set model details for suggestion', async () => {
+      await getCompletionsWithDefaultArgs(glcp);
+
+      expect(setSuggestionModel.mock.calls[0]).toEqual([
+        '123',
+        mockCompletions.model.name,
+        mockCompletions.model.engine,
       ]);
     });
 

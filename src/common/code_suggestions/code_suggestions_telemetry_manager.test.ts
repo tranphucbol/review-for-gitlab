@@ -52,13 +52,13 @@ describe('CodeSuggestionsTelemetryManager', () => {
     };
 
     const codeSuggestionContexts = {
-      schema: 'iglu:com.gitlab/code_suggestions_context/jsonschema/1-0-0',
+      schema: 'iglu:com.gitlab/code_suggestions_context/jsonschema/2-0-1',
       data: {
-        prefix_length: 0, // prefix infomration is not available at IDE level
-        suffix_length: 0, // suffix infomration is not available at IDE level
         language: 'ts',
         user_agent: 'node-fetch/1.0 (+https://github.com/bitinn/node-fetch)',
         gitlab_realm: 'saas',
+        model_name: undefined,
+        model_engine: undefined,
       },
     };
 
@@ -158,5 +158,32 @@ describe('CodeSuggestionsTelemetryManager', () => {
       }),
       expect.arrayContaining([expect.anything()]),
     ]);
+  });
+
+  it('should update model details of an existing suggestion', () => {
+    trackStructEvent.mockResolvedValue(true);
+
+    const id = CodeSuggestionsTelemetryManager.createSuggestion('ts', 'saas');
+    CodeSuggestionsTelemetryManager.setSuggestionModel(id, 'modelName', 'modelEngine');
+    CodeSuggestionsTelemetryManager.updateSuggestionState(id, CodeSuggestionTelemetryState.LOADED);
+
+    const codeSuggestionContexts = {
+      schema: 'iglu:com.gitlab/code_suggestions_context/jsonschema/2-0-1',
+      data: {
+        language: 'ts',
+        user_agent: 'node-fetch/1.0 (+https://github.com/bitinn/node-fetch)',
+        gitlab_realm: 'saas',
+        model_name: 'modelName',
+        model_engine: 'modelEngine',
+      },
+    };
+
+    expect(trackStructEvent).toBeCalledWith(
+      expect.objectContaining({
+        action: 'suggestion_loaded',
+        category: 'code suggestions',
+      }),
+      expect.arrayContaining([expect.anything(), codeSuggestionContexts]),
+    );
   });
 });
