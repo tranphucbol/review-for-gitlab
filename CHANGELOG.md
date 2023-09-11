@@ -1,3 +1,12 @@
+# [3.77.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.76.1...v3.77.0) (2023-09-11)
+
+
+### Features
+
+* Enable code suggestions telemetry in browser environment ([83d7c0b](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/83d7c0b25ba1b1fd51101a7b29aec4a62693eadc))
+
+
+
 ## [3.76.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.76.0...v3.76.1) (2023-09-06)
 
 
