@@ -60,13 +60,15 @@ interface CodeSuggestion {
   state: CodeSuggestionTelemetryState;
   language: string;
   gitlabRealm: GitlabRealm;
+  modelEngine: string | undefined;
+  modelName: string | undefined;
 }
 
 const endStates = [...stateGraph]
   .filter(([, allowedTransitions]) => allowedTransitions.length === 0)
   .map(([state]) => state);
 
-const GC_TIME = 30000;
+const GC_TIME = 60000;
 
 export class CodeSuggestionsTelemetryManager {
   // eslint-disable-next-line no-use-before-define
@@ -99,6 +101,8 @@ export class CodeSuggestionsTelemetryManager {
       state: CodeSuggestionTelemetryState.REQUESTED,
       language,
       gitlabRealm,
+      modelEngine: undefined,
+      modelName: undefined,
     };
     this.instance.suggestions.set(suggestionID, suggestion);
     this.sendTelemetry(suggestionID).catch(e => log.warn('could not track telemetry', e));
@@ -121,6 +125,22 @@ export class CodeSuggestionsTelemetryManager {
 
       this.updateSuggestionState(suggestionID, CodeSuggestionTelemetryState.REJECTED);
     });
+  }
+
+  public static setSuggestionModel(suggestionID: string, modelName: string, modelEngine: string) {
+    if (!this.instance) {
+      this.instance = new CodeSuggestionsTelemetryManager();
+    }
+
+    log.debug(`Telemetry: Received request to set model for suggestion ${suggestionID}`);
+
+    const suggestion = this.instance.suggestions.get(suggestionID);
+    if (!suggestion) {
+      log.debug(`Telemetry: The suggestion with ${suggestionID} can't be found`);
+      return;
+    }
+
+    this.instance.suggestions.set(suggestionID, { ...suggestion, modelName, modelEngine });
   }
 
   public static updateSuggestionState(
@@ -188,13 +208,13 @@ export class CodeSuggestionsTelemetryManager {
     };
 
     const codeSuggestionContexts = {
-      schema: 'iglu:com.gitlab/code_suggestions_context/jsonschema/1-0-0',
+      schema: 'iglu:com.gitlab/code_suggestions_context/jsonschema/2-0-1',
       data: {
-        prefix_length: 0, // prefix infomration is not available at IDE level
-        suffix_length: 0, // suffix infomration is not available at IDE level
         language: suggestion.language,
         user_agent: 'node-fetch/1.0 (+https://github.com/bitinn/node-fetch)',
         gitlab_realm: suggestion.gitlabRealm,
+        model_name: suggestion.modelName,
+        model_engine: suggestion.modelEngine,
       },
     };
 
