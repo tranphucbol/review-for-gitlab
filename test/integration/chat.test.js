@@ -4,12 +4,13 @@ const sinon = require('sinon');
 const { graphql } = require('msw');
 // const proxyquire = require('proxyquire');
 const { GitLabChatController } = require('../../src/common/chat/gitlab_chat_controller');
+const { GitLabChatRecord } = require('../../src/common/chat/gitlab_chat_record');
 const {
   gitlabPlatformManagerDesktop,
 } = require('../../src/desktop/gitlab/gitlab_platform_desktop');
 const {
   newPromptResponse,
-  newResponseResponse,
+  newMessageResponse,
   noMessageResponse,
 } = require('./fixtures/graphql/chat');
 const { WebviewMock } = require('./test_infrastructure/webview_mock');
@@ -29,7 +30,7 @@ describe('GitLab Duo Chat', () => {
 
   before(async () => {
     server = getServer([
-      graphql.query('getAiMessages', (req, res, ctx) => res(ctx.data(newResponseResponse))),
+      graphql.query('getAiMessages', (req, res, ctx) => res(ctx.data(newMessageResponse(req)))),
       graphql.mutation('chat', (req, res, ctx) => res(ctx.data(newPromptResponse))),
     ]);
   });
@@ -71,43 +72,27 @@ describe('GitLab Duo Chat', () => {
       },
     });
 
-    const userMessage = await webviewMock.waitForMessage(
-      m => m.eventType === 'newRecord' && m.record.role === 'user',
-    );
-    assert.strictEqual(userMessage.record.content, 'hi!');
+    let updatedMessages = await webviewMock.waitForMessage(m => m.eventType === 'updateRecord', 2);
+    updatedMessages = updatedMessages.map(m => m.record.content);
 
-    const responseMessage = await webviewMock.waitForMessage(
-      m => m.eventType === 'updateRecord' && m.record.role === 'assistant',
-    );
-
-    assert.strictEqual(
-      responseMessage.record.content,
-      newResponseResponse.aiMessages.nodes[0].content,
-    );
+    assert.strictEqual(updatedMessages.includes('USER message'), true);
+    assert.strictEqual(updatedMessages.includes('ASSISTANT message'), true);
   });
 
   it('allows commands to send custom prompts to the chat', async () => {
-    const record = {
+    const record = new GitLabChatRecord({
       role: 'user',
       type: 'explainCode',
       content: 'MyCustomCommand',
-    };
+    });
 
     controller.processNewUserRecord(record);
 
-    const userMessage = await webviewMock.waitForMessage(
-      m => m.eventType === 'newRecord' && m.record.role === 'user',
-    );
-    assert.strictEqual(userMessage.record.content, 'MyCustomCommand');
+    let updatedMessages = await webviewMock.waitForMessage(m => m.eventType === 'updateRecord', 2);
+    updatedMessages = updatedMessages.map(m => m.record.content);
 
-    const responseMessage = await webviewMock.waitForMessage(
-      m => m.eventType === 'updateRecord' && m.record.role === 'assistant',
-    );
-
-    assert.strictEqual(
-      responseMessage.record.content,
-      newResponseResponse.aiMessages.nodes[0].content,
-    );
+    assert.strictEqual(updatedMessages.includes('USER message'), true);
+    assert.strictEqual(updatedMessages.includes('ASSISTANT message'), true);
   });
 
   describe('with no response available after all pulling attempts', () => {
@@ -126,7 +111,7 @@ describe('GitLab Duo Chat', () => {
       });
 
       const responseMessage = await webviewMock.waitForMessage(
-        m => m.eventType === 'updateRecord' && m.record.role === 'assistant',
+        m => m.eventType === 'updateRecord' && m.record.role === 'user',
       );
 
       assert.equal(responseMessage.record.errors[0], 'Reached timeout while fetching response.');

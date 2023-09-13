@@ -35,11 +35,12 @@ describe('GitLabChatController', () => {
       },
     });
 
-    apiMock.pullAiMessage = jest.fn().mockReturnValue({
-      content: 'api response',
-      requestId: 'uniqueId',
+    apiMock.pullAiMessage = jest.fn().mockImplementation((requestId: string, role: string) => ({
+      content: `api response ${role}`,
+      role,
+      requestId,
       timestamp: '2023-01-01 01:01:01',
-    });
+    }));
   });
 
   describe('resolveWebviewView', () => {
@@ -94,7 +95,17 @@ describe('GitLabChatController', () => {
 
       expect(viewMock.updateRecord).toHaveBeenCalledWith(
         expect.objectContaining({
-          content: 'api response',
+          content: 'api response user',
+          state: 'ready',
+          role: 'user',
+          requestId: 'uniqueId',
+          timestamp: Date.parse('2023-01-01 01:01:01'),
+        }),
+      );
+
+      expect(viewMock.updateRecord).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: 'api response assistant',
           state: 'ready',
           role: 'assistant',
           requestId: 'uniqueId',
@@ -110,14 +121,15 @@ describe('GitLabChatController', () => {
 
       expect(controller.chatHistory[0]).toEqual(
         expect.objectContaining({
-          content: 'hello',
+          content: 'api response user',
           state: 'ready',
           role: 'user',
+          requestId: 'uniqueId',
         }),
       );
       expect(controller.chatHistory[1]).toEqual(
         expect.objectContaining({
-          content: 'api response',
+          content: 'api response assistant',
           state: 'ready',
           role: 'assistant',
           requestId: 'uniqueId',

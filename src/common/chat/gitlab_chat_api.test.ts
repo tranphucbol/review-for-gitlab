@@ -14,7 +14,13 @@ const mockedMutationResponse = {
 const mockedQueryResponse = {
   aiMessages: {
     nodes: [
-      { content: 'test', requestId: '123', errors: ['bar'], timestamp: '2023-01-01 01:01:01' },
+      {
+        content: 'test',
+        requestId: '123',
+        role: 'assistant',
+        errors: ['bar'],
+        timestamp: '2023-01-01 01:01:01',
+      },
     ],
   },
 };
@@ -60,13 +66,16 @@ describe('GitLabChatApi', () => {
   };
 
   describe('getAiMessage', () => {
-    it('returns first assistant message with given requestId', async () => {
+    it('returns first message with given requestId and role', async () => {
       const manager = createManager(currentProject, mockedQueryResponse);
       const gitlabChatApi = new GitLabChatApi(manager);
 
       const expectedMessage = mockedQueryResponse.aiMessages.nodes[0];
 
-      const response = await gitlabChatApi.pullAiMessage(expectedMessage.requestId);
+      const response = await gitlabChatApi.pullAiMessage(
+        expectedMessage.requestId,
+        expectedMessage.role,
+      );
 
       assert(response.type === 'message');
 
@@ -83,7 +92,7 @@ describe('GitLabChatApi', () => {
       const manager = createManager(currentProject, mockedEmptyQueryResponse);
       const gitlabChatApi = new GitLabChatApi(manager);
 
-      const response = await gitlabChatApi.pullAiMessage('123');
+      const response = await gitlabChatApi.pullAiMessage('123', 'assistant');
 
       expect(response.requestId).toBe('123');
       expect(response.errors).toContainEqual('Reached timeout while fetching response.');

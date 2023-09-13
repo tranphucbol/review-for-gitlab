@@ -29,12 +29,18 @@ class WebviewMock {
     await this.#eventEmitter.emit('', message);
   }
 
-  async waitForMessage(matchFunc) {
+  async waitForMessage(matchFunc, times = 1) {
     return new Promise(resolve => {
+      const result = [];
       const sub = this.webview.webview.onDidReceiveMessage(message => {
         if (!matchFunc(message)) return;
-        sub.dispose();
-        resolve(message);
+
+        result.push(message);
+
+        if (result.length >= times) {
+          sub.dispose();
+          resolve(times === 1 ? result[0] : result);
+        }
       });
     });
   }
