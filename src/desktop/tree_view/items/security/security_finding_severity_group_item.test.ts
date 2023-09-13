@@ -19,7 +19,7 @@ describe('SecurityFindingSeverityGroup', () => {
         const item = subject.getTreeItem();
 
         expect(item).toMatchObject({
-          label: `6 ${severity} severity`,
+          label: `6 ${severity.toLowerCase()} severity`,
           iconPath: severityToIcon(severity),
           collapsibleState: 'collapsed',
         });
