@@ -134,6 +134,7 @@ export default {
     border-radius: 0.25em;
     padding: 0.25em;
     background-color: rgba(255, 255, 255, 0.1);
+    max-height: 200px;
   }
 
   p {
