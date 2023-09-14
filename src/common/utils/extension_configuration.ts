@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { CONFIG_NAMESPACE } from '../constants';
 import { AI_ASSISTED_CODE_SUGGESTIONS_CONFIG_NAMESPACE } from '../code_suggestions/constants';
 import { CustomQuery } from '../gitlab/custom_query';
+import { getConfigurationTargetForKey } from './get_configuration_target_for_key';
 
 // These constants represent `settings.json` keys. Other constants belong to `constants.ts`.
 export const GITLAB_DEBUG_MODE = 'gitlab.debug';
@@ -43,6 +44,15 @@ export function getAiAssistedCodeSuggestionsConfiguration(): AiAssistedCodeSugge
   };
 }
 
+/**
+ * Calls `config.update` but ises `getConfigurationTargetForKey` to make
+ * sure we pick the right ConfigurationTarget
+ */
+const updateConfig = <T>(config: vscode.WorkspaceConfiguration, key: string, value: T) => {
+  const target = getConfigurationTargetForKey(config, key);
+  return config.update(key, value, target);
+};
+
 export async function setAiAssistedCodeSuggestionsConfiguration(
   config: AiAssistedCodeSuggestionsConfiguration,
 ) {
@@ -50,9 +60,13 @@ export async function setAiAssistedCodeSuggestionsConfiguration(
     AI_ASSISTED_CODE_SUGGESTIONS_CONFIG_NAMESPACE,
   );
 
-  await aiAssistedCodeSuggestionsConfig.update('enabled', Boolean(config.enabled));
+  await updateConfig(aiAssistedCodeSuggestionsConfig, 'enabled', Boolean(config.enabled));
 
   if (typeof config.preferredAccount === 'string') {
-    await aiAssistedCodeSuggestionsConfig.update('preferredAccount', config.preferredAccount);
+    await updateConfig(
+      aiAssistedCodeSuggestionsConfig,
+      'preferredAccount',
+      config.preferredAccount,
+    );
   }
 }
