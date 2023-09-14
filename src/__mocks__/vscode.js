@@ -124,4 +124,9 @@ module.exports = {
     this.range = range;
     this.command = command;
   },
+  ConfigurationTarget: {
+    Global: 1,
+    Workspace: 2,
+    WorkspaceFolder: 3,
+  },
 };
