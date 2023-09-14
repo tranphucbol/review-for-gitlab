@@ -12,6 +12,7 @@ export enum CodeSuggestionTelemetryState {
   ACCEPTED = 'suggestion_accepted',
   REJECTED = 'suggestion_rejected',
   CANCELLED = 'suggestion_cancelled',
+  NOT_PROVIDED = 'suggestion_not_provided',
 }
 
 const stateGraph = new Map<CodeSuggestionTelemetryState, CodeSuggestionTelemetryState[]>([
@@ -21,7 +22,11 @@ const stateGraph = new Map<CodeSuggestionTelemetryState, CodeSuggestionTelemetry
   ],
   [
     CodeSuggestionTelemetryState.LOADED,
-    [CodeSuggestionTelemetryState.SHOWN, CodeSuggestionTelemetryState.CANCELLED],
+    [
+      CodeSuggestionTelemetryState.SHOWN,
+      CodeSuggestionTelemetryState.CANCELLED,
+      CodeSuggestionTelemetryState.NOT_PROVIDED,
+    ],
   ],
   [
     CodeSuggestionTelemetryState.SHOWN,
@@ -35,6 +40,12 @@ const stateGraph = new Map<CodeSuggestionTelemetryState, CodeSuggestionTelemetry
   ],
   [
     CodeSuggestionTelemetryState.CANCELLED,
+    [
+      /* end state no transition allowed */
+    ],
+  ],
+  [
+    CodeSuggestionTelemetryState.NOT_PROVIDED,
     [
       /* end state no transition allowed */
     ],

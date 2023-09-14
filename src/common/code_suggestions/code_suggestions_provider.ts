@@ -319,11 +319,17 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       arguments: [model, traceID],
     };
 
-    // right before suggestions are returned emit: suggestion_shown
-    CodeSuggestionsTelemetryManager.updateSuggestionState(
-      traceID,
-      CodeSuggestionTelemetryState.SHOWN,
-    );
+    if (choices.length > 0 && choices.some(choice => choice.text.length > 0)) {
+      CodeSuggestionsTelemetryManager.updateSuggestionState(
+        traceID,
+        CodeSuggestionTelemetryState.SHOWN,
+      );
+    } else {
+      CodeSuggestionsTelemetryManager.updateSuggestionState(
+        traceID,
+        CodeSuggestionTelemetryState.NOT_PROVIDED,
+      );
+    }
 
     return choices.map(
       choice =>
