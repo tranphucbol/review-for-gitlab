@@ -1,3 +1,17 @@
+## [3.77.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.77.0...v3.77.1) (2023-09-15)
+
+
+### Bug Fixes
+
+* Update AI enable setting with correct config target ([efa9387](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/efa9387385fdf75baa547977192792671a103d09))
+
+
+### Features
+
+* Limit max height of codeblocks in the chat ([ebf57db](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/ebf57db1c057365453248dadf0d7ec5474d3ddce))
+
+
+
 # [3.77.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.76.1...v3.77.0) (2023-09-11)
 
 
