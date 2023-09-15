@@ -659,6 +659,40 @@ describe('CodeSuggestionsProvider', () => {
       ]);
     });
 
+    describe('when API does not provide any suggestion in its response', () => {
+      it('should call telemetry manager and update suggestion state in the order of LOADED, NOT_PROVIDED', async () => {
+        glcp.fetchCompletions = jest.fn().mockResolvedValue({ ...mockCompletions, choices: [] });
+
+        await getCompletionsWithDefaultArgs(glcp);
+        expect(updateSuggestionState.mock.calls[0]).toEqual([
+          '123',
+          CodeSuggestionTelemetryState.LOADED,
+        ]);
+        expect(updateSuggestionState.mock.calls[1]).toEqual([
+          '123',
+          CodeSuggestionTelemetryState.NOT_PROVIDED,
+        ]);
+      });
+    });
+
+    describe('when API responds with suggestion that contains empty string', () => {
+      it('should call telemetry manager and update suggestion state in the order of LOADED, NOT_PROVIDED', async () => {
+        glcp.fetchCompletions = jest
+          .fn()
+          .mockResolvedValue({ ...mockCompletions, choices: [{ text: '' }] });
+
+        await getCompletionsWithDefaultArgs(glcp);
+        expect(updateSuggestionState.mock.calls[0]).toEqual([
+          '123',
+          CodeSuggestionTelemetryState.LOADED,
+        ]);
+        expect(updateSuggestionState.mock.calls[1]).toEqual([
+          '123',
+          CodeSuggestionTelemetryState.NOT_PROVIDED,
+        ]);
+      });
+    });
+
     it('should send a state of cancelled when suggestion is cancelled', async () => {
       const cancelToken = new vscode.CancellationTokenSource().token;
       cancelToken.isCancellationRequested = true;
