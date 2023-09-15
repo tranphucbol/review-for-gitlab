@@ -19,8 +19,8 @@ export type AiActionResponseType = {
 };
 
 export const AI_MESSAGES_QUERY = gql`
-  query getAiMessages($requestIds: [ID!]) {
-    aiMessages(requestIds: $requestIds, roles: [ASSISTANT]) {
+  query getAiMessages($requestIds: [ID!], $roles: [AiChatMessageRole!]) {
+    aiMessages(requestIds: $requestIds, roles: $roles) {
       nodes {
         requestId
         role
@@ -98,8 +98,8 @@ export class GitLabChatApi {
     return this.sendAiAction(AI_ACTIONS.chat, { question });
   }
 
-  async pullAiMessage(requestId: string): Promise<AiMessage> {
-    const response = await pullHandler(() => this.getAiMessage(requestId));
+  async pullAiMessage(requestId: string, role: string): Promise<AiMessage> {
+    const response = await pullHandler(() => this.getAiMessage(requestId, role));
 
     if (!response)
       return new Promise(resolve => {
@@ -118,11 +118,14 @@ export class GitLabChatApi {
     return platform;
   }
 
-  private async getAiMessage(requestId: string): Promise<AiMessageResponseType | undefined> {
+  private async getAiMessage(
+    requestId: string,
+    role: string,
+  ): Promise<AiMessageResponseType | undefined> {
     const request: GraphQLRequest<AiMessagesResponseType> = {
       type: 'graphql',
       query: AI_MESSAGES_QUERY,
-      variables: { requestIds: [requestId] },
+      variables: { requestIds: [requestId], roles: [role.toUpperCase()] },
     };
     const platform = await this.currentPlatform();
     const history = await platform.fetchFromApi(request);

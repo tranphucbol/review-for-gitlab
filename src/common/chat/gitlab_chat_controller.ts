@@ -61,26 +61,11 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
           role: 'assistant',
           content: '...',
           state: 'pending',
+          requestId: record.requestId,
         });
-
         await this.addToChat(responseRecord);
 
-        if (!record.requestId) {
-          break;
-        }
-
-        const response = await this.#api.pullAiMessage(record.requestId);
-
-        if (response.type !== 'error') {
-          responseRecord.content = response.content;
-          responseRecord.setTimestamp(response.timestamp);
-        }
-
-        responseRecord.errors = response.errors;
-        responseRecord.requestId = response.requestId;
-        responseRecord.state = 'ready';
-
-        await this.#view.updateRecord(responseRecord);
+        await Promise.all([this.refreshRecord(record), this.refreshRecord(responseRecord)]);
       }
     }
   }
@@ -101,9 +86,22 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
 
     const actionResponse = await this.#api.processNewUserPrompt(record.content);
 
-    // eslint-disable-next-line no-param-reassign
-    record.requestId = actionResponse.aiAction.requestId;
-    // eslint-disable-next-line no-param-reassign
-    record.errors = actionResponse.aiAction.errors;
+    record.update(actionResponse.aiAction);
+  }
+
+  private async refreshRecord(record: GitLabChatRecord) {
+    if (!record.requestId) {
+      throw Error('requestId must be present!');
+    }
+
+    const apiResponse = await this.#api.pullAiMessage(record.requestId, record.role);
+
+    if (apiResponse.type !== 'error') {
+      record.update({ content: apiResponse.content, timestamp: apiResponse.timestamp });
+    }
+
+    record.update({ errors: apiResponse.errors, state: 'ready' });
+
+    await this.#view.updateRecord(record);
   }
 }
