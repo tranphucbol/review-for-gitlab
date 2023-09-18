@@ -16,12 +16,12 @@ describe('SecurityFindingsGroupItem', () => {
 
   describe('getChildren()', () => {
     it.each([
-      ['INFO', 1],
-      ['LOW', 1],
-      ['MEDIUM', 1],
-      ['HIGH', 1],
-      ['CRITICAL', 1],
-      ['UNKNOWN', 1],
+      ['info', 1],
+      ['low', 1],
+      ['medium', 1],
+      ['high', 1],
+      ['critical', 1],
+      ['unknown', 1],
     ])('renders %s severity dropdown', async (severity, count) => {
       const children = await new SecurityFindingsGroupItem(
         'FIXED',

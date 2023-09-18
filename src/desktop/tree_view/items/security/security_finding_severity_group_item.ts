@@ -17,7 +17,7 @@ export class SecurityFindingSeverityGroup extends ItemModel {
   }
 
   getTreeItem(): vscode.TreeItem {
-    const title = `${this.#findings.length} ${this.#severity} severity`;
+    const title = `${this.#findings.length} ${this.#severity.toLowerCase()} severity`;
 
     const item = new vscode.TreeItem(title, vscode.TreeItemCollapsibleState.Collapsed);
     item.iconPath = severityToIcon(this.#severity);
