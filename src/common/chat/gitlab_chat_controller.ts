@@ -97,7 +97,11 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
     const apiResponse = await this.#api.pullAiMessage(record.requestId, record.role);
 
     if (apiResponse.type !== 'error') {
-      record.update({ content: apiResponse.content, timestamp: apiResponse.timestamp });
+      record.update({
+        content: apiResponse.content,
+        contentHtml: apiResponse.contentHtml,
+        timestamp: apiResponse.timestamp,
+      });
     }
 
     record.update({ errors: apiResponse.errors, state: 'ready' });

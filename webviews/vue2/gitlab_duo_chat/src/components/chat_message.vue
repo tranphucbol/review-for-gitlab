@@ -16,7 +16,15 @@ export default {
   },
   computed: {
     messageContent() {
-      return renderMarkdown(this.message.errors[0] || this.message.content);
+      if (this.message.errors.length > 0) {
+        return renderMarkdown(this.message.errors[0]);
+      }
+
+      if (this.message.contentHtml) {
+        return this.message.contentHtml;
+      }
+
+      return renderMarkdown(this.message.content);
     },
     isPending() {
       return this.message.state === 'pending';
