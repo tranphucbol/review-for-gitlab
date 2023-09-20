@@ -1,3 +1,13 @@
+# [3.78.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.77.1...v3.78.0) (2023-09-20)
+
+
+### Features
+
+* **secure:** uncapitalize severity label in treeview ([e42510d](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/e42510dfa686a5f4cd92faaab5183754ee839a78))
+* update prompt content with response from API ([a93a693](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/a93a693bd65c98b7ec184fc831901bac1fc376eb))
+
+
+
 ## [3.77.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.77.0...v3.77.1) (2023-09-15)
 
 
