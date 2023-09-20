@@ -231,7 +231,7 @@ export class CodeSuggestionsTelemetryManager {
 
     await Snowplow.getInstance().trackStructEvent(
       {
-        category: 'code suggestions',
+        category: 'code_suggestions',
         action: suggestion.state,
         label: suggestionID,
       },
