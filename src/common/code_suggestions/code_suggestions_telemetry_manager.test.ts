@@ -67,7 +67,7 @@ describe('CodeSuggestionsTelemetryManager', () => {
     expect(trackStructEvent).toBeCalledWith(
       expect.objectContaining({
         action: 'suggestion_requested',
-        category: 'code suggestions',
+        category: 'code_suggestions',
       }),
       expect.arrayContaining([codeSuggestionContexts, ideVersionContext]),
     );
@@ -82,7 +82,7 @@ describe('CodeSuggestionsTelemetryManager', () => {
     expect(trackStructEvent).toBeCalledWith(
       expect.objectContaining({
         action: 'suggestion_loaded',
-        category: 'code suggestions',
+        category: 'code_suggestions',
       }),
       expect.arrayContaining([expect.anything()]),
     );
@@ -122,7 +122,7 @@ describe('CodeSuggestionsTelemetryManager', () => {
     expect(trackStructEvent.mock.calls[0]).toEqual([
       expect.objectContaining({
         action: 'suggestion_requested',
-        category: 'code suggestions',
+        category: 'code_suggestions',
       }),
       expect.arrayContaining([expect.anything()]),
     ]);
@@ -130,7 +130,7 @@ describe('CodeSuggestionsTelemetryManager', () => {
     expect(trackStructEvent.mock.calls[1]).toEqual([
       expect.objectContaining({
         action: 'suggestion_loaded',
-        category: 'code suggestions',
+        category: 'code_suggestions',
       }),
       expect.arrayContaining([expect.anything()]),
     ]);
@@ -138,7 +138,7 @@ describe('CodeSuggestionsTelemetryManager', () => {
     expect(trackStructEvent.mock.calls[2]).toEqual([
       expect.objectContaining({
         action: 'suggestion_shown',
-        category: 'code suggestions',
+        category: 'code_suggestions',
       }),
       expect.arrayContaining([expect.anything()]),
     ]);
@@ -146,7 +146,7 @@ describe('CodeSuggestionsTelemetryManager', () => {
     expect(trackStructEvent.mock.calls[3]).toEqual([
       expect.objectContaining({
         action: 'suggestion_rejected',
-        category: 'code suggestions',
+        category: 'code_suggestions',
       }),
       expect.arrayContaining([expect.anything()]),
     ]);
@@ -154,7 +154,7 @@ describe('CodeSuggestionsTelemetryManager', () => {
     expect(trackStructEvent.mock.calls[4]).toEqual([
       expect.objectContaining({
         action: 'suggestion_requested',
-        category: 'code suggestions',
+        category: 'code_suggestions',
       }),
       expect.arrayContaining([expect.anything()]),
     ]);
@@ -181,7 +181,7 @@ describe('CodeSuggestionsTelemetryManager', () => {
     expect(trackStructEvent).toBeCalledWith(
       expect.objectContaining({
         action: 'suggestion_loaded',
-        category: 'code suggestions',
+        category: 'code_suggestions',
       }),
       expect.arrayContaining([expect.anything(), codeSuggestionContexts]),
     );
