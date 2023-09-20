@@ -25,6 +25,7 @@ export const AI_MESSAGES_QUERY = gql`
         requestId
         role
         content
+        contentHtml
         timestamp
         errors
       }
@@ -38,24 +39,13 @@ type AiMessagesResponseType = {
       requestId: string;
       role: string;
       content: string;
+      contentHtml: string;
       timestamp: string;
       errors: string[];
     }[];
   };
 };
 type AiMessageResponseType = AiMessagesResponseType['aiMessages']['nodes'][0];
-
-const parseMessageContent = <T extends { content: string }>(message: T): T => {
-  const result = message;
-
-  try {
-    result.content = JSON.parse(result.content).content;
-  } catch (e) {
-    // no-op. keep raw content
-  }
-
-  return result;
-};
 
 interface ErrorMessage {
   type: 'error';
@@ -76,6 +66,7 @@ interface SuccessMessage {
   requestId: string;
   role: string;
   content: string;
+  contentHtml: string;
   timestamp: string;
   errors: string[];
 }
@@ -130,7 +121,7 @@ export class GitLabChatApi {
     const platform = await this.currentPlatform();
     const history = await platform.fetchFromApi(request);
 
-    return history.aiMessages.nodes.map(parseMessageContent)[0];
+    return history.aiMessages.nodes[0];
   }
 
   private async sendAiAction(

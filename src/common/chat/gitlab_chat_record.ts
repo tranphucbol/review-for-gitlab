@@ -8,6 +8,7 @@ type GitLabChatRecordAttributes = {
   type?: ChatRecordType;
   role: ChatRecordRole;
   content?: string;
+  contentHtml?: string;
   requestId?: string;
   state?: ChatRecordState;
   payload?: object;
@@ -19,6 +20,8 @@ export class GitLabChatRecord {
   role: ChatRecordRole;
 
   content?: string;
+
+  contentHtml?: string;
 
   id: string;
 
@@ -38,6 +41,7 @@ export class GitLabChatRecord {
     type,
     role,
     content,
+    contentHtml,
     state,
     requestId,
     payload,
@@ -46,6 +50,7 @@ export class GitLabChatRecord {
   }: GitLabChatRecordAttributes) {
     this.role = role;
     this.content = content;
+    this.contentHtml = contentHtml;
     this.type = type ?? this.detectType();
     this.state = state ?? 'ready';
     this.payload = payload ?? {};
