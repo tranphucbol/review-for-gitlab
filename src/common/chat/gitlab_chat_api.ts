@@ -19,7 +19,7 @@ export type AiActionResponseType = {
 };
 
 export const AI_MESSAGES_QUERY = gql`
-  query getAiMessages($requestIds: [ID!], $roles: [AiChatMessageRole!]) {
+  query getAiMessages($requestIds: [ID!], $roles: [AiMessageRole!]) {
     aiMessages(requestIds: $requestIds, roles: $roles) {
       nodes {
         requestId
