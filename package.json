@@ -211,7 +211,7 @@
     "@types/node": "^13.13.52",
     "@types/request-promise": "^4.1.48",
     "@types/semver": "^7.3.8",
-    "@types/sinon": "^10.0.16",
+    "@types/sinon": "^10.0.17",
     "@types/source-map-support": "^0.5.4",
     "@types/temp": "^0.9.0",
     "@types/uuid": "^9.0.0",
