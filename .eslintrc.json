@@ -45,7 +45,7 @@
       }
     ],
     "no-shadow": "warn",
-    "no-use-before-define": "warn",
+    "no-use-before-define": ["warn", "nofunc"],
     "import/no-extraneous-dependencies": [
       "error",
       { "devDependencies": ["scripts/**/*", "**/*.test.js", "test/**/*"] }

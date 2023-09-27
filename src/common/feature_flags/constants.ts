@@ -5,6 +5,7 @@ export enum FeatureFlag {
   SecurityScans = 'securityScansFlag',
   GitLabChat = 'chat',
   ForceCodeSuggestionsViaMonolith = 'forceCodeSuggestionsViaMonolith',
+  LanguageServer = 'languageServer',
 }
 
 // Set the feature flag default value here
@@ -13,4 +14,5 @@ export const FEATURE_FLAGS_DEFAULT_VALUES = {
   [FeatureFlag.GitLabChat]: false,
   [FeatureFlag.ForceCodeSuggestionsViaMonolith]: false,
   [FeatureFlag.TestFlag]: false,
+  [FeatureFlag.LanguageServer]: false,
 };

@@ -79,6 +79,7 @@ import {
   getExtensionConfiguration,
   GITLAB_DEBUG_MODE,
 } from '../common/utils/extension_configuration';
+import * as featureFlags from '../common/feature_flags';
 import { setupVersionCheck } from './gitlab/check_version';
 import { setupYamlSupport } from './yaml_support';
 import { cancelJob, executeJob, retryJob } from './commands/job_actions';
@@ -272,7 +273,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   await migrateCredentials(context, accountService).catch(e => handleError(e));
   await migrateSelectedProjects(selectedProjectStore, accountService).catch(e => handleError(e));
 
-  if (getExtensionConfiguration().languageServer) {
+  if (featureFlags.isEnabled(featureFlags.FeatureFlag.LanguageServer)) {
     startLanguageServer(context);
   } else {
     context.subscriptions.push(new CodeSuggestions(gitlabPlatformManagerDesktop));

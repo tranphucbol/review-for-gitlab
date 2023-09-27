@@ -3,6 +3,7 @@ import { LanguageClient } from 'vscode-languageclient/browser';
 import { initializeLogging } from '../common/log';
 import { createGitLabPlatformManagerBrowser } from './gitlab_platform_browser';
 import { activateCommon } from '../common/main';
+import * as featureFlags from '../common/feature_flags';
 import { setupTelemetry } from './setup_telemetry_browser';
 import {
   LANGUAGE_SERVER_ID,
@@ -11,7 +12,6 @@ import {
   registerLanguageServer,
 } from '../common/language_server';
 import { createCodeSuggestionStatusBar } from '../common/code_suggestions/code_suggestions_status_bar_item';
-import { getExtensionConfiguration } from '../common/utils/extension_configuration';
 import { CodeSuggestions } from '../common/code_suggestions/code_suggestions';
 
 export const activate = async (context: vscode.ExtensionContext) => {
@@ -27,7 +27,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   const platformManager = await createGitLabPlatformManagerBrowser();
   await activateCommon(context, platformManager, outputChannel);
 
-  if (getExtensionConfiguration().languageServer) {
+  if (featureFlags.isEnabled(featureFlags.FeatureFlag.LanguageServer)) {
     startLanguageServer(context);
   } else {
     context.subscriptions.push(new CodeSuggestions(platformManager));
