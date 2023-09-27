@@ -34,6 +34,10 @@ export async function prepareWebviews(webviews, env) {
 export async function generateAssets(packageJson, env) {
   return Promise.all([
     copy(path.join(root, 'src/assets'), path.join(root, `dist-${env}/assets`)),
+    copy(
+      path.join(root, 'node_modules/@gitlab-org/gitlab-lsp/out'),
+      path.join(root, `dist-${env}/assets/language-server`),
+    ),
     generateFont(packageJson, `dist-${env}`),
   ]);
 }

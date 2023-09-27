@@ -1,14 +1,9 @@
 import * as vscode from 'vscode';
-import { createStatusBarItem } from '../utils/create_status_bar_item';
+import { IStatus, createStatusBarItem } from '../utils/status_bar_item';
 import { CodeSuggestionsStateManager, VisibleCodeSuggestionsState } from './code_suggestions_state';
 import { COMMAND_TOGGLE_CODE_SUGGESTIONS } from './commands/toggle';
 
-type CodeSuggestionsStatuses = Record<
-  VisibleCodeSuggestionsState,
-  { text: string; tooltip: string }
->;
-
-const CODE_SUGGESTIONS_STATUSES: CodeSuggestionsStatuses = {
+export const CODE_SUGGESTIONS_STATUSES: Record<VisibleCodeSuggestionsState, IStatus> = {
   [VisibleCodeSuggestionsState.LOADING]: {
     text: '$(gitlab-code-suggestions-loading)',
     tooltip: 'Code suggestion is loading...',
@@ -50,13 +45,7 @@ export class CodeSuggestionsStatusBarItem {
   }
 
   constructor(state: CodeSuggestionsStateManager) {
-    this.codeSuggestionsStatusBarItem = createStatusBarItem({
-      priority: 3,
-      id: 'gl.status.code_suggestions',
-      name: 'GitLab Workflow: Code Suggestions',
-      initialText: '$(gitlab-code-suggestions-disabled)',
-      command: COMMAND_TOGGLE_CODE_SUGGESTIONS,
-    });
+    this.codeSuggestionsStatusBarItem = createCodeSuggestionStatusBar();
     this.updateCodeSuggestionsItem(state.getVisibleState());
     this.#codeSuggestionsStateSubscription = state.onDidChangeVisibleState(e =>
       this.updateCodeSuggestionsItem(e),
@@ -66,4 +55,14 @@ export class CodeSuggestionsStatusBarItem {
   dispose(): void {
     this.#codeSuggestionsStateSubscription?.dispose();
   }
+}
+
+export function createCodeSuggestionStatusBar() {
+  return createStatusBarItem({
+    priority: 3,
+    id: 'gl.status.code_suggestions',
+    name: 'GitLab Workflow: Code Suggestions',
+    initialText: '$(gitlab-code-suggestions-disabled)',
+    command: COMMAND_TOGGLE_CODE_SUGGESTIONS,
+  });
 }

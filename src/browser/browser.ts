@@ -1,8 +1,18 @@
 import * as vscode from 'vscode';
+import { LanguageClient } from 'vscode-languageclient/browser';
 import { initializeLogging } from '../common/log';
 import { createGitLabPlatformManagerBrowser } from './gitlab_platform_browser';
 import { activateCommon } from '../common/main';
+import * as featureFlags from '../common/feature_flags';
 import { setupTelemetry } from './setup_telemetry_browser';
+import {
+  LANGUAGE_SERVER_ID,
+  LANGUAGE_SERVER_NAME,
+  LANGUAGE_CLIENT_OPTIONS,
+  registerLanguageServer,
+} from '../common/language_server';
+import { createCodeSuggestionStatusBar } from '../common/code_suggestions/code_suggestions_status_bar_item';
+import { CodeSuggestions } from '../common/code_suggestions/code_suggestions';
 
 export const activate = async (context: vscode.ExtensionContext) => {
   setupTelemetry();
@@ -16,4 +26,28 @@ export const activate = async (context: vscode.ExtensionContext) => {
 
   const platformManager = await createGitLabPlatformManagerBrowser();
   await activateCommon(context, platformManager, outputChannel);
+
+  if (featureFlags.isEnabled(featureFlags.FeatureFlag.LanguageServer)) {
+    startLanguageServer(context);
+  } else {
+    context.subscriptions.push(new CodeSuggestions(platformManager));
+  }
 };
+
+function startLanguageServer(context: vscode.ExtensionContext) {
+  const module = vscode.Uri.joinPath(
+    context.extensionUri,
+    './assets/language-server/browser/main.js',
+  );
+  const worker = new Worker(module.toString(true));
+
+  const client = new LanguageClient(
+    LANGUAGE_SERVER_ID,
+    LANGUAGE_SERVER_NAME,
+    LANGUAGE_CLIENT_OPTIONS,
+    worker,
+  );
+
+  // TODO: can we get an AccountService instance here?
+  registerLanguageServer(context, client, createCodeSuggestionStatusBar());
+}

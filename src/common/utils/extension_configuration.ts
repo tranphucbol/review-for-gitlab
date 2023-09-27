@@ -3,6 +3,7 @@ import { CONFIG_NAMESPACE } from '../constants';
 import { AI_ASSISTED_CODE_SUGGESTIONS_CONFIG_NAMESPACE } from '../code_suggestions/constants';
 import { CustomQuery } from '../gitlab/custom_query';
 import { getConfigurationTargetForKey } from './get_configuration_target_for_key';
+import { FeatureFlag } from '../feature_flags/constants';
 
 // These constants represent `settings.json` keys. Other constants belong to `constants.ts`.
 export const GITLAB_DEBUG_MODE = 'gitlab.debug';
@@ -12,7 +13,7 @@ export const AI_ASSISTED_CODE_SUGGESTIONS_CONFIG = 'gitlab.aiAssistedCodeSuggest
 export interface ExtensionConfiguration {
   pipelineGitRemoteName?: string;
   debug: boolean;
-  featureFlags: Record<string, boolean>;
+  featureFlags: Partial<Record<FeatureFlag, boolean>>;
   customQueries: CustomQuery[];
 }
 
@@ -26,11 +27,12 @@ const turnNullToUndefined = <T>(val: T | null | undefined): T | undefined => val
 
 export function getExtensionConfiguration(): ExtensionConfiguration {
   const workspaceConfig = vscode.workspace.getConfiguration(CONFIG_NAMESPACE);
+
   return {
-    pipelineGitRemoteName: turnNullToUndefined(workspaceConfig.pipelineGitRemoteName),
-    featureFlags: workspaceConfig.featureFlags ?? {},
-    debug: workspaceConfig.debug,
-    customQueries: workspaceConfig.customQueries || [],
+    pipelineGitRemoteName: turnNullToUndefined(workspaceConfig?.pipelineGitRemoteName),
+    featureFlags: workspaceConfig?.featureFlags ?? {},
+    debug: workspaceConfig?.debug || false,
+    customQueries: workspaceConfig?.customQueries || [],
   };
 }
 

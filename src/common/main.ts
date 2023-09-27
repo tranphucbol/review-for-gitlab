@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import { isEnabled, FeatureFlag, initializeFeatureFlagContext } from './feature_flags';
 import { GitLabPlatformManager } from './platform/gitlab_platform';
-import { CodeSuggestions } from './code_suggestions/code_suggestions';
 import {
   COMMAND_CODE_SUGGESTION_ACCEPTED,
   codeSuggestionAccepted,
@@ -23,7 +22,6 @@ export const activateCommon = async (
   Object.entries(commands).forEach(([cmdName, cmd]) => {
     context.subscriptions.push(vscode.commands.registerCommand(cmdName, cmd));
   });
-  context.subscriptions.push(new CodeSuggestions(manager));
 
   if (isEnabled(FeatureFlag.GitLabChat)) {
     activateChat(context, manager);

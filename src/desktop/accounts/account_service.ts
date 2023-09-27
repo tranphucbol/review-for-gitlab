@@ -14,6 +14,7 @@ import {
   TokenAccount,
 } from '../../common/platform/gitlab_account';
 import { Credentials } from './credentials';
+import { IAccountService } from '../../common/accounts';
 
 interface TokenSecret {
   token: string;
@@ -77,7 +78,7 @@ const splitAccount = (
   throw new Error(`Unexpected account type for account ${JSON.stringify(account)}`);
 };
 
-export class AccountService {
+export class AccountService implements IAccountService {
   context?: ExtensionContext;
 
   secrets: SecretsForAccounts = {};
