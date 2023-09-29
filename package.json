@@ -256,6 +256,6 @@
     "temp": "^0.9.4",
     "url": "^0.11.0",
     "uuid": "^9.0.0",
-    "vscode-languageclient": "^8.1.0"
+    "vscode-languageclient": "^9.0.0"
   }
 }
