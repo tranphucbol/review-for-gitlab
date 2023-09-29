@@ -1,3 +1,23 @@
+# [3.80.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.78.0...v3.80.0) (2023-09-29)
+
+
+### Bug Fixes
+
+* chat role graphql type ([5c0f8fe](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/5c0f8fe394a9f7eb0fca1940afb3ee1a17c450ea))
+* **language-server:** correct feature flag usage ([43a2a11](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/43a2a119f234bea6795e73c76e36057b94e82204))
+* **telemetry:** Fixed issue with telemetry category ([0f16d59](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/0f16d59fb0aff6b5aea2c9053e8b7f081491616e))
+
+
+### Features
+
+* add shortcut for toggle ([d61cf59](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/d61cf597a32b8b129a96637d06bc5a844f99951f))
+* integrate language server ([0a5daa2](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/0a5daa284476aab896ef698bddd7913baa82f835)), closes [#803](https://gitlab.com/gitlab-org/gitlab-vscode-extension/issues/803)
+* revert "add Duo Chat toggle setting" ([ba3b480](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/ba3b4800c44deaae7e2a6a6dbf75d2c6acca723d))
+* Implemented by [@rosskipp](https://gitlab.com/rosskipp) with [MR !1024](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/1024) 👍
+
+
+
+
 # [3.79.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.78.0...v3.79.0) (2023-09-29)
 
 

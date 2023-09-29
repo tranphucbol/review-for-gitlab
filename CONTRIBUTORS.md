@@ -29,3 +29,4 @@
 - Salman Mohammadi[@salmanmo](https://gitlab.com/salmanmo)
 - Ahmed Hoban[@amohoban](https://gitlab.com/amohoban)
 - Ethan Reesor [@firelizzard](https://gitlab.com/firelizzard)
+- Ross Kippenbrock [@rosskipp](https://gitlab.com/rosskipp)
