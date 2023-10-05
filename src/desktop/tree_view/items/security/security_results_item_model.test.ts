@@ -29,5 +29,16 @@ describe('SecurityResultsItemModel', () => {
       expect(children).toHaveLength(2);
       expect(children.map(x => x.getTreeItem().label)).toEqual(['New findings', 'Fixed findings']);
     });
+
+    it('renders added and fixed dropdowns when no vulnerability present', async () => {
+      const children = await new SecurityResultsItemModel('COMPLETE', {
+        ...securityReport,
+        fixed: [],
+        added: [],
+      }).getChildren();
+      expect(children).toHaveLength(2);
+      expect(children.map(x => x.getTreeItem().label)).toEqual(['New findings', 'Fixed findings']);
+      expect(children.map(x => x.getTreeItem().description)).toEqual(['0', '0']);
+    });
   });
 });
