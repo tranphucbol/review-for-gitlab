@@ -6,11 +6,13 @@ describe('SecurityFindingsGroupItem', () => {
     it('has new findings', () => {
       const item = new SecurityFindingsGroupItem('ADDED', securityReport.added).getTreeItem();
       expect(item.label).toBe('New findings');
+      expect(item.description).toBe('6');
     });
 
     it('has fixed findings', () => {
       const item = new SecurityFindingsGroupItem('FIXED', securityReport.fixed).getTreeItem();
       expect(item.label).toBe('Fixed findings');
+      expect(item.description).toBe('6');
     });
   });
 

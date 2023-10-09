@@ -37,12 +37,8 @@ export class SecurityResultsItemModel extends ItemModel {
       const addedSecurityFindings = this.#securityReport.added;
       const fixedSecurityFindings = this.#securityReport.fixed;
 
-      if (addedSecurityFindings.length > 0) {
-        securityFindingGroups.push(new SecurityFindingsGroupItem('ADDED', addedSecurityFindings));
-      }
-      if (fixedSecurityFindings.length > 0) {
-        securityFindingGroups.push(new SecurityFindingsGroupItem('FIXED', fixedSecurityFindings));
-      }
+      securityFindingGroups.push(new SecurityFindingsGroupItem('ADDED', addedSecurityFindings));
+      securityFindingGroups.push(new SecurityFindingsGroupItem('FIXED', fixedSecurityFindings));
     }
 
     return securityFindingGroups;

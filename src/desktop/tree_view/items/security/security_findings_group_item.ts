@@ -21,7 +21,13 @@ export class SecurityFindingsGroupItem extends ItemModel {
 
   getTreeItem(): vscode.TreeItem {
     const label = this.#securityFindingGroupType === 'ADDED' ? 'New findings' : 'Fixed findings';
-    return new vscode.TreeItem(label, vscode.TreeItemCollapsibleState.Expanded);
+    const count = this.#findings.length;
+    const item = new vscode.TreeItem(
+      label,
+      count ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None,
+    );
+    item.description = String(count);
+    return item;
   }
 
   async getChildren(): Promise<ItemModel[]> {
