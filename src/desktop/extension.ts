@@ -71,7 +71,6 @@ import {
   showAdvancedSearchInput,
 } from './search_input';
 import { migrateCredentials } from './accounts/credentials_migrator';
-import { migrateSelectedProjects } from './gitlab/migrate_selected_projects';
 import { gitlabUriHandler } from './gitlab_uri_handler';
 import { authenticate } from './accounts/authenticate';
 import { GitLabAuthenticationProvider } from './accounts/oauth/gitlab_authentication_provider';
@@ -271,7 +270,6 @@ export const activate = async (context: vscode.ExtensionContext) => {
   registerSidebarTreeDataProviders();
   registerRepositoryRootProvider(issuableController, pendingWebviewController);
   await migrateCredentials(context, accountService).catch(e => handleError(e));
-  await migrateSelectedProjects(selectedProjectStore, accountService).catch(e => handleError(e));
 
   if (featureFlags.isEnabled(featureFlags.FeatureFlag.LanguageServer)) {
     startLanguageServer(context);
