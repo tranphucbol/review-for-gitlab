@@ -1,6 +1,5 @@
 import assert from 'assert';
 import vscode from 'vscode';
-import { URLSearchParams } from 'url';
 import { GitLabService } from '../../gitlab/gitlab_service';
 import { GitLabUriHandler } from '../../gitlab_uri_handler';
 import { openUrl } from '../../commands/openers';
@@ -17,20 +16,20 @@ jest.useFakeTimers();
 /* This method simulates the first response from GitLab OAuth, it accepts the authentication URL and returns redirect URL */
 const fakeOAuthService = (urlString: string): string => {
   const url = new URL(urlString);
-  const params = Object.fromEntries(new URLSearchParams(url.search).entries());
+  const params = url.searchParams;
   assert.strictEqual(
-    params.client_id,
+    params.get('client_id'),
     '36f2a70cddeb5a0889d4fd8295c241b7e9848e89cf9e599d0eed2d8e5350fbf5',
   );
-  assert.strictEqual(params.redirect_uri, 'vscode://gitlab.gitlab-workflow/authentication');
-  assert.strictEqual(params.response_type, 'code');
-  assert.strictEqual(params.scope, 'read_user api');
-  assert.strictEqual(params.code_challenge_method, 'S256');
-  assert(params.state);
-  assert(params.code_challenge);
+  assert.strictEqual(params.get('redirect_uri'), 'vscode://gitlab.gitlab-workflow/authentication');
+  assert.strictEqual(params.get('response_type'), 'code');
+  assert.strictEqual(params.get('scope'), 'read_user api');
+  assert.strictEqual(params.get('code_challenge_method'), 'S256');
+  assert(params.get('state'));
+  assert(params.get('code_challenge'));
 
-  const responseParams = new URLSearchParams({ state: params.state, code: 'abc' });
-  return `${params.redirect_uri}?${responseParams}`;
+  const responseParams = new URLSearchParams({ state: params.get('state') || '', code: 'abc' });
+  return `${params.get('redirect_uri')}?${responseParams}`;
 };
 
 describe('GitLabAuthenticationProvider', () => {

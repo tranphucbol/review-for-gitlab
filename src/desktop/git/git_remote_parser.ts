@@ -1,5 +1,3 @@
-import * as url from 'url';
-
 /**
  * GitLabRemote represents a parsed git remote URL that could potentially point to a GitLab project.
  */
@@ -27,7 +25,7 @@ export interface GitLabRemote {
 
 // returns path without the trailing slash or empty string if there is no path
 const getInstancePath = (instanceUrl: string) => {
-  const { pathname } = url.parse(instanceUrl);
+  const { pathname } = new URL(instanceUrl);
   return pathname ? pathname.replace(/\/$/, '') : '';
 };
 
@@ -40,7 +38,7 @@ function normalizeSshRemote(remote: string): string {
   // https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/309
   const sshRemoteWithCustomPort = remote.match(`^\\[([a-zA-Z0-9_-]+@.*?):\\d+\\](.*)$`);
   if (sshRemoteWithCustomPort) {
-    return `ssh://${sshRemoteWithCustomPort[1]}${sshRemoteWithCustomPort[2]}`;
+    return `ssh://${sshRemoteWithCustomPort[1]}/${sshRemoteWithCustomPort[2]}`;
   }
 
   // Regex to match git SSH remotes with URL scheme and a custom port
@@ -69,7 +67,7 @@ function normalizeSshRemote(remote: string): string {
 }
 
 export function parseGitLabRemote(remote: string, instanceUrl?: string): GitLabRemote | undefined {
-  const { host, pathname } = url.parse(normalizeSshRemote(remote));
+  const { host, pathname } = new URL(normalizeSshRemote(remote));
 
   if (!host || !pathname) {
     return undefined;
