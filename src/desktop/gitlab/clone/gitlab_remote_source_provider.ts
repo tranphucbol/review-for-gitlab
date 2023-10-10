@@ -40,7 +40,7 @@ export class GitLabRemoteSourceProvider implements RemoteSourceProvider {
   private gitlabService: GitLabService;
 
   constructor(account: Account) {
-    this.name = `GitLab (${account.instanceUrl})`;
+    this.name = `GitLab (${account.instanceUrl} - ${account.username})`;
     this.gitlabService = getGitLabServiceForAccount(account);
   }
 
