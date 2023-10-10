@@ -10,6 +10,11 @@ include:
   - project: 'gitlab-org/quality/pipeline-common'
     file: '/ci/danger-review.yml'  # danger-review job below
 
+# why: Similar to https://gitlab.com/gitlab-org/cli/-/merge_requests/1352 to avoid
+# upstream breaking changes
+danger-review:
+  variables:
+    GITLAB_DANGERFILES_VERSION: "4.1.0"
 
 variables:
   SAST_EXCLUDED_ANALYZERS: "eslint"
