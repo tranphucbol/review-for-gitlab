@@ -7,19 +7,33 @@ import { createTokenAccount } from '../../test_utils/entities';
 jest.mock('../../accounts/account_service');
 
 describe('GitLab Credentials Provider', () => {
-  beforeEach(() => {
-    accountService.getInstanceUrls = () => [GITLAB_URL];
-    accountService.getOneAccountForInstance = (url: string) =>
-      url === GITLAB_URL ? createTokenAccount() : undefined;
-  });
+  beforeEach(() => {});
 
-  it('getting credentials works', async () => {
+  it('can get credentials when there is single account for the instance', async () => {
+    accountService.getAllAccounts = () => [createTokenAccount(GITLAB_URL)];
     expect(
       (await gitlabCredentialsProvider.getCredentials(vscode.Uri.parse(GITLAB_URL)))?.password,
     ).toBe('abc');
   });
 
+  it('can get credentials when there are multiple accounts for the instance', async () => {
+    accountService.getAllAccounts = () => [
+      createTokenAccount(GITLAB_URL, 1, 'abc'),
+      createTokenAccount(GITLAB_URL, 2, 'def'),
+    ];
+
+    // always select the second option
+    jest
+      .mocked(vscode.window.showQuickPick)
+      .mockImplementation(async options => (await options)[1]);
+
+    expect(
+      (await gitlabCredentialsProvider.getCredentials(vscode.Uri.parse(GITLAB_URL)))?.password,
+    ).toBe('def');
+  });
+
   it('returns undefined for url without token', async () => {
+    accountService.getAllAccounts = () => [createTokenAccount(GITLAB_URL)];
     expect(
       await gitlabCredentialsProvider.getCredentials(vscode.Uri.parse('https://invalid.com')),
     ).toBe(undefined);
