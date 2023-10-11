@@ -214,7 +214,7 @@
     "@types/sinon": "^10.0.18",
     "@types/source-map-support": "^0.5.4",
     "@types/temp": "^0.9.0",
-    "@types/uuid": "^9.0.0",
+    "@types/uuid": "^9.0.5",
     "@types/vscode": "^1.68.0",
     "@typescript-eslint/eslint-plugin": "^6.2.0",
     "@typescript-eslint/parser": "^6.2.0",
@@ -255,7 +255,7 @@
     "source-map-support": "^0.5.20",
     "temp": "^0.9.4",
     "url": "^0.11.0",
-    "uuid": "^9.0.0",
+    "uuid": "^9.0.1",
     "vscode-languageclient": "^9.0.0"
   }
 }
