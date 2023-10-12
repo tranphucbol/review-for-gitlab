@@ -7,7 +7,7 @@ export function setupTelemetry(): Snowplow {
 
   const snowplow = Snowplow.getInstance({
     ...snowplowBaseOptions,
-    enabled: () => (webIdeExtension ? webIdeExtension.isTelemetryEnabled() : false),
+    enabled: () => gitlabPlatform,
   });
 
   return snowplow;

@@ -13,6 +13,8 @@ export interface GitLabPlatformBase {
    * (e.g. when calling Model Gateway for code suggestions)
    */
   getUserAgentHeader(): Record<string, string>;
+
+  isTelemetryEnabled(): boolean;
 }
 
 export interface GitLabPlatformForActiveProject extends GitLabPlatformBase {

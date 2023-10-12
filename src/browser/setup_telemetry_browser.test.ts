@@ -26,8 +26,8 @@ describe('setupTelemetry.browser', () => {
         statusText: 'OK',
       }),
     );
-
     jest.mocked(fetch).mockClear();
+
 
     jest.mocked(getWebIdeExports).mockReturnValue(webIDEExtension);
   });
