@@ -10,12 +10,17 @@ const showMarkdownPreview = async (section?: string) => {
   await vscode.commands.executeCommand(VS_COMMANDS.MARKDOWN_SHOW_PREVIEW, help);
 };
 
+type maybeStatus = number | undefined;
+
 export class HelpError extends Error implements UiError {
   readonly options: HelpOptions;
 
-  constructor(message: string, options: HelpOptions = {}) {
+  readonly status: maybeStatus;
+
+  constructor(message: string, options: HelpOptions = {}, status: maybeStatus = undefined) {
     super(message);
     this.options = options;
+    this.status = status;
   }
 
   static isHelpError(object: unknown): object is HelpError {

@@ -36,6 +36,7 @@ jest.mock('./code_suggestions_telemetry_manager', () => ({
     createSuggestion: jest.fn().mockReturnValue('123'),
     rejectOpenedSuggestions: jest.fn(),
     setSuggestionModel: jest.fn(),
+    setSuggestionStatusCode: jest.fn(),
   },
   CodeSuggestionTelemetryState: {
     REQUESTED: 'REQUESTED',
@@ -46,9 +47,12 @@ jest.mock('./code_suggestions_telemetry_manager', () => ({
   },
 }));
 
-const { updateSuggestionState, rejectOpenedSuggestions, setSuggestionModel } = jest.requireMock(
-  './code_suggestions_telemetry_manager',
-).CodeSuggestionsTelemetryManager;
+const {
+  updateSuggestionState,
+  rejectOpenedSuggestions,
+  setSuggestionModel,
+  setSuggestionStatusCode,
+} = jest.requireMock('./code_suggestions_telemetry_manager').CodeSuggestionsTelemetryManager;
 
 /**
  * @deprecated use jest.mocked() instead
@@ -97,6 +101,18 @@ const token = {
   expires_in: 0,
   created_at: 0,
 };
+
+const crossFetchResponse = (
+  ok: boolean,
+  status: number,
+  response?: unknown,
+  headers?: Record<string, unknown>,
+) => ({
+  ok,
+  status,
+  headers: new Map(Object.entries(headers ?? {})),
+  text: async () => response,
+});
 
 function createManager(
   platformProject?: GitLabProject,
@@ -724,9 +740,10 @@ describe('CodeSuggestionsProvider', () => {
     });
 
     it('should send a state of error when the request errors out', async () => {
-      asMock(fetch).mockRejectedValueOnce(new Error());
+      asMock(fetch).mockResolvedValueOnce(crossFetchResponse(false, 403));
       await getCompletionsWithDefaultArgs(glcp);
 
+      expect(setSuggestionStatusCode.mock.calls[0]).toEqual(['123', 403]);
       expect(updateSuggestionState.mock.calls[0]).toEqual([
         '123',
         CodeSuggestionTelemetryState.ERROR,

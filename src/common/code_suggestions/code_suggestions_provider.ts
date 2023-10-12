@@ -248,7 +248,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     try {
       this.stateManager.setTemporaryState(TemporaryCodeSuggestionsState.LOADING);
       if (gitlabMonolithApiAvailable) {
-        response = await this.fetchCompletionsFromGitLab(platform, prompt);
+        response = await this.fetchCompletionsFromGitLab(platform, prompt, traceID);
       } else {
         // FIXME: when we start supporting SM, we need to get the token from the **platform**, now the project might not match the token
         // Also, passing the project to the API might get deprecated: https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/merge_requests/143#note_1419849871
@@ -258,7 +258,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
           return [];
         }
 
-        response = await this.fetchCompletions(platform, token, prompt);
+        response = await this.fetchCompletions(platform, token, prompt, traceID);
       }
 
       this.stateManager.setTemporaryState(null);
@@ -371,6 +371,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     platform: GitLabPlatformBase,
     token: CompletionToken,
     prompt: CodeSuggestionPrompt,
+    traceID: string,
   ): Promise<CodeSuggestionsResponse> {
     log.debug(`AI Assist: fetching completions...`);
 
@@ -387,7 +388,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
 
     const response = await fetch(this.server, requestOptions);
 
-    await this.handleErrorReponse(response);
+    await this.handleErrorReponse(response, traceID);
 
     const data = await response.json();
     return data;
@@ -396,6 +397,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
   async fetchCompletionsFromGitLab(
     platform: GitLabPlatformBase,
     prompt: CodeSuggestionPrompt,
+    traceID: string,
   ): Promise<CodeSuggestionsResponse> {
     log.debug(`AI Assist: fetching completions via monolith...`);
     const codeSuggestionRequest: PostRequest<CodeSuggestionsResponse> = {
@@ -412,13 +414,15 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     try {
       response = await platform.fetchFromApi(codeSuggestionRequest);
     } catch (e) {
+      CodeSuggestionsTelemetryManager.setSuggestionStatusCode(traceID, e?.status);
+
       if ('status' in e && e.status === 403) {
         this.legacyApiFallbackConfig.fallbackToModelGateway();
         const token = await this.tokenManager.getToken();
         if (!token) {
           throw new Error('AI Assist: Could not fetch token');
         }
-        response = await this.fetchCompletions(platform, token, prompt);
+        response = await this.fetchCompletions(platform, token, prompt, traceID);
       } else {
         throw e;
       }
@@ -426,9 +430,10 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     return response;
   }
 
-  private async handleErrorReponse(response: Response) {
+  private async handleErrorReponse(response: Response, traceID: string) {
     if (!response.ok) {
       const body = await response.text().catch(() => undefined);
+      CodeSuggestionsTelemetryManager.setSuggestionStatusCode(traceID, response.status);
       throw new Error(
         `Fetching code suggestions from ${response.url} failed for server ${this.server}. Body: ${body}`,
       );
