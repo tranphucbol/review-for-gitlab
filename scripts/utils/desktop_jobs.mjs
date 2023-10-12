@@ -7,7 +7,7 @@ import { prepareWebviews, generateAssets, writePackageJson, commonJobs } from '.
 import { ENVIRONMENTS } from '../constants.mjs';
 
 const desktopWebviews = {
-  vue: ['issuable'],
+  vue: ['issuable', 'security_finding'],
   vue2: ['gitlab_duo_chat'],
 };
 
@@ -15,13 +15,6 @@ export async function copyPendingJobAssets() {
   return copyFile(
     path.join(root, 'webviews/pendingjob.html'),
     path.join(root, `dist-desktop/webviews/pendingjob.html`),
-  );
-}
-
-export async function copySecurityFindingAssets() {
-  return copyFile(
-    path.join(root, 'webviews/security_finding.html'),
-    path.join(root, `dist-desktop/webviews/security_finding.html`),
   );
 }
 
@@ -82,7 +75,6 @@ export async function buildDesktop() {
   await Promise.all([
     prepareWebviews(desktopWebviews, ENVIRONMENTS.DESKTOP),
     copyPendingJobAssets(),
-    copySecurityFindingAssets(),
     checkAndBuildExtension(['--minify']),
     generateAssets(packageJson, ENVIRONMENTS.DESKTOP),
   ]);

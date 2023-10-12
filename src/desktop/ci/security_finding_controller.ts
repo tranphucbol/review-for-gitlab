@@ -1,36 +1,39 @@
-import { promises as fs } from 'fs';
-import * as path from 'path';
 import * as vscode from 'vscode';
+import * as path from 'path';
 import assert from 'assert';
 import { WEBVIEW_SECURITY_FINDING } from '../constants';
 import { GqlSecurityFinding } from '../gitlab/security_findings/api/get_security_finding_report';
+import { waitForWebview } from '../../common/utils/webviews/wait_for_webview';
+import { prepareWebviewSource } from '../../common/utils/webviews/prepare_webview_source';
 
 export type SecurityFindingWebviewPanel = vscode.WebviewPanel & {
   finding: GqlSecurityFinding;
 };
 
 export class SecurityFindingWebviewController {
-  async init(context: vscode.ExtensionContext) {
-    this.#context = context;
-
-    this.#htmlContent = await fs.readFile(
-      path.join(this.#context.extensionPath, 'webviews/security_finding.html'),
-      'utf-8',
-    );
-  }
-
   #context?: vscode.ExtensionContext;
 
   #panel?: SecurityFindingWebviewPanel;
 
-  #htmlContent = '';
+  init(context: vscode.ExtensionContext) {
+    this.#context = context;
+  }
 
   #createEmptyPanel(): SecurityFindingWebviewPanel {
+    assert(this.#context);
+
     const panel = vscode.window.createWebviewPanel(
       WEBVIEW_SECURITY_FINDING,
       '',
       vscode.ViewColumn.Active,
-      {},
+      {
+        enableScripts: true,
+        localResourceRoots: [
+          vscode.Uri.file(path.join(this.#context.extensionPath, 'webviews')),
+          vscode.Uri.file(path.join(this.#context.extensionPath, 'assets')),
+        ],
+        retainContextWhenHidden: true,
+      },
     ) as SecurityFindingWebviewPanel;
 
     this.#panel = panel;
@@ -44,26 +47,43 @@ export class SecurityFindingWebviewController {
     return panel;
   }
 
-  createOrUpdateWebview(
+  async createOrUpdateWebview(
     finding: GqlSecurityFinding,
     existingPanel?: SecurityFindingWebviewPanel,
-  ): SecurityFindingWebviewPanel {
+  ): Promise<SecurityFindingWebviewPanel> {
     assert(this.#context);
-    const { title, description, severity } = finding;
+    const { title } = finding;
     const panel = existingPanel ?? this.#createEmptyPanel();
 
     panel.title = title;
-    panel.finding = finding;
 
-    panel.webview.html = this.#htmlContent
-      .replace('{{title}}', title)
-      .replace('{{description}}', description)
-      .replace('{{severity}}', severity);
+    panel.webview.html = await prepareWebviewSource(
+      panel.webview,
+      this.#context,
+      'security_finding',
+    );
+    await this.initPanelIfActive(panel, finding);
     return panel;
   }
 
-  open(item: GqlSecurityFinding): SecurityFindingWebviewPanel {
-    const panel = this.createOrUpdateWebview(item, this.#panel);
+  async initPanelIfActive(
+    panel: vscode.WebviewPanel,
+    finding: GqlSecurityFinding,
+  ): Promise<null | undefined> {
+    assert(this.#context);
+    if (!panel.active) return;
+
+    const waitPromise = waitForWebview(panel.webview);
+
+    await waitPromise;
+    await panel.webview.postMessage({
+      type: 'findingDetails',
+      finding,
+    });
+  }
+
+  async open(item: GqlSecurityFinding): Promise<SecurityFindingWebviewPanel> {
+    const panel = await this.createOrUpdateWebview(item, this.#panel);
     panel.reveal();
     return panel;
   }

@@ -1,9 +1,4 @@
-import {
-  copyPendingJobAssets,
-  copySecurityFindingAssets,
-  watchDesktop,
-  watchWebviews,
-} from './utils/desktop_jobs.mjs';
+import { copyPendingJobAssets, watchDesktop, watchWebviews } from './utils/desktop_jobs.mjs';
 import { commonJobs, generateAssets, writePackageJson } from './utils/common_jobs.mjs';
 import { createDesktopPackageJson } from './utils/packages.mjs';
 import { ENVIRONMENTS } from './constants.mjs';
@@ -16,7 +11,6 @@ async function main() {
     writePackageJson(packageJson, ENVIRONMENTS.DESKTOP),
     generateAssets(packageJson, ENVIRONMENTS.DESKTOP),
     copyPendingJobAssets(),
-    copySecurityFindingAssets(),
   ]);
 
   const abortController = new AbortController();
