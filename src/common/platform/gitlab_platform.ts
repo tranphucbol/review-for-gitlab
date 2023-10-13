@@ -1,6 +1,7 @@
 import { fetchFromApi } from './web_ide';
 import { GitLabProject } from './gitlab_project';
 import { Account } from './gitlab_account';
+import { GitLabTelemetryEnvironment } from './gitlab_telemetry_environment';
 
 /**
  * GitLabPlatform interface provides methods to fetch GitLab projects and make API requests.
@@ -13,8 +14,6 @@ export interface GitLabPlatformBase {
    * (e.g. when calling Model Gateway for code suggestions)
    */
   getUserAgentHeader(): Record<string, string>;
-
-  isTelemetryEnabled(): boolean;
 }
 
 export interface GitLabPlatformForActiveProject extends GitLabPlatformBase {
@@ -51,4 +50,6 @@ export interface GitLabPlatformManager {
   getForActiveAccount(): Promise<GitLabPlatformForAccount | undefined>;
 
   getForAllAccounts(): Promise<GitLabPlatformForAccount[]>;
+
+  getTelemetryEnvironment(): GitLabTelemetryEnvironment;
 }

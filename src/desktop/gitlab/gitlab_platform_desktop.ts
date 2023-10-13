@@ -9,6 +9,7 @@ import { getUserAgentHeader } from './http/get_user_agent_header';
 import { pickAccount } from './pick_account';
 import { accountService } from '../accounts/account_service';
 import { Account } from '../../common/platform/gitlab_account';
+import { GitLabTelemetryEnvironmentDesktop } from './gitlab_telemetry_environment_desktop';
 
 const getProjectInRepository = async (userInitiated: boolean) => {
   let projectInRepository: ProjectInRepository | undefined;
@@ -55,4 +56,6 @@ export const gitlabPlatformManagerDesktop: GitLabPlatformManager = {
 
   getForAllAccounts: async () =>
     accountService.getAllAccounts().map(createGitLabPlatformForAccount),
+
+  getTelemetryEnvironment: () => new GitLabTelemetryEnvironmentDesktop(),
 };

@@ -6,10 +6,10 @@ import {
   COMMAND_GET_CONFIG,
   COMMAND_MEDIATOR_TOKEN,
   InteropConfig,
-  WebIDEExtension,
   fetchFromApi,
 } from '../common/platform/web_ide';
 import { convertToGitLabProject, getProject } from '../common/gitlab/api/get_project';
+import { GitLabTelemetryEnvironmentBrowser } from './gitlab_browser_telemetry_environment';
 
 const getMediatorToken: () => Promise<string> = memoize(async () =>
   vscode.commands.executeCommand(COMMAND_MEDIATOR_TOKEN),
@@ -41,17 +41,12 @@ export const createGitLabPlatformManagerBrowser: () => Promise<GitLabPlatformMan
     }
 
     const gitLabProject = convertToGitLabProject(project);
+    const telemetryEnvironment = new GitLabTelemetryEnvironmentBrowser();
     const platformBase: GitLabPlatformBase = {
       fetchFromApi,
       // browser won't let us change User-Agent header
       // so we don't have to construct it
       getUserAgentHeader: () => ({}),
-      isTelemetryEnabled: () => {
-        const webIDEExtension =
-          vscode.extensions.getExtension<WebIDEExtension>('gitlab.gitlab-web-ide')?.exports;
-
-        return webIDEExtension?.isTelemetryEnabled() || false;
-      },
     };
 
     return {
@@ -68,5 +63,6 @@ export const createGitLabPlatformManagerBrowser: () => Promise<GitLabPlatformMan
           ...platformBase,
         },
       ],
+      getTelemetryEnvironment: () => telemetryEnvironment,
     };
   };
