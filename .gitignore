@@ -11,5 +11,3 @@ dist-browser/
 /reports/
 .idea/
 test_workspace/
-webviews/vue2/.yarn
-.yarn
