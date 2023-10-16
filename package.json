@@ -254,7 +254,6 @@
     "semver": "^7.5.4",
     "source-map-support": "^0.5.21",
     "temp": "^0.9.4",
-    "url": "^0.11.0",
     "uuid": "^9.0.1",
     "vscode-languageclient": "^9.0.1"
   }

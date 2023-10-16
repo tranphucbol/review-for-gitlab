@@ -1,6 +1,5 @@
 import * as https from 'https';
 import { GraphQLClient, gql, Variables, RequestDocument } from 'graphql-request';
-import { URL } from 'url';
 import createHttpProxyAgent from 'https-proxy-agent';
 import assert from 'assert';
 import fetch from '../../common/fetch_logged';
