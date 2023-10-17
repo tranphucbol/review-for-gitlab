@@ -4,8 +4,6 @@ const lint = require('@commitlint/lint').default;
 const format = require('@commitlint/format').default;
 const config = require('@commitlint/config-conventional');
 
-const maximumLineLength = 72;
-
 // You can test the script by setting these environment variables
 const {
   CI_MERGE_REQUEST_PROJECT_ID, // 5261717
@@ -17,11 +15,13 @@ const {
 const urlSemanticRelease =
   'https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/developer/commits.md';
 
+// See rule docs https://commitlint.js.org/#/reference-rules
 const customRules = {
-  'header-max-length': [2, 'always', maximumLineLength],
+  'header-max-length': [2, 'always', 72],
   'body-leading-blank': [2, 'always'],
   'footer-leading-blank': [2, 'always'],
   'subject-case': [0],
+  'body-max-line-length': [1, 'always', 100],
 };
 
 async function getMr() {
