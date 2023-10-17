@@ -1,0 +1,27 @@
+---
+stage: Create
+group: Editor Extensions
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/product/ux/technical-writing/#assignments
+---
+
+# Language server development and debugging
+
+This document explains how to run the Workflow Extension and the [GitLab Language Server](https://gitlab.com/gitlab-org/editor-extensions/gitlab-language-server-for-code-suggestions) side to side, both in debug mode and how to see your changes in Language Server in the extension.
+
+## Linking up the Language Server node module
+
+First, you want to use your local language server project rather than using the published node module. You do that with `npm link`.
+
+1. Go to a folder where you cloned the [GitLab Language Server](https://gitlab.com/gitlab-org/editor-extensions/gitlab-language-server-for-code-suggestions) project.
+1. run `npm link`
+1. Go to the folder with the Workflow Extension project
+1. run `npm link @gitlab-org/gitlab-lsp`
+
+_Make sure that the node version in `.tool-versions` is the same in both project, otherwise the link can't be created._
+
+## Running both projects
+
+1. Make sure you've created bundle for the GitLab language server with `npm run bundle`
+1. [Start the extension](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/8a6f12ba3ec92ac059856f7e663eb6dc37b6d668/CONTRIBUTING.md#step-4-running-the-extension-in-desktop-vs-code) in debug mode
+1. [Connect debugger to the running Language server](https://gitlab.com/gitlab-org/editor-extensions/gitlab-language-server-for-code-suggestions/-/blob/main/README.md#debugging-the-server)
+1. Profit

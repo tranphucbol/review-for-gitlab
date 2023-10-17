@@ -294,7 +294,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
 
 function startLanguageServer(context: vscode.ExtensionContext) {
   const exec: NodeModule = {
-    module: context.asAbsolutePath('./assets/language-server/node/main.js'),
+    module: context.asAbsolutePath('./assets/language-server/node/main-bundle.js'),
     transport: {
       kind: TransportKind.socket,
       port: 6789,
