@@ -243,7 +243,7 @@
     "webfont": "^11.2.26"
   },
   "dependencies": {
-    "@gitlab-org/gitlab-lsp": "^3.3.0",
+    "@gitlab-org/gitlab-lsp": "^3.4.0",
     "@snowplow/tracker-core": "3.16.0",
     "cross-fetch": "^3.1.8",
     "dayjs": "^1.11.10",
