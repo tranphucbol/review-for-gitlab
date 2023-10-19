@@ -119,7 +119,7 @@
       {
         "command": "gl.openChat",
         "when": "gitlab.featureFlags.chat && gitlab:validState",
-        "key": "alt+o"
+        "key": "alt+d"
       },
       {
         "command": "gl.explainSelectedCode",
