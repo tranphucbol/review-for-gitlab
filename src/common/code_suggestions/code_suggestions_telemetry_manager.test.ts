@@ -186,4 +186,25 @@ describe('CodeSuggestionsTelemetryManager', () => {
       expect.arrayContaining([expect.anything(), codeSuggestionContexts]),
     );
   });
+
+  it('should set suggestion error code', () => {
+    const id = CodeSuggestionsTelemetryManager.createSuggestion('ts', 'saas');
+
+    CodeSuggestionsTelemetryManager.setSuggestionStatusCode(id, 200);
+    CodeSuggestionsTelemetryManager.updateSuggestionState(id, CodeSuggestionTelemetryState.LOADED);
+
+    expect(trackStructEvent).toBeCalledWith(
+      expect.objectContaining({
+        action: 'suggestion_loaded',
+        category: 'code_suggestions',
+      }),
+      expect.arrayContaining([
+        expect.objectContaining({
+          data: expect.objectContaining({
+            api_status_code: 200,
+          }),
+        }),
+      ]),
+    );
+  });
 });

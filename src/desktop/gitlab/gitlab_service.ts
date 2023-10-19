@@ -176,6 +176,7 @@ const handleFetchError = async (response: Response, resourceName: string) => {
       throw new HelpError(
         `Failed to access a remote repository on ${hostname} due to an expired or revoked access token. You must create a new token.`,
         { section: README_SECTIONS.SETUP },
+        response.status,
       );
     }
     throw new FetchError(`Fetching ${resourceName} from ${response.url} failed`, response, body);

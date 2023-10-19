@@ -71,6 +71,7 @@ interface CodeSuggestion {
   state: CodeSuggestionTelemetryState;
   language: string;
   gitlabRealm: GitlabRealm;
+  statusCode: number | undefined;
   modelEngine: string | undefined;
   modelName: string | undefined;
 }
@@ -92,9 +93,6 @@ export class CodeSuggestionsTelemetryManager {
   }
 
   public static createSuggestion(language: string, gitlabRealm: GitlabRealm): string {
-    if (!this.instance) {
-      this.instance = new CodeSuggestionsTelemetryManager();
-    }
     log.debug(`Telemetry: Received request to create a new suggestion`);
 
     this.rejectOpenedSuggestions();
@@ -102,8 +100,8 @@ export class CodeSuggestionsTelemetryManager {
     const suggestionID = uuid();
     // Garbage collect after time
     setTimeout(() => {
-      if (this.instance.suggestions.has(suggestionID)) {
-        this.instance.suggestions.delete(suggestionID);
+      if (this.getInstance().suggestions.has(suggestionID)) {
+        this.getInstance().suggestions.delete(suggestionID);
       }
     }, GC_TIME);
 
@@ -112,10 +110,11 @@ export class CodeSuggestionsTelemetryManager {
       state: CodeSuggestionTelemetryState.REQUESTED,
       language,
       gitlabRealm,
+      statusCode: undefined,
       modelEngine: undefined,
       modelName: undefined,
     };
-    this.instance.suggestions.set(suggestionID, suggestion);
+    this.getInstance().suggestions.set(suggestionID, suggestion);
     this.sendTelemetry(suggestionID).catch(e => log.warn('could not track telemetry', e));
 
     log.debug(`Telemetry: New suggestion ${suggestionID} has been requested`);
@@ -124,12 +123,9 @@ export class CodeSuggestionsTelemetryManager {
   }
 
   static rejectOpenedSuggestions() {
-    if (!this.instance) {
-      this.instance = new CodeSuggestionsTelemetryManager();
-    }
     log.debug(`Telemetry: Reject all opened suggestions`);
 
-    this.instance.suggestions.forEach((suggestion, suggestionID) => {
+    this.getInstance().suggestions.forEach((suggestion, suggestionID) => {
       if (endStates.includes(suggestion.state)) {
         return;
       }
@@ -139,31 +135,38 @@ export class CodeSuggestionsTelemetryManager {
   }
 
   public static setSuggestionModel(suggestionID: string, modelName: string, modelEngine: string) {
-    if (!this.instance) {
-      this.instance = new CodeSuggestionsTelemetryManager();
-    }
-
     log.debug(`Telemetry: Received request to set model for suggestion ${suggestionID}`);
 
-    const suggestion = this.instance.suggestions.get(suggestionID);
+    const suggestion = this.getInstance().suggestions.get(suggestionID);
     if (!suggestion) {
       log.debug(`Telemetry: The suggestion with ${suggestionID} can't be found`);
       return;
     }
 
-    this.instance.suggestions.set(suggestionID, { ...suggestion, modelName, modelEngine });
+    this.getInstance().suggestions.set(suggestionID, { ...suggestion, modelName, modelEngine });
+  }
+
+  public static setSuggestionStatusCode(suggestionID: string, statusCode?: number): void {
+    log.debug(`Telemetry: Received request to set error code for suggestion ${suggestionID}`);
+
+    const suggestion = this.getInstance().suggestions.get(suggestionID);
+    if (!suggestion) {
+      return;
+    }
+
+    this.getInstance().suggestions.set(suggestionID, {
+      ...suggestion,
+      statusCode,
+    });
   }
 
   public static updateSuggestionState(
     suggestionID: string,
     newState: CodeSuggestionTelemetryState,
   ): void {
-    if (!this.instance) {
-      this.instance = new CodeSuggestionsTelemetryManager();
-    }
     log.debug(`Telemetry: Transist ${suggestionID} to ${newState}`);
 
-    const currentSuggestion = this.instance.suggestions.get(suggestionID);
+    const currentSuggestion = this.getInstance().suggestions.get(suggestionID);
     if (!currentSuggestion) {
       log.debug(`Telemetry: The suggestion with ${suggestionID} can't be found`);
       return;
@@ -191,16 +194,28 @@ export class CodeSuggestionsTelemetryManager {
       );
     }
 
-    this.instance.suggestions.set(suggestionID, { ...currentSuggestion, state: newState });
+    this.getInstance().suggestions.set(suggestionID, { ...currentSuggestion, state: newState });
     this.sendTelemetry(suggestionID).catch(e => log.warn('could not track telemetry', e));
 
     log.debug(`Telemetry: ${suggestionID} transisted from ${currentState} to ${newState}`);
   }
 
+  /* getInstance private static method that checks if
+   * this.instance is initialized and if not
+   * initializes it.
+   */
+  public static getInstance(): CodeSuggestionsTelemetryManager {
+    if (!this.instance) {
+      this.instance = new CodeSuggestionsTelemetryManager();
+    }
+
+    return this.instance;
+  }
+
   private static async sendTelemetry(suggestionID: string) {
     log.debug(`Telemetry: Sending event for suggestion ${suggestionID}`);
 
-    const suggestion = this.instance.suggestions.get(suggestionID);
+    const suggestion = this.getInstance().suggestions.get(suggestionID);
     if (!suggestion) {
       log.debug(`Telemetry: The suggestion with ${suggestionID} can't be found`);
       return;
@@ -226,6 +241,7 @@ export class CodeSuggestionsTelemetryManager {
         gitlab_realm: suggestion.gitlabRealm,
         model_name: suggestion.modelName,
         model_engine: suggestion.modelEngine,
+        api_status_code: suggestion.statusCode,
       },
     };
 
