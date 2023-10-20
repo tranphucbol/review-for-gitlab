@@ -64,7 +64,7 @@ After pushing the release tag to the remote repository, update the `CHANGELOG.md
    ```
 
 1. If that's their first contribution, add the contributor to `CONTRIBUTORS.md`.
-1. Commit and push the changes `git add CHANGELOG.md CONTRIBUTORS.md && git commit -m "doc: Document community contributions in <version>" && git push origin main`.
+1. Commit and push the changes `git add CHANGELOG.md CONTRIBUTORS.md && git commit -m "chore: add contributors to CHANGELOG" && git push origin main`.
 
 ## Rollback
 
