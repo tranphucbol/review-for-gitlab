@@ -36,23 +36,6 @@ Perform the following steps to release a new version of the extension.
      - we haven't release `major` version yet, there is no process for that
 
 1. Update the package version in `npm version <type>`. This automatically generates a changelog entry. Specify the `type` as `minor` or `patch`.
-1. Check if there have been community contributions:
-
-   1. Get emails of all contributors between the tag you just created and one before:
-
-      ```sh
-      git log --format='%ae' $(git describe --abbrev=0 --tags HEAD^)..HEAD | sort -u
-      ```
-
-   1. In the result, look for emails that don't end with `@gitlab.com`.
-   1. Manually add attribution to the `CHANGELOG.md`, for each contribution from community contributor. For example:
-
-      ```plaintext
-      (Implemented|Fixed) by [@flood4life](https://gitlab.com/flood4life) with [MR !90](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/90) 👍
-      ```
-
-   1. If that's their first contribution, add the contributor to `CONTRIBUTORS.md`.
-
 1. Run the command `git push origin main` and `git push origin v3.65.0` (assuming you created version `3.65.0`).
 1. Trigger the **Publish** steps (`publish_marketplace` and `publish_open_vsx`) on the tag pipeline that you created by pushing the new tag.
 1. When the extension updates in your VS Code, check that the extension works. Repeat smoke test from Step 1.
@@ -62,6 +45,26 @@ Perform the following steps to release a new version of the extension.
    :vscode:  [GitLab Workflow](https://marketplace.visualstudio.com/items?itemName=gitlab.gitlab-workflow) `3.0.0` has been released :rocket:
    See [CHANGELOG.md](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/CHANGELOG.md).
    ```
+
+### Highlighting community contributions in the changelog
+
+After pushing the release tag to the remote repository, update the `CHANGELOG.md` with the changes contributed by the community, if any.
+
+1. Get emails of all contributors between the tag you just created and one before:
+
+   ```sh
+   git log --format='%ae' $(git describe --abbrev=0 --tags HEAD^)..HEAD | sort -u
+   ```
+
+1. In the result, look for emails that don't end with `@gitlab.com`.
+1. Manually add attribution to the `CHANGELOG.md`, for each contribution from community contributor to the latest release entry. For example:
+
+   ```plaintext
+   (Implemented|Fixed) by [@flood4life](https://gitlab.com/flood4life) with [MR !90](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/90) 👍
+   ```
+
+1. If that's their first contribution, add the contributor to `CONTRIBUTORS.md`.
+1. Commit and push the changes `git add CHANGELOG.md CONTRIBUTORS.md && git commit -m "chore: add contributors to CHANGELOG" && git push origin main`.
 
 ## Rollback
 
