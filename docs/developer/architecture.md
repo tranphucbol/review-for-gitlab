@@ -18,7 +18,7 @@ The Workflow extension runs in two different environments:
 
 - Desktop: This extension works with the Desktop VS Code (or the VS Code Server). We publish the extension to two marketplaces ([Microsoft](https://marketplace.visualstudio.com/items?itemName=GitLab.gitlab-workflow) and [Eclipse](https://open-vsx.org/)).
   - This project builds the desktop build of the extension
-- WebIDE: [WebIDE](https://gitlab.com/gitlab-org/gitlab-web-ide) is GitLab's clone of VS Code in Browser. We extend the VS Code functionality to work well with GitLab.
+- WebIDE: [WebIDE](https://gitlab.com/gitlab-org/gitlab-web-ide) is the GitLab clone of VS Code in a browser. We extend the VS Code functionality to work well with GitLab.
   - The WebIDE builds the browser version of the extension. WebIDE includes this repository as a dependency (git submodule) and then builds the extension.
 
 Based on these environments, the extension source code lives in three different folders:
@@ -31,7 +31,7 @@ Based on these environments, the extension source code lives in three different 
 
 Because the WebIDE and Desktop environments are very different, we built abstraction over the way how get GitLab project data and how we make API calls:
 
-```ts
+```typescript
 export interface GitLabPlatformForActiveProject {
   project: GitLabProject;
 
@@ -61,7 +61,7 @@ This section describes code specific to the Workflow Desktop version. The key th
 
 These three points result in the most important interface in the whole extension:
 
-```ts
+```typescript
 export interface ProjectInRepository {
   pointer: GitRemoteUrlPointer;
   account: Account;

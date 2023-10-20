@@ -15,7 +15,7 @@ We rely on `eslint` and `prettier` for code style. These guidelines contain a fe
 
 ## Desktop/Common/Browser
 
-When implementing a feature, decide which environments will support the feature. If the feature is useful in both Desktop and WebIDE, place the feature to `common` folder. See [Architecture](./architecture.md) docs for more details.
+When implementing a feature, decide which environments will support the feature. If the feature is useful in both Desktop and WebIDE, place the feature to `common` folder. See [Architecture](architecture.md) docs for more details.
 
 ### Utils (`src/<desktop|common>utils`)
 
@@ -25,6 +25,6 @@ Each file in `utils` folder must contain only one function. The file name uses s
 
 Example:
 | file | function | purpose |
-| -- | -- | -- |
+|--------------------------------------------------------------------------|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [`compare_by.ts`](../../src/desktop/utils/compare_by.ts) | `compareBy()` | Creates a comparison method for objects that can be used for sorting. |
 | [`find_file_in_diffs.ts`](../../src/desktop/utils/find_file_in_diffs.ts) | `findFileInDiffs()` | Iterates through the GitLab API MR diff (versions) response, and finds the diff for a file based on a path. Used multiple places responsible for rendering merge request reviews. |

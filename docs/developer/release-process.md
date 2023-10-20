@@ -39,7 +39,7 @@ Perform the following steps to release a new version of the extension.
 1. Run the command `git push origin main` and `git push origin v3.65.0` (assuming you created version `3.65.0`).
 1. Trigger the **Publish** steps (`publish_marketplace` and `publish_open_vsx`) on the tag pipeline that you created by pushing the new tag.
 1. When the extension updates in your VS Code, check that the extension works. Repeat smoke test from Step 1.
-1. Add a message to our `#f_vscode_extension` slack channel (replace `3.0.0` with the released version):
+1. Add a message to our `#f_vscode_extension` Slack channel (replace `3.0.0` with the released version):
 
    ```plaintext
    :vscode:  [GitLab Workflow](https://marketplace.visualstudio.com/items?itemName=gitlab.gitlab-workflow) `3.0.0` has been released :rocket:
@@ -52,7 +52,7 @@ After pushing the release tag to the remote repository, update the `CHANGELOG.md
 
 1. Get emails of all contributors between the tag you just created and one before:
 
-   ```sh
+   ```shell
    git log --format='%ae' $(git describe --abbrev=0 --tags HEAD^)..HEAD | sort -u
    ```
 
@@ -88,14 +88,14 @@ You released a critical issue and you need to return to a working version. Don't
    1. Make sure you still have the rollback tag checked out `git checkout v3.65.1`
    1. Copy the empty version header from the `CHANGELOG.md`
 
-      ```md
+      ```markdown
       ## [3.65.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.64.0...v3.65.1) (2023-07-13)
       ```
 
    1. Checkout `main`: `git checkout main`
    1. Add the empty header to the `CHANGELOG.md` and add a line about this being a rollback release. Your result should look similar to:
 
-      ```md
+      ```markdown
       ## [3.65.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.64.0...v3.65.1) (2023-07-13)
 
       This is a rollback release because `3.65.0` broke > **add the reason here** <. This version is identical to `3.64.0`.
@@ -118,7 +118,7 @@ Our [CI/CD jobs](https://gitlab.com/gitlab-org/gitlab-vscode-extension/blob/e80e
 
 #### Open VSX
 
-1. Log in to [github.com](https://github.com/) with `GitHub vscode account`
+1. Log in to [GitHub.com](https://github.com/) with `GitHub vscode account`
    credentials from the "VS Code Extension" 1Password Vault.
 1. Log in to [open-vsx.org](https://open-vsx.org/) with the GitHub account.
 1. Go to the [Access Tokens Settings page](https://open-vsx.org/user-settings/tokens).

@@ -12,7 +12,7 @@ These expressions create the list of items shown in the **Issues and Merge reque
 of the [sidebar](https://gitlab.com/gitlab-org/gitlab-vscode-extension/README.md#sidebar) of Visual Studio code.
 
 The default custom queries are defined in the
-[extension package.json](https://gitlab.com/gitlab-org/gitlab-vscode-extension/blob/c3f029555a723964789ee0a855dede3f1b3b3af2/package.json#L578-614).
+[extension `package.json`](https://gitlab.com/gitlab-org/gitlab-vscode-extension/blob/c3f029555a723964789ee0a855dede3f1b3b3af2/package.json#L578-614).
 When you specify the `gitlab.customQueries` setting, your definition overrides all
 the default queries. For example:
 
@@ -87,7 +87,7 @@ with other entry types. Each parameter listed in this table works with vulnerabi
 
 | Parameter | Required | Default | Definition |
 | --------- | -------- | ------- | ---------- |
-| `scope` | no | `dismissed` | Returns vulnerability findings for the given scope. Possible values: `all`, `dismissed`. <!-- copied from https://docs.gitlab.com/ee/api/vulnerability_findings.html --> |
+| `scope` | no | `dismissed` | Returns vulnerability findings for the given scope. Possible values: `all`, `dismissed`. For more information, see the [Vulnerability findings API](https://docs.gitlab.com/ee/api/vulnerability_findings.html). |
 | `reportTypes` | no | n/a | Returns vulnerabilities belonging to specified report types. Possible values: `sast`, `dast`, `dependency_scanning`, `container_scanning`. |
 | `severityLevels` | no | `all` | Returns vulnerabilities belonging to specified severity levels. Possible values: `undefined`, `info`, `unknown`, `low`, `medium`, `high`, `critical`. |
 | `confidenceLevels` | no | `all` | Returns vulnerabilities belonging to specified confidence levels. Possible values: `undefined`, `ignore`, `unknown`, `experimental`, `low`, `medium`, `high`, `confirmed`. |

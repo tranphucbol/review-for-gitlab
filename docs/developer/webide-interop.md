@@ -1,6 +1,6 @@
 # WebIDE interoperability
 
-As the [Architecture](./architecture.md) document explains, this extension can run in the browser in WebIDE.
+As the [Architecture](architecture.md) document explains, this extension can run in the browser in WebIDE.
 
 This document explains how we package the extension WebIDE and how the browser `GitLabPlatformForActiveProject` implements calling GitLab API and getting the project context.
 

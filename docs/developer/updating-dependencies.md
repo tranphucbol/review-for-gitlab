@@ -10,7 +10,7 @@ This document describes how we upgrade extension dependencies.
 
 ## VS Code
 
-The VS Code project is the main dependency of this project. Unless we need features from a later version of VS Code (for example, https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/648 or https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/506), we usually don't increase the minimum supported version of VS Code. Increasing the minimum version means that later versions of the extension can't be installed on earlier versions of VS Code.
+The VS Code project is the main dependency of this project. Unless we need features from a later version of VS Code (for example, [https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/648](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/648) or [https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/506](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/506)), we usually don't increase the minimum supported version of VS Code. Increasing the minimum version means that later versions of the extension can't be installed on earlier versions of VS Code.
 
 When we upgrade the VS Code dependency, we do the following:
 

@@ -38,7 +38,7 @@ F --> G[push changes to the regular repo]
 
 Before starting, add the new `security` remote on your local GitLab repository:
 
-```sh
+```shell
 git remote add security git@gitlab.com:gitlab-org/security/gitlab-vscode-extension.git
 ```
 
@@ -46,7 +46,7 @@ Finally, run the `scripts/security-harness` script. This script will install a G
 
 Please make sure the output of running `scripts/security-harness` is:
 
-```
+```shell
 Security harness installed -- you will only be able to push to gitlab.com/gitlab-org/security!
 ```
 
@@ -54,7 +54,7 @@ Security harness installed -- you will only be able to push to gitlab.com/gitlab
 
 For exploitable security issues, request a CVE number by [creating an issue in `gitlab-org/cves` project](https://gitlab.com/gitlab-org/cves/-/issues/new). **You can do the release before the CVE number is available.** When the CVE number is assigned, add it to the [changelog entry](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/CHANGELOG.md#security).
 
-Example CVE request: https://gitlab.com/gitlab-org/cves/-/issues/21
+Example CVE request: [https://gitlab.com/gitlab-org/cves/-/issues/21](https://gitlab.com/gitlab-org/cves/-/issues/21)
 
 ### Branches
 
@@ -73,7 +73,7 @@ The main objective is to release the security fix as a patch of the latest produ
 
 Your fix is going to be pushed into `security-<issue number>` branch. If you work on issue #9999, you push the fix into `security-9999` branch.
 
-```sh
+```shell
 git fetch security
 git checkout security-v2.2.0
 git checkout -b security-9999

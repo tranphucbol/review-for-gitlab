@@ -10,7 +10,7 @@ This document is for new extension maintainers.
 
 ## Access you need
 
-- Maintainer access to [`gitlab-org/gitlab-vscode-extension`](https://gitlab.com/gitlab-org/gitlab-vscode-extension)
+- The Maintainer role to [`gitlab-org/gitlab-vscode-extension`](https://gitlab.com/gitlab-org/gitlab-vscode-extension)
 - [Add yourself](https://gitlab.com/gitlab-com/www-gitlab-com/-/tree/master/data/team_members/person) as a maintainer of this project so that Roulette can select you
 - Access to "VS Code Extension" 1Password vault
 - Create an [Access Request](https://about.gitlab.com/handbook/business-technology/team-member-enablement/onboarding-access-requests/access-requests/) and ask to be added to `vscode@gitlab.com` email group. Historically, EMs and PMs on the extension team also have access to this email group.
@@ -29,7 +29,7 @@ You are responsible for reviewing new MRs in the project. The MR must include au
 
 Triaging the issue means trying to reproduce the bug or understanding the feature request. If the issue description is clear, the bug is reproducible, and the feature makes sense, then add the project labels:
 
-```
+```plaintext
 /label ~"devops::create" ~"group::code review" ~"VS Code" ~"Category:Editor Extension" ~"section::dev"
 ```
 
@@ -37,7 +37,7 @@ and the appropriate [type label](https://docs.gitlab.com/ee/development/contribu
 
 If the issue isn't clear or the bug can't be reproduced, ask for more details and only add the "needs investigation" label.
 
-```
+```plaintext
 /label ~"needs investigation"
 ```
 
