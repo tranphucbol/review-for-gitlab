@@ -5,6 +5,7 @@ import {
   COMMAND_EXPLAIN_SELECTED_CODE,
   explainSelectedCode,
 } from './commands/explain_selected_code';
+import { COMMAND_GENERATE_TESTS, generateTests } from './commands/generate_tests';
 import {
   COMMAND_NEW_CHAT_CONVERSATION,
   newChatConversation,
@@ -27,6 +28,9 @@ export const activateChat = (context: vscode.ExtensionContext, manager: GitLabPl
     }),
     vscode.commands.registerCommand(COMMAND_EXPLAIN_SELECTED_CODE, async () => {
       await explainSelectedCode(controller);
+    }),
+    vscode.commands.registerCommand(COMMAND_GENERATE_TESTS, async () => {
+      await generateTests(controller);
     }),
     vscode.commands.registerCommand(COMMAND_NEW_CHAT_CONVERSATION, async () => {
       await newChatConversation(controller);
