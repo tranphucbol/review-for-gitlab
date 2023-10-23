@@ -53,7 +53,7 @@ export async function checkAndBuildExtension(args = []) {
 }
 
 export async function preparePackageFiles() {
-  const files = ['.vscodeignore', 'README.md', 'LICENSE'];
+  const files = ['.vscodeignore', 'README.md', 'LICENSE', 'CHANGELOG.md'];
   files.forEach(file => {
     fs.copyFileSync(path.join(root, file), path.join(root, `dist-desktop/${file}`));
   });
