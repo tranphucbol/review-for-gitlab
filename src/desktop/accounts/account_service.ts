@@ -91,7 +91,7 @@ export class AccountService implements IAccountService {
       this.secrets = await getSecrets(context);
     } catch (error) {
       throw new UserFriendlyError(
-        `GitLab Workflow can't access the OS Keychain. If you use Ubuntu, see this [existing issue](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/580).`,
+        `GitLab Workflow can't access the OS Keychain. See this [existing issue](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/580) for more information.`,
         error,
       );
     }
