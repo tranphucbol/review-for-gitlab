@@ -37,6 +37,16 @@ stages:
   - package
   - publish
 
+check_docs_markdown:
+  stage: test
+  needs: []
+  image: registry.gitlab.com/gitlab-org/gitlab-docs/lint-markdown:alpine-3.16-vale-2.20.1-markdownlint-0.32.2
+  script:
+    # Lint prose
+    - vale --minAlertLevel error docs README.md CONTRIBUTING.md
+    # Lint Markdown
+    - markdownlint --config .markdownlint.yml 'docs/**/*.md' README.md CONTRIBUTING.md
+
 lint:
   stage: test
   script:

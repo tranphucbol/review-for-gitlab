@@ -12,7 +12,7 @@ Feature flags define a way to control unstable or experimental features of the e
 
 Open your `settings.json` and add configuration property similar to example below:
 
-```
+```json
 "gitlab": {
     "featureFlags": {
         "snippets": true,
@@ -55,7 +55,7 @@ if (isEnabled(FeatureFlag.Snippets)) {
 
 Example of checking feature flag state in `package.json`
 
-```
+```json
 {
   "command": "gl.createSnippet",
   "when": "gitlab.featureFlags.snippets"

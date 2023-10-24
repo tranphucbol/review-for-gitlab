@@ -28,7 +28,7 @@ The requirements are in order of importance:
 
 ## What does testing look like in VS Code
 
-When looking at the tests from the perspective of the testing pyramid[^1], the VS Code ecosystem offers two levels of granularity.
+When looking at the tests from the perspective of the [testing pyramid](https://tyrrrz.me/blog/unit-testing-is-overrated), the VS Code ecosystem offers two levels of granularity.
 
 ### Unit tests
 
@@ -131,31 +131,27 @@ The integration tests provide broad coverage of the functionality, and the prefe
 
 VS Code project itself does have [a few smoke tests](https://github.com/microsoft/vscode/tree/c1f44f4e3e6410b53b74de904562cd507b96aa8c/test/smoke/src/areas) using their custom [driver](https://github.com/microsoft/vscode/blob/c1f44f4e3e6410b53b74de904562cd507b96aa8c/src/vs/platform/driver/node/driver.ts) for interacting with the editor.
 
-If we find that we release bugs caused by incorrect extension configuration, we might implement a few smoke tests and use the node or chrome driver to run tests simulating the user behaviour.
+If we find that we release bugs caused by incorrect extension configuration, we might implement a few smoke tests and use the node or chrome driver to run tests simulating the user behavior.
 
 #### Tests don't call real GitLab API
 
 Using a real GitLab instance would have major disadvantages:
 
-- If we set up an E2E test project on gitlab.com, we could run E2E tests in the CI. Communication with the gitlab.com instance would require a real access token, and so contributors without maintainer access wouldn't be able to run the E2E tests suite.
+- If we set up an E2E test project on `gitlab.com`, we could run E2E tests in the CI. Communication with the `gitlab.com` instance would require a real access token, and so contributors without the Maintainer role wouldn't be able to run the E2E tests suite.
 - The external dependency would severely increase testing time and decrease reliability thanks to network communication.
 
 ## What tests are we going to write
 
 The extension doesn't contain much business logic that would warrant extensive unit testing. It mainly integrates the editor with GitLab API. The codebase is also relatively small (~50 production files), which means that the test speed will not be an issue at any granularity.
 
-This document suggests making the vast majority of tests integration tests based on the [automated testing requirements](#requirements-for-the-automated-test-suite). Integration tests are going to provide the most confidence in the extension working as expected[^1]. They will test more code with fewer tests, and they shouldn't change much as we refactor the extension because they don't test the inner units of the extension. The easier refactoring might come in handy if we [replace some libraries](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/54).
+This document suggests making the vast majority of tests integration tests based on the [automated testing requirements](#requirements-for-the-automated-test-suite). Integration tests are going to provide the most confidence in the extension working [as expected](https://tyrrrz.me/blog/unit-testing-is-overrated). They will test more code with fewer tests, and they shouldn't change much as we refactor the extension because they don't test the inner units of the extension. The easier refactoring might come in handy if we [replace some libraries](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/54).
 
 ### Drawbacks of using integration tests
 
 The main drawback is the error specificity. Especially since we [don't have a good error logging](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/145), when the test fails, we often end up with just "the integration test result is not as expected" error. That can be frustrating and will only improve with better error handling. Till then, we will often have to result in [debugging](writing-tests.md#debugging-integration-tests). Luckily the debugging of VS Code integration tests is quite easy.
 
-Another drawback is the learning curve for contributors. The VS Code ecosystem doesn't have established testing practices, and most of the extensions are not tested at all[^3]. We can expect that it's going to be hard for contributors to write new types of tests.
+Another drawback is the learning curve for contributors. The VS Code ecosystem doesn't have established testing practices, and most of the extensions are not tested at all. (Examples: [GitLens](https://github.com/eamodio/vscode-gitlens), [GitHub unofficial extension](https://marketplace.visualstudio.com/items?itemName=KnisterPeter.vscode-github), [VS Code ESLint extension](https://github.com/Microsoft/vscode-eslint)) We can expect that it's going to be hard for contributors to write new types of tests.
 
 ## Manual testing
 
 When implementing a new feature or a fix, the author of the change must manually test the change (if the test coverage is good, then only the happy path will suffice).
-
-[^1]: [Alexey Golub - Unit Testing is Overrated](https://tyrrrz.me/blog/unit-testing-is-overrated)
-[^2]: [Ham Vocke - Practical Testing Pyramid](https://martinfowler.com/articles/practical-test-pyramid.html)
-[^3]: For example: [GitLens](https://github.com/eamodio/vscode-gitlens), [GitHub unofficial extension](https://marketplace.visualstudio.com/items?itemName=KnisterPeter.vscode-github), [VS Code ESLint extension](https://github.com/Microsoft/vscode-eslint)

@@ -31,5 +31,5 @@ gitlab-remote://gitlab.com/<label>?project=278964&ref=master
   - For an instance installed at the domain root, such as `https://gitlab.com`, the label must be the first path element.
   - For URLs that refer to the root of a repository, the label must be the last path element.
   - Any path elements that appear after the label are treated as a path inside the repository. For example, `gitlab-remote://gitlab.com/GitLab/app?project=gitlab-org/gitlab&ref=master` refers to the `app` directory of the `gitlab-org/gitlab` repository on GitLab.com.
-- `projectId` - Can be either the numeric id (`5261717`) or the namespace (`gitlab-org/gitlab-vscode-extension`) of the project. The project namespace might not work [when your instance uses reverse proxy](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/143).
+- `projectId` - Can be either the numeric ID (`5261717`) or the namespace (`gitlab-org/gitlab-vscode-extension`) of the project. The project namespace might not work [when your instance uses reverse proxy](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/143).
 - `gitReference` - The repository branch or commit SHA, passed verbatim to the GitLab API.

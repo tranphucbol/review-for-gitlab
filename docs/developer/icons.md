@@ -10,7 +10,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 If you're adding new icons to the extension, you will need to put SVG file named exactly with the name of the new icon in two places:
 
-- [gitlab-org/editor-extensions/gitlab-ide-icons](https://gitlab.com/gitlab-org/editor-extensions/gitlab-ide-icons/-/tree/main/svg/) project
+- [`gitlab-org/editor-extensions/gitlab-ide-icons`](https://gitlab.com/gitlab-org/editor-extensions/gitlab-ide-icons/-/tree/main/svg/) project
 - `src/assets/icons` folder in this folder
 
 Please use `./assets/gitlab_icons.woff` as `fontPath` for the icon in `package.json`. This font will be auto-generated
@@ -35,7 +35,7 @@ The build process will fail if one of the referenced icons is missing.
 
 ## Updating icons
 
-We've got `check-icons` job in our `.gitlab-ci.yml` CI configuration. This job verifies that all icons are up-to-date with the canonical [gitlab-org/editor-extensions/gitlab-ide-icons](https://gitlab.com/gitlab-org/editor-extensions/gitlab-ide-icons/-/tree/main/svg/) project.
+We've got `check-icons` job in our `.gitlab-ci.yml` CI configuration. This job verifies that all icons are up-to-date with the canonical [`gitlab-org/editor-extensions/gitlab-ide-icons`](https://gitlab.com/gitlab-org/editor-extensions/gitlab-ide-icons/-/tree/main/svg/) project.
 
 ### The `check-icons` job is failing. What should I do?
 

@@ -1,4 +1,4 @@
-## Developer Certificate of Origin + License
+# Developer Certificate of Origin + License
 
 By contributing to GitLab B.V., You accept and agree to the following terms and
 conditions for Your present and future Contributions submitted to GitLab B.V.
@@ -17,7 +17,7 @@ _This notice should stay as the first item in the CONTRIBUTING.md file._
 
 ---
 
-# Contributing to GitLab Workflow
+## Contributing to GitLab Workflow
 
 Thank you for your interest in contributing to GitLab Workflow! This guide details how to contribute
 to this extension in a way that is easy for everyone. These are mostly guidelines, not rules.
@@ -41,7 +41,7 @@ Create a [new issue from the "Feature Proposal" template](https://gitlab.com/git
 
 Read about the extension architecture in [architecture.md](docs/developer/architecture.md). This document explains how we structure our code and will help you orientate yourself in the codebase.
 
-For newcomers to the project, you can take a look at issues labelled as `Accepting merge requests`
+For newcomers to the project, you can take a look at issues labeled as `Accepting merge requests`
 as available [here](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues?label_name[]=Accepting%20merge%20requests).
 
 ### Configuring Development Environment
@@ -82,7 +82,7 @@ and configured, if not, do that first! If already done, proceed ahead.
 
 Once project is cloned, open terminal within the project folder and run following;
 
-```bash
+```shell
 npm install
 ```
 
@@ -115,7 +115,7 @@ You can always use debugger when you are running the extension in development mo
 
 To run tests in the terminal, run the following command from within the project folder:
 
-```bash
+```shell
 npm test
 ```
 
@@ -129,7 +129,7 @@ See also [how to write automated tests](docs/developer/writing-tests.md).
 
 To run linters, open terminal within the project folder and run following;
 
-```bash
+```shell
 npm run autofix # Automatically formats your code using prettier and fixes eslint errors
 npm run lint
 ```
@@ -164,7 +164,7 @@ If you are contributing a new feature, these are the things to consider:
 
 #### Do you need multiple MRs to complete the feature?
 
-If you need multiple MRs, then you have to hide the partial functionality behind a feature flag. See our [feature flag documentation](./docs/developer/feature-flags.md).
+If you need multiple MRs, then you have to hide the partial functionality behind a feature flag. See our [feature flag documentation](docs/developer/feature-flags.md).
 
 #### Should WebIDE support the feature?
 

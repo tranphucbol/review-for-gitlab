@@ -108,7 +108,7 @@ The extension is ready to use. If your project has a pipeline for the last commi
 
 If you often delete your VS Code storage (such as in Gitpod containers) you can create environment variables before starting VS Code. If you set the token in an environment variable you don't have to set the personal access token every time you delete your VS Code storage.
 
-- `GITLAB_WORKFLOW_INSTANCE_URL`: GitLab instance URL (e.g. https://gitlab.com).
+- `GITLAB_WORKFLOW_INSTANCE_URL`: GitLab instance URL (e.g. `https://gitlab.com`).
 - `GITLAB_WORKFLOW_TOKEN`: personal access token, which you created [in a previous step](#step-1-create-your-personal-access-token).
 
 The token configured in an environment variable is overridden if you configure a token for the same GitLab instance in the extension.
@@ -309,7 +309,7 @@ This extension integrates with the built-in Git Extension and allows you to sear
 - You can clone with SSH or HTTPS
 - With HTTPS your access-token will be used for cloning the repository and fetching/pushing commits. This is also the case for all GitLab projects that are cloned manually with HTTPS and then opened in VS Code.
 
-![Demonstration of cloning a project from gitlab.com](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/git-clone.gif)
+![Demonstration of cloning a project from GitLab.com](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/git-clone.gif)
 
 > **NOTE:** Using the access-token for cloning with HTTPS does not work with VS Code version 1.53.x (See [discussion](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/172#note_513068345))
 
@@ -329,7 +329,7 @@ To open and browse a repository, either:
 - Select _Choose Project_ option.
 - Select GitLab instance, project and branch/tag that you would like to browse
 
-Alternatively, run the **GitLab: Open Remote Repository** command and select "Enter gitlab-remote URL" option or manually add a `gitlab-remote` URL to your [workspace file](https://code.visualstudio.com/docs/editor/multi-root-workspaces#_workspace-file). For information about how to create GitLab remote URL, please see [GitLab remote URL format documentation](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/remote-fs-url-format.md)
+Alternatively, run the **GitLab: Open Remote Repository** command and select `Enter gitlab-remote URL` option or manually add a `gitlab-remote` URL to your [workspace file](https://code.visualstudio.com/docs/editor/multi-root-workspaces#_workspace-file). For information about how to create GitLab remote URL, please see [GitLab remote URL format documentation](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/remote-fs-url-format.md)
 
 ### Code Suggestions (Beta)
 

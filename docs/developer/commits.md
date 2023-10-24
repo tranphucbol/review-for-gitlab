@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 We use conventional commits specifications to write meaningful commit messages. We rely on this standard when we generate changelog.
 
-Please read the official specifications for more details: https://www.conventionalcommits.org/.
+Please read the official specifications for more details: [https://www.conventionalcommits.org/](https://www.conventionalcommits.org/).
 
 Each commit message consists of a **header**, a **body**, and a **footer**. The header has a special
 format that includes a **type**, a **scope**, and a **subject**:
