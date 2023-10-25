@@ -1,0 +1,338 @@
+@import '@gitlab/ui/src/scss/gitlab_ui';
+@import '@gitlab/ui/src/scss/utilities';
+
+:root {
+  --font-family: var(--vscode-font-family);
+}
+body {
+  @include gl-p-0;
+}
+a {
+  color: var(--vscode-textLink-foreground);
+  &:hover {
+    color: var(--vscode-textLink-foreground);
+  }
+}
+.duo-chat {
+  @include gl-h-100vh;
+  @include gl-border-none;
+  font-family: var(--font-family);
+  color: var(--vscode-foreground);
+}
+.gl-drawer .gl-drawer-header-sticky {
+  background-color: var(--vscode-editor-background);
+}
+.drawer-title {
+  @include gl-display-none;
+}
+.gl-bg-gray-10 {
+  background: var(--vscode-sideBar-background);
+}
+.gl-bg-gray-50 {
+  background: var(--vscode-editorWidget-background);
+}
+.gl-text-gray-700 {
+  color: var(--vscode-editorWidget-foreground);
+}
+.gl-border-t {
+  border-color: var(--vscode-editorWidget-border);
+}
+.gl-rounded-base,
+.gl-button.gl-button,
+.gl-rounded-lg {
+  border-radius: 2px;
+  &:focus,
+  &:hover,
+  &:active:focus {
+    border-radius: 2px;
+  }
+}
+.gl-rounded-base\! {
+  border-radius: 2px !important;
+  &:hover {
+    border-radius: 2px !important;
+  }
+}
+.gl-rounded-bottom-right-none {
+  @include gl-rounded-bottom-right-none;
+}
+.gl-rounded-bottom-left-none {
+  @include gl-rounded-bottom-left-none;
+}
+.gl-rounded-top-left-none {
+  @include gl-rounded-top-left-none;
+}
+.gl-rounded-top-right-none {
+  @include gl-rounded-top-right-none;
+}
+.gl-bg-white {
+  background: var(--vscode-sideBar-background);
+}
+.duo-chat-input {
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+
+  .gl-form-input:not(.form-control-plaintext) {
+    &:focus {
+      color: var(--vscode-input-foreground);
+    }
+  }
+}
+.gl-inset-border-1-gray-400 {
+  box-shadow: inset 0 0 0 1px var(--vscode-input-border, transparent);
+  &:focus-within {
+    @include gl-shadow-none;
+    outline: 1px solid var(--vscode-focusBorder);
+  }
+}
+.gl-button.gl-button.btn-default,
+.gl-button.gl-button.btn-dashed,
+.gl-button.gl-button.btn-block.btn-default,
+.gl-button.gl-button.btn-block.btn-dashed {
+  .gl-icon {
+    color: var(--vscode-button-foreground);
+  }
+  &:hover {
+    background: var(--vscode-button-hoverBackground);
+    .gl-icon {
+      color: var(--vscode-button-foreground);
+    }
+  }
+}
+.gl-button.gl-button.btn-confirm-secondary {
+  background: var(--vscode-button-secondaryBackground);
+  color: var(--vscode-button-secondaryForeground);
+  box-shadow: inset 0 0 0 1px var(--vscode-button-border, transparent);
+  &:focus,
+  &:hover,
+  &:active:focus {
+    background: var(--vscode-button-secondaryHoverBackground);
+    color: var(--vscode-button-secondaryForeground);
+    box-shadow: inset 0 0 0 1px var(--vscode-focusBorder);
+  }
+}
+.gl-button.gl-button.btn-confirm {
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  box-shadow: inset 0 0 0 1px var(--vscode-button-border, transparent);
+  &:focus,
+  &:hover,
+  &:active:focus {
+    background: var(--vscode-button-hoverBackground);
+    color: var(--vscode-button-foreground);
+    box-shadow: inset 0 0 0 1px var(--vscode-focusBorder);
+  }
+}
+.gl-button.gl-button.btn-link {
+  color: var(--vscode-textLink-foreground);
+  &:focus,
+  &:hover,
+  &:active:focus {
+    @include gl-shadow-none;
+    @include gl-text-decoration-none;
+    color: var(--vscode-textLink-activeForeground);
+  }
+}
+.gl-button.gl-button.btn-default-tertiary,
+.gl-button.gl-button.btn-dashed-tertiary,
+.gl-button.gl-button.btn-confirm-tertiary,
+.gl-button.gl-button.btn-info-tertiary,
+.gl-button.gl-button.btn-success-tertiary,
+.gl-button.gl-button.btn-danger-tertiary,
+.gl-button.gl-button.btn-block.btn-default-tertiary,
+.gl-button.gl-button.btn-block.btn-dashed-tertiary,
+.gl-button.gl-button.btn-block.btn-confirm-tertiary,
+.gl-button.gl-button.btn-block.btn-info-tertiary,
+.gl-button.gl-button.btn-block.btn-success-tertiary,
+.gl-button.gl-button.btn-block.btn-danger-tertiary {
+  mix-blend-mode: normal;
+}
+.text-muted {
+  color: var(--vscode-disabledForeground) !important;
+}
+.gl-text-blue-900 {
+  color: var(--vscode-foreground);
+}
+.gl-bg-blue-100 {
+  background: var(--vscode-editor-background);
+}
+.gl-text-gray-500 {
+  color: var(--vscode-disabledForeground);
+}
+.gl-text-gray-900 {
+  color: var(--vscode-foreground);
+  &:active {
+    color: var(--vscode-foreground);
+  }
+}
+.gl-border-gray-50 {
+  border-color: var(--vscode-editorWidget-border);
+}
+pre.code {
+  @include gl-shadow-none;
+  background: var(--vscode-textPreformat-background);
+  color: var(--vscode-textPreformat-foreground);
+  border-radius: 2px;
+}
+.gl-markdown {
+  color: var(--vscode-foreground);
+  font-family: var(--font-family);
+  code {
+    background: var(--vscode-textPreformat-background);
+    color: var(--vscode-textPreformat-foreground);
+    font-family: var(--monaco-monospace-font);
+    border-radius: 4px;
+  }
+  pre code {
+    @include gl-bg-transparent;
+    color: var(--vscode-textPreformat-foreground);
+  }
+}
+.gl-modal {
+  color: var(--vscode-editor-foreground);
+  .modal-content {
+    background-color: var(--vscode-editor-background);
+    border-color: var(--vscode-editor-border);
+    border-radius: 2px;
+    box-shadow: 0 4px 16px var(--vscode-widget-shadow);
+  }
+  .modal-header {
+    background-color: var(--vscode-editor-background);
+    & > :first-child {
+      border-top-left-radius: 2px;
+      border-top-right-radius: 2px;
+    }
+  }
+  .modal-body {
+    background-color: var(--vscode-editor-background);
+  }
+}
+.gl-form-checkbox,
+.gl-form-radio {
+  color: var(--vscode-foreground);
+}
+.gl-form-input,
+.gl-form-input.form-control {
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  box-shadow: inset 0 0 0 1px var(--vscode-input-border, transparent);
+  &:focus,
+  &:not(.form-control-plaintext):focus {
+    background: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    box-shadow: inset 0 0 0 1px var(--vscode-focusBorder);
+  }
+  &::placeholder {
+    color: var(--vscode-input-placeholderForeground);
+  }
+}
+.modal-backdrop {
+  opacity: 1;
+  background-color: var(--vscode-widget-shadow);
+}
+
+.duo-chat .gl-drawer-body-scrim-on-footer:before {
+  background: transparent;
+}
+.duo-chat-loader {
+  color: var(--vscode-foreground);
+}
+.legal-warning {
+  @include gl-border-t-none;
+  background: var(--vscode-sideBarSectionHeader-background);
+  color: var(--vscode-sideBarSectionHeader-foreground);
+  border-color: var(--vscode-sideBarSectionHeader-border);
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
+
+
+.gl-form-checkbox,
+.gl-form-radio {
+
+  &.custom-control {
+
+    .custom-control-input ~ .custom-control-label {
+      &::before {
+        @include gl-border-transparent;
+        background-color: var(--vscode-checkbox-background);
+      }
+    }
+
+    .custom-control-input:not(:disabled):focus ~ .custom-control-label {
+      &::before {
+        @include gl-shadow-none;
+        border-color: var(--vscode-checkbox-border);
+      }
+    }
+
+    .custom-control-input:checked ~ .custom-control-label {
+      &::before {
+        @include gl-border-transparent;
+        background-color: var(--vscode-checkbox-selectBackground);
+      }
+    }
+
+    .custom-control-input[type='checkbox']:checked ~ .custom-control-label,
+    .custom-control-input[type='checkbox']:indeterminate ~ .custom-control-label,
+    .custom-control-input[type='radio']:checked ~ .custom-control-label {
+      &::after {
+        background-color: var(--vscode-checkbox-selectedBackground);
+      }
+    }
+
+    .custom-control-input:not(:disabled):checked ~ .custom-control-label:hover,
+    .custom-control-input:not(:disabled):focus:checked ~ .custom-control-label {
+      &::before {
+        background-color: var(--vscode-checkbox-selectBackground);
+        border-color: var(--vscode-checkbox-selectBorder);
+      }
+    }
+
+    &.custom-checkbox {
+      .custom-control-input:indeterminate ~ .custom-control-label::before {
+        background-color: var(--vscode-checkbox-selectBackground);
+        border-color: var(--vscode-checkbox-selectBorder);
+      }
+
+      .custom-control-input:not(:disabled):indeterminate ~ .custom-control-label:hover::before,
+      .custom-control-input:not(:disabled):focus:indeterminate ~ .custom-control-label::before {
+        background-color: var(--vscode-checkbox-selectBackground);
+        border-color: var(--vscode-checkbox-selectBorder);
+      }
+    }
+
+    .custom-control-input:disabled ~ .custom-control-label {
+      &::before {
+        background-color: var(--vscode-disabledForeground);
+        border-color: var(--vscode-checkbox-selectBorder);
+      }
+    }
+
+    .custom-control-input:checked:disabled ~ .custom-control-label,
+    .custom-control-input[type='checkbox']:indeterminate:disabled ~ .custom-control-label {
+      &::before {
+        background-color: var(--vscode-checkbox-selectBackground);
+        border-color: var(--vscode-checkbox-selectBorder);
+      }
+
+      &::after {
+        background-color: var(--vscode-disabledForeground);
+      }
+    }
+  }
+}
+.gl-modal {
+  .modal-footer {
+    @include media-breakpoint-down(xs) {
+      @include gl-flex-direction-row;
+
+      .btn + .btn:not(.dropdown-toggle-split),
+      .btn + .btn-group,
+      .btn-group + .btn {
+        @include gl-ml-3;
+        @include gl-mt-0;
+      }
+    }
+  }
+}
