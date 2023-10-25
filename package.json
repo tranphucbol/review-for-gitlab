@@ -38,7 +38,7 @@
       "activitybar": [
         {
           "id": "gitlab-duo",
-          "title": "GitLab Duo",
+          "title": "GitLab Duo Chat",
           "icon": "assets/images/light/gitlab-duo.svg"
         }
       ]
@@ -48,7 +48,7 @@
         {
           "type": "webview",
           "id": "gl.chatView",
-          "name": "Chat (Experiment)",
+          "name": "Experiment",
           "when": "gitlab.featureFlags.chat && gitlab:validState"
         }
       ]
@@ -61,18 +61,18 @@
       },
       {
         "command": "gl.openChat",
-        "title": "Open Chat",
-        "category": "GitLab Duo"
+        "title": "Open chat",
+        "category": "GitLab Duo Chat"
       },
       {
         "command": "gl.explainSelectedCode",
-        "title": "Explain Selected Code",
-        "category": "GitLab Duo"
+        "title": "Explain selected code",
+        "category": "GitLab Duo Chat"
       },
       {
         "command": "gl.newChatConversation",
-        "title": "Start new chat conversation",
-        "category": "GitLab Duo"
+        "title": "Start a new conversation",
+        "category": "GitLab Duo Chat"
       },
       {
         "command": "gl.toggleCodeSuggestions",
@@ -83,7 +83,7 @@
     "submenus": [
       {
         "id": "gl.gitlabDuo",
-        "label": "GitLab Duo"
+        "label": "GitLab Duo Chat"
       }
     ],
     "menus": {
