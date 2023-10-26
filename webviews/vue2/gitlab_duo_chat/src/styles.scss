@@ -322,6 +322,10 @@ pre.code {
     }
   }
 }
+.modal-dialog {
+  @include gl-mr-5;
+  @include gl-ml-5;
+}
 .gl-modal {
   .modal-footer {
     @include media-breakpoint-down(xs) {
