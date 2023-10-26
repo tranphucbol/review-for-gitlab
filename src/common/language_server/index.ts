@@ -24,6 +24,7 @@ export function registerLanguageServer(
   statusBar: vscode.StatusBarItem,
   accounts?: IAccountService,
 ) {
+  client.registerProposedFeatures();
   context.subscriptions.push(
     statusBar,
 
