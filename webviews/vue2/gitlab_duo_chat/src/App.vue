@@ -41,11 +41,9 @@ export default {
   },
   computed: {
     isLoading() {
-      console.log(this.chatMessages);
       return this.chatMessages.findIndex(message => message.state === 'pending') >= 0;
     },
     messages() {
-      console.log(this.chatMessages);
       return this.chatMessages.filter(message => message.state !== 'pending');
     },
   },
@@ -62,11 +60,9 @@ export default {
   methods: {
     handleExtensionMessageEvent(event) {
       const message = event.data;
-      console.log('received', message);
 
       switch (message.eventType) {
         case 'focus': {
-          this.focusInput();
           break;
         }
         case 'newRecord': {
@@ -78,7 +74,7 @@ export default {
           break;
         }
         default:
-          console.log('Chat view received unexpected message type.');
+          console.warn('Chat view received unexpected message type.');
           break;
       }
     },
@@ -117,10 +113,6 @@ export default {
         event.preventDefault();
         this.onSendChatPrompt();
       }
-    },
-    focusInput() {
-      // this.$refs.promptTextarea.focus();
-      console.log('should focus');
     },
     onTrackFeedback() {},
   },
