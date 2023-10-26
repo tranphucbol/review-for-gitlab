@@ -38,7 +38,7 @@
         "${workspaceRoot}/test_workspace"
       ],
       "outFiles": ["${workspaceFolder}/dist-desktop/**/*.js"],
-      "preLaunchTask": "npm: prepare:test:integration",
+      "preLaunchTask": "npm: prepare:test:integration"
     }
   ]
 }
