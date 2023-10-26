@@ -23,5 +23,8 @@ _Make sure that the node version in `.tool-versions` is the same in both project
 
 1. Make sure you've created bundle for the GitLab language server with `npm run bundle`
 1. [Start the extension](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/8a6f12ba3ec92ac059856f7e663eb6dc37b6d668/CONTRIBUTING.md#step-4-running-the-extension-in-desktop-vs-code) in debug mode
+1. In the workspace where you run the development version of the extension, set the `gitlab.ls.debug` settings to `true`.
+    - the debugger occupies port `6010` and so we can only have one debugging session running, if you enable the `gitlab.ls.debug` setting in multiple projects, only one LS can use the port
+    - use the workspace settings (as opposed to the user settings) - Command: `Preferences: Open Workspace Settings (JSON)`
 1. [Connect debugger to the running Language server](https://gitlab.com/gitlab-org/editor-extensions/gitlab-language-server-for-code-suggestions/-/blob/main/README.md#debugging-the-server)
 1. Profit
