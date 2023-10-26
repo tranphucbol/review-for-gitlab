@@ -88,7 +88,7 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
     record.update(actionResponse.aiAction);
   }
 
-  private async processRecord(record: GitLabChatRecord) {
+  private async refreshRecord(record: GitLabChatRecord) {
     if (!record.requestId) {
       throw Error('requestId must be present!');
     }
@@ -105,7 +105,6 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
     }
 
     record.update({ errors: apiResponse.errors, state: 'ready' });
-
     await this.#view.updateRecord(record);
   }
 }

@@ -1,6 +1,5 @@
 <script>
 import { GlDuoChat } from '@gitlab/ui';
-import { GENIE_CHAT_RESET_MESSAGE, CHAT_MODEL_ROLES } from './constants';
 
 const vscode = acquireVsCodeApi();
 const i18n = {
@@ -30,7 +29,6 @@ export default {
     return {
       chatMessages: [],
       promptDraft: null,
-      isLoading: false,
     };
   },
   created() {
@@ -40,6 +38,16 @@ export default {
   },
   onBeforeDestroy() {
     window.removeEventListener('message', this.handleExtensionMessageEvent);
+  },
+  computed: {
+    isLoading() {
+      console.log(this.chatMessages);
+      return this.chatMessages.findIndex(message => message.state === 'pending') >= 0;
+    },
+    messages() {
+      console.log(this.chatMessages);
+      return this.chatMessages.filter(message => message.state !== 'pending');
+    },
   },
   mounted() {
     this.attachToVsCodeState();
@@ -75,16 +83,10 @@ export default {
       }
     },
     newRecord(record) {
-      if (record.role === CHAT_MODEL_ROLES.assistant) {
-        this.isLoading = false;
-      }
       this.chatMessages.push(record);
       this.scrollBottom();
     },
     updateRecord(record) {
-      if (record.role === CHAT_MODEL_ROLES.assistant) {
-        this.isLoading = false;
-      }
       const index = this.chatMessages.findIndex(r => r.id === record.id);
 
       this.chatMessages.splice(index, 1, record);
@@ -103,9 +105,6 @@ export default {
       }
     },
     onSendChatPrompt(question) {
-      if (question !== GENIE_CHAT_RESET_MESSAGE) {
-        this.isLoading = true;
-      }
       window.vsCodeApi.postMessage({
         eventType: 'newPrompt',
         record: {
@@ -129,7 +128,7 @@ export default {
 </script>
 <template>
   <gl-duo-chat
-    :messages="chatMessages"
+    :messages="messages"
     error=""
     :is-loading="isLoading"
     :predefined-prompts="$options.i18n.predefinedPrompts"
