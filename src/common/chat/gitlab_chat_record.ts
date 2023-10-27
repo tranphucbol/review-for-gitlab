@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 type ChatRecordRole = 'user' | 'assistant' | 'system';
 type ChatRecordState = 'pending' | 'ready';
-type ChatRecordType = 'general' | 'explainCode' | 'newConversation';
+type ChatRecordType = 'general' | 'explainCode' | 'generateTests' | 'newConversation';
 
 type GitLabChatRecordAttributes = {
   type?: ChatRecordType;

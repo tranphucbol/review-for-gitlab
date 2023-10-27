@@ -20,7 +20,8 @@ describe('activateChat', () => {
       .fn()
       .mockReturnValueOnce('command1')
       .mockReturnValueOnce('command2')
-      .mockReturnValueOnce('command3');
+      .mockReturnValueOnce('command3')
+      .mockReturnValueOnce('command4');
   });
 
   it('registers view provider', () => {
@@ -48,6 +49,11 @@ describe('activateChat', () => {
     );
     expect(vscode.commands.registerCommand).toHaveBeenNthCalledWith(
       3,
+      'gl.generateTests',
+      expect.any(Function),
+    );
+    expect(vscode.commands.registerCommand).toHaveBeenNthCalledWith(
+      4,
       'gl.newChatConversation',
       expect.any(Function),
     );
@@ -55,5 +61,6 @@ describe('activateChat', () => {
     expect(context.subscriptions[1]).toEqual('command1');
     expect(context.subscriptions[2]).toEqual('command2');
     expect(context.subscriptions[3]).toEqual('command3');
+    expect(context.subscriptions[4]).toEqual('command4');
   });
 });

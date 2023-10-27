@@ -70,6 +70,11 @@
         "category": "GitLab Duo Chat"
       },
       {
+        "command": "gl.generateTests",
+        "title": "Generate Tests",
+        "category": "GitLab Duo"
+      },
+      {
         "command": "gl.newChatConversation",
         "title": "Start a new conversation",
         "category": "GitLab Duo Chat"
@@ -97,6 +102,10 @@
           "when": "gitlab.featureFlags.chat && gitlab:validState && editorHasSelection"
         },
         {
+          "command": "gl.generateTests",
+          "when": "gitlab.featureFlags.chat && gitlab:validState && activeEditor"
+        },
+        {
           "command": "gl.newChatConversation",
           "when": "gitlab.featureFlags.chat && gitlab:validState"
         }
@@ -112,6 +121,11 @@
           "command": "gl.explainSelectedCode",
           "group": "navigation",
           "when": "gitlab.featureFlags.chat && gitlab:validState && editorHasSelection"
+        },
+        {
+          "command": "gl.generateTests",
+          "group": "navigation",
+          "when": "gitlab.featureFlags.chat && gitlab:validState && activeEditor"
         }
       ]
     },
@@ -125,6 +139,11 @@
         "command": "gl.explainSelectedCode",
         "when": "gitlab.featureFlags.chat && gitlab:validState && editorHasSelection",
         "key": "alt+e"
+      },
+      {
+        "command": "gl.generateTests",
+        "when": "gitlab.featureFlags.chat && gitlab:validState && activeEditor",
+        "key": "alt+t"
       },
       {
         "command": "gl.newChatConversation",
