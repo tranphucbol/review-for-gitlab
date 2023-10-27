@@ -16,6 +16,8 @@ export const WEBVIEW_WORKFLOW = 'glWorkflow';
 export const WEBVIEW_PENDING_JOB = 'gitlab.waitForPendingJob';
 export const WEBVIEW_SECURITY_FINDING = 'gitlab.viewSecurityFinding';
 
+/** Configuration namespace with boolean flag that tells us if we should start Language Server in debugging mode. */
+export const CONFIG_LS_DEBUG = 'gitlab.ls.debug';
 export const CHANGE_TYPE_QUERY_KEY = 'changeType';
 export const HAS_COMMENTS_QUERY_KEY = 'hasComments';
 export const PATCH_TITLE_PREFIX = 'patch: ';

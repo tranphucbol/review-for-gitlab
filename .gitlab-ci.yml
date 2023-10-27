@@ -8,7 +8,7 @@ include:
   - template: Jobs/Secret-Detection.latest.gitlab-ci.yml
   - template: Jobs/License-Scanning.latest.gitlab-ci.yml
   - project: 'gitlab-org/quality/pipeline-common'
-    file: '/ci/danger-review.yml'  # danger-review job below
+    file: '/ci/danger-review.yml' # danger-review job below
 
 # why: Similar to https://gitlab.com/gitlab-org/cli/-/merge_requests/1352 to avoid
 # upstream breaking changes
@@ -30,7 +30,7 @@ default:
   tags:
     - gitlab-org
 
-image: node:16-slim
+image: node:18-slim
 
 stages:
   - test

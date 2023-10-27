@@ -9,8 +9,8 @@
       "runtimeExecutable": "${execPath}",
       "args": ["--disable-extensions", "--extensionDevelopmentPath=${workspaceRoot}/dist-desktop"],
       "outFiles": ["${workspaceFolder}/dist-desktop/**/*.js"],
-      "stopOnEntry": false,
-      "preLaunchTask": "${defaultBuildTask}",
+      "preLaunchTask": "Build and watch desktop sources",
+      "postDebugTask": "Terminate All Tasks",
       "env": {
         "NODE_ENV": "development",
         "GITLAB_VSCODE_ENV": "development"
@@ -38,8 +38,7 @@
         "${workspaceRoot}/test_workspace"
       ],
       "outFiles": ["${workspaceFolder}/dist-desktop/**/*.js"],
-      "preLaunchTask": "npm: prepare:test:integration",
-      "stopOnEntry": false
+      "preLaunchTask": "npm: prepare:test:integration"
     }
   ]
 }

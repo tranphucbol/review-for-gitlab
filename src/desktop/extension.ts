@@ -21,6 +21,7 @@ import {
   REMOTE_URI_SCHEME,
   MERGED_YAML_URI_SCHEME,
   JOB_LOG_URI_SCHEME,
+  CONFIG_LS_DEBUG,
 } from './constants';
 import { USER_COMMANDS, PROGRAMMATIC_COMMANDS } from './command_names';
 import { CiCompletionProvider } from './ci/ci_completion_provider';
@@ -294,12 +295,12 @@ export const activate = async (context: vscode.ExtensionContext) => {
 
 function startLanguageServer(context: vscode.ExtensionContext) {
   const exec: NodeModule = {
-    module: context.asAbsolutePath('./assets/language-server/node/main.js'),
-    transport: {
-      kind: TransportKind.socket,
-      port: 6789,
-    },
+    module: context.asAbsolutePath('./assets/language-server/node/main-bundle.js'),
+    transport: TransportKind.stdio,
   };
+
+  const lsDebug = vscode.workspace.getConfiguration().get(CONFIG_LS_DEBUG);
+  const debugArgs = lsDebug ? ['--inspect=6010'] : [];
 
   const client = new LanguageClient(
     LANGUAGE_SERVER_ID,
@@ -308,7 +309,7 @@ function startLanguageServer(context: vscode.ExtensionContext) {
       debug: {
         ...exec,
         options: {
-          execArgv: ['--nolazy', '--inspect=6010'],
+          execArgv: ['--nolazy', ...debugArgs],
         },
       },
       run: exec,
