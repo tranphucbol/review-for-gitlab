@@ -14,6 +14,9 @@ type GitLabChatRecordAttributes = {
   payload?: object;
   errors?: string[];
   timestamp?: string;
+  extras?: {
+    sources: object[];
+  };
 };
 
 export class GitLabChatRecord {
@@ -37,6 +40,10 @@ export class GitLabChatRecord {
 
   errors: string[];
 
+  extras?: {
+    sources: object[];
+  };
+
   constructor({
     type,
     role,
@@ -47,6 +54,7 @@ export class GitLabChatRecord {
     payload,
     errors,
     timestamp,
+    extras,
   }: GitLabChatRecordAttributes) {
     this.role = role;
     this.content = content;
@@ -58,6 +66,7 @@ export class GitLabChatRecord {
     this.errors = errors ?? [];
     this.id = uuidv4();
     this.timestamp = timestamp ? Date.parse(timestamp) : Date.now();
+    this.extras = extras;
   }
 
   update(attributes: Partial<GitLabChatRecordAttributes>) {

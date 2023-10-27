@@ -20,6 +20,9 @@ const mockedQueryResponse = {
         role: 'assistant',
         errors: ['bar'],
         timestamp: '2023-01-01 01:01:01',
+        extras: {
+          sources: ['foo'],
+        },
       },
     ],
   },
@@ -86,6 +89,7 @@ describe('GitLabChatApi', () => {
       expect(response.requestId).toBe(expectedMessage.requestId);
       expect(response.errors).toStrictEqual(expectedMessage.errors);
       expect(response.timestamp).toStrictEqual(expectedMessage.timestamp);
+      expect(response.extras).toStrictEqual(expectedMessage.extras);
     });
 
     it('returns an error if pulling timeout is reached', async () => {
