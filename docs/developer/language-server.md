@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 This document explains how to run the Workflow Extension and the [GitLab Language Server](https://gitlab.com/gitlab-org/editor-extensions/gitlab-language-server-for-code-suggestions) side to side, both in debug mode and how to see your changes in Language Server in the extension.
 
-To work with language server, you have to add the following properties to your `settings.json`:
+To work with language server, the following properties to the VSCode's user or workspace settings (`settings.json`):
 
 ```json
 {
@@ -22,8 +22,8 @@ To work with language server, you have to add the following properties to your `
 First, you want to use your local language server project rather than using the published node module. You do that with `npm link`.
 
 1. Go to a folder where you cloned the [GitLab Language Server](https://gitlab.com/gitlab-org/editor-extensions/gitlab-language-server-for-code-suggestions) project.
-1. run `npm run bundle` to create the LS bundle file that's used by the Workflow extension
-1. run `npm link`
+1. run `npm run bundle && npm run compile` to create the LS bundle file that's used by the Workflow extension
+1. run `asdf install` and `npm link`
 1. Go to the folder with the Workflow Extension project
 1. run `npm link @gitlab-org/gitlab-lsp`
 
