@@ -1,3 +1,21 @@
+# [3.82.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.81.0...v3.82.0) (2023-10-31)
+
+
+### Bug Fixes
+
+* enable starting multiple LS at the same time ([c5889f1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/c5889f1c003af2de0f41d295fcb28e07e5d203fb))
+* the OS keychain issue is not Ubuntu-specific ([d5ed8d4](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/d5ed8d4f9ef0717df322402f2016ce8fcbdd0878))
+
+
+### Features
+
+* Add Generate Tests chat feature ([3bf3a73](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/3bf3a7301adcc9aa929fc0ff247edaaa7beb6027))
+* add message extras display to the chat ([cb77cf1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/cb77cf1c67046f69478b6f05f1b5183a08ea2a9c))
+* support inline completion from LS ([a377c7d](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/a377c7df8f072ddc50a2a2e912de9cc9ed87ac67))
+* update Chat hotkey ([7208c8e](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/7208c8eec65cd8d16b2a2d39f913742d649436f2))
+
+
+
 # [3.81.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.78.0...v3.81.0) (2023-10-19)
 
 
