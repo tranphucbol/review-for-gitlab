@@ -33,7 +33,7 @@
   },
   {
     "name": "CI_COMMIT_BEFORE_SHA",
-    "description": "The previous latest commit present on a branch or tag. Is always `0000000000000000000000000000000000000000` in merge request pipelines and for the first commit in pipelines for branches or tags."
+    "description": "The previous latest commit present on a branch or tag. Is always `0000000000000000000000000000000000000000` for merge request pipelines, the first commit in pipelines for branches or tags, or when manually running a pipeline."
   },
   {
     "name": "CI_COMMIT_BRANCH",
@@ -153,7 +153,7 @@
   },
   {
     "name": "CI_ENVIRONMENT_SLUG",
-    "description": "The simplified version of the environment name, suitable for inclusion in DNS, URLs, Kubernetes labels, and so on. Available if [`environment:name`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../yaml/index.md#environmentname) is set. The slug is [truncated to 24 characters](https://gitlab.com/gitlab-org/gitlab/-/issues/20941)."
+    "description": "The simplified version of the environment name, suitable for inclusion in DNS, URLs, Kubernetes labels, and so on. Available if [`environment:name`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../yaml/index.md#environmentname) is set. The slug is [truncated to 24 characters](https://gitlab.com/gitlab-org/gitlab/-/issues/20941). A random suffix is automatically added to [uppercase environment names](https://gitlab.com/gitlab-org/gitlab/-/issues/415526)."
   },
   {
     "name": "CI_ENVIRONMENT_TIER",
@@ -193,7 +193,7 @@
   },
   {
     "name": "CI_GITLAB_FIPS_MODE",
-    "description": "The configuration setting for whether FIPS mode is enabled in the GitLab instance."
+    "description": "Only available if [FIPS mode](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../../development/fips_compliance.md) is enabled in the GitLab instance. `true` when available."
   },
   {
     "name": "CI_HAS_OPEN_REQUIREMENTS",
@@ -209,15 +209,15 @@
   },
   {
     "name": "CI_JOB_JWT (Deprecated)",
-    "description": "A RS256 JSON web token to authenticate with third party systems that support JWT authentication, for example [HashiCorp's Vault](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../secrets/index.md). [Deprecated in GitLab 15.9](../../update/deprecations.md#old-versions-of-json-web-tokens-are-deprecated) and scheduled to be removed in GitLab 16.5. Use [ID tokens](../yaml/index.md#id_tokens) instead."
+    "description": "A RS256 JSON web token to authenticate with third party systems that support JWT authentication, for example [HashiCorp's Vault](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../secrets/index.md). [Deprecated in GitLab 15.9](../../update/deprecations.md#old-versions-of-json-web-tokens-are-deprecated) and scheduled to be removed in GitLab 17.0. Use [ID tokens](../yaml/index.md#id_tokens) instead."
   },
   {
     "name": "CI_JOB_JWT_V1 (Deprecated)",
-    "description": "The same value as `CI_JOB_JWT`. [Deprecated in GitLab 15.9](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../../update/deprecations.md#old-versions-of-json-web-tokens-are-deprecated) and scheduled to be removed in GitLab 16.5. Use [ID tokens](../yaml/index.md#id_tokens) instead."
+    "description": "The same value as `CI_JOB_JWT`. [Deprecated in GitLab 15.9](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../../update/deprecations.md#old-versions-of-json-web-tokens-are-deprecated) and scheduled to be removed in GitLab 17.0. Use [ID tokens](../yaml/index.md#id_tokens) instead."
   },
   {
     "name": "CI_JOB_JWT_V2 (Deprecated)",
-    "description": "A newly formatted RS256 JSON web token to increase compatibility. Similar to `CI_JOB_JWT`, except the issuer (`iss`) claim is changed from `gitlab.com` to `https://gitlab.com`, `sub` has changed from `job_id` to a string that contains the project path, and an `aud` claim is added. The `aud` field is a constant value. Trusting JWTs in multiple relying parties can lead to [one RP sending a JWT to another one and acting maliciously as a job](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/72555#note_769112331). [Deprecated in GitLab 15.9](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../../update/deprecations.md#old-versions-of-json-web-tokens-are-deprecated) and scheduled to be removed in GitLab 16.5. Use [ID tokens](../yaml/index.md#id_tokens) instead."
+    "description": "A newly formatted RS256 JSON web token to increase compatibility. Similar to `CI_JOB_JWT`, except the issuer (`iss`) claim is changed from `gitlab.com` to `https://gitlab.com`, `sub` has changed from `job_id` to a string that contains the project path, and an `aud` claim is added. The `aud` field is a constant value. Trusting JWTs in multiple relying parties can lead to [one RP sending a JWT to another one and acting maliciously as a job](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/72555#note_769112331). [Deprecated in GitLab 15.9](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../../update/deprecations.md#old-versions-of-json-web-tokens-are-deprecated) and scheduled to be removed in GitLab 17.0. Use [ID tokens](../yaml/index.md#id_tokens) instead."
   },
   {
     "name": "CI_JOB_MANUAL",
@@ -245,7 +245,7 @@
   },
   {
     "name": "CI_JOB_TIMEOUT",
-    "description": "The job timeout value."
+    "description": "The job timeout, in seconds."
   },
   {
     "name": "CI_JOB_TOKEN",
@@ -316,6 +316,10 @@
     "description": "The source branch name of the merge request."
   },
   {
+    "name": "CI_MERGE_REQUEST_SOURCE_BRANCH_PROTECTED",
+    "description": "`true` when the source branch of the merge request is [protected](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../../user/project/protected_branches.md)."
+  },
+  {
     "name": "CI_MERGE_REQUEST_SOURCE_BRANCH_SHA",
     "description": "The HEAD SHA of the source branch of the merge request. The variable is empty in merge request pipelines. The SHA is present only in [merged results pipelines](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../pipelines/merged_results_pipelines.md)."
   },
@@ -332,12 +336,16 @@
     "description": "The URL of the source project of the merge request."
   },
   {
+    "name": "CI_MERGE_REQUEST_SQUASH_ON_MERGE",
+    "description": "`true` when the [squash on merge](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../../user/project/merge_requests/squash_and_merge.md) option is set."
+  },
+  {
     "name": "CI_MERGE_REQUEST_TARGET_BRANCH_NAME",
     "description": "The target branch name of the merge request."
   },
   {
     "name": "CI_MERGE_REQUEST_TARGET_BRANCH_PROTECTED",
-    "description": "The protection status for the target branch of the merge request."
+    "description": "`true` when the target branch of the merge request is [protected](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../../user/project/protected_branches.md)."
   },
   {
     "name": "CI_MERGE_REQUEST_TARGET_BRANCH_SHA",
@@ -380,6 +388,10 @@
     "description": "The project-level IID (internal ID) of the current pipeline. This ID is unique only within the current project."
   },
   {
+    "name": "CI_PIPELINE_NAME",
+    "description": "The pipeline name defined in [`workflow:name`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../yaml/index.md#workflowname)"
+  },
+  {
     "name": "CI_PIPELINE_SOURCE",
     "description": "How the pipeline was triggered. Can be `push`, `web`, `schedule`, `api`, `external`, `chat`, `webide`, `merge_request_event`, `external_pull_request_event`, `parent_pipeline`, [`trigger`, or `pipeline`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../triggers/index.md#configure-cicd-jobs-to-run-in-triggered-pipelines). For a description of each value, see [Common `if` clauses for `rules`](../jobs/job_control.md#common-if-clauses-for-rules), which uses this variable to control when jobs run."
   },
@@ -393,7 +405,7 @@
   },
   {
     "name": "CI_PROJECT_CLASSIFICATION_LABEL",
-    "description": "The project [external authorization classification label](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../../user/admin_area/settings/external_authorization.md)."
+    "description": "The project [external authorization classification label](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../../administration/settings/external_authorization.md)."
   },
   {
     "name": "CI_PROJECT_DESCRIPTION",
@@ -601,6 +613,6 @@
   },
   {
     "name": "TRIGGER_PAYLOAD",
-    "description": "The webhook payload. Only available when a pipeline is [triggered with a webhook](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../triggers/index.md#use-a-webhook-payload)."
+    "description": "The webhook payload. Only available when a pipeline is [triggered with a webhook](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../triggers/index.md#access-webhook-payload)."
   }
 ]
