@@ -12,14 +12,14 @@ describe('token input', () => {
   describe('addAccount', () => {
     const mockResponses = ({
       getCurrentUser,
-      getPersonalAccessTokenDetails,
+      fetchFromApi,
     }: {
       getCurrentUser: any;
-      getPersonalAccessTokenDetails: any;
+      fetchFromApi: any;
     }) => {
       asMock(GitLabService).mockImplementation(() => ({
         getCurrentUser: () => getCurrentUser,
-        getPersonalAccessTokenDetails: () => getPersonalAccessTokenDetails,
+        fetchFromApi: () => fetchFromApi,
       }));
     };
 
@@ -33,7 +33,7 @@ describe('token input', () => {
       // simulate API returning user for the instance url and token
       mockResponses({
         getCurrentUser: { id: 1, username: 'testname' },
-        getPersonalAccessTokenDetails: { scopes: ['api', 'read_user'] },
+        fetchFromApi: { scopes: ['api', 'read_user'] },
       });
 
       await addAccount();
@@ -59,7 +59,7 @@ describe('token input', () => {
       // simulate API returning user for the instance url and token
       mockResponses({
         getCurrentUser: { id: 1, username: 'testname' },
-        getPersonalAccessTokenDetails: { scopes: ['api', 'read_user'] },
+        fetchFromApi: { scopes: ['api', 'read_user'] },
       });
 
       await addAccount();
@@ -77,7 +77,7 @@ describe('token input', () => {
       // simulate API failing with Unauthorized
       mockResponses({
         getCurrentUser: Promise.reject(new FetchError('', { status: 401 } as Response)),
-        getPersonalAccessTokenDetails: { scopes: ['api', 'read_user'] },
+        fetchFromApi: { scopes: ['api', 'read_user'] },
       });
 
       await expect(addAccount()).rejects.toThrowError(/.*Unauthorized.*/);
@@ -86,7 +86,7 @@ describe('token input', () => {
       // simulate API returning error response
       mockResponses({
         getCurrentUser: Promise.reject(new FetchError('', { status: 404 } as Response)),
-        getPersonalAccessTokenDetails: { scopes: ['api', 'read_user'] },
+        fetchFromApi: { scopes: ['api', 'read_user'] },
       });
 
       await expect(addAccount()).rejects.toThrowError(/.*Request failed.*/);
@@ -96,7 +96,7 @@ describe('token input', () => {
       // simulate token with missing scopes
       mockResponses({
         getCurrentUser: {},
-        getPersonalAccessTokenDetails: { scopes: ['read_user', 'some_other_scope'] },
+        fetchFromApi: { scopes: ['read_user', 'some_other_scope'] },
       });
 
       await expect(addAccount()).rejects.toThrowError(/.*token is missing 'api' scope.*/);

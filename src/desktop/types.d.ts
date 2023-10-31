@@ -123,16 +123,6 @@ interface RestUser {
   state: string;
 }
 
-// GitLab token info
-interface PersonalAccessTokenDetails {
-  id: number;
-  name: string;
-  revoked: false;
-  scopes: string[];
-  user_id: number;
-  active: boolean;
-}
-
 interface RestRepositoryFile {
   file_name: string;
   file_path: string;
