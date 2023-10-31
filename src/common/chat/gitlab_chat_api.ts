@@ -28,6 +28,9 @@ export const AI_MESSAGES_QUERY = gql`
         contentHtml
         timestamp
         errors
+        extras {
+          sources
+        }
       }
     }
   }
@@ -42,6 +45,9 @@ type AiMessagesResponseType = {
       contentHtml: string;
       timestamp: string;
       errors: string[];
+      extras?: {
+        sources: object[];
+      };
     }[];
   };
 };
@@ -69,6 +75,9 @@ interface SuccessMessage {
   contentHtml: string;
   timestamp: string;
   errors: string[];
+  extras?: {
+    sources: object[];
+  };
 }
 
 const successResponse = (response: AiMessageResponseType): SuccessMessage => ({

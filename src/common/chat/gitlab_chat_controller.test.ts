@@ -41,6 +41,7 @@ describe('GitLabChatController', () => {
       role,
       requestId,
       timestamp: '2023-01-01 01:01:01',
+      extras: { sources: ['foo'] },
     }));
   });
 
@@ -138,6 +139,7 @@ describe('GitLabChatController', () => {
           state: 'ready',
           role: 'assistant',
           requestId: 'uniqueId',
+          extras: { sources: ['foo'] },
         }),
       );
     });

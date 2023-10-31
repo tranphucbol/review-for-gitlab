@@ -100,6 +100,7 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
       record.update({
         content: apiResponse.content,
         contentHtml: apiResponse.contentHtml,
+        extras: apiResponse.extras,
         timestamp: apiResponse.timestamp,
       });
     }
