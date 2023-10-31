@@ -755,6 +755,10 @@ export class GitLabService {
     return this.fetch('/user', {}, 'current user');
   }
 
+  async getPersonalAccessTokenDetails(): Promise<PersonalAccessTokenDetails> {
+    return this.fetch('/personal_access_tokens/self', {}, 'PAT details');
+  }
+
   async getIssuables(params: CustomQuery, project: GitLabProject) {
     const { type, scope, state, author, assignee, wip, reviewer } = params;
     let { searchIn } = params;

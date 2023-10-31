@@ -10,9 +10,16 @@ jest.mock('./accounts/account_service');
 
 describe('token input', () => {
   describe('addAccount', () => {
-    const mockGetCurrentUserResponse = (response: any) => {
+    const mockResponses = ({
+      getCurrentUser,
+      getPersonalAccessTokenDetails,
+    }: {
+      getCurrentUser: any;
+      getPersonalAccessTokenDetails: any;
+    }) => {
       asMock(GitLabService).mockImplementation(() => ({
-        getCurrentUser: () => response,
+        getCurrentUser: () => getCurrentUser,
+        getPersonalAccessTokenDetails: () => getPersonalAccessTokenDetails,
       }));
     };
 
@@ -24,7 +31,10 @@ describe('token input', () => {
     });
     it('adds account', async () => {
       // simulate API returning user for the instance url and token
-      mockGetCurrentUserResponse({ id: 1, username: 'testname' });
+      mockResponses({
+        getCurrentUser: { id: 1, username: 'testname' },
+        getPersonalAccessTokenDetails: { scopes: ['api', 'read_user'] },
+      });
 
       await addAccount();
 
@@ -47,7 +57,10 @@ describe('token input', () => {
         options.password ? 'token' : 'https://gitlab.com/',
       );
       // simulate API returning user for the instance url and token
-      mockGetCurrentUserResponse({ id: 1, username: 'testname' });
+      mockResponses({
+        getCurrentUser: { id: 1, username: 'testname' },
+        getPersonalAccessTokenDetails: { scopes: ['api', 'read_user'] },
+      });
 
       await addAccount();
 
@@ -62,15 +75,31 @@ describe('token input', () => {
 
     it('handles Unauthorized error', async () => {
       // simulate API failing with Unauthorized
-      mockGetCurrentUserResponse(Promise.reject(new FetchError('', { status: 401 } as Response)));
+      mockResponses({
+        getCurrentUser: Promise.reject(new FetchError('', { status: 401 } as Response)),
+        getPersonalAccessTokenDetails: { scopes: ['api', 'read_user'] },
+      });
 
       await expect(addAccount()).rejects.toThrowError(/.*Unauthorized.*/);
     });
     it('handles fetch error', async () => {
       // simulate API returning error response
-      mockGetCurrentUserResponse(Promise.reject(new FetchError('', { status: 404 } as Response)));
+      mockResponses({
+        getCurrentUser: Promise.reject(new FetchError('', { status: 404 } as Response)),
+        getPersonalAccessTokenDetails: { scopes: ['api', 'read_user'] },
+      });
 
       await expect(addAccount()).rejects.toThrowError(/.*Request failed.*/);
+    });
+
+    it('handles insufficient scopes error', async () => {
+      // simulate token with missing scopes
+      mockResponses({
+        getCurrentUser: {},
+        getPersonalAccessTokenDetails: { scopes: ['read_user', 'some_other_scope'] },
+      });
+
+      await expect(addAccount()).rejects.toThrowError(/.*token is missing 'api' scope.*/);
     });
   });
 });
