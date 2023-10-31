@@ -1,6 +1,11 @@
 <script>
+import FindingDetails from './FindingDetails.vue';
+
 export default {
   name: 'App',
+  components: {
+    FindingDetails,
+  },
   data() {
     return {
       isLoading: false,
@@ -27,21 +32,14 @@ export default {
 
 <template>
   <div id="app">
-    <p v-if="isLoading" class="loading">
-      Fetching vulnerability details and discussions. This may take a while.
-      <br />
-      If it doesn't work, please
+    <p v-if="isLoading" class="loading">Loading...</p>
+    <p v-else-if="!finding">
+      Something went wrong! please
       <a href="https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/new" class="hello"
         >create an issue.</a
       >
     </p>
-    <template v-else>
-      <h2>{{ finding.title }}</h2>
-      <h3>Description</h3>
-      <p>{{ finding.description }}</p>
-      <h3>Severity</h3>
-      <span>{{ finding.severity }}</span>
-    </template>
+    <finding-details v-else :finding="finding" />
   </div>
 </template>
 

@@ -3,6 +3,7 @@ import { ItemModel } from '../item_model';
 
 import { GqlSecurityFindingReport } from '../../../gitlab/security_findings/api/get_security_finding_report';
 import { SecurityFindingsGroupItem } from './security_findings_group_item';
+import { ProjectInRepository } from '../../../gitlab/new_project';
 
 export type SecurityResultsType = 'NO_SCANS_FOUND' | 'RUNNING' | 'COMPLETE';
 
@@ -11,10 +12,17 @@ export class SecurityResultsItemModel extends ItemModel {
 
   readonly #securityResultsType: SecurityResultsType;
 
-  constructor(securityResultsType: SecurityResultsType, securityReport?: GqlSecurityFindingReport) {
+  readonly projectInRepository: ProjectInRepository;
+
+  constructor(
+    projectInRepository: ProjectInRepository,
+    securityResultsType: SecurityResultsType,
+    securityReport?: GqlSecurityFindingReport,
+  ) {
     super();
     this.#securityReport = securityReport;
     this.#securityResultsType = securityResultsType;
+    this.projectInRepository = projectInRepository;
   }
 
   getTreeItem(): vscode.TreeItem {
@@ -37,8 +45,12 @@ export class SecurityResultsItemModel extends ItemModel {
       const addedSecurityFindings = this.#securityReport.added;
       const fixedSecurityFindings = this.#securityReport.fixed;
 
-      securityFindingGroups.push(new SecurityFindingsGroupItem('ADDED', addedSecurityFindings));
-      securityFindingGroups.push(new SecurityFindingsGroupItem('FIXED', fixedSecurityFindings));
+      securityFindingGroups.push(
+        new SecurityFindingsGroupItem('ADDED', addedSecurityFindings, this.projectInRepository),
+      );
+      securityFindingGroups.push(
+        new SecurityFindingsGroupItem('FIXED', fixedSecurityFindings, this.projectInRepository),
+      );
     }
 
     return securityFindingGroups;

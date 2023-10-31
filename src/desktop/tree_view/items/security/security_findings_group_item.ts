@@ -5,6 +5,7 @@ import { ItemModel } from '../item_model';
 import { GqlSecurityFinding } from '../../../gitlab/security_findings/api/get_security_finding_report';
 import { SecurityFindingSeverityGroup } from './security_finding_severity_group_item';
 import { Severity } from './severity_to_icon';
+import { ProjectInRepository } from '../../../gitlab/new_project';
 
 export type SecurityFindingGroupType = 'ADDED' | 'FIXED';
 
@@ -13,10 +14,17 @@ export class SecurityFindingsGroupItem extends ItemModel {
 
   readonly #securityFindingGroupType: SecurityFindingGroupType;
 
-  constructor(securityFindingGroupType: SecurityFindingGroupType, findings: GqlSecurityFinding[]) {
+  readonly projectInRepository: ProjectInRepository;
+
+  constructor(
+    securityFindingGroupType: SecurityFindingGroupType,
+    findings: GqlSecurityFinding[],
+    projectInRepository: ProjectInRepository,
+  ) {
     super();
     this.#findings = findings;
     this.#securityFindingGroupType = securityFindingGroupType;
+    this.projectInRepository = projectInRepository;
   }
 
   getTreeItem(): vscode.TreeItem {
@@ -36,7 +44,12 @@ export class SecurityFindingsGroupItem extends ItemModel {
     return Object.entries(findingsBySeverity)
       .sort((a, b) => a[0].localeCompare(b[0]))
       .map(
-        ([severity, findings]) => new SecurityFindingSeverityGroup(findings, severity as Severity),
+        ([severity, findings]) =>
+          new SecurityFindingSeverityGroup(
+            findings,
+            severity as Severity,
+            this.projectInRepository,
+          ),
       );
   }
 }

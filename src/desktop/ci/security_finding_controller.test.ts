@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
 import { asMock } from '../test_utils/as_mock';
-import { securityReport } from '../test_utils/entities';
+import {
+  securityReport,
+  projectInRepository,
+} from '../test_utils/entities';
 import { SecurityFindingWebviewController } from './security_finding_controller';
 import { createExtensionContext } from '../../common/test_utils/entities';
 
@@ -29,7 +32,7 @@ describe('SecurityFindingWebviewController', () => {
   });
 
   it('creates and updates panel correctly', async () => {
-    const panel = await controller.open(finding);
+    const panel = await controller.open(finding, projectInRepository);
     expect(panel.title).toBe(finding.title);
 
     const webviewHtml = panel.webview.html;
