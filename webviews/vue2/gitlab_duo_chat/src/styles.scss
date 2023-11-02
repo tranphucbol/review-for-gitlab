@@ -13,7 +13,7 @@
   --glDuoChat-background: var(--vscode-sideBar-background);
   --glDuoChat-background-alternative: var(--vscode-editor-background);
   
-  --glDuoChat-border-color: var(--vscode-editorWidget-border);
+  --glDuoChat-border-color: var(--vscode-widget-border);
   --glDuoChat-shadow: var(--vscode-widget-shadow);
 
   --glDuoChat-alert-foreground: var(--vscode-sideBarSectionHeader-foreground);
@@ -27,14 +27,14 @@
   --glDuoChat-textLink-foreground: var(--vscode-textLink-foreground);
   --glDuoChat-textLink-foreground-active: var(--vscode-textLink-activeForeground);
   --glDuoChat-textPreformat-foreground: var(--vscode-textPreformat-foreground);
-  --glDuoChat-textPreformat-background: var(--vscode-textPreformat-background);
+  --glDuoChat-textPreformat-background: var(--vscode-textCodeBlock-background);
 
   --glDuoChat-input-border: var(--vscode-input-border, transparent);
   --glDuoChat-input-background: var(--vscode-input-background);
   --glDuoChat-input-foreground: var(--vscode-input-foreground);
   --glDuoChat-input-placeholder-foreground: var(--vscode-input-placeholderForeground);
   --glDuoChat-input-border-focus: var(--vscode-focusBorder);
-  --glDuoChat-input-background-focus: var(--glDuoChat-input-foreground);
+  --glDuoChat-input-background-focus: var(--glDuoChat-input-background);
   --glDuoChat-input-foreground-focus: var(--glDuoChat-input-foreground);
 
   --glDuoChat-checkbox-background: var(--vscode-checkbox-background);
@@ -142,7 +142,8 @@ pre.code {
     color: var(--glDuoChat-button-foreground);
   }
   &:hover {
-    background: var(--glDuoChat-button-background-hover);
+    background: var(--glDuoChat-button-background);
+    color: var(--glDuoChat-button-foreground);
     .gl-icon {
       color: var(--glDuoChat-button-foreground);
     }
@@ -228,7 +229,7 @@ pre.code {
   }
 }
 .gl-modal {
-  color: var(--glDuoChat-background-alternative);
+  color: var(--glDuoChat-foreground);
   .modal-content {
     background-color: var(--glDuoChat-background-alternative);
     border-color: var(--glDuoChat-border-color);
