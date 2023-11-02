@@ -856,27 +856,27 @@
               "createdAfter": {
                 "type": "string",
                 "format": "date",
-                "description": "Return GitLab items created after the given date. ISO 8601 formatted, e.g. 2016-03-11T03:45:40Z. Not applicable for vulnerabilities"
+                "description": "Return GitLab items created after the given date. ISO 8601 formatted, like 2016-03-11T03:45:40Z. Not applicable for vulnerabilities"
               },
               "createdBefore": {
                 "type": "string",
                 "format": "date",
-                "description": "Return GitLab items created before the given date. ISO 8601 formatted, e.g. 2016-03-11T03:45:40Z. Not applicable for vulnerabilities"
+                "description": "Return GitLab items created before the given date. ISO 8601 formatted, like 2016-03-11T03:45:40Z. Not applicable for vulnerabilities"
               },
               "updatedAfter": {
                 "type": "string",
                 "format": "date",
-                "description": "Return GitLab items updated after the given date. ISO 8601 formatted, e.g. 2016-03-11T03:45:40Z. Not applicable for vulnerabilities"
+                "description": "Return GitLab items updated after the given date. ISO 8601 formatted, like 2016-03-11T03:45:40Z. Not applicable for vulnerabilities"
               },
               "updatedBefore": {
                 "type": "string",
                 "format": "date",
-                "description": "Return GitLab items updated before the given date. ISO 8601 formatted, e.g. 2016-03-11T03:45:40Z. Not applicable for vulnerabilities"
+                "description": "Return GitLab items updated before the given date. ISO 8601 formatted, like 2016-03-11T03:45:40Z. Not applicable for vulnerabilities"
               },
               "wip": {
                 "type": "string",
                 "enum": ["yes", "no"],
-                "description": "Filter merge requests against their wip status. \"yes\" to return only WIP merge requests, \"no\" to return non WIP merge requests. Works only with merge requests",
+                "description": "Filter merge requests against their draft status. \"yes\" to return only draft merge requests, \"no\" to return non-draft merge requests. Works only with merge requests",
                 "default": "no"
               },
               "confidential": {
@@ -886,7 +886,7 @@
               },
               "excludeLabels": {
                 "type": "array",
-                "description": "Array of label names, GitLab item must not have to be returned. Predefined names are not case-sensitive. Works only with issues",
+                "description": "Array of label names the GitLab item must not have to be returned. Predefined names are not case-sensitive. Works only with issues",
                 "items": {
                   "type": "string"
                 }
