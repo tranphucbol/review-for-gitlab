@@ -81,7 +81,7 @@
       },
       {
         "command": "gl.toggleCodeSuggestions",
-        "title": "Toggle Gitlab code suggestions",
+        "title": "Toggle Gitlab Code Suggestions",
         "category": "Gitlab"
       }
     ],
