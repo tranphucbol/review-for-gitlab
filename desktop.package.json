@@ -300,7 +300,7 @@
       },
       {
         "command": "gl.viewSecurityFinding",
-        "title": "View Security Finding details",
+        "title": "View Security Finding Details",
         "category": "GitLab"
       }
     ],
