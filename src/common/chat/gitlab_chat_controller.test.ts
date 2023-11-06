@@ -45,6 +45,10 @@ describe('GitLabChatController', () => {
     }));
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('resolveWebviewView', () => {
     const webview = {} as Partial<vscode.WebviewView> as vscode.WebviewView;
 
@@ -92,6 +96,20 @@ describe('GitLabChatController', () => {
       });
     });
 
+    it('adds both the user prompt and the temporary assistant record', async () => {
+      await controller.processNewUserRecord(record);
+
+      expect(viewMock.addRecord).toHaveBeenCalledTimes(2);
+      expect(viewMock.addRecord.mock.calls[0][0]).toEqual(record);
+      expect(viewMock.addRecord.mock.calls[1][0]).toEqual(
+        expect.objectContaining({
+          role: 'assistant',
+          requestId: 'uniqueId',
+          timestamp: Date.parse('2023-01-01 01:01:01'),
+        }),
+      );
+    });
+
     it('sends updates of the view when API response is received', async () => {
       await controller.processNewUserRecord(record);
 
@@ -101,17 +119,6 @@ describe('GitLabChatController', () => {
           contentHtml: 'html api response user',
           state: 'ready',
           role: 'user',
-          requestId: 'uniqueId',
-          timestamp: Date.parse('2023-01-01 01:01:01'),
-        }),
-      );
-
-      expect(viewMock.updateRecord).toHaveBeenCalledWith(
-        expect.objectContaining({
-          content: 'api response assistant',
-          contentHtml: 'html api response assistant',
-          state: 'ready',
-          role: 'assistant',
           requestId: 'uniqueId',
           timestamp: Date.parse('2023-01-01 01:01:01'),
         }),

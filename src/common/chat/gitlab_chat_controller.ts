@@ -59,7 +59,6 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
       default: {
         const responseRecord = new GitLabChatRecord({
           role: 'assistant',
-          content: '...',
           state: 'pending',
           requestId: record.requestId,
         });
@@ -106,7 +105,6 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
     }
 
     record.update({ errors: apiResponse.errors, state: 'ready' });
-
     await this.#view.updateRecord(record);
   }
 }

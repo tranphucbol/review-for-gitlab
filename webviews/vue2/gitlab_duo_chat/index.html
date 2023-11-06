@@ -4,12 +4,13 @@
     <meta charset="UTF-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="img-src vscode-resource: https:; script-src 'nonce-{{nonce}}';"
+      content="img-src vscode-resource: data: https:; script-src 'nonce-{{nonce}}';"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GitLab Duo Chat</title>
   </head>
   <body>
+    <div style="display: none">{{ svg placeholder }}</div>
     <div id="app"></div>
     <script crossorigin type="module" src="src/main.js"></script>
   </body>

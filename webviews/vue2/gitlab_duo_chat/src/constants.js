@@ -4,4 +4,6 @@ export const CHAT_MODEL_ROLES = {
   assistant: 'assistant',
 };
 
+export const GENIE_CHAT_RESET_MESSAGE = '/reset';
+
 export default {};
