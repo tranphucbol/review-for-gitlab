@@ -96,7 +96,6 @@ import { activateCommon } from '../common/main';
 import { wrapCommandWithCatch } from '../common/utils/wrap_command_with_catch';
 import { setupTelemetry } from './setup_telemetry_desktop';
 import { registerLanguageServer } from '../common/language_server';
-import { createCodeSuggestionStatusBar } from '../common/code_suggestions/code_suggestions_status_bar_item';
 import { CodeSuggestions } from '../common/code_suggestions/code_suggestions';
 import { desktopLanguageClientFactory } from './language_server/desktop_language_client_factory';
 
@@ -267,12 +266,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   await migrateCredentials(context, accountService).catch(e => handleError(e));
 
   if (featureFlags.isEnabled(featureFlags.FeatureFlag.LanguageServer)) {
-    registerLanguageServer(
-      context,
-      desktopLanguageClientFactory,
-      createCodeSuggestionStatusBar(),
-      accountService,
-    );
+    registerLanguageServer(context, desktopLanguageClientFactory, accountService);
   } else {
     context.subscriptions.push(new CodeSuggestions(gitlabPlatformManagerDesktop));
   }

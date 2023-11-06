@@ -45,7 +45,7 @@ export class CodeSuggestionsStatusBarItem {
   }
 
   constructor(state: CodeSuggestionsStateManager) {
-    this.codeSuggestionsStatusBarItem = createCodeSuggestionStatusBar();
+    this.codeSuggestionsStatusBarItem = createCodeSuggestionStatusBarItem();
     this.updateCodeSuggestionsItem(state.getVisibleState());
     this.#codeSuggestionsStateSubscription = state.onDidChangeVisibleState(e =>
       this.updateCodeSuggestionsItem(e),
@@ -57,7 +57,7 @@ export class CodeSuggestionsStatusBarItem {
   }
 }
 
-export function createCodeSuggestionStatusBar() {
+export function createCodeSuggestionStatusBarItem() {
   return createStatusBarItem({
     priority: 3,
     id: 'gl.status.code_suggestions',
