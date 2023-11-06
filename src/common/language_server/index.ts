@@ -11,19 +11,21 @@ import { GITLAB_COM_URL } from '../constants';
 import { setStatusBar } from '../utils/status_bar_item';
 import { CODE_SUGGESTIONS_STATUSES } from '../code_suggestions/code_suggestions_status_bar_item';
 import { IAccountService } from '../accounts';
+import { LanguageClientFactory } from './client_factory';
 
-export const LANGUAGE_SERVER_ID = 'gitlab-lsp';
-export const LANGUAGE_SERVER_NAME = 'GitLab Language Server';
 export const LANGUAGE_CLIENT_OPTIONS: LanguageClientOptions = {
   documentSelector: AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.map(language => ({ language })),
 };
 
 export function registerLanguageServer(
   context: vscode.ExtensionContext,
-  client: BaseLanguageClient,
+  clientFactory: LanguageClientFactory,
   statusBar: vscode.StatusBarItem,
+  // FIXME: the account logic needs to be redesigned
+  // https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/1054
   accounts?: IAccountService,
 ) {
+  const client = clientFactory.createLanguageClient(context, LANGUAGE_CLIENT_OPTIONS);
   client.registerProposedFeatures();
   context.subscriptions.push(
     statusBar,
