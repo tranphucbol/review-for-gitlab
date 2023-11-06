@@ -1,3 +1,12 @@
+# [3.83.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.82.0...v3.83.0) (2023-11-06)
+
+
+### Features
+
+* Add token validation ([6391115](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/639111595bb7c9f95fbeb06f2f63be3bfd695ec9))
+
+
+
 # [3.82.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.81.0...v3.82.0) (2023-10-31)
 
 
