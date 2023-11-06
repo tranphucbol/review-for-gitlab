@@ -95,7 +95,7 @@ import { gitlabPlatformManagerDesktop } from './gitlab/gitlab_platform_desktop';
 import { activateCommon } from '../common/main';
 import { wrapCommandWithCatch } from '../common/utils/wrap_command_with_catch';
 import { setupTelemetry } from './setup_telemetry_desktop';
-import { registerLanguageServer } from '../common/language_server';
+import { registerLanguageServer } from '../common/language_server/register_language_server';
 import { CodeSuggestions } from '../common/code_suggestions/code_suggestions';
 import { desktopLanguageClientFactory } from './language_server/desktop_language_client_factory';
 
