@@ -4,7 +4,7 @@
   "capabilities": {
     "virtualWorkspaces": {
       "supported": "limited",
-      "description": "Only basic read-only remote filesystem is available at the moment."
+      "description": "Only a basic read-only remote filesystem is available at the moment."
     }
   },
   "extensionDependencies": ["vscode.git"],
@@ -113,12 +113,12 @@
       },
       {
         "command": "gl.validateCIConfig",
-        "title": "Validate GitLab CI/CD Config",
+        "title": "Validate GitLab CI/CD Configuration",
         "category": "GitLab"
       },
       {
         "command": "gl.showMergedCIConfig",
-        "title": "Show Merged GitLab CI/CD Config",
+        "title": "Show Merged GitLab CI/CD Configuration",
         "category": "GitLab",
         "icon": "$(open-preview)"
       },
@@ -277,30 +277,30 @@
       },
       {
         "command": "gl.openTraceArtifact",
-        "title": "Display log",
+        "title": "Display Log",
         "category": "GitLab"
       },
       {
         "command": "gl.waitForPendingJob",
-        "title": "Display log",
+        "title": "Display Log",
         "category": "GitLab"
       },
       {
         "command": "gl.saveRawJobTrace",
-        "title": "Save raw job trace",
+        "title": "Save Raw Job Trace",
         "category": "GitLab",
         "icon": "$(save-as)"
       },
       {
         "command": "gl.scrollToBottom",
-        "title": "Scroll to bottom",
+        "title": "Scroll to Bottom",
         "enablement": "gitlab.canScrollToBottom",
         "category": "GitLab",
         "icon": "$(fold-down)"
       },
       {
         "command": "gl.viewSecurityFinding",
-        "title": "View Security finding details",
+        "title": "View Security Finding Details",
         "category": "GitLab"
       }
     ],
@@ -706,19 +706,19 @@
           "type": "boolean",
           "default": true,
           "description": "Display all GitLab-related links in the status bar (requires restarting Visual Studio Code)",
-          "deprecationMessage": "To hide an item from the status bar, you should right-click the item in Visual Studio Code."
+          "deprecationMessage": "To hide an item from the status bar, right-click the item in VS Code."
         },
         "gitlab.showIssueLinkOnStatusBar": {
           "type": "boolean",
           "default": true,
           "description": "Display the GitLab issue link in the status bar",
-          "deprecationMessage": "To hide an item from the status bar, you should right-click the item in Visual Studio Code."
+          "deprecationMessage": "To hide an item from the status bar, right-click the item in VS Code."
         },
         "gitlab.showMrStatusOnStatusBar": {
           "type": "boolean",
           "default": true,
           "description": "Display the GitLab merge request status in the status bar",
-          "deprecationMessage": "To hide an item from the status bar, you should right-click the item in Visual Studio Code."
+          "deprecationMessage": "To hide an item from the status bar, you should right-click the item in VS Code."
         },
         "gitlab.ca": {
           "type": "string",
@@ -728,12 +728,12 @@
         "gitlab.cert": {
           "type": "string",
           "default": null,
-          "description": "Custom Certificate file to use (example: /etc/ssl/certs/certificate.crt)"
+          "description": "Custom certificate file to use (example: /etc/ssl/certs/certificate.crt)"
         },
         "gitlab.certKey": {
           "type": "string",
           "default": null,
-          "description": "Custom Certificate Key file to use (example: /etc/ssl/certs/certificateKey.key)"
+          "description": "Custom certificate key file to use (example: /etc/ssl/certs/certificateKey.key)"
         },
         "gitlab.ignoreCertificateErrors": {
           "type": "boolean",
@@ -743,12 +743,12 @@
         "gitlab.pipelineGitRemoteName": {
           "type": "string",
           "default": null,
-          "description": "Name of the git remote to use in order to locate the Gitlab project for your pipeline. Keep empty for default"
+          "description": "Name of the Git remote to use when locating the GitLab project for your pipeline. Keep empty for default"
         },
         "gitlab.showPipelineUpdateNotifications": {
           "type": "boolean",
           "default": false,
-          "description": "Show notification in VSCode when pipeline status changed"
+          "description": "Show notification in VS Code when the pipeline status changes"
         },
         "gitlab.ls.debug": {
           "type": "boolean",
@@ -781,7 +781,7 @@
               },
               "orderBy": {
                 "type": "string",
-                "description": "Return issues ordered by the selected value. It is not applicable for vulnerabilities",
+                "description": "Return issues ordered by the selected value. Not applicable for vulnerabilities",
                 "enum": [
                   "created_at",
                   "updated_at",
@@ -797,19 +797,19 @@
               },
               "sort": {
                 "type": "string",
-                "description": "Return issues sorted in ascending or descending order. It is not applicable for vulnerabilities",
+                "description": "Return issues sorted in ascending or descending order. Not applicable for vulnerabilities",
                 "enum": ["asc", "desc"],
                 "default": " desc"
               },
               "scope": {
                 "type": "string",
-                "description": "Return Gitlab items for the given scope. It is not applicable for epics. \"assigned_to_me\" and \"created_by_me\" are not applicable for vulnerabilities. \"dismissed\" is not applicable for issues and merge requests",
+                "description": "Return GitLab items for the given scope. Not applicable for epics. \"assigned_to_me\" and \"created_by_me\" are not applicable for vulnerabilities. \"dismissed\" is not applicable for issues and merge requests",
                 "enum": ["assigned_to_me", "created_by_me", "dismissed", "all"],
                 "default": "all"
               },
               "type": {
                 "type": "string",
-                "description": "The type of GitLab items to return. If snippets is selected, none of the other filter will work. Epics will work only on GitLab ultimate/gold.",
+                "description": "The type of GitLab items to return. If 'snippets' is selected, no other filters work. Epics available only on GitLab Ultimate or GitLab Gold.",
                 "enum": ["issues", "merge_requests", "epics", "snippets", "vulnerabilities"],
                 "default": "merge_requests"
               },
@@ -820,63 +820,63 @@
               },
               "state": {
                 "type": "string",
-                "description": "Return \"all\" issues or just those that are \"opened\" or \"closed\". It is not applicable for vulnerabilities",
+                "description": "Return \"all\" issues or just those that are \"opened\" or \"closed\". Not applicable for vulnerabilities",
                 "enum": ["all", "opened", "closed"],
                 "default": "opened"
               },
               "labels": {
                 "type": "array",
-                "description": "Array of label names, Gitlab item must have all labels to be returned. \"None\" lists all GitLab items with no labels. \"Any\" lists all GitLab issues with at least one label. Predefined names are case-insensitive. It is not applicable for vulnerabilities",
+                "description": "Array of label names. The GitLab item must have all labels to be returned. \"None\" lists all GitLab items with no labels. \"Any\" lists all GitLab issues with at least one label. Predefined names are not case-sensitive. Not applicable for vulnerabilities",
                 "items": {
                   "type": "string"
                 }
               },
               "milestone": {
                 "type": "string",
-                "description": "The milestone title. \"None\" lists all GitLab items with no milestone. \"Any\" lists all GitLab items that have an assigned milestone. It is not applicable for epics and vulnerabilities"
+                "description": "The milestone title. \"None\" lists all GitLab items with no milestone. \"Any\" lists all GitLab items that have an assigned milestone. Not applicable for epics and vulnerabilities"
               },
               "author": {
                 "type": "string",
-                "description": "Return GitLab items created by the given username. It is not applicable for vulnerabilities"
+                "description": "Return GitLab items created by the given username. Not applicable for vulnerabilities"
               },
               "assignee": {
                 "type": "string",
-                "description": "Returns GitLab items assigned to the given username. \"None\" returns unassigned GitLab items. \"Any\" returns GitLab items with an assignee. It is not applicable for epics and vulnerabilities"
+                "description": "Returns GitLab items assigned to the given username. \"None\" returns unassigned GitLab items. \"Any\" returns GitLab items with an assignee. Not applicable for epics and vulnerabilities"
               },
               "search": {
                 "type": "string",
-                "description": "Search GitLab items against their title and description. It is not applicable for vulnerabilities"
+                "description": "Search GitLab items against their title and description. Not applicable for vulnerabilities"
               },
               "searchIn": {
                 "type": "string",
-                "description": "Modify the scope of the search attribute. It is not applicable for epics and vulnerabilities",
+                "description": "Modify the scope of the search attribute. Not applicable for epics and vulnerabilities",
                 "enum": ["all", "title", "description"],
                 "default": "all"
               },
               "createdAfter": {
                 "type": "string",
                 "format": "date",
-                "description": "Return GitLab items created after the given date. ISO 8601 formatted, e.g. 2016-03-11T03:45:40Z. It is not applicable for vulnerabilities"
+                "description": "Return GitLab items created after the given date. ISO 8601 formatted, like 2016-03-11T03:45:40Z. Not applicable for vulnerabilities"
               },
               "createdBefore": {
                 "type": "string",
                 "format": "date",
-                "description": "Return GitLab items created before the given date. ISO 8601 formatted, e.g. 2016-03-11T03:45:40Z. It is not applicable for vulnerabilities"
+                "description": "Return GitLab items created before the given date. ISO 8601 formatted, like 2016-03-11T03:45:40Z. Not applicable for vulnerabilities"
               },
               "updatedAfter": {
                 "type": "string",
                 "format": "date",
-                "description": "Return GitLab items updated after the given date. ISO 8601 formatted, e.g. 2016-03-11T03:45:40Z. It is not applicable for vulnerabilities"
+                "description": "Return GitLab items updated after the given date. ISO 8601 formatted, like 2016-03-11T03:45:40Z. Not applicable for vulnerabilities"
               },
               "updatedBefore": {
                 "type": "string",
                 "format": "date",
-                "description": "Return GitLab items updated before the given date. ISO 8601 formatted, e.g. 2016-03-11T03:45:40Z. It is not applicable for vulnerabilities"
+                "description": "Return GitLab items updated before the given date. ISO 8601 formatted, like 2016-03-11T03:45:40Z. Not applicable for vulnerabilities"
               },
               "wip": {
                 "type": "string",
                 "enum": ["yes", "no"],
-                "description": "Filter merge requests against their wip status. \"yes\" to return only WIP merge requests, \"no\" to return non WIP merge requests. Works only with merge requests",
+                "description": "Filter merge requests against their draft status. \"yes\" to return only draft merge requests, \"no\" to return non-draft merge requests. Works only with merge requests",
                 "default": "no"
               },
               "confidential": {
@@ -886,7 +886,7 @@
               },
               "excludeLabels": {
                 "type": "array",
-                "description": "Array of label names, Gitlab item must not have to be returned. Predefined names are case-insensitive. Works only with issues",
+                "description": "Array of label names the GitLab item must not have to be returned. Predefined names are not case-sensitive. Works only with issues",
                 "items": {
                   "type": "string"
                 }
@@ -905,7 +905,7 @@
               },
               "excludeSearch": {
                 "type": "string",
-                "description": "Search GitLab items that doesn't have the search key in their title or description. Works only with issues"
+                "description": "Search GitLab items without the search key in their title or description. Works only with issues"
               },
               "excludeSearchIn": {
                 "type": "string",
@@ -923,7 +923,7 @@
               },
               "severityLevels": {
                 "type": "array",
-                "description": "Returns vulnerabilities belonging to specified severity levels. Defaults to all. Works only with vulnerabilities",
+                "description": "Returns vulnerabilities belonging to specified severity levels. Defaults to 'all'. Works only with vulnerabilities",
                 "items": {
                   "type": "string",
                   "enum": ["undefined", "info", "unknown", "low", "medium", "high", "critical"]
@@ -931,7 +931,7 @@
               },
               "confidenceLevels": {
                 "type": "array",
-                "description": "Returns vulnerabilities belonging to specified confidence levels. Defaults to all. Works only with vulnerabilities",
+                "description": "Returns vulnerabilities belonging to specified confidence levels. Defaults to 'all'. Works only with vulnerabilities",
                 "items": {
                   "type": "string",
                   "enum": [
@@ -948,7 +948,7 @@
               },
               "reviewer": {
                 "type": "string",
-                "description": "Returns GitLab Merge Requests assigned for review to the given username. When set to \"<current_user>\", the extension uses the current user's username."
+                "description": "Returns GitLab merge requests assigned for review to the given username. When set to \"<current_user>\", the current user's username is used."
               }
             }
           },
@@ -958,35 +958,35 @@
               "type": "issues",
               "scope": "assigned_to_me",
               "state": "opened",
-              "noItemText": "There is no issue assigned to you."
+              "noItemText": "No issues assigned to you."
             },
             {
               "name": "Issues created by me",
               "type": "issues",
               "scope": "created_by_me",
               "state": "opened",
-              "noItemText": "There is no issue created by you."
+              "noItemText": "No issues created by you."
             },
             {
               "name": "Merge requests assigned to me",
               "type": "merge_requests",
               "scope": "assigned_to_me",
               "state": "opened",
-              "noItemText": "There is no MR assigned to you."
+              "noItemText": "No merge requests assigned to you."
             },
             {
               "name": "Merge requests I'm reviewing",
               "type": "merge_requests",
               "reviewer": "<current_user>",
               "state": "opened",
-              "noItemText": "There is no MR for you to review."
+              "noItemText": "No merge requests for you to review."
             },
             {
               "name": "Merge requests created by me",
               "type": "merge_requests",
               "scope": "created_by_me",
               "state": "opened",
-              "noItemText": "There is no MR created by you."
+              "noItemText": "No merge requests created by you."
             },
             {
               "name": "All project merge requests",
