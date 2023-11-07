@@ -13,7 +13,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 This extension integrates GitLab into Visual Studio Code. After you [set up the extension](#setup), you can:
 
 - [**View GitLab issues and merge requests**](#issue-and-merge-request-details-and-comments-in-vs-code).
-  View issues, comments, merge requests, and changed files [in the sidebar](#sidebar---details),
+  View issues, comments, merge requests, and changed files [in the VS Code sidebar](#sidebar---details),
   or build a [custom search](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/custom-queries.md)
   to meet your needs.
 - [**Create and review merge requests**](#merge-request-reviews).
@@ -149,7 +149,7 @@ Toggle to enable or disable AI assisted code suggestions.
 
 ![Issues in Visual Studio Code](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/issues-in-vscode.png)
 
-GitLab Workflow allows you to view issue details and comments right in the VS Code. Click an issue link from the sidebar and VS Code will open a new tab to show the issue details. You can also comment on the issue from VS Code.
+GitLab Workflow allows you to view issue details and comments right in the VS Code. Click an issue link from the VS Code sidebar to open a new tab with the issue details. You can also comment on the issue from VS Code.
 
 You can use [GitLab Slash Commands](https://docs.gitlab.com/ee/integration/slash_commands.html) to perform actions directly from VS Code. For example, to assign an issue to `@fatihacet`, simply add a comment `/assign @fatihacet` inside VS Code.
 
@@ -159,7 +159,7 @@ GitLab Workflow enables you to review merge requests directly inside the editor:
 
 ![Animated gif showing how to review a merge request](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/diff-comments.gif)
 
-1. In the left-hand sidebar, go to **Issues and Merge Requests**.
+1. In VS Code, on the left-hand sidebar, go to **Issues and Merge Requests**.
 1. Select the appropriate merge request filter to view a list of merge requests.
 1. Expand a relevant merge request to view the description and files changed.
 1. Select a file to open it, and view the diff.
