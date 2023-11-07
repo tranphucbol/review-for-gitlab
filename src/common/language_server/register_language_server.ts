@@ -15,6 +15,7 @@ import {
 } from '../code_suggestions/code_suggestions_status_bar_item';
 import { IAccountService } from '../accounts';
 import { LanguageClientFactory } from './client_factory';
+import { getClientContext } from './get_client_context';
 
 export const LANGUAGE_CLIENT_OPTIONS: LanguageClientOptions = {
   documentSelector: AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.map(language => ({ language })),
@@ -31,7 +32,10 @@ export function registerLanguageServer(
   // https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/1054
   accounts?: IAccountService,
 ) {
-  const client = clientFactory.createLanguageClient(context, LANGUAGE_CLIENT_OPTIONS);
+  const client = clientFactory.createLanguageClient(context, {
+    ...LANGUAGE_CLIENT_OPTIONS,
+    initializationOptions: getClientContext(),
+  });
   client.registerProposedFeatures();
   const codeSuggestionStatusBarItem = createCodeSuggestionStatusBarItem();
   context.subscriptions.push(codeSuggestionStatusBarItem);
