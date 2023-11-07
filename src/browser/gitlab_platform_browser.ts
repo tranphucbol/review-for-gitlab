@@ -9,7 +9,7 @@ import {
   fetchFromApi,
 } from '../common/platform/web_ide';
 import { convertToGitLabProject, getProject } from '../common/gitlab/api/get_project';
-import { GitLabTelemetryEnvironmentBrowser } from './gitlab_browser_telemetry_environment';
+import { GitLabTelemetryEnvironmentBrowser } from './gitlab_telemetry_environment_browser';
 
 const getMediatorToken: () => Promise<string> = memoize(async () =>
   vscode.commands.executeCommand(COMMAND_MEDIATOR_TOKEN),

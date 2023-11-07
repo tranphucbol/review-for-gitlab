@@ -7,6 +7,7 @@ import { asMock } from '../test_utils/as_mock';
 import { GetRequest } from '../../common/platform/web_ide';
 import { pickAccount } from './pick_account';
 import { testCredentials } from '../test_utils/test_credentials';
+import { GitLabTelemetryEnvironmentDesktop } from './gitlab_telemetry_environment_desktop';
 
 jest.mock('./pick_account', () => ({
   pickAccount: jest.fn(),
@@ -114,6 +115,14 @@ describe('gitlabPlatformManagerDesktop', () => {
       const result = await platform?.fetchFromApi(req);
       expect(result).toBe(gqlProject);
       expect(getGitLabService).toHaveBeenCalledWith(projectInRepository);
+    });
+  });
+
+  describe('getTelemetryEnvironment', () => {
+    it('returns an instance of GitLabTelemetryEnvironmentBrowser', () => {
+      expect(gitlabPlatformManagerDesktop.getTelemetryEnvironment()).toBeInstanceOf(
+        GitLabTelemetryEnvironmentDesktop,
+      );
     });
   });
 });

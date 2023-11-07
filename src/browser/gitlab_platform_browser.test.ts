@@ -11,11 +11,9 @@ import {
   GitLabPlatformForAccount,
   GitLabPlatformManager,
 } from '../common/platform/gitlab_platform';
-import { getWebIdeExports } from './get_web_ide_exports';
+import { GitLabTelemetryEnvironmentBrowser } from './gitlab_telemetry_environment_browser';
 
 const FAKE_MEDIATOR_TOKEN = 'fake-mediator-token';
-
-jest.mock('./get_web_ide_exports');
 
 describe('createGitLabPlatformManagerBrowser', () => {
   const mockCommandsForInitialSetup = () => {
@@ -116,7 +114,7 @@ describe('createGitLabPlatformManagerBrowser', () => {
     });
   });
 
-  describe('isTelemetryEnabled', () => {
+  describe('getTelemetryEnvironment', () => {
     let manager: GitLabPlatformManager;
 
     beforeEach(async () => {
@@ -125,19 +123,8 @@ describe('createGitLabPlatformManagerBrowser', () => {
       manager = await createGitLabPlatformManagerBrowser();
     });
 
-    it.each([true, false])(
-      'returns telemetry % when the Web IDE extension %',
-      async telemetryStatus => {
-        jest.mocked(getWebIdeExports).mockReturnValueOnce({
-          isTelemetryEnabled() {
-            return telemetryStatus;
-          },
-        });
-
-        const platform = await manager.getForActiveProject(true);
-
-        expect(platform?.isTelemetryEnabled()).toBe(telemetryStatus);
-      },
-    );
+    it('returns an instance of GitLabTelemetryEnvironmentBrowser', () => {
+      expect(manager.getTelemetryEnvironment()).toBeInstanceOf(GitLabTelemetryEnvironmentBrowser);
+    });
   });
 });
