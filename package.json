@@ -231,7 +231,7 @@
     "@types/request-promise": "^4.1.50",
     "@types/semver": "^7.5.4",
     "@types/sinon": "^10.0.20",
-    "@types/source-map-support": "^0.5.9",
+    "@types/source-map-support": "^0.5.10",
     "@types/temp": "^0.9.3",
     "@types/uuid": "^9.0.6",
     "@types/vscode": "^1.68.0",
