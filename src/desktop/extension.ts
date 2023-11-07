@@ -212,8 +212,6 @@ export const activate = async (context: vscode.ExtensionContext) => {
   activateDebugMode();
   contextUtils.init(context);
 
-  setupTelemetry();
-
   const outputChannel = vscode.window.createOutputChannel('GitLab Workflow');
   initializeLogging(line => outputChannel.appendLine(line));
   vscode.workspace.registerTextDocumentContentProvider(REVIEW_URI_SCHEME, new GitContentProvider());

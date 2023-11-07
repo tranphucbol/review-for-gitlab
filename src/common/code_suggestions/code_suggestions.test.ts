@@ -3,6 +3,7 @@ import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { project } from '../test_utils/entities';
 import { CodeSuggestions } from './code_suggestions';
 import { VisibleCodeSuggestionsState } from './code_suggestions_state';
+import { createFakePartial } from '../test_utils/create_fake_partial';
 
 jest.mock('./code_suggestions_state', () => ({
   ...jest.requireActual('./code_suggestions_state'),
@@ -25,7 +26,7 @@ const apiClientMock = jest.fn().mockResolvedValue({
   created_at: 0,
 });
 
-const manager: GitLabPlatformManager = {
+const manager: GitLabPlatformManager = createFakePartial<GitLabPlatformManager>({
   getForActiveProject: async () => ({
     type: 'project' as const,
     project,
@@ -38,7 +39,7 @@ const manager: GitLabPlatformManager = {
     getUserAgentHeader: () => ({}),
   })),
   getForAllAccounts: jest.fn(),
-};
+});
 
 describe('CodeSuggestions', () => {
   let codeSuggestions: CodeSuggestions;

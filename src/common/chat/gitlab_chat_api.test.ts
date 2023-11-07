@@ -4,6 +4,7 @@ import { project as currentProject } from '../test_utils/entities';
 import { GitLabProject } from '../platform/gitlab_project';
 import { GitLabChatApi, AI_ACTIONS, AI_MESSAGES_QUERY } from './gitlab_chat_api';
 import { API_PULLING } from './api/pulling';
+import { createFakePartial } from '../test_utils/create_fake_partial';
 
 API_PULLING.interval = 1; // wait only 1ms between pulling attempts.
 
@@ -52,7 +53,7 @@ describe('GitLabChatApi', () => {
       return response;
     });
 
-    return {
+    return createFakePartial<GitLabPlatformManager>({
       getForActiveProject: jest.fn(async () => ({
         type: 'project' as const,
         project,
@@ -65,7 +66,7 @@ describe('GitLabChatApi', () => {
         getUserAgentHeader: () => ({}),
       })),
       getForAllAccounts: jest.fn(),
-    };
+    });
   };
 
   describe('getAiMessage', () => {

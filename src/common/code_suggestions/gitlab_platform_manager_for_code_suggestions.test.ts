@@ -11,6 +11,7 @@ import {
   setAiAssistedCodeSuggestionsConfiguration,
 } from '../utils/extension_configuration';
 import { GqlCurrentUser } from './api/get_code_suggestions_support';
+import { createFakePartial } from '../test_utils/create_fake_partial';
 
 jest.mock('../utils/extension_configuration');
 
@@ -32,11 +33,11 @@ describe('code_suggestions/GitLabPlatformForCodeSuggestions', () => {
   });
 
   beforeEach(() => {
-    gitlabPlatformManager = {
+    gitlabPlatformManager = createFakePartial<GitLabPlatformManager>({
       getForActiveProject: jest.fn(),
       getForActiveAccount: jest.fn(),
       getForAllAccounts: jest.fn(),
-    };
+    });
 
     platformManagerForCodeSuggestions = new GitLabPlatformManagerForCodeSuggestions(
       gitlabPlatformManager,
