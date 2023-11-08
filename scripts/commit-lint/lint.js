@@ -10,6 +10,7 @@ const {
   CI_MERGE_REQUEST_IID,
   CI_MERGE_REQUEST_SOURCE_BRANCH_SHA, // this is the last commit in the MR (it ignores the merge result commit)
   CI_MERGE_REQUEST_DIFF_BASE_SHA, // refers to the main branch
+  CI, // true when script is run in a CI/CD pipeline
 } = process.env;
 
 const urlSemanticRelease =
@@ -50,12 +51,23 @@ async function isConventional(message) {
     { ...config.rules, ...customRules },
     {
       defaultIgnores: false,
-      ignores: [messageMatcher(/^[Rr]evert .*/), messageMatcher(/^(?:fixup|squash)!/)],
+      ignores: [
+        messageMatcher(/^[Rr]evert .*/),
+        messageMatcher(/^(?:fixup|squash)!/),
+        messageMatcher(/^Merge branch/),
+      ],
     },
   );
 }
 
+async function lintLocal() {
+  console.log('INFO: Linting in local mode...');
+  const commits = await read({ from: 'main', to: 'HEAD' });
+  return Promise.all(commits.map(isConventional));
+}
+
 async function lintMr() {
+  console.log('INFO: Linting in CI mode...');
   const mr = await getMr();
   const commits = await getCommitsInMr();
 
@@ -75,7 +87,14 @@ async function lintMr() {
 }
 
 async function run() {
-  const results = await lintMr();
+  let results;
+  if (!CI) {
+    console.log('INFO: CI environment variable not detected.');
+    results = await lintLocal();
+  } else {
+    console.log('INFO: CI variable detected.');
+    results = await lintMr();
+  }
 
   console.error(format({ results }, { helpUrl: urlSemanticRelease }));
 
