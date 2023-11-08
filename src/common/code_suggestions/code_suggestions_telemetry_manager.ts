@@ -222,6 +222,8 @@ export class CodeSuggestionsTelemetryManager {
     }
 
     const extension = vscode.extensions.getExtension('Gitlab.gitlab-workflow');
+    // this logic is duplicated in common/language_server/get_client_context.ts
+    // the idea is that we'll delete this whole file once we switch to LS
     const ideVersionContext = {
       schema: 'iglu:com.gitlab/ide_extension_version/jsonschema/1-0-0',
       data: {

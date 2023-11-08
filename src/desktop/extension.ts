@@ -1,5 +1,4 @@
 import vscode from 'vscode';
-import { NodeModule, LanguageClient, TransportKind } from 'vscode-languageclient/node';
 import { install as installSourceMapSupport } from 'source-map-support';
 import * as openers from './commands/openers';
 import * as tokenInput from './token_input';
@@ -21,7 +20,6 @@ import {
   REMOTE_URI_SCHEME,
   MERGED_YAML_URI_SCHEME,
   JOB_LOG_URI_SCHEME,
-  CONFIG_LS_DEBUG,
 } from './constants';
 import { USER_COMMANDS, PROGRAMMATIC_COMMANDS } from './command_names';
 import { CiCompletionProvider } from './ci/ci_completion_provider';
@@ -97,14 +95,9 @@ import { gitlabPlatformManagerDesktop } from './gitlab/gitlab_platform_desktop';
 import { activateCommon } from '../common/main';
 import { wrapCommandWithCatch } from '../common/utils/wrap_command_with_catch';
 import { setupTelemetry } from './setup_telemetry_desktop';
-import {
-  LANGUAGE_CLIENT_OPTIONS,
-  LANGUAGE_SERVER_ID,
-  LANGUAGE_SERVER_NAME,
-  registerLanguageServer,
-} from '../common/language_server';
-import { createCodeSuggestionStatusBar } from '../common/code_suggestions/code_suggestions_status_bar_item';
+import { registerLanguageServer } from '../common/language_server/register_language_server';
 import { CodeSuggestions } from '../common/code_suggestions/code_suggestions';
+import { desktopLanguageClientFactory } from './language_server/desktop_language_client_factory';
 
 const registerSidebarTreeDataProviders = () => {
   vscode.window.registerTreeDataProvider('issuesAndMrs', issuableDataProvider);
@@ -273,7 +266,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   await migrateCredentials(context, accountService).catch(e => handleError(e));
 
   if (featureFlags.isEnabled(featureFlags.FeatureFlag.LanguageServer)) {
-    startLanguageServer(context);
+    registerLanguageServer(context, desktopLanguageClientFactory, accountService);
   } else {
     context.subscriptions.push(new CodeSuggestions(gitlabPlatformManagerDesktop));
   }
@@ -292,30 +285,3 @@ export const activate = async (context: vscode.ExtensionContext) => {
     ]).catch(e => handleError(e)),
   );
 };
-
-function startLanguageServer(context: vscode.ExtensionContext) {
-  const exec: NodeModule = {
-    module: context.asAbsolutePath('./assets/language-server/node/main-bundle.js'),
-    transport: TransportKind.stdio,
-  };
-
-  const lsDebug = vscode.workspace.getConfiguration().get(CONFIG_LS_DEBUG);
-  const debugArgs = lsDebug ? ['--inspect=6010'] : [];
-
-  const client = new LanguageClient(
-    LANGUAGE_SERVER_ID,
-    LANGUAGE_SERVER_NAME,
-    {
-      debug: {
-        ...exec,
-        options: {
-          execArgv: ['--nolazy', ...debugArgs],
-        },
-      },
-      run: exec,
-    },
-    LANGUAGE_CLIENT_OPTIONS,
-  );
-
-  registerLanguageServer(context, client, createCodeSuggestionStatusBar(), accountService);
-}

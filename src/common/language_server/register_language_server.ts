@@ -9,25 +9,37 @@ import { VisibleCodeSuggestionsState } from '../code_suggestions/code_suggestion
 import { AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES } from '../code_suggestions/constants';
 import { GITLAB_COM_URL } from '../constants';
 import { setStatusBar } from '../utils/status_bar_item';
-import { CODE_SUGGESTIONS_STATUSES } from '../code_suggestions/code_suggestions_status_bar_item';
+import {
+  CODE_SUGGESTIONS_STATUSES,
+  createCodeSuggestionStatusBarItem,
+} from '../code_suggestions/code_suggestions_status_bar_item';
 import { IAccountService } from '../accounts';
+import { LanguageClientFactory } from './client_factory';
+import { getClientContext } from './get_client_context';
 
-export const LANGUAGE_SERVER_ID = 'gitlab-lsp';
-export const LANGUAGE_SERVER_NAME = 'GitLab Language Server';
 export const LANGUAGE_CLIENT_OPTIONS: LanguageClientOptions = {
   documentSelector: AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.map(language => ({ language })),
 };
 
+// 1. starts the VS Code client
+// 2. synchronizes settings when VS Code settings change
+// 3. controls status bar based on language
+// 4. performs token check
 export function registerLanguageServer(
   context: vscode.ExtensionContext,
-  client: BaseLanguageClient,
-  statusBar: vscode.StatusBarItem,
+  clientFactory: LanguageClientFactory,
+  // FIXME: the account logic needs to be redesigned
+  // https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/1054
   accounts?: IAccountService,
 ) {
+  const client = clientFactory.createLanguageClient(context, {
+    ...LANGUAGE_CLIENT_OPTIONS,
+    initializationOptions: getClientContext(),
+  });
   client.registerProposedFeatures();
+  const codeSuggestionStatusBarItem = createCodeSuggestionStatusBarItem();
+  context.subscriptions.push(codeSuggestionStatusBarItem);
   context.subscriptions.push(
-    statusBar,
-
     vscode.window.onDidChangeActiveTextEditor((editor?: vscode.TextEditor) => {
       if (!editor) return;
 
@@ -35,7 +47,7 @@ export function registerLanguageServer(
         ? VisibleCodeSuggestionsState.READY
         : VisibleCodeSuggestionsState.UNSUPPORTED_LANGUAGE;
 
-      setStatusBar(statusBar, CODE_SUGGESTIONS_STATUSES[state]);
+      setStatusBar(codeSuggestionStatusBarItem, CODE_SUGGESTIONS_STATUSES[state]);
     }),
 
     vscode.workspace.onDidChangeConfiguration(async e => {
@@ -50,7 +62,10 @@ export function registerLanguageServer(
     // https://gitlab.com/gitlab-org/editor-extensions/gitlab-language-server-for-code-suggestions/-/blob/v1.0.1/src/common/connection.ts#L61
     client.onNotification('$/gitlab/token/check', ({ message, reason }: TokenCheckResponse) => {
       // TODO: more granular (auth-specific) status?
-      setStatusBar(statusBar, CODE_SUGGESTIONS_STATUSES[VisibleCodeSuggestionsState.ERROR]);
+      setStatusBar(
+        codeSuggestionStatusBarItem,
+        CODE_SUGGESTIONS_STATUSES[VisibleCodeSuggestionsState.ERROR],
+      );
       return vscode.window.showErrorMessage(`Token check: [${reason}] ${message}`);
     }),
 
