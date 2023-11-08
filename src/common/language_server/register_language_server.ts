@@ -1,5 +1,10 @@
 import vscode from 'vscode';
-import { IConfig, TokenCheckResponse } from '@gitlab-org/gitlab-lsp';
+import {
+  IConfig,
+  SUGGESTION_ACCEPTED_COMMAND,
+  TRACKING_EVENTS,
+  TokenCheckResponse,
+} from '@gitlab-org/gitlab-lsp';
 import {
   BaseLanguageClient,
   DidChangeConfigurationNotification,
@@ -16,6 +21,7 @@ import {
 import { IAccountService } from '../accounts';
 import { LanguageClientFactory } from './client_factory';
 import { getClientContext } from './get_client_context';
+import { createCodeSuggestionAcceptedCommand } from '../code_suggestions/commands/ls_suggestion_accepted';
 
 export const LANGUAGE_CLIENT_OPTIONS: LanguageClientOptions = {
   documentSelector: AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.map(language => ({ language })),
@@ -39,6 +45,12 @@ export function registerLanguageServer(
   client.registerProposedFeatures();
   const codeSuggestionStatusBarItem = createCodeSuggestionStatusBarItem();
   context.subscriptions.push(codeSuggestionStatusBarItem);
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      SUGGESTION_ACCEPTED_COMMAND,
+      createCodeSuggestionAcceptedCommand(client),
+    ),
+  );
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor((editor?: vscode.TextEditor) => {
       if (!editor) return;
@@ -80,6 +92,9 @@ async function syncConfig(client: BaseLanguageClient, accounts?: IAccountService
     baseUrl,
     // TODO: how do we pick the "right" account?
     ...accounts?.getOneAccountForInstance(baseUrl),
+    telemetry: {
+      actions: [{ action: TRACKING_EVENTS.ACCEPTED }],
+    },
   };
 
   return client.sendNotification(DidChangeConfigurationNotification.type, {
