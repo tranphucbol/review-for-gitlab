@@ -232,7 +232,7 @@
     "@types/semver": "^7.5.4",
     "@types/sinon": "^10.0.20",
     "@types/source-map-support": "^0.5.10",
-    "@types/temp": "^0.9.3",
+    "@types/temp": "^0.9.4",
     "@types/uuid": "^9.0.7",
     "@types/vscode": "^1.68.0",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
