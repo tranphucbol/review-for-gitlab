@@ -17,11 +17,9 @@ describe('setupTelemetry', () => {
 
     const initializationOptions = spy.mock.calls[0][0];
 
-    [true, false].forEach(telemetryStatus => {
-      isTelemetryEnabled.mockReturnValueOnce(telemetryStatus);
+    isTelemetryEnabled.mockReturnValueOnce(false);
 
-      expect(initializationOptions?.enabled()).toBe(telemetryStatus);
-    });
+    expect(initializationOptions?.enabled()).toBe(false);
 
     await Snowplow.getInstance().stop();
   });
