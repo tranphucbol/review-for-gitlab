@@ -54,12 +54,7 @@ describe('GitLabChatApi', () => {
     });
 
     return createFakePartial<GitLabPlatformManager>({
-      getForActiveProject: jest.fn(async () => ({
-        type: 'project' as const,
-        project,
-        fetchFromApi: makeApiRequest,
-        getUserAgentHeader: () => ({}),
-      })),
+      getForActiveProject: jest.fn(),
       getForActiveAccount: jest.fn(async () => ({
         type: 'account' as const,
         fetchFromApi: makeApiRequest,
