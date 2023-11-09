@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { memoize } from 'lodash';
-import { GitLabPlatformBase, GitLabPlatformManager } from '../common/platform/gitlab_platform';
+import { GitLabPlatformManager } from '../common/platform/gitlab_platform';
 import {
   COMMAND_FETCH_FROM_API,
   COMMAND_GET_CONFIG,
@@ -9,7 +9,6 @@ import {
   fetchFromApi,
 } from '../common/platform/web_ide';
 import { convertToGitLabProject, getProject } from '../common/gitlab/api/get_project';
-import { GitLabTelemetryEnvironmentBrowser } from './gitlab_telemetry_environment_browser';
 
 const getMediatorToken: () => Promise<string> = memoize(async () =>
   vscode.commands.executeCommand(COMMAND_MEDIATOR_TOKEN),
@@ -41,8 +40,7 @@ export const createGitLabPlatformManagerBrowser: () => Promise<GitLabPlatformMan
     }
 
     const gitLabProject = convertToGitLabProject(project);
-    const telemetryEnvironment = new GitLabTelemetryEnvironmentBrowser();
-    const platformBase: GitLabPlatformBase = {
+    const platformBase = {
       fetchFromApi,
       // browser won't let us change User-Agent header
       // so we don't have to construct it
@@ -63,6 +61,5 @@ export const createGitLabPlatformManagerBrowser: () => Promise<GitLabPlatformMan
           ...platformBase,
         },
       ],
-      getTelemetryEnvironment: () => telemetryEnvironment,
     };
   };

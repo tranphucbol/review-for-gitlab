@@ -11,7 +11,6 @@ import {
   GitLabPlatformForAccount,
   GitLabPlatformManager,
 } from '../common/platform/gitlab_platform';
-import { GitLabTelemetryEnvironmentBrowser } from './gitlab_telemetry_environment_browser';
 
 const FAKE_MEDIATOR_TOKEN = 'fake-mediator-token';
 
@@ -111,20 +110,6 @@ describe('createGitLabPlatformManagerBrowser', () => {
           testRequest,
         );
       });
-    });
-  });
-
-  describe('getTelemetryEnvironment', () => {
-    let manager: GitLabPlatformManager;
-
-    beforeEach(async () => {
-      mockCommandsForInitialSetup();
-
-      manager = await createGitLabPlatformManagerBrowser();
-    });
-
-    it('returns an instance of GitLabTelemetryEnvironmentBrowser', () => {
-      expect(manager.getTelemetryEnvironment()).toBeInstanceOf(GitLabTelemetryEnvironmentBrowser);
     });
   });
 });
