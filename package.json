@@ -228,7 +228,7 @@
     "@types/jest": "^29.5.8",
     "@types/lodash": "^4.14.201",
     "@types/node": "^13.13.52",
-    "@types/request-promise": "^4.1.50",
+    "@types/request-promise": "^4.1.51",
     "@types/semver": "^7.5.4",
     "@types/sinon": "^10.0.20",
     "@types/source-map-support": "^0.5.9",
