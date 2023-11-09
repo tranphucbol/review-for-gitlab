@@ -1,3 +1,5 @@
+import { tryParseUrl } from '../utils/try_parse_url';
+
 /**
  * GitLabRemote represents a parsed git remote URL that could potentially point to a GitLab project.
  */
@@ -25,7 +27,7 @@ export interface GitLabRemote {
 
 // returns path without the trailing slash or empty string if there is no path
 const getInstancePath = (instanceUrl: string) => {
-  const { pathname } = new URL(instanceUrl);
+  const { pathname } = tryParseUrl(instanceUrl) || {};
   return pathname ? pathname.replace(/\/$/, '') : '';
 };
 
@@ -67,7 +69,7 @@ function normalizeSshRemote(remote: string): string {
 }
 
 export function parseGitLabRemote(remote: string, instanceUrl?: string): GitLabRemote | undefined {
-  const { host, pathname } = new URL(normalizeSshRemote(remote));
+  const { host, pathname } = tryParseUrl(normalizeSshRemote(remote)) || {};
 
   if (!host || !pathname) {
     return undefined;
