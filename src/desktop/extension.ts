@@ -91,13 +91,12 @@ import { scrollToBottom } from './ci/scroll_to_bottom_command';
 import { pendingWebviewController } from './ci/pending_job_webview_controller';
 import { securityFindingWebviewController } from './ci/security_finding_controller';
 import { JobItemModel } from './tree_view/items/job_item_model';
-import { gitlabPlatformManagerDesktop } from './gitlab/gitlab_platform_desktop';
 import { activateCommon } from '../common/main';
 import { wrapCommandWithCatch } from '../common/utils/wrap_command_with_catch';
-import { setupTelemetry } from './setup_telemetry_desktop';
 import { registerLanguageServer } from '../common/language_server/register_language_server';
 import { CodeSuggestions } from '../common/code_suggestions/code_suggestions';
 import { desktopLanguageClientFactory } from './language_server/desktop_language_client_factory';
+import { createDependencyContainer } from './dependency_container_desktop';
 
 const registerSidebarTreeDataProviders = () => {
   vscode.window.registerTreeDataProvider('issuesAndMrs', issuableDataProvider);
@@ -213,8 +212,6 @@ export const activate = async (context: vscode.ExtensionContext) => {
   activateDebugMode();
   contextUtils.init(context);
 
-  setupTelemetry();
-
   const outputChannel = vscode.window.createOutputChannel('GitLab Workflow');
   initializeLogging(line => outputChannel.appendLine(line));
   vscode.workspace.registerTextDocumentContentProvider(REVIEW_URI_SCHEME, new GitContentProvider());
@@ -265,10 +262,12 @@ export const activate = async (context: vscode.ExtensionContext) => {
   registerRepositoryRootProvider(issuableController, pendingWebviewController);
   await migrateCredentials(context, accountService).catch(e => handleError(e));
 
+  const dependencyContainer = createDependencyContainer();
+
   if (featureFlags.isEnabled(featureFlags.FeatureFlag.LanguageServer)) {
     registerLanguageServer(context, desktopLanguageClientFactory, accountService);
   } else {
-    context.subscriptions.push(new CodeSuggestions(gitlabPlatformManagerDesktop));
+    context.subscriptions.push(new CodeSuggestions(dependencyContainer.gitLabPlatformManager));
   }
 
   // we don't want to hold the extension startup by waiting on VS Code and GitLab API
@@ -281,7 +280,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
       currentBranchRefresher.refresh(),
       pendingWebviewController.init(context),
       securityFindingWebviewController.init(context),
-      activateCommon(context, gitlabPlatformManagerDesktop, outputChannel),
+      activateCommon(context, dependencyContainer, outputChannel),
     ]).catch(e => handleError(e)),
   );
 };
