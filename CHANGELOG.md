@@ -1,3 +1,24 @@
+# [3.84.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.83.0...v3.84.0) (2023-11-10)
+
+
+### Bug Fixes
+
+* correct border on checkboxes in chat ([8346281](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/8346281a0e54322d0e870ca9080d9c90fbcd6b3b))
+* hid SVG sprite for Duo Chat ([03e8269](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/03e826984dda5e24368d0f2ac6cd73eeb70e5315))
+* switched to basic CSS variables for Duo Chat ([ec6f0b8](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/ec6f0b8eadfa053d19c9632c9270b15f580fbb59))
+* updated gitlab-ui to 67.3.3 ([08e6aad](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/08e6aadd190856e8de4838b5c005f1209e6b229e))
+* user feedback modal to not overlap scrollbar ([9414692](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/94146923e936e9b6e5d7e4783e4948a69b17972c))
+
+
+### Features
+
+* allow data: protocol in src ([1956107](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/1956107151a501d3a5d2c9bbce44c92ac1305f02))
+* send client context to LS ([1193cc1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/1193cc155292b7db284caa1931a2c30d07758a19))
+* send suggestion accepted event to LS ([b0f6d03](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/b0f6d035d5a904535e1e3e7040ab9b33d41668a4))
+* switched chat to GlDuoChat component ([8bcf25c](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/8bcf25ca5dc5747558f5a415034bf0974b4a5173))
+
+
+
 # [3.83.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.82.0...v3.83.0) (2023-11-06)
 
 
