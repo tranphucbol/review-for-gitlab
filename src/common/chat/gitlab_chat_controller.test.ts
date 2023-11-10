@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { GitLabChatController } from './gitlab_chat_controller';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { GitLabChatRecord } from './gitlab_chat_record';
+import { GitLabChatFileContext } from './gitlab_chat_file_context';
 
 const apiMock = { processNewUserPrompt: jest.fn(), pullAiMessage: jest.fn() };
 
@@ -189,6 +190,37 @@ describe('GitLabChatController', () => {
           }),
         );
         expect(controller.chatHistory.length).toEqual(1);
+      });
+    });
+
+    describe('without active file context', () => {
+      it('does not send along the active file context', async () => {
+        record = new GitLabChatRecord({ role: 'user', content: '/test' });
+
+        jest.spyOn(GitLabChatFileContext, 'forActiveFile').mockReturnValue(null);
+
+        await controller.processNewUserRecord(record);
+
+        expect(apiMock.processNewUserPrompt).toHaveBeenCalledWith('/test', null);
+      });
+    });
+
+    describe('with active file context', () => {
+      it('sends along the active file context', async () => {
+        record = new GitLabChatRecord({ role: 'user', content: '/test' });
+
+        const fileContext = new GitLabChatFileContext({
+          fileName: 'foo.rb',
+          selectedText: 'selected_text',
+          contentAboveCursor: 'before_text',
+          contentBelowCursor: 'after_text',
+        });
+
+        jest.spyOn(GitLabChatFileContext, 'forActiveFile').mockReturnValue(fileContext);
+
+        await controller.processNewUserRecord(record);
+
+        expect(apiMock.processNewUserPrompt).toHaveBeenCalledWith('/test', fileContext);
       });
     });
   });

@@ -5,6 +5,7 @@ import { GitLabProject } from '../platform/gitlab_project';
 import { GitLabChatApi, AI_ACTIONS, AI_MESSAGES_QUERY } from './gitlab_chat_api';
 import { API_PULLING } from './api/pulling';
 import { createFakePartial } from '../test_utils/create_fake_partial';
+import { GitLabChatFileContext } from './gitlab_chat_file_context';
 
 API_PULLING.interval = 1; // wait only 1ms between pulling attempts.
 
@@ -105,13 +106,37 @@ describe('GitLabChatApi', () => {
       const manager = createManager(currentProject, mockedQueryResponse);
       const gitlabChatApi = new GitLabChatApi(manager);
 
-      const response = await gitlabChatApi.processNewUserPrompt(mockPrompt);
+      const response = await gitlabChatApi.processNewUserPrompt(mockPrompt, null);
 
       expect(response.aiAction).toBe(mockedMutationResponse.aiAction);
 
       const [[aiActionMutation]] = makeApiRequest.mock.calls;
 
       expect(aiActionMutation.query).toBe(AI_ACTIONS.chat);
+    });
+
+    it('when active file context is provided', async () => {
+      const manager = createManager(currentProject, mockedQueryResponse);
+      const gitlabChatApi = new GitLabChatApi(manager);
+
+      const fileContext = new GitLabChatFileContext({
+        fileName: 'foo.rb',
+        selectedText: 'selected_text',
+        contentAboveCursor: 'before_text',
+        contentBelowCursor: 'after_text',
+      });
+
+      const response = await gitlabChatApi.processNewUserPrompt(mockPrompt, fileContext);
+
+      expect(response.aiAction).toBe(mockedMutationResponse.aiAction);
+
+      const [[aiActionMutation]] = makeApiRequest.mock.calls;
+
+      expect(aiActionMutation.query).toBe(AI_ACTIONS.chat);
+      expect(aiActionMutation.variables.currentFile.fileName).toBe('foo.rb');
+      expect(aiActionMutation.variables.currentFile.selectedText).toBe('selected_text');
+      expect(aiActionMutation.variables.currentFile.contentAboveCursor).toBe('before_text');
+      expect(aiActionMutation.variables.currentFile.contentBelowCursor).toBe('after_text');
     });
   });
 });
