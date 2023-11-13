@@ -5,7 +5,7 @@ import { pullHandler } from './api/pulling';
 
 export const AI_ACTIONS = {
   chat: gql`
-    mutation chat($question: String!, $resourceId: AiModelID!) {
+    mutation chat($question: String!, $resourceId: AiModelID) {
       aiAction(input: { chat: { resourceId: $resourceId, content: $question } }) {
         requestId
         errors
@@ -112,7 +112,7 @@ export class GitLabChatApi {
   }
 
   private async currentPlatform() {
-    const platform = await this.#manager.getForActiveProject(false);
+    const platform = await this.#manager.getForActiveAccount();
     if (!platform) throw new Error('Platform is missing!');
 
     return platform;
@@ -141,7 +141,7 @@ export class GitLabChatApi {
     const request: GraphQLRequest<AiActionResponseType> = {
       type: 'graphql',
       query: actionQuery,
-      variables: { resourceId: platform.project.gqlId, ...variables },
+      variables: { ...variables },
     };
 
     return platform.fetchFromApi(request);
