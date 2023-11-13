@@ -116,4 +116,8 @@ describe('git_remote_parser', () => {
   it('fails to parse remote URL without namespace', () => {
     expect(parseGitLabRemote('git@host:no-namespace-repo.git')).toBeUndefined();
   });
+
+  it('fails to parse relative path', () => {
+    expect(parseGitLabRemote('../relative/path')).toBeUndefined();
+  });
 });
