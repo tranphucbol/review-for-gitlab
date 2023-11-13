@@ -54,7 +54,8 @@ describe('GitLabChatApi', () => {
 
     return createFakePartial<GitLabPlatformManager>({
       getForActiveProject: jest.fn(),
-      getForActiveAccount: jest.fn(async () => ({
+      getForActiveAccount: jest.fn(),
+      getForSaaSAccount: jest.fn(async () => ({
         ...gitlabPlatformForAccount,
         fetchFromApi: makeApiRequest,
       })),

@@ -49,7 +49,7 @@
           "type": "webview",
           "id": "gl.chatView",
           "name": "Experiment",
-          "when": "gitlab.featureFlags.chat && gitlab:validState"
+          "when": "gitlab.featureFlags.chat && gitlab:hasSaaSAccount"
         }
       ]
     },
@@ -95,19 +95,19 @@
       "commandPalette": [
         {
           "command": "gl.openChat",
-          "when": "gitlab.featureFlags.chat && gitlab:validState"
+          "when": "gitlab.featureFlags.chat && gitlab:hasSaaSAccount"
         },
         {
           "command": "gl.explainSelectedCode",
-          "when": "gitlab.featureFlags.chat && gitlab:validState && editorHasSelection"
+          "when": "gitlab.featureFlags.chat && gitlab:hasSaaSAccount && editorHasSelection"
         },
         {
           "command": "gl.generateTests",
-          "when": "gitlab.featureFlags.chat && gitlab:validState && activeEditor"
+          "when": "gitlab.featureFlags.chat && gitlab:hasSaaSAccount && activeEditor"
         },
         {
           "command": "gl.newChatConversation",
-          "when": "gitlab.featureFlags.chat && gitlab:validState"
+          "when": "gitlab.featureFlags.chat && gitlab:hasSaaSAccount"
         }
       ],
       "editor/context": [
@@ -120,34 +120,34 @@
         {
           "command": "gl.explainSelectedCode",
           "group": "navigation",
-          "when": "gitlab.featureFlags.chat && gitlab:validState && editorHasSelection"
+          "when": "gitlab.featureFlags.chat && gitlab:hasSaaSAccount && editorHasSelection"
         },
         {
           "command": "gl.generateTests",
           "group": "navigation",
-          "when": "gitlab.featureFlags.chat && gitlab:validState && activeEditor"
+          "when": "gitlab.featureFlags.chat && gitlab:hasSaaSAccount && activeEditor"
         }
       ]
     },
     "keybindings": [
       {
         "command": "gl.openChat",
-        "when": "gitlab.featureFlags.chat && gitlab:validState",
+        "when": "gitlab.featureFlags.chat && gitlab:hasSaaSAccount",
         "key": "alt+d"
       },
       {
         "command": "gl.explainSelectedCode",
-        "when": "gitlab.featureFlags.chat && gitlab:validState && editorHasSelection",
+        "when": "gitlab.featureFlags.chat && gitlab:hasSaaSAccount && editorHasSelection",
         "key": "alt+e"
       },
       {
         "command": "gl.generateTests",
-        "when": "gitlab.featureFlags.chat && gitlab:validState && activeEditor",
+        "when": "gitlab.featureFlags.chat && gitlab:hasSaaSAccount && activeEditor",
         "key": "alt+t"
       },
       {
         "command": "gl.newChatConversation",
-        "when": "gitlab.featureFlags.chat && gitlab:validState",
+        "when": "gitlab.featureFlags.chat && gitlab:hasSaaSAccount",
         "key": "alt+n"
       }
     ],

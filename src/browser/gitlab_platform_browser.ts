@@ -14,6 +14,7 @@ import {
 import { convertToGitLabProject, getProject } from '../common/gitlab/api/get_project';
 import { currentUserRequest } from '../common/gitlab/api/get_current_user';
 import { TokenAccount } from '../common/platform/gitlab_account';
+import { GITLAB_COM_URL } from '../common/constants';
 
 const getMediatorToken: () => Promise<string> = memoize(async () =>
   vscode.commands.executeCommand(COMMAND_MEDIATOR_TOKEN),
@@ -79,5 +80,11 @@ export const createGitLabPlatformManagerBrowser: () => Promise<GitLabPlatformMan
         }),
       getForActiveAccount: async () => accountPlatform,
       getForAllAccounts: async () => [accountPlatform],
+      getForSaaSAccount: async () => {
+        if (config.gitlabUrl.startsWith(GITLAB_COM_URL)) {
+          return accountPlatform;
+        }
+        return undefined;
+      },
     };
   };

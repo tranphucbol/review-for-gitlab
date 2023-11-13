@@ -36,6 +36,7 @@ describe('code_suggestions/GitLabPlatformForCodeSuggestions', () => {
       getForActiveProject: jest.fn(),
       getForActiveAccount: jest.fn(),
       getForAllAccounts: jest.fn(),
+      getForSaaSAccount: jest.fn(),
     });
 
     platformManagerForCodeSuggestions = new GitLabPlatformManagerForCodeSuggestions(

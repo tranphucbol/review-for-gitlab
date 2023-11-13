@@ -127,7 +127,7 @@ export class GitLabChatApi {
   }
 
   private async currentPlatform() {
-    const platform = await this.#manager.getForActiveAccount();
+    const platform = await this.#manager.getForSaaSAccount();
     if (!platform) throw new Error('Platform is missing!');
 
     return platform;

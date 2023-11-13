@@ -57,4 +57,13 @@ export const gitlabPlatformManagerDesktop: GitLabPlatformManager = {
 
   getForAllAccounts: async () =>
     accountService.getAllAccounts().map(createGitLabPlatformForAccount),
+
+  getForSaaSAccount: async () => {
+    const account = accountService.getSaaSAccount();
+    if (!account) {
+      return undefined;
+    }
+
+    return createGitLabPlatformForAccount(account);
+  },
 };

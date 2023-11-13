@@ -15,6 +15,7 @@ import {
 } from '../../common/platform/gitlab_account';
 import { Credentials } from './credentials';
 import { IAccountService } from '../../common/accounts';
+import { GITLAB_COM_URL } from '../../common/constants';
 
 interface TokenSecret {
   token: string;
@@ -125,6 +126,16 @@ export class AccountService implements IAccountService {
           `Extension will use the one for user ${accounts[0].username}`,
       );
     return accounts[0];
+  }
+
+  /**
+   * See https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/1093#note_1641271590 for discussion.
+   * @returns The first SaaS account registered
+   */
+  getSaaSAccount(): Account | undefined {
+    return this.getOneAccountForInstance(
+      this.context?.globalState.get('GITLAB_SAAS_URL') || GITLAB_COM_URL,
+    );
   }
 
   getAllAccounts(): Account[] {
