@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
-import { project as currentProject } from '../test_utils/entities';
+import { account, project as currentProject } from '../test_utils/entities';
 import { GitLabProject } from '../platform/gitlab_project';
 import { GitLabChatApi, AI_ACTIONS, AI_MESSAGES_QUERY } from './gitlab_chat_api';
 import { API_PULLING } from './api/pulling';
@@ -57,6 +57,7 @@ describe('GitLabChatApi', () => {
       getForActiveProject: jest.fn(),
       getForActiveAccount: jest.fn(async () => ({
         type: 'account' as const,
+        account,
         fetchFromApi: makeApiRequest,
         getUserAgentHeader: () => ({}),
       })),

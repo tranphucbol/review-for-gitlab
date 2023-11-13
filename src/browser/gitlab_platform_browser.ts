@@ -9,6 +9,8 @@ import {
   fetchFromApi,
 } from '../common/platform/web_ide';
 import { convertToGitLabProject, getProject } from '../common/gitlab/api/get_project';
+import { currentUserRequest } from '../common/gitlab/api/get_current_user';
+import { TokenAccount } from '../common/platform/gitlab_account';
 
 const getMediatorToken: () => Promise<string> = memoize(async () =>
   vscode.commands.executeCommand(COMMAND_MEDIATOR_TOKEN),
@@ -38,6 +40,10 @@ export const createGitLabPlatformManagerBrowser: () => Promise<GitLabPlatformMan
         `GitLab API returned empty response when asked for ${config.projectPath} project.`,
       );
     }
+    const user = await fetchFromApi(currentUserRequest);
+    if (!user) {
+      throw new Error(`GitLab API returned empty response when asked for the current user.`);
+    }
 
     const gitLabProject = convertToGitLabProject(project);
     const platformBase = {
@@ -47,6 +53,18 @@ export const createGitLabPlatformManagerBrowser: () => Promise<GitLabPlatformMan
       getUserAgentHeader: () => ({}),
     };
 
+    const account: TokenAccount = {
+      type: 'token',
+      username: user.username,
+      id: `${user.id}`,
+      // Currently we don't have the token available,
+      // but that will change once we implement OAuth
+      token: '',
+      // TODO: get the instance URL from InteropConfig
+      // this will require changing the WebIDE types
+      instanceUrl: '',
+    };
+
     return {
       getForActiveProject: () =>
         Promise.resolve({
@@ -54,10 +72,11 @@ export const createGitLabPlatformManagerBrowser: () => Promise<GitLabPlatformMan
           project: gitLabProject,
           ...platformBase,
         }),
-      getForActiveAccount: async () => ({ type: 'account', ...platformBase }),
+      getForActiveAccount: async () => ({ type: 'account', account, ...platformBase }),
       getForAllAccounts: async () => [
         {
           type: 'account',
+          account,
           ...platformBase,
         },
       ],

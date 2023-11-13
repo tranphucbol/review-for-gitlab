@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
-import { project } from '../test_utils/entities';
+import { account, project } from '../test_utils/entities';
 import { CodeSuggestions } from './code_suggestions';
 import { VisibleCodeSuggestionsState } from './code_suggestions_state';
 import { createFakePartial } from '../test_utils/create_fake_partial';
@@ -35,6 +35,7 @@ const manager: GitLabPlatformManager = createFakePartial<GitLabPlatformManager>(
   }),
   getForActiveAccount: jest.fn(async () => ({
     type: 'account' as const,
+    account,
     fetchFromApi: apiClientMock,
     getUserAgentHeader: () => ({}),
   })),

@@ -4,7 +4,7 @@ import fetch from '../fetch_logged';
 import { codeSuggestionsTelemetry, Experiment } from './code_suggestions_telemetry';
 
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
-import { project } from '../test_utils/entities';
+import { account, project } from '../test_utils/entities';
 import { log } from '../log';
 import {
   CIRCUIT_BREAK_INTERVAL_MS,
@@ -132,6 +132,7 @@ function createManager(
         }
       : {
           type: 'account',
+          account,
           fetchFromApi: fetchFromApiMock,
           getUserAgentHeader: () => ({}),
         },

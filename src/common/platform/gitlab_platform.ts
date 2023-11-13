@@ -22,7 +22,7 @@ export interface GitLabPlatformForActiveProject extends GitLabPlatformBase {
 
 export interface GitLabPlatformForAccount extends GitLabPlatformBase {
   type: 'account';
-  account?: Account;
+  account: Account;
 }
 
 export interface GitLabPlatformManager {
