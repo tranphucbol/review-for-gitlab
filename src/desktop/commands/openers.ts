@@ -20,6 +20,7 @@ import { WarningError } from '../errors/warning_error';
 import { getProjectWithRepositoryInfo } from '../gitlab/api/get_projects_with_repository_info';
 import { getPipelineAndMrForBranch } from '../gitlab/get_pipeline_and_mr_for_branch';
 import { getOpenMergeRequestsForBranch } from '../gitlab/api/get_open_merge_requests_for_branch';
+import { currentUserRequest } from '../../common/gitlab/api/get_current_user';
 
 export const openUrl = async (url: string): Promise<void> => {
   // workaround for a VS Code open command bug: https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/44
@@ -52,7 +53,7 @@ async function getLink(linkTemplate: string, user: RestUser, project: GitLabProj
 }
 
 async function openTemplatedLink(linkTemplate: string, projectInRepository: ProjectInRepository) {
-  const user = await getGitLabService(projectInRepository).getCurrentUser();
+  const user = await getGitLabService(projectInRepository).fetchFromApi(currentUserRequest);
   await openUrl(await getLink(linkTemplate, user, projectInRepository.project));
 }
 

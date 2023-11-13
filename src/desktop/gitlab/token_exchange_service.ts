@@ -13,6 +13,7 @@ import {
   ExchangeTokenResponse,
   GitLabService,
 } from './gitlab_service';
+import { currentUserRequest } from '../../common/gitlab/api/get_current_user';
 
 /**
   We'll refresh the token 10s before it expires. On two hours it won't make a difference and
@@ -56,7 +57,7 @@ export class TokenExchangeService {
     const user = await new GitLabService({
       instanceUrl: GITLAB_COM_URL,
       token: tokenResponse.access_token,
-    }).getCurrentUser();
+    }).fetchFromApi(currentUserRequest);
     const account: OAuthAccount = {
       instanceUrl: GITLAB_COM_URL,
       token: tokenResponse.access_token,

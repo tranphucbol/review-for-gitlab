@@ -55,6 +55,7 @@ import { newCreateNoteMutation, oldCreateNoteMutation } from './graphql/create_n
 import { createQueryString, QueryValue } from '../utils/create_query_string';
 import { ApiRequest, fetchFromApi } from '../../common/platform/web_ide';
 import { GqlSecurityReportFinding } from './graphql/get_security_finding';
+import { currentUserRequest } from '../../common/gitlab/api/get_current_user';
 
 interface CreateNoteResult {
   createNote: {
@@ -744,15 +745,11 @@ export class GitLabService {
 
   async handleCurrentUser<S extends string | undefined>(username: S): Promise<S> {
     if (username === '<current_user>') {
-      const user = await this.getCurrentUser();
+      const user = await this.fetchFromApi(currentUserRequest);
       return user.username as S;
     }
 
     return username;
-  }
-
-  async getCurrentUser(): Promise<RestUser> {
-    return this.fetch('/user', {}, 'current user');
   }
 
   async getIssuables(params: CustomQuery, project: GitLabProject) {

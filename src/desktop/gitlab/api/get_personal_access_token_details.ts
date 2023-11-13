@@ -1,7 +1,7 @@
 import { GetRequest } from '../../../common/platform/web_ide';
 
 // GitLab token info
-interface PersonalAccessTokenDetails {
+export interface PersonalAccessTokenDetails {
   scopes: string[];
 }
 export const getPersonalAccessTokenDetails = (): GetRequest<PersonalAccessTokenDetails> => ({

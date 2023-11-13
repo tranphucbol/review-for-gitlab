@@ -8,6 +8,8 @@ import { createExtensionContext, createOAuthAccount } from '../../test_utils/ent
 import { AccountService } from '../account_service';
 import { GitLabAuthenticationProvider } from './gitlab_authentication_provider';
 import { TokenExchangeService } from '../../gitlab/token_exchange_service';
+import { createFakeFetchFromApi } from '../../../common/test_utils/create_fake_fetch_from_api';
+import { currentUserRequest } from '../../../common/gitlab/api/get_current_user';
 
 jest.mock('../../commands/openers');
 jest.mock('../../gitlab/gitlab_service');
@@ -48,7 +50,10 @@ describe('GitLabAuthenticationProvider', () => {
         assert.strictEqual(instanceUrl, 'https://gitlab.com');
         assert.strictEqual(token, 'test_token');
         return {
-          getCurrentUser: async () => ({ id: 123, username: 'test_user' }),
+          fetchFromApi: createFakeFetchFromApi({
+            request: currentUserRequest,
+            response: { id: 123, username: 'test_user' },
+          }),
         };
       },
     );

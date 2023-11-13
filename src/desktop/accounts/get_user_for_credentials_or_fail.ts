@@ -1,3 +1,4 @@
+import { currentUserRequest } from '../../common/gitlab/api/get_current_user';
 import { FetchError } from '../errors/fetch_error';
 import { InsufficientScopesError } from '../errors/insufficient_scopes_error';
 import { UserFriendlyError } from '../errors/user_friendly_error';
@@ -17,7 +18,7 @@ export const getUserForCredentialsOrFail = async (credentials: Credentials): Pro
       throw new InsufficientScopesError(tokenInfo.scopes, REQUIRED_SCOPES);
     }
 
-    return await gitlabService.getCurrentUser();
+    return await gitlabService.fetchFromApi(currentUserRequest);
   } catch (e) {
     if (e instanceof InsufficientScopesError) {
       // We already made this as nice one, rethrowing
