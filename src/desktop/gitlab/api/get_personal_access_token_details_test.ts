@@ -1,8 +1,8 @@
-import { getPersonalAccessTokenDetails } from './get_personal_access_token_details';
+import { personalAccessTokenDetailsRequest } from './get_personal_access_token_details';
 
 describe('getPersonalAccessTokenDetails', () => {
   it('creates request', async () => {
-    const request = getPersonalAccessTokenDetails();
+    const request = personalAccessTokenDetailsRequest;
 
     expect(request).toEqual({
       type: 'rest',

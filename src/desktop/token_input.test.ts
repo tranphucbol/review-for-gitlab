@@ -8,7 +8,7 @@ import { createFakePartial } from '../common/test_utils/create_fake_partial';
 import { currentUserRequest } from '../common/gitlab/api/get_current_user';
 import {
   PersonalAccessTokenDetails,
-  getPersonalAccessTokenDetails,
+  personalAccessTokenDetailsRequest,
 } from './gitlab/api/get_personal_access_token_details';
 import { createFakeFetchFromApi } from '../common/test_utils/create_fake_fetch_from_api';
 import { user } from './test_utils/entities';
@@ -26,7 +26,7 @@ describe('token input', () => {
         createFakePartial<GitLabService>({
           fetchFromApi: createFakeFetchFromApi(
             { request: currentUserRequest, response: currentUser },
-            { request: getPersonalAccessTokenDetails(), response: scopesResponse },
+            { request: personalAccessTokenDetailsRequest, response: scopesResponse },
           ),
         }),
       );
