@@ -15,6 +15,14 @@ export enum CodeSuggestionTelemetryState {
   NOT_PROVIDED = 'suggestion_not_provided',
 }
 
+// eslint-disable-next-line no-shadow
+export enum RejectCodeSuggestionReason {
+  DeletingSingleCharacter = 'deleting_single_character',
+  TypingRepeatedSpaces = 'typing_repeated_spaces',
+  PastedCodeBlock = 'pasted_code_block',
+  UnchangedDocument = 'unchanged_document',
+}
+
 const stateGraph = new Map<CodeSuggestionTelemetryState, CodeSuggestionTelemetryState[]>([
   [
     CodeSuggestionTelemetryState.REQUESTED,
@@ -81,6 +89,23 @@ const endStates = [...stateGraph]
   .map(([state]) => state);
 
 const GC_TIME = 60000;
+
+const getIdeVersionContext = () => {
+  // this logic is duplicated in common/language_server/get_client_context.ts
+  // the idea is that we'll delete this whole file once we switch to LS
+  const extension = vscode.extensions.getExtension('Gitlab.gitlab-workflow');
+
+  return {
+    schema: 'iglu:com.gitlab/ide_extension_version/jsonschema/1-0-0',
+    data: {
+      ide_name: 'Visual Studio Code',
+      ide_vendor: 'Microsoft Corporation',
+      ide_version: vscode.version,
+      extension_name: 'GitLab Workflow',
+      extension_version: extension?.packageJSON?.version,
+    },
+  };
+};
 
 export class CodeSuggestionsTelemetryManager {
   // eslint-disable-next-line no-use-before-define
@@ -212,28 +237,28 @@ export class CodeSuggestionsTelemetryManager {
     return this.instance;
   }
 
+  public static async rejectSuggestionRequest(reason: RejectCodeSuggestionReason) {
+    log.debug(`Telemetry: Sending event for rejected suggestion request. Reason "${reason}".`);
+
+    await Snowplow.getInstance().trackStructEvent(
+      {
+        category: 'code_suggestions',
+        action: 'reject_suggestion_request',
+        label: reason,
+      },
+      [getIdeVersionContext()],
+    );
+  }
+
   private static async sendTelemetry(suggestionID: string) {
     log.debug(`Telemetry: Sending event for suggestion ${suggestionID}`);
 
     const suggestion = this.getInstance().suggestions.get(suggestionID);
+
     if (!suggestion) {
       log.debug(`Telemetry: The suggestion with ${suggestionID} can't be found`);
       return;
     }
-
-    const extension = vscode.extensions.getExtension('Gitlab.gitlab-workflow');
-    // this logic is duplicated in common/language_server/get_client_context.ts
-    // the idea is that we'll delete this whole file once we switch to LS
-    const ideVersionContext = {
-      schema: 'iglu:com.gitlab/ide_extension_version/jsonschema/1-0-0',
-      data: {
-        ide_name: 'Visual Studio Code',
-        ide_vendor: 'Microsoft Corporation',
-        ide_version: vscode.version,
-        extension_name: 'GitLab Workflow',
-        extension_version: extension?.packageJSON?.version,
-      },
-    };
 
     const codeSuggestionContexts = {
       schema: 'iglu:com.gitlab/code_suggestions_context/jsonschema/2-0-1',
@@ -253,7 +278,7 @@ export class CodeSuggestionsTelemetryManager {
         action: suggestion.state,
         label: suggestionID,
       },
-      [ideVersionContext, codeSuggestionContexts],
+      [getIdeVersionContext(), codeSuggestionContexts],
     );
   }
 }

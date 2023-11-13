@@ -86,7 +86,11 @@ module.exports = {
   StatusBarAlignment: { Left: 0 },
   CommentThreadCollapsibleState: { Collapsed: 0, Expanded: 1 },
   Position: function Position(line, character) {
-    return { line, character };
+    const isBefore = position =>
+      line < position?.line || (position?.line === line && character < position?.character);
+    const isEqual = position => position?.line === line && position?.character === character;
+
+    return { line, character, isBefore, isEqual };
   },
   Range: function Range(...args) {
     if (typeof args[0] === 'number') {
