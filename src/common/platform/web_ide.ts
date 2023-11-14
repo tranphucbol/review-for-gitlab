@@ -23,6 +23,7 @@ export interface VSCodeBuffer {
 // region: Shared configuration ----------------------------------------
 export interface InteropConfig {
   projectPath: string;
+  gitlabUrl: string;
 }
 
 // region: API types ---------------------------------------------------

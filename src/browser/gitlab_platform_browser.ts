@@ -60,9 +60,8 @@ export const createGitLabPlatformManagerBrowser: () => Promise<GitLabPlatformMan
       // Currently we don't have the token available,
       // but that will change once we implement OAuth
       token: '',
-      // TODO: get the instance URL from InteropConfig
-      // this will require changing the WebIDE types
-      instanceUrl: '',
+      instanceUrl: config.gitlabUrl,
+    };
     };
 
     return {
