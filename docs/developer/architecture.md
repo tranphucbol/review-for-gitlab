@@ -19,7 +19,7 @@ The Workflow extension runs in two different environments:
 - Desktop: This extension works with the Desktop VS Code (or the VS Code Server). We publish the extension to two marketplaces ([Microsoft](https://marketplace.visualstudio.com/items?itemName=GitLab.gitlab-workflow) and [Eclipse](https://open-vsx.org/)).
   - This project builds the desktop build of the extension
 - WebIDE: [WebIDE](https://gitlab.com/gitlab-org/gitlab-web-ide) is the GitLab clone of VS Code in a browser. We extend the VS Code functionality to work well with GitLab.
-  - The WebIDE builds the browser version of the extension. WebIDE includes this repository as a dependency (git submodule) and then builds the extension.
+  - The WebIDE builds the browser version of the extension. WebIDE includes this repository as a dependency (Git submodule) and then builds the extension.
 
 Based on these environments, the extension source code lives in three different folders:
 

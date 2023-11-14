@@ -1,6 +1,5 @@
 ---
 # Base Markdownlint configuration
-# Extended Markdownlint configuration in doc/.markdownlint/
 default: true
 first-header-h1: true
 header-style:
@@ -33,7 +32,6 @@ proper-names:
     "API",
     "Asana",
     "Auth0",
-    "Authentiq",
     "Azure",
     "Bamboo",
     "Bitbucket",
@@ -53,10 +51,12 @@ proper-names:
     "Geo",
     "Git LFS",
     "git-annex",
-    "git-credential",
+    "git-credential-oauth",
     "git-sizer",
+    "Git",
     "Gitaly",
     "GitHub",
+    "gitlab.vim",
     "GitLab Geo",
     "GitLab Monitor",
     "GitLab Operator",
@@ -98,17 +98,18 @@ proper-names:
     "minikube",
     "MinIO",
     "ModSecurity",
+    "Neovim",
     "NGINX Ingress",
     "NGINX",
     "OAuth",
     "OAuth 2",
     "OmniAuth",
-    "Omnibus GitLab",
     "OpenID",
     "OpenShift",
     "PgBouncer",
     "Postfix",
     "PostgreSQL",
+    "PowerShell",
     "Praefect",
     "Prometheus",
     "Puma",
@@ -130,7 +131,6 @@ proper-names:
     "Slack",
     "SMTP",
     "SpotBugs",
-    "ssh-key",
     "SSH",
     "Tiller",
     "TOML",
@@ -150,3 +150,4 @@ proper-names:
     "YouTrack"
   ]
   code_blocks: false
+  html_elements: false

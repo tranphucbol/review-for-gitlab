@@ -95,9 +95,9 @@ end
 
 _Legend: Round corners mean that the test doesn't match production use exactly._
 
-##### Temporary git repository and workspace files
+##### Temporary Git repository and workspace files
 
-When we start integration tests, we create a temporary folder and initialize a git repository in it. This workspace is no different from any other vscode workspace. The tests provide a high level of confidence that the git/workspace integration will work well in production.
+When we start integration tests, we create a temporary folder and initialize a Git repository in it. This workspace is no different from any other vscode workspace. The tests provide a high level of confidence that the Git/workspace integration will work well in production.
 
 ##### Mocked GitLab API (msw)
 
