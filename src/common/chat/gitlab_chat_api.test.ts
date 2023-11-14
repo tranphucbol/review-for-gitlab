@@ -1,7 +1,6 @@
 import assert from 'assert';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
-import { account, project as currentProject } from '../test_utils/entities';
-import { GitLabProject } from '../platform/gitlab_project';
+import { gitlabPlatformForAccount } from '../test_utils/entities';
 import { GitLabChatApi, AI_ACTIONS, AI_MESSAGES_QUERY } from './gitlab_chat_api';
 import { API_PULLING } from './api/pulling';
 import { createFakePartial } from '../test_utils/create_fake_partial';
@@ -40,7 +39,6 @@ describe('GitLabChatApi', () => {
   let makeApiRequest: jest.Mock;
 
   const createManager = (
-    project: GitLabProject,
     queryContent = mockedQueryResponse,
     mutationContent = mockedMutationResponse,
   ): GitLabPlatformManager => {
@@ -57,10 +55,8 @@ describe('GitLabChatApi', () => {
     return createFakePartial<GitLabPlatformManager>({
       getForActiveProject: jest.fn(),
       getForActiveAccount: jest.fn(async () => ({
-        type: 'account' as const,
-        account,
+        ...gitlabPlatformForAccount,
         fetchFromApi: makeApiRequest,
-        getUserAgentHeader: () => ({}),
       })),
       getForAllAccounts: jest.fn(),
     });
@@ -68,7 +64,7 @@ describe('GitLabChatApi', () => {
 
   describe('getAiMessage', () => {
     it('returns first message with given requestId and role', async () => {
-      const manager = createManager(currentProject, mockedQueryResponse);
+      const manager = createManager(mockedQueryResponse);
       const gitlabChatApi = new GitLabChatApi(manager);
 
       const expectedMessage = mockedQueryResponse.aiMessages.nodes[0];
@@ -91,7 +87,7 @@ describe('GitLabChatApi', () => {
     });
 
     it('returns an error if pulling timeout is reached', async () => {
-      const manager = createManager(currentProject, mockedEmptyQueryResponse);
+      const manager = createManager(mockedEmptyQueryResponse);
       const gitlabChatApi = new GitLabChatApi(manager);
 
       const response = await gitlabChatApi.pullAiMessage('123', 'assistant');
@@ -103,7 +99,7 @@ describe('GitLabChatApi', () => {
 
   describe('processNewUserPrompt', () => {
     it('sends user prompt as mutation', async () => {
-      const manager = createManager(currentProject, mockedQueryResponse);
+      const manager = createManager(mockedQueryResponse);
       const gitlabChatApi = new GitLabChatApi(manager);
 
       const response = await gitlabChatApi.processNewUserPrompt(mockPrompt, null);

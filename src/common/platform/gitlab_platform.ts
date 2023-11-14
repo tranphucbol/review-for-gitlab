@@ -7,7 +7,7 @@ import { Account } from './gitlab_account';
  */
 export interface GitLabPlatformBase {
   fetchFromApi: fetchFromApi;
-
+  account: Account;
   /**
    * What user agent should be used for API calls that are not made to GitLab API
    * (e.g. when calling Model Gateway for code suggestions)
@@ -15,14 +15,14 @@ export interface GitLabPlatformBase {
   getUserAgentHeader(): Record<string, string>;
 }
 
+export interface GitLabPlatformForAccount extends GitLabPlatformBase {
+  type: 'account';
+  project: undefined;
+}
+
 export interface GitLabPlatformForActiveProject extends GitLabPlatformBase {
   type: 'project';
   project: GitLabProject;
-}
-
-export interface GitLabPlatformForAccount extends GitLabPlatformBase {
-  type: 'account';
-  account: Account;
 }
 
 export interface GitLabPlatformManager {

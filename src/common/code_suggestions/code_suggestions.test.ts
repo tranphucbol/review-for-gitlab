@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
-import { account, project } from '../test_utils/entities';
+import { gitlabPlatformForAccount, gitlabPlatformForProject } from '../test_utils/entities';
 import { CodeSuggestions } from './code_suggestions';
 import { VisibleCodeSuggestionsState } from './code_suggestions_state';
 import { createFakePartial } from '../test_utils/create_fake_partial';
@@ -28,16 +28,12 @@ const apiClientMock = jest.fn().mockResolvedValue({
 
 const manager: GitLabPlatformManager = createFakePartial<GitLabPlatformManager>({
   getForActiveProject: async () => ({
-    type: 'project' as const,
-    project,
+    ...gitlabPlatformForProject,
     fetchFromApi: apiClientMock,
-    getUserAgentHeader: () => ({}),
   }),
   getForActiveAccount: jest.fn(async () => ({
-    type: 'account' as const,
-    account,
+    ...gitlabPlatformForAccount,
     fetchFromApi: apiClientMock,
-    getUserAgentHeader: () => ({}),
   })),
   getForAllAccounts: jest.fn(),
 });

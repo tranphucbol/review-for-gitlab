@@ -1,7 +1,7 @@
 import { LegacyApiFallbackConfig } from './legacy_api_fallback_config';
 import { GitLabPlatformManagerForCodeSuggestions } from './gitlab_platform_manager_for_code_suggestions';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
-import { account } from '../test_utils/entities';
+import { gitlabPlatformForAccount } from '../test_utils/entities';
 
 const fetchFromApiMock = jest.fn();
 
@@ -12,10 +12,8 @@ describe('LegacyApiFallbackConfig', () => {
 
   beforeEach(() => {
     jest.spyOn(manager, 'getGitLabPlatform').mockResolvedValue({
-      type: 'account',
-      account,
+      ...gitlabPlatformForAccount,
       fetchFromApi: fetchFromApiMock,
-      getUserAgentHeader: () => ({}),
     });
   });
 

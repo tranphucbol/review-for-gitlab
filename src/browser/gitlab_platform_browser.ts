@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
 import { memoize } from 'lodash';
-import { GitLabPlatformManager } from '../common/platform/gitlab_platform';
+import {
+  GitLabPlatformForAccount,
+  GitLabPlatformManager,
+} from '../common/platform/gitlab_platform';
 import {
   COMMAND_FETCH_FROM_API,
   COMMAND_GET_CONFIG,
@@ -46,12 +49,6 @@ export const createGitLabPlatformManagerBrowser: () => Promise<GitLabPlatformMan
     }
 
     const gitLabProject = convertToGitLabProject(project);
-    const platformBase = {
-      fetchFromApi,
-      // browser won't let us change User-Agent header
-      // so we don't have to construct it
-      getUserAgentHeader: () => ({}),
-    };
 
     const account: TokenAccount = {
       type: 'token',
@@ -62,22 +59,25 @@ export const createGitLabPlatformManagerBrowser: () => Promise<GitLabPlatformMan
       token: '',
       instanceUrl: config.gitlabUrl,
     };
+
+    const accountPlatform: GitLabPlatformForAccount = {
+      type: 'account',
+      fetchFromApi,
+      // browser won't let us change User-Agent header
+      // so we don't have to construct it
+      getUserAgentHeader: () => ({}),
+      account,
+      project: undefined,
     };
 
     return {
       getForActiveProject: () =>
         Promise.resolve({
+          ...accountPlatform,
           type: 'project',
           project: gitLabProject,
-          ...platformBase,
         }),
-      getForActiveAccount: async () => ({ type: 'account', account, ...platformBase }),
-      getForAllAccounts: async () => [
-        {
-          type: 'account',
-          account,
-          ...platformBase,
-        },
-      ],
+      getForActiveAccount: async () => accountPlatform,
+      getForAllAccounts: async () => [accountPlatform],
     };
   };
