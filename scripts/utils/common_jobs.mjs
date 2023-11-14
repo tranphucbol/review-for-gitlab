@@ -20,15 +20,17 @@ export async function cleanBuild(env) {
 export async function prepareWebviews(webviews, env) {
   const targets = Object.keys(webviews);
 
-  targets.forEach(async target => {
-    await run('npm', ['run', '--prefix', path.join(root, `webviews/${target}`), 'build']);
-    webviews[target].forEach(async webview => {
-      await copy(
-        path.join(root, `webviews/${target}/dist/${webview}`),
-        path.join(root, `dist-${env}/webviews/${webview}`),
-      );
-    });
-  });
+  return Promise.all(
+    targets.map(async target => {
+      await run('npm', ['run', '--prefix', path.join(root, `webviews/${target}`), 'build']);
+      webviews[target].forEach(async webview => {
+        await copy(
+          path.join(root, `webviews/${target}/dist/${webview}`),
+          path.join(root, `dist-${env}/webviews/${webview}`),
+        );
+      });
+    }),
+  );
 }
 
 export async function generateAssets(packageJson, env) {
