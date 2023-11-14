@@ -6,14 +6,15 @@
     "dev": "vite",
     "chat": "vite --config gitlab_duo_chat/vite.config.js build",
     "chat-watch": "vite --config gitlab_duo_chat/vite.config.js build --watch",
-    "build": "rm -rf dist/ && npm run chat",
-    "watch": "rm -rf dist/ && npm run chat-watch",
+    "build": "rm -rf dist/ && concurrently 'npm:chat'",
+    "watch": "rm -rf dist/ && concurrently 'npm:chat-watch'",
     "test": "",
     "preview": "vite preview --port 4173",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
   "dependencies": {
     "@gitlab/ui": "^67.3.3",
+    "concurrently": "^8.2.2",
     "dompurify": "^3.0.5",
     "marked": "^7.0.4",
     "marked-bidi": "^1.0.4",
