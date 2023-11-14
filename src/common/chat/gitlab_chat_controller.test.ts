@@ -3,11 +3,16 @@ import { GitLabChatController } from './gitlab_chat_controller';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { GitLabChatRecord } from './gitlab_chat_record';
 import { GitLabChatFileContext } from './gitlab_chat_file_context';
+import { submitFeedback } from './utils/submit_feedback';
 
 const apiMock = { processNewUserPrompt: jest.fn(), pullAiMessage: jest.fn() };
 
 jest.mock('./gitlab_chat_api', () => ({
   GitLabChatApi: jest.fn().mockImplementation(() => apiMock),
+}));
+
+jest.mock('./utils/submit_feedback', () => ({
+  submitFeedback: jest.fn(),
 }));
 
 const viewMock = {
@@ -221,6 +226,49 @@ describe('GitLabChatController', () => {
         await controller.processNewUserRecord(record);
 
         expect(apiMock.processNewUserPrompt).toHaveBeenCalledWith('/test', fileContext);
+      });
+    });
+  });
+
+  describe('viewMessageHandler', () => {
+    describe('supports trackFeedback events', () => {
+      it('calls submitFeedback when data is present', async () => {
+        await controller.viewMessageHandler({
+          eventType: 'trackFeedback',
+          data: {
+            extendedTextFeedback: 'free text',
+            feedbackChoices: ['choice1', 'choice2'],
+          },
+        });
+
+        expect(submitFeedback).toHaveBeenCalledWith('free text', ['choice1', 'choice2']);
+      });
+
+      it('does not call submitFeedback when no data is present', async () => {
+        await controller.viewMessageHandler({
+          eventType: 'trackFeedback',
+        });
+
+        expect(submitFeedback).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('supports newPrompt events', () => {
+      it('processes new record', async () => {
+        controller.processNewUserRecord = jest.fn();
+
+        await controller.viewMessageHandler({
+          eventType: 'newPrompt',
+          record: {
+            content: 'hello',
+          },
+        });
+
+        expect(controller.processNewUserRecord).toHaveBeenCalledWith(
+          expect.objectContaining({
+            content: 'hello',
+          }),
+        );
       });
     });
   });

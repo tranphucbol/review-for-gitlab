@@ -24,14 +24,22 @@ interface NewPromptMessage {
   };
 }
 
-export type ViewMessage = NewPromptMessage;
+interface FeedbackMessage {
+  eventType: 'trackFeedback';
+  data?: {
+    extendedTextFeedback: string | null;
+    feedbackChoices: Array<string> | null;
+  };
+}
+
+export type ViewEmittedMessage = NewPromptMessage | FeedbackMessage;
 
 export class GitLabChatView {
   #context: vscode.ExtensionContext;
 
   #chatView?: vscode.WebviewView;
 
-  #messageEmitter = new vscode.EventEmitter<ViewMessage>();
+  #messageEmitter = new vscode.EventEmitter<ViewEmittedMessage>();
 
   onViewMessage = this.#messageEmitter.event;
 

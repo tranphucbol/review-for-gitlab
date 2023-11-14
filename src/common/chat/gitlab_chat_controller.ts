@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
 import { GitLabChatRecord } from './gitlab_chat_record';
-import { GitLabChatView, ViewMessage } from './gitlab_chat_view';
+import { GitLabChatView, ViewEmittedMessage } from './gitlab_chat_view';
 import { GitLabChatApi } from './gitlab_chat_api';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { log } from '../log';
 import { GitLabChatFileContext } from './gitlab_chat_file_context';
+import { submitFeedback } from './utils/submit_feedback';
 
 export class GitLabChatController implements vscode.WebviewViewProvider {
   readonly chatHistory: GitLabChatRecord[];
@@ -26,7 +27,7 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
     await this.restoreHistory();
   }
 
-  async viewMessageHandler(message: ViewMessage) {
+  async viewMessageHandler(message: ViewEmittedMessage) {
     switch (message.eventType) {
       case 'newPrompt': {
         const record = new GitLabChatRecord({ role: 'user', content: message.record.content });
@@ -34,8 +35,15 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
         await this.processNewUserRecord(record);
         break;
       }
+      case 'trackFeedback': {
+        if (message.data) {
+          await submitFeedback(message.data.extendedTextFeedback, message.data.feedbackChoices);
+        }
+
+        break;
+      }
       default:
-        log.warn(`Unhandled chat-webview message ${message.eventType}`);
+        log.warn(`Unhandled chat-webview message`);
         break;
     }
   }
