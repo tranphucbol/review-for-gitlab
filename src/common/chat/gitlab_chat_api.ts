@@ -2,11 +2,14 @@ import { gql } from 'graphql-request';
 import { GraphQLRequest } from '../platform/web_ide';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { pullHandler } from './api/pulling';
+import { GitLabChatFileContext } from './gitlab_chat_file_context';
 
 export const AI_ACTIONS = {
   chat: gql`
-    mutation chat($question: String!, $resourceId: AiModelID) {
-      aiAction(input: { chat: { resourceId: $resourceId, content: $question } }) {
+    mutation chat($question: String!, $resourceId: AiModelID, $currentFile: AiCurrentFileInput) {
+      aiAction(
+        input: { chat: { resourceId: $resourceId, content: $question, currentFile: $currentFile } }
+      ) {
         requestId
         errors
       }
@@ -94,8 +97,20 @@ export class GitLabChatApi {
     this.#manager = manager;
   }
 
-  async processNewUserPrompt(question: string): Promise<AiActionResponseType> {
-    return this.sendAiAction(AI_ACTIONS.chat, { question });
+  async processNewUserPrompt(
+    question: string,
+    activeFileContext: GitLabChatFileContext | null,
+  ): Promise<AiActionResponseType> {
+    const currentFile = activeFileContext
+      ? {
+          fileName: activeFileContext.fileName,
+          selectedText: activeFileContext.selectedText,
+          contentAboveCursor: activeFileContext.contentAboveCursor,
+          contentBelowCursor: activeFileContext.contentBelowCursor,
+        }
+      : null;
+
+    return this.sendAiAction(AI_ACTIONS.chat, { question, currentFile });
   }
 
   async pullAiMessage(requestId: string, role: string): Promise<AiMessage> {
