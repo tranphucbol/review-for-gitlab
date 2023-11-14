@@ -11,6 +11,7 @@ import {
   GitLabPlatformForAccount,
   GitLabPlatformManager,
 } from '../common/platform/gitlab_platform';
+import { user } from '../desktop/test_utils/entities';
 
 const FAKE_MEDIATOR_TOKEN = 'fake-mediator-token';
 
@@ -23,9 +24,12 @@ describe('createGitLabPlatformManagerBrowser', () => {
       }
       if (
         cmd === COMMAND_FETCH_FROM_API &&
-        arg?.variables.namespaceWithPath === 'gitlab-org/gitlab'
+        arg?.variables?.namespaceWithPath === 'gitlab-org/gitlab'
       ) {
         return { project: gqlProject };
+      }
+      if (cmd === COMMAND_FETCH_FROM_API && arg?.path === '/user') {
+        return { user };
       }
       if (cmd === COMMAND_MEDIATOR_TOKEN) {
         return FAKE_MEDIATOR_TOKEN;

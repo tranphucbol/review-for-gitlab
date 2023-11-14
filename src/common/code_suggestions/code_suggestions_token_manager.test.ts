@@ -1,4 +1,5 @@
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
+import { account } from '../test_utils/entities';
 import { CodeSuggestionsTokenManager, CompletionToken } from './code_suggestions_token_manager';
 import { GitLabPlatformManagerForCodeSuggestions } from './gitlab_platform_manager_for_code_suggestions';
 
@@ -17,6 +18,7 @@ describe('CodeSuggestionsTokenManager', () => {
       jest.spyOn(manager, 'getGitLabPlatform').mockResolvedValue({
         type: 'account',
         fetchFromApi: makeApiRequest,
+        account,
         getUserAgentHeader: () => ({}),
       });
 

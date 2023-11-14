@@ -15,6 +15,8 @@ import { getProject } from '../../common/gitlab/api/get_project';
 import { gqlProject, project } from '../../common/test_utils/entities';
 import { GetRequest, PostRequest } from '../../common/platform/web_ide';
 import { UnsupportedVersionError } from '../errors/unsupported_version_error';
+import { createFakeFetchFromApi } from '../../common/test_utils/create_fake_fetch_from_api';
+import { currentUserRequest } from '../../common/gitlab/api/get_current_user';
 
 jest.mock('graphql-request');
 jest.mock('../accounts/account_service');
@@ -267,7 +269,10 @@ describe('gitlab_service', () => {
 
     describe('current user', () => {
       it('replaces <current_user> with the current user name', async () => {
-        service.getCurrentUser = async () => ({ username: 'testuser' }) as RestUser;
+        service.fetchFromApi = createFakeFetchFromApi({
+          request: currentUserRequest,
+          response: { username: 'testuser' },
+        });
         await service.getIssuables(
           {
             ...defaultParams,
