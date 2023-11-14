@@ -1,7 +1,7 @@
 import {
   GitLabPlatformManager,
   GitLabPlatformForAccount,
-  GitLabPlatformForActiveProject,
+  GitLabPlatformForProject,
 } from '../platform/gitlab_platform';
 import {
   getAiAssistedCodeSuggestionsConfiguration,
@@ -35,17 +35,15 @@ export class GitLabPlatformManagerForCodeSuggestions {
    * for the code suggestions feature. It follows this logic to decide
    * the correct platform to use:
    *
-   * - It returns a GitLabPlatformForActiveProject if a GitLab project is available.
+   * - It returns a GitLabPlatformForProject if an active GitLab project is available.
    * - It returns a GitLabPlatformForAccount if a GitLab account is found with
    * code suggestions support.
    * - If two or more GitLab accounts with code suggestions support are available,
    *  you can specify you preferred account using the "preferredAccount" key.
    * - Otherwise, it returns undefined
-   *
-   * @returns GitLabPlatformForActiveProject | GitLabPlaformForAccount
    */
   async getGitLabPlatform(): Promise<
-    GitLabPlatformForActiveProject | GitLabPlatformForAccount | undefined
+    GitLabPlatformForProject | GitLabPlatformForAccount | undefined
   > {
     const projectPlatform = await this.#platformManager.getForActiveProject(false);
     const codeSuggestionsConfig = getAiAssistedCodeSuggestionsConfiguration();

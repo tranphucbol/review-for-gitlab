@@ -20,7 +20,7 @@ export interface GitLabPlatformForAccount extends GitLabPlatformBase {
   project: undefined;
 }
 
-export interface GitLabPlatformForActiveProject extends GitLabPlatformBase {
+export interface GitLabPlatformForProject extends GitLabPlatformBase {
   type: 'project';
   project: GitLabProject;
 }
@@ -37,7 +37,7 @@ export interface GitLabPlatformManager {
    * @param userInitiated - Indicates whether the user initiated the action.
    * @returns A Promise that resolves with the fetched GitLabProject or undefined if an active project does not exist.
    */
-  getForActiveProject(userInitiated: boolean): Promise<GitLabPlatformForActiveProject | undefined>;
+  getForActiveProject(userInitiated: boolean): Promise<GitLabPlatformForProject | undefined>;
 
   /**
    * Returns a GitLabPlatform for the active account

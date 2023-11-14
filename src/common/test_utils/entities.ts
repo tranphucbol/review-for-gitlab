@@ -1,9 +1,6 @@
 import { GqlProject, convertToGitLabProject } from '../gitlab/api/get_project';
 import { Account } from '../platform/gitlab_account';
-import {
-  GitLabPlatformForAccount,
-  GitLabPlatformForActiveProject,
-} from '../platform/gitlab_platform';
+import { GitLabPlatformForAccount, GitLabPlatformForProject } from '../platform/gitlab_platform';
 import { GitLabProject } from '../platform/gitlab_project';
 import { createFakeFetchFromApi } from './create_fake_fetch_from_api';
 
@@ -36,7 +33,7 @@ export const gitlabPlatformForAccount: GitLabPlatformForAccount = {
   getUserAgentHeader: () => ({}),
 };
 
-export const gitlabPlatformForProject: GitLabPlatformForActiveProject = {
+export const gitlabPlatformForProject: GitLabPlatformForProject = {
   type: 'project',
   project,
   account,
