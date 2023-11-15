@@ -13,7 +13,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
   "dependencies": {
-    "@gitlab/ui": "^67.3.3",
+    "@gitlab/ui": "^68.7.0",
     "concurrently": "^8.2.2",
     "dompurify": "^3.0.5",
     "marked": "^7.0.4",

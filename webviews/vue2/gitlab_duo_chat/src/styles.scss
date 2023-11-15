@@ -13,7 +13,7 @@
   --glDuoChat-background: var(--vscode-sideBar-background);
   --glDuoChat-background-alternative: var(--vscode-editor-background);
   
-  --glDuoChat-border-color: var(--vscode-widget-border);
+  --glDuoChat-border-color: var(--vscode-widget-border, var(--vscode-editorWidget-border));
   --glDuoChat-shadow: var(--vscode-widget-shadow);
 
   --glDuoChat-alert-foreground: var(--vscode-sideBarSectionHeader-foreground);
@@ -134,6 +134,12 @@ pre.code {
     outline: 1px solid var(--glDuoChat-input-border-focus);
   }
 }
+.gl-icon {
+  color: var(--glDuoChat-icon-foreground);
+}
+.gl-button .gl-icon {
+  color: var(--glDuoChat-button-foreground);
+}
 .gl-button.gl-button.btn-default,
 .gl-button.gl-button.btn-dashed,
 .gl-button.gl-button.btn-block.btn-default,
@@ -226,6 +232,11 @@ pre.code {
   pre code {
     @include gl-bg-transparent;
     color: var(--glDuoChat-textPreformat-foreground);
+  }
+  &:first-child {
+    pre {
+      @include gl-mt-0;
+    }
   }
 }
 .gl-modal {
@@ -363,9 +374,7 @@ pre.code {
     }
   }
 }
-.gl-icon {
-  color: var(--glDuoChat-icon-foreground);
-}
+
 
 // Components
 .duo-chat {
@@ -397,4 +406,8 @@ pre.code {
   border-color: var(--glDuoChat-alert-border-color);
   padding-top: 0.5em;
   padding-bottom: 0.5em;
+}
+
+.duo-chat copy-code .gl-button.gl-button.btn-default {
+  @include gl-bg-transparent;
 }
