@@ -7,7 +7,7 @@ import {
 import { gqlProject, project } from '../common/test_utils/entities';
 import { createGitLabPlatformManagerBrowser } from './gitlab_platform_browser';
 import {
-  GitLabPlatformForActiveProject,
+  GitLabPlatformForProject,
   GitLabPlatformForAccount,
   GitLabPlatformManager,
 } from '../common/platform/gitlab_platform';
@@ -80,7 +80,7 @@ describe('createGitLabPlatformManagerBrowser', () => {
     });
 
     describe('with GitLab hosted project', () => {
-      let platform: GitLabPlatformForActiveProject | undefined;
+      let platform: GitLabPlatformForProject | undefined;
 
       beforeEach(async () => {
         platform = await manager.getForActiveProject(false);

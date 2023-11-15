@@ -1,10 +1,10 @@
-import {
-  GitLabPlatformForAccount,
-  GitLabPlatformForActiveProject,
-  GitLabPlatformManager,
-} from '../platform/gitlab_platform';
+import { GitLabPlatformForAccount, GitLabPlatformManager } from '../platform/gitlab_platform';
 import { GitLabPlatformManagerForCodeSuggestions } from './gitlab_platform_manager_for_code_suggestions';
-import { project, account } from '../test_utils/entities';
+import {
+  account,
+  gitlabPlatformForAccount,
+  gitlabPlatformForProject,
+} from '../test_utils/entities';
 import { Account } from '../platform/gitlab_account';
 import {
   getAiAssistedCodeSuggestionsConfiguration,
@@ -20,8 +20,8 @@ describe('code_suggestions/GitLabPlatformForCodeSuggestions', () => {
   let gitlabPlatformManager: GitLabPlatformManager;
 
   const buildGitLabPlatformForAccount = (useAccount: Account): GitLabPlatformForAccount => ({
+    ...gitlabPlatformForAccount,
     account: useAccount,
-    type: 'account',
     fetchFromApi: jest.fn().mockResolvedValueOnce({
       currentUser: {
         ide: {
@@ -29,7 +29,6 @@ describe('code_suggestions/GitLabPlatformForCodeSuggestions', () => {
         },
       },
     }),
-    getUserAgentHeader: jest.fn(),
   });
 
   beforeEach(() => {
@@ -53,16 +52,7 @@ describe('code_suggestions/GitLabPlatformForCodeSuggestions', () => {
   });
 
   describe('when an active project is available', () => {
-    let gitlabPlatformForProject: GitLabPlatformForActiveProject;
-
     beforeEach(() => {
-      gitlabPlatformForProject = {
-        type: 'project',
-        project,
-        getUserAgentHeader: jest.fn(),
-        fetchFromApi: jest.fn(),
-      };
-
       jest
         .mocked(gitlabPlatformManager.getForActiveProject)
         .mockResolvedValueOnce(gitlabPlatformForProject);

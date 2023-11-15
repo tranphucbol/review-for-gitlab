@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import fetch from '../fetch_logged';
 import { log } from '../log';
 import { GITLAB_COM_URL } from '../constants';
-import { GitLabPlatformBase } from '../platform/gitlab_platform';
 import { CodeSuggestionsTokenManager, CompletionToken } from './code_suggestions_token_manager';
 import { CircuitBreaker } from './circuit_breaker';
 import {
@@ -31,6 +30,7 @@ import {
   CodeSuggestionTelemetryState,
   CodeSuggestionsTelemetryManager,
 } from './code_suggestions_telemetry_manager';
+import { GitLabPlatformBase } from '../platform/gitlab_platform';
 
 export const CIRCUIT_BREAK_INTERVAL_MS = 10000;
 export const MAX_ERRORS_BEFORE_CIRCUIT_BREAK = 4;
@@ -205,20 +205,11 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       return [];
     }
 
-    let instanceUrl;
-    let project;
-    if (platform.type === 'project') {
-      project = platform.project;
-      instanceUrl = project.webUrl;
-    }
+    const { instanceUrl } = platform.account;
 
-    if (platform.type === 'account') {
-      instanceUrl = platform.account?.instanceUrl;
-    }
+    const gitlabRealm = instanceUrl.startsWith(GITLAB_COM_URL) ? 'saas' : 'self-managed';
 
-    const gitlabRealm = instanceUrl?.startsWith(GITLAB_COM_URL) ? 'saas' : 'self-managed';
-
-    const prompt = CodeSuggestionsProvider.#getPrompt(document, position, project);
+    const prompt = CodeSuggestionsProvider.#getPrompt(document, position, platform.project);
 
     if (!prompt) {
       return [];

@@ -1,6 +1,8 @@
 import { GqlProject, convertToGitLabProject } from '../gitlab/api/get_project';
 import { Account } from '../platform/gitlab_account';
+import { GitLabPlatformForAccount, GitLabPlatformForProject } from '../platform/gitlab_platform';
 import { GitLabProject } from '../platform/gitlab_project';
+import { createFakeFetchFromApi } from './create_fake_fetch_from_api';
 
 export const gqlProject: GqlProject = {
   id: 'gid://gitlab/Project/5261717',
@@ -21,4 +23,20 @@ export const account: Account = {
   type: 'token',
   instanceUrl: 'gitlab-instance.xx',
   token: 'foobar-token',
+};
+
+export const gitlabPlatformForAccount: GitLabPlatformForAccount = {
+  type: 'account',
+  account,
+  project: undefined,
+  fetchFromApi: createFakeFetchFromApi(),
+  getUserAgentHeader: () => ({}),
+};
+
+export const gitlabPlatformForProject: GitLabPlatformForProject = {
+  type: 'project',
+  project,
+  account,
+  fetchFromApi: createFakeFetchFromApi(),
+  getUserAgentHeader: () => ({}),
 };

@@ -7,7 +7,7 @@ import { Account } from './gitlab_account';
  */
 export interface GitLabPlatformBase {
   fetchFromApi: fetchFromApi;
-
+  account: Account;
   /**
    * What user agent should be used for API calls that are not made to GitLab API
    * (e.g. when calling Model Gateway for code suggestions)
@@ -15,14 +15,14 @@ export interface GitLabPlatformBase {
   getUserAgentHeader(): Record<string, string>;
 }
 
-export interface GitLabPlatformForActiveProject extends GitLabPlatformBase {
-  type: 'project';
-  project: GitLabProject;
-}
-
 export interface GitLabPlatformForAccount extends GitLabPlatformBase {
   type: 'account';
-  account: Account;
+  project: undefined;
+}
+
+export interface GitLabPlatformForProject extends GitLabPlatformBase {
+  type: 'project';
+  project: GitLabProject;
 }
 
 export interface GitLabPlatformManager {
@@ -37,7 +37,7 @@ export interface GitLabPlatformManager {
    * @param userInitiated - Indicates whether the user initiated the action.
    * @returns A Promise that resolves with the fetched GitLabProject or undefined if an active project does not exist.
    */
-  getForActiveProject(userInitiated: boolean): Promise<GitLabPlatformForActiveProject | undefined>;
+  getForActiveProject(userInitiated: boolean): Promise<GitLabPlatformForProject | undefined>;
 
   /**
    * Returns a GitLabPlatform for the active account
