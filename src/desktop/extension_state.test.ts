@@ -3,7 +3,7 @@ import { ExtensionState } from './extension_state';
 import { accountService } from './accounts/account_service';
 import { gitExtensionWrapper } from './git/git_extension_wrapper';
 import { Account } from '../common/platform/gitlab_account';
-import { createTokenAccount } from './test_utils/entities';
+import { createOAuthAccount, createTokenAccount } from './test_utils/entities';
 
 describe('extension_state', () => {
   let extensionState: ExtensionState;
@@ -36,12 +36,36 @@ describe('extension_state', () => {
     await extensionState.init(accountService);
 
     const { executeCommand } = vscode.commands;
-    expect(executeCommand).toBeCalledWith('setContext', 'gitlab:validState', validState);
-    expect(executeCommand).toBeCalledWith('setContext', 'gitlab:noAccount', noToken);
-    expect(executeCommand).toBeCalledWith(
+    expect(executeCommand).toHaveBeenCalledWith('setContext', 'gitlab:validState', validState);
+    expect(executeCommand).toHaveBeenCalledWith('setContext', 'gitlab:noAccount', noToken);
+    expect(executeCommand).toHaveBeenCalledWith(
       'setContext',
       'gitlab:openRepositoryCount',
       openRepositoryCount,
+    );
+  });
+
+  it('sets gitlab:hasSaaSAccount to false if there is no SaaS account', async () => {
+    mockedAccounts = [createTokenAccount('https://my_standalone_instance')];
+
+    await extensionState.init(accountService);
+
+    expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
+      'setContext',
+      'gitlab:hasSaaSAccount',
+      false,
+    );
+  });
+
+  it('sets gitlab:hasSaaSAccount to true if there is a SaaS account', async () => {
+    mockedAccounts = [createOAuthAccount()];
+
+    await extensionState.init(accountService);
+
+    expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
+      'setContext',
+      'gitlab:hasSaaSAccount',
+      true,
     );
   });
 

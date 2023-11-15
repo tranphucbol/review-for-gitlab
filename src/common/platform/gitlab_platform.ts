@@ -49,4 +49,9 @@ export interface GitLabPlatformManager {
   getForActiveAccount(): Promise<GitLabPlatformForAccount | undefined>;
 
   getForAllAccounts(): Promise<GitLabPlatformForAccount[]>;
+
+  /**
+   * Returns GitLabPlatformForAccount if there is a SaaS account added. Otherwise returns undefined.
+   */
+  getForSaaSAccount(): Promise<GitLabPlatformForAccount | undefined>;
 }

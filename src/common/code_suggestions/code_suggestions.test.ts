@@ -35,6 +35,10 @@ const manager: GitLabPlatformManager = createFakePartial<GitLabPlatformManager>(
     ...gitlabPlatformForAccount,
     fetchFromApi: apiClientMock,
   })),
+  getForSaaSAccount: jest.fn(async () => ({
+    ...gitlabPlatformForAccount,
+    fetchFromApi: apiClientMock,
+  })),
   getForAllAccounts: jest.fn(),
 });
 

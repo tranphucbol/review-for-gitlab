@@ -20,7 +20,7 @@ describe('createGitLabPlatformManagerBrowser', () => {
     jest.mocked(vscode.commands.executeCommand).mockImplementation(async (cmd, token, arg) => {
       // what: token arg isn't used in mock implementation, but we add assertion in the `it`
       if (cmd === COMMAND_GET_CONFIG) {
-        return { projectPath: 'gitlab-org/gitlab' };
+        return { projectPath: 'gitlab-org/gitlab', gitlabUrl: 'https://gitlab.com' };
       }
       if (
         cmd === COMMAND_FETCH_FROM_API &&
@@ -56,6 +56,34 @@ describe('createGitLabPlatformManagerBrowser', () => {
 
       beforeEach(async () => {
         platform = await manager.getForActiveAccount();
+      });
+
+      it('forwards all calls to fetchFromApi to the mediator command', async () => {
+        expect(platform).toBeDefined();
+
+        jest.resetAllMocks();
+
+        const testRequest = { type: 'rest', method: 'GET', path: '/test' } as const;
+        const testResponse = { value: 'test' };
+
+        jest.mocked(vscode.commands.executeCommand).mockResolvedValue(testResponse);
+
+        const result = await platform?.fetchFromApi(testRequest);
+
+        expect(result).toEqual(testResponse);
+        expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
+          COMMAND_FETCH_FROM_API,
+          FAKE_MEDIATOR_TOKEN,
+          testRequest,
+        );
+      });
+    });
+
+    describe('with SaaS account', () => {
+      let platform: GitLabPlatformForAccount | undefined;
+
+      beforeEach(async () => {
+        platform = await manager.getForSaaSAccount();
       });
 
       it('forwards all calls to fetchFromApi to the mediator command', async () => {

@@ -2,28 +2,23 @@ import { createOAuthAccount, createTokenAccount } from '../test_utils/entities';
 import { SecretStorage } from '../test_utils/secret_storage';
 import { Account, OAuthAccount } from '../../common/platform/gitlab_account';
 import { AccountService } from './account_service';
+import { InMemoryMemento } from '../../../test/integration/test_infrastructure/in_memory_memento';
 
+const ACCOUNTS_KEY = 'glAccounts';
 const SECRETS_KEY = 'gitlab-tokens';
 
-type AccountMap = Record<string, Account | undefined>;
 describe('AccountService', () => {
-  let accountMap: AccountMap;
   let accountService: AccountService;
   let secrets: SecretStorage;
   let fakeContext: any;
 
   beforeEach(async () => {
-    accountMap = {};
     secrets = new SecretStorage();
     fakeContext = {
-      globalState: {
-        get: () => accountMap,
-        update: (name: string, am: AccountMap) => {
-          accountMap = am;
-        },
-      },
+      globalState: new InMemoryMemento(),
       secrets,
     };
+    fakeContext.globalState.update(ACCOUNTS_KEY, {});
     accountService = new AccountService();
     await accountService.init(fakeContext);
   });
@@ -141,6 +136,18 @@ describe('AccountService', () => {
     expect(accountService.getOneAccountForInstance('https://gitlab.com')?.token).toBe('abc');
   });
 
+  it('can retrieve SaaS account', async () => {
+    expect(accountService.getSaaSAccount()).toBeUndefined();
+
+    await accountService.addAccount(createOAuthAccount('https://dev.gitlab.com', 1, 'abc'));
+
+    expect(accountService.getSaaSAccount()).toBeUndefined();
+
+    await accountService.addAccount(createOAuthAccount('https://gitlab.com', 1, 'abc'));
+
+    expect(accountService.getSaaSAccount()?.token).toBe('abc');
+  });
+
   it('can retrieve all instance URLs', async () => {
     await accountService.addAccount(createTokenAccount('https://gitlab.com', 1, 'abc'));
     await accountService.addAccount(createTokenAccount('https://dev.gitlab.com', 1, 'def'));
@@ -207,11 +214,13 @@ describe('AccountService', () => {
     });
 
     it('does not store secrets in global state', async () => {
-      expect(accountMap[account.id]).toEqual({
-        ...account,
-        token: undefined,
-        refreshToken: undefined,
-        expiresAtTimestampInSeconds: undefined,
+      expect(fakeContext.globalState.get(ACCOUNTS_KEY)).toEqual({
+        [account.id]: {
+          ...account,
+          token: undefined,
+          refreshToken: undefined,
+          expiresAtTimestampInSeconds: undefined,
+        },
       });
     });
   });

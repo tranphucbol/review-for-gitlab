@@ -7,9 +7,17 @@ import { asMock } from '../test_utils/as_mock';
 import { GetRequest } from '../../common/platform/web_ide';
 import { pickAccount } from './pick_account';
 import { testCredentials } from '../test_utils/test_credentials';
+import { Credentials } from '../../common/platform/gitlab_account';
 
 jest.mock('./pick_account', () => ({
   pickAccount: jest.fn(),
+}));
+
+let saasAccount: Credentials | undefined;
+jest.mock('../accounts/account_service', () => ({
+  accountService: {
+    getSaaSAccount: jest.fn().mockImplementation(() => saasAccount),
+  },
 }));
 
 jest.mock('../commands/run_with_valid_project', () => ({
@@ -69,7 +77,7 @@ describe('gitlabPlatformManagerDesktop', () => {
     });
   });
 
-  describe('getForAcount', () => {
+  describe('getForActiveAccount', () => {
     it('fetches the platform for active account when an active account exists', async () => {
       (pickAccount as jest.Mock).mockImplementation(() => testCredentials('https://example.com'));
 
@@ -84,6 +92,22 @@ describe('gitlabPlatformManagerDesktop', () => {
       const platform = await gitlabPlatformManagerDesktop.getForActiveAccount();
       expect(platform).toBeUndefined();
       expect(pickAccount).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('getForSaaSAccount', () => {
+    it('fetches the platform for active SaaS account when it exists', async () => {
+      saasAccount = testCredentials('https://gitlab.com');
+
+      const platform = await gitlabPlatformManagerDesktop.getForSaaSAccount();
+      expect(platform).toBeDefined();
+    });
+
+    it('returns undefined when there is noactive SaaS account', async () => {
+      saasAccount = undefined;
+
+      const platform = await gitlabPlatformManagerDesktop.getForSaaSAccount();
+      expect(platform).toBeUndefined();
     });
   });
 
