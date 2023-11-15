@@ -5,6 +5,7 @@ const { Uri } = require('../desktop/test_utils/uri');
 const { EventEmitter } = require('../desktop/test_utils/event_emitter');
 const { FileType } = require('../desktop/test_utils/file_type');
 const { FileSystemError } = require('../desktop/test_utils/file_system_error');
+const { Position } = require('../common/test_utils/position');
 
 module.exports = {
   ...jestMockVSCode,
@@ -85,13 +86,7 @@ module.exports = {
   CommentMode: { Editing: 0, Preview: 1 },
   StatusBarAlignment: { Left: 0 },
   CommentThreadCollapsibleState: { Collapsed: 0, Expanded: 1 },
-  Position: function Position(line, character) {
-    const isBefore = position =>
-      line < position?.line || (position?.line === line && character < position?.character);
-    const isEqual = position => position?.line === line && position?.character === character;
-
-    return { line, character, isBefore, isEqual };
-  },
+  Position,
   Range: function Range(...args) {
     if (typeof args[0] === 'number') {
       return {
