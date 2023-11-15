@@ -353,12 +353,10 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       clearTimeout(this.debouncedCall);
     }
 
-    // selectedCompletionInfo has an assigned value when the user is selecting
-    // an intellisense sugggestion
     if (this.documentChangesTracker.getLastChangeType(document) === SuggestionChangeType.NoChange) {
       CodeSuggestionsTelemetryManager.rejectSuggestionRequest(
         RejectCodeSuggestionReason.UnchangedDocument,
-      ).catch(() => {});
+      ).catch(e => log.error(e));
       return [];
     }
 
@@ -368,7 +366,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     ) {
       CodeSuggestionsTelemetryManager.rejectSuggestionRequest(
         RejectCodeSuggestionReason.DeletingSingleCharacter,
-      ).catch(() => {});
+      ).catch(e => log.error(e));
       return [];
     }
 
@@ -378,7 +376,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     ) {
       CodeSuggestionsTelemetryManager.rejectSuggestionRequest(
         RejectCodeSuggestionReason.TypingRepeatedSpaces,
-      ).catch(() => {});
+      ).catch(e => log.error(e));
       return [];
     }
 

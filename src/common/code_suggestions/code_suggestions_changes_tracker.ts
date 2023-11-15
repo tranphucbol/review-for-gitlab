@@ -69,9 +69,9 @@ export class DefaultCodeSuggestionsChangeTracker implements CodeSuggestionsChang
       return false;
     }
 
-    const [beforeLast, last] = this.#changeHistory.slice(-2);
+    const [secondLast, last] = this.#changeHistory.slice(-2);
 
-    return last.position.isEqual(beforeLast.position);
+    return last.position.isEqual(secondLast.position);
   }
 
   #isInvalidDocument(document: vscode.TextDocument): boolean {
@@ -85,10 +85,10 @@ export class DefaultCodeSuggestionsChangeTracker implements CodeSuggestionsChang
       return false;
     }
 
-    const [beforeLast, last] = this.#changeHistory.slice(-2);
+    const [secondLast, last] = this.#changeHistory.slice(-2);
 
     return (
-      last.position.line === beforeLast.position.line && last.position.isBefore(beforeLast.position)
+      last.position.line === secondLast.position.line && last.position.isBefore(secondLast.position)
     );
   }
 
@@ -97,13 +97,12 @@ export class DefaultCodeSuggestionsChangeTracker implements CodeSuggestionsChang
       return false;
     }
 
-    const lastThreeChanges = this.#changeHistory.slice(-4);
-    const first = lastThreeChanges[0];
-    const last = lastThreeChanges[lastThreeChanges.length - 1];
+    const lastFourChanges = this.#changeHistory.slice(-4);
+    const [first, , , last] = lastFourChanges;
     const text = last.document.getText(new vscode.Range(first.position, last.position));
 
     return (
-      lastThreeChanges.every(({ position }) => position.line === last.position.line) &&
+      lastFourChanges.every(({ position }) => position.line === last.position.line) &&
       text.length === 3 &&
       text.trim().length === 0
     );
