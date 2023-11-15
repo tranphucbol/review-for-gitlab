@@ -112,7 +112,7 @@ describe('GitLabChatApi', () => {
     });
 
     it('when active file context is provided', async () => {
-      const manager = createManager(currentProject, mockedQueryResponse);
+      const manager = createManager(mockedQueryResponse);
       const gitlabChatApi = new GitLabChatApi(manager);
 
       const fileContext = new GitLabChatFileContext({
