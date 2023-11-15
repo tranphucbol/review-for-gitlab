@@ -114,7 +114,15 @@ export default {
         this.onSendChatPrompt();
       }
     },
-    onTrackFeedback() {},
+    onTrackFeedback({ extendedTextFeedback, feedbackChoices } = {}) {
+      window.vsCodeApi.postMessage({
+        eventType: 'trackFeedback',
+        data: {
+          extendedTextFeedback,
+          feedbackChoices,
+        },
+      });
+    },
   },
 };
 </script>
