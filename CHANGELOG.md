@@ -1,3 +1,12 @@
+# [3.86.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.85.1...v3.86.0) (2023-11-16)
+
+
+### Features
+
+* add Duo Chat toggle setting ([32e46bb](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/32e46bbea369296710650013e8e35f113f15ec0f))
+
+
+
 ## [3.85.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.85.0...v3.85.1) (2023-11-16)
 
 
