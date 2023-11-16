@@ -20,7 +20,10 @@
     "gitlab",
     "merge request",
     "pipeline",
-    "ci cd"
+    "ci cd",
+    "ai chat",
+    "duo chat",
+    "chat"
   ],
   "activationEvents": [
     "onStartupFinished"
