@@ -243,7 +243,7 @@ export class CodeSuggestionsTelemetryManager {
     await Snowplow.getInstance().trackStructEvent(
       {
         category: 'code_suggestions',
-        action: 'reject_suggestion_request',
+        action: 'suggestion_request_rejected',
         label: reason,
       },
       [getIdeVersionContext()],
