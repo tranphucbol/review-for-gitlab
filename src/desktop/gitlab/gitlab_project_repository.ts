@@ -259,6 +259,7 @@ export class GitLabProjectRepositoryImpl implements GitLabProjectRepository {
         pointers.map(p => p.urlEntry.url),
       )}`,
     );
+    // the only way how projects can be undefined is if we discarded this update because of a more recent one
     if (!projects) {
       return;
     }

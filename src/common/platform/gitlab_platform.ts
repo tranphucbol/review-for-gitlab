@@ -1,3 +1,4 @@
+import * as vscode from 'vscode';
 import { fetchFromApi } from './web_ide';
 import { GitLabProject } from './gitlab_project';
 import { Account } from './gitlab_account';
@@ -47,6 +48,12 @@ export interface GitLabPlatformManager {
    *  - If the user has signed in to multiple GitLab accounts, a UI picker will request the user to choose the desired account.
    */
   getForActiveAccount(): Promise<GitLabPlatformForAccount | undefined>;
+
+  /**
+   * onAccountChange indicates that any of the GitLab accounts in the extension has changed.
+   * This can mean account was removed, added or the account token has been changed.
+   */
+  onAccountChange: vscode.Event<void>;
 
   getForAllAccounts(): Promise<GitLabPlatformForAccount[]>;
 

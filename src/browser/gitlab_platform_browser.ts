@@ -79,6 +79,9 @@ export const createGitLabPlatformManagerBrowser: () => Promise<GitLabPlatformMan
           project: gitLabProject,
         }),
       getForActiveAccount: async () => accountPlatform,
+      // the browser has only one account and it doesn't change in one session
+      // once we have OAuth in WebIDE, we'll have to trigger this event when we refresh the token
+      onAccountChange: new vscode.EventEmitter<void>().event,
       getForAllAccounts: async () => [accountPlatform],
       getForSaaSAccount: async () => {
         if (config.gitlabUrl.startsWith(GITLAB_COM_URL)) {

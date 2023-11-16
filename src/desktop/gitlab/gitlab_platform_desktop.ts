@@ -9,6 +9,7 @@ import { getUserAgentHeader } from './http/get_user_agent_header';
 import { pickAccount } from './pick_account';
 import { accountService } from '../accounts/account_service';
 import { Account } from '../../common/platform/gitlab_account';
+import { gitlabProjectRepository } from './gitlab_project_repository';
 
 const getProjectInRepository = async (userInitiated: boolean) => {
   let projectInRepository: ProjectInRepository | undefined;
@@ -54,6 +55,16 @@ export const gitlabPlatformManagerDesktop: GitLabPlatformManager = {
 
     return createGitLabPlatformForAccount(account);
   },
+
+  // This is tricky
+  // The project repository caches accounts.
+  // When account changes, project repository updates this cache, but it takes long time
+  // because it has to do several API requests. Until the API calls are done, the account cache is stale.
+  // If we listened on accountChange here, results of the platform.getForActiveProject() method wouldn't
+  // be guaranteed to have the up-to-date account because the platform uses project repository.
+  // That's why we have to listen on project repository and not on account changes.
+  // See sequence diagrams: https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/1174#note_1658575653
+  onAccountChange: listener => gitlabProjectRepository.onProjectChange(() => listener()),
 
   getForAllAccounts: async () =>
     accountService.getAllAccounts().map(createGitLabPlatformForAccount),
