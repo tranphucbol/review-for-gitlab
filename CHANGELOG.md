@@ -1,3 +1,59 @@
+# [3.85.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.75.0...v3.85.0) (2023-11-16)
+
+
+### Bug Fixes
+
+* chat role graphql type ([5c0f8fe](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/5c0f8fe394a9f7eb0fca1940afb3ee1a17c450ea))
+* correct border on checkboxes in chat ([8346281](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/8346281a0e54322d0e870ca9080d9c90fbcd6b3b))
+* do not throw when remote URL is unexpected ([575318a](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/575318a9eaaa69b5a81ae51a9a2cf620590001f0))
+* enable starting multiple LS at the same time ([c5889f1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/c5889f1c003af2de0f41d295fcb28e07e5d203fb))
+* git clone now lets you select an account ([3f95993](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/3f959935035140b97f6e5316839a5f6ce5e31b96))
+* hid SVG sprite for Duo Chat ([03e8269](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/03e826984dda5e24368d0f2ac6cd73eeb70e5315))
+* **language-server:** correct feature flag usage ([43a2a11](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/43a2a119f234bea6795e73c76e36057b94e82204))
+* Sends only the relative Path ([822bcd3](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/822bcd3b9d4e9ea5e6f464d938e97cca397df9b3))
+* **snowplow:** Fixed issues with duplicate events being sent to Snowplow ([e5c4555](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/e5c4555f6b04f990828794c20318a0d103163b1a))
+* switched to basic CSS variables for Duo Chat ([ec6f0b8](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/ec6f0b8eadfa053d19c9632c9270b15f580fbb59))
+* **telemetry:** Assure code suggestion telemetry state manager exists ([f0a72fc](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/f0a72fc3d97dcc886fd751213561f96b9ca00139))
+* **telemetry:** Fixed issue with telemetry category ([0f16d59](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/0f16d59fb0aff6b5aea2c9053e8b7f081491616e))
+* **telemetry:** Reject open suggestion sooner in the life cycle ([c0ecc68](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/c0ecc6810865fab2b3df66ae37b684abc7a6b96d))
+* the OS keychain issue is not Ubuntu-specific ([d5ed8d4](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/d5ed8d4f9ef0717df322402f2016ce8fcbdd0878))
+* Update AI enable setting with correct config target ([efa9387](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/efa9387385fdf75baa547977192792671a103d09))
+* update API error handling ([2148c24](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/2148c24fedb0c487e3be5c56c7aeb7fc7996b95f))
+* updated gitlab-ui to 67.3.3 ([08e6aad](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/08e6aadd190856e8de4838b5c005f1209e6b229e))
+* user feedback modal to not overlap scrollbar ([9414692](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/94146923e936e9b6e5d7e4783e4948a69b17972c))
+
+
+### Features
+
+* Add Generate Tests chat feature ([3bf3a73](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/3bf3a7301adcc9aa929fc0ff247edaaa7beb6027))
+* add message extras display to the chat ([cb77cf1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/cb77cf1c67046f69478b6f05f1b5183a08ea2a9c))
+* add shortcut for toggle ([d61cf59](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/d61cf597a32b8b129a96637d06bc5a844f99951f))
+* Add token validation ([6391115](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/639111595bb7c9f95fbeb06f2f63be3bfd695ec9))
+* allow data: protocol in src ([1956107](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/1956107151a501d3a5d2c9bbce44c92ac1305f02))
+* Allow Duo Chat to be used outside of GitLab project ([a1a44a6](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/a1a44a6c571c99b79f6d8a078422ae33874c9528))
+* allow to use Duo Chat only with SaaS accounts ([45fc7fc](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/45fc7fc81ad7906051a5a62d34ddd53950aff2c5))
+* Check for completion feasibility ([7f610ff](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/7f610ff05f2cba24a573ed9de443bdc7942f2ff0))
+* Enable code suggestions telemetry in browser environment ([83d7c0b](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/83d7c0b25ba1b1fd51101a7b29aec4a62693eadc))
+* GitLab Duo chat as Vue2 application ([a488be9](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/a488be94d90131ade80854f9bdf91225872dd0c2))
+* integrate language server ([0a5daa2](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/0a5daa284476aab896ef698bddd7913baa82f835)), closes [#803](https://gitlab.com/gitlab-org/gitlab-vscode-extension/issues/803)
+* Limit max height of codeblocks in the chat ([ebf57db](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/ebf57db1c057365453248dadf0d7ec5474d3ddce))
+* Provide file context to duo chat ([65af6c4](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/65af6c4f4d8d7a3703c360ad46c3547d7c6a1eb5))
+* revert "add Duo Chat toggle setting" ([ba3b480](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/ba3b4800c44deaae7e2a6a6dbf75d2c6acca723d))
+* **secure:** uncapitalize severity label in treeview ([e42510d](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/e42510dfa686a5f4cd92faaab5183754ee839a78))
+* send client context to LS ([1193cc1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/1193cc155292b7db284caa1931a2c30d07758a19))
+* Send feedback for gitlab duo chat ([7c027f4](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/7c027f489f48c24d3ed47aed6a67f51ca39c9991))
+* send language with Code Suggestions request ([7bb09a1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/7bb09a16b0ebf36f613db968b2e1af6d24af5c4b))
+* send suggestion accepted event to LS ([b0f6d03](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/b0f6d035d5a904535e1e3e7040ab9b33d41668a4))
+* show count for security findings groups ([26cdc8c](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/26cdc8c0072be688e0bbd6e73ee6de26ba2f6e10))
+* support inline completion from LS ([a377c7d](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/a377c7df8f072ddc50a2a2e912de9cc9ed87ac67))
+* switched chat to GlDuoChat component ([8bcf25c](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/8bcf25ca5dc5747558f5a415034bf0974b4a5173))
+* **telemetry:** Add status code ([b0c0165](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/b0c01652a238d40aa7fa239f75b5e20fe4b89332))
+* update Chat hotkey ([7208c8e](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/7208c8eec65cd8d16b2a2d39f913742d649436f2))
+* update prompt content with response from API ([a93a693](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/a93a693bd65c98b7ec184fc831901bac1fc376eb))
+* upgraded gitlab-ui to 68.7.0 ([1407445](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/14074453db9b13655c1f8d50af6ddd5c77bd34b7))
+
+
+
 # [3.84.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.83.0...v3.84.0) (2023-11-10)
 
 
