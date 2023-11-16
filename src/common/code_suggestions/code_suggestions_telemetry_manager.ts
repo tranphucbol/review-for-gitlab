@@ -19,7 +19,6 @@ export enum CodeSuggestionTelemetryState {
 export enum RejectCodeSuggestionReason {
   DeletingSingleCharacter = 'deleting_single_character',
   TypingRepeatedSpaces = 'typing_repeated_spaces',
-  PastedCodeBlock = 'pasted_code_block',
   UnchangedDocument = 'unchanged_document',
 }
 
