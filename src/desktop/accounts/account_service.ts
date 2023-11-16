@@ -199,6 +199,7 @@ export class AccountService implements IAccountService {
 
     const { secret } = splitAccount(account);
     await this.#storeSecret(account.id, secret);
+    this.onDidChangeEmitter.fire();
   }
 
   /** Loads the latest secrets from OS Keychain, useful when other VS Code Windows manipulates the secrets. */
