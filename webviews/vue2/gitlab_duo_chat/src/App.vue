@@ -19,7 +19,7 @@ export default {
   },
   provide() {
     return {
-      renderMarkdown: () => {},
+      renderMarkdown: content => content,
       renderGFM: element => {
         element.classList.add('gl-markdown', 'gl-compact-markdown');
       },

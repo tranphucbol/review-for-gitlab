@@ -56,8 +56,13 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
     if (!record.content) return;
 
     await this.#view.show();
-
     await this.sendNewPrompt(record);
+
+    if (record.errors.length > 0) {
+      await vscode.window.showErrorMessage(record.errors[0]);
+      return;
+    }
+
     await this.addToChat(record);
 
     switch (record.type) {
@@ -92,12 +97,14 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
   private async sendNewPrompt(record: GitLabChatRecord) {
     if (!record.content) throw new Error('Trying to send prompt without content.');
 
-    const actionResponse = await this.#api.processNewUserPrompt(
-      record.content,
-      GitLabChatFileContext.forActiveFile(),
-    );
-
-    record.update(actionResponse.aiAction);
+    await this.#api
+      .processNewUserPrompt(record.content, GitLabChatFileContext.forActiveFile())
+      .then(actionResponse => {
+        record.update(actionResponse.aiAction);
+      })
+      .catch(err => {
+        record.update({ errors: [`API error: ${err.response.errors[0].message}`] });
+      });
   }
 
   private async refreshRecord(record: GitLabChatRecord) {
@@ -113,6 +120,7 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
         contentHtml: apiResponse.contentHtml,
         extras: apiResponse.extras,
         timestamp: apiResponse.timestamp,
+        errors: apiResponse.errors,
       });
     }
 

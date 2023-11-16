@@ -34,7 +34,7 @@ describe('GitLabChatController', () => {
 
   beforeEach(() => {
     controller = new GitLabChatController(platformManager, {} as vscode.ExtensionContext);
-    apiMock.processNewUserPrompt = jest.fn().mockReturnValue({
+    apiMock.processNewUserPrompt = jest.fn().mockResolvedValue({
       aiAction: {
         errors: [],
         requestId: 'uniqueId',
@@ -129,6 +129,19 @@ describe('GitLabChatController', () => {
           timestamp: Date.parse('2023-01-01 01:01:01'),
         }),
       );
+    });
+
+    describe('with API error on sending the message', () => {
+      it('updates message with API error and sends VSCode error notification', async () => {
+        apiMock.processNewUserPrompt = jest
+          .fn()
+          .mockRejectedValue({ response: { errors: [{ message: 'testError' }] } });
+
+        await controller.processNewUserRecord(record);
+
+        expect(record.errors).toStrictEqual(['API error: testError']);
+        expect(vscode.window.showErrorMessage).toHaveBeenCalledWith('API error: testError');
+      });
     });
 
     it('fills updated history', async () => {
