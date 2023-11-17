@@ -16,13 +16,17 @@ import {
 import { currentUserRequest } from '../../common/gitlab/api/get_current_user';
 
 /**
-  We'll refresh the token 10s before it expires. On two hours it won't make a difference and
+  We'll refresh the token 40s before it expires. On two hours it won't make a difference and
   I'd rather not rely on the local and server clocks being perfectly in sync. Otherwise we would
   risk making unauthorized requests.
 
+  Originally we chose 10s, but 40s means that the sidebar refreshing (every 30s) will effectively
+  ensure that we never have outdated token. This is important for the Language Server.
+  The LS makes requests separately and it doesn't trigger the refreshing mechanism.
+
   Note: change this value to 7170 to simulate token expiration every 30s
 */
-const SMALL_GRACE_DURATION_JUST_TO_BE_SURE = 10;
+const SMALL_GRACE_DURATION_JUST_TO_BE_SURE = 40;
 
 const needsRefresh = (account: Account) => {
   if (account.type === 'token') return false;
