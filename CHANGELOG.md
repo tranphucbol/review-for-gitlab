@@ -9,11 +9,6 @@
 
 ## [3.85.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.85.0...v3.85.1) (2023-11-16)
 
-
-
-# [3.85.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.75.0...v3.85.0) (2023-11-16)
-
-
 ### Bug Fixes
 
 * chat role graphql type ([5c0f8fe](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/5c0f8fe394a9f7eb0fca1940afb3ee1a17c450ea))
@@ -65,6 +60,10 @@
 * update prompt content with response from API ([a93a693](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/a93a693bd65c98b7ec184fc831901bac1fc376eb))
 * upgraded gitlab-ui to 68.7.0 ([1407445](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/14074453db9b13655c1f8d50af6ddd5c77bd34b7))
 
+
+# [3.85.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.75.0...v3.85.0) (2023-11-16)
+
+This version hasn't been released due to a CI issue.
 
 
 # [3.84.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.83.0...v3.84.0) (2023-11-10)
