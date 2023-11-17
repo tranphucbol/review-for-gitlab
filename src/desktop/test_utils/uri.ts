@@ -1,4 +1,4 @@
-import * as path from 'path';
+import * as pathUtils from 'path';
 import * as vscode from 'vscode';
 
 interface UriOptions {
@@ -85,6 +85,6 @@ export class Uri implements vscode.Uri {
 
   static joinPath(base: Uri, ...pathSegments: string[]): Uri {
     const { path: p, ...rest } = base;
-    return new this({ ...rest, path: path.join(p, ...pathSegments) });
+    return new this({ ...rest, path: pathUtils.join(p, ...pathSegments) });
   }
 }

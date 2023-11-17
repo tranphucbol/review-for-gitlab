@@ -82,19 +82,19 @@ describe('code_suggestions/GitLabPlatformForCodeSuggestions', () => {
     });
 
     describe('when a single gitlab account is available', () => {
-      let gitlabPlatformForAccount: GitLabPlatformForAccount;
+      let customGitlabPlatformForAccount: GitLabPlatformForAccount;
 
       beforeEach(() => {
-        gitlabPlatformForAccount = buildGitLabPlatformForAccount(account);
+        customGitlabPlatformForAccount = buildGitLabPlatformForAccount(account);
 
         jest
           .mocked(gitlabPlatformManager.getForAllAccounts)
-          .mockResolvedValueOnce([gitlabPlatformForAccount]);
+          .mockResolvedValueOnce([customGitlabPlatformForAccount]);
       });
 
       it('returns gitlab platform for that account', async () => {
         expect(await platformManagerForCodeSuggestions.getGitLabPlatform()).toBe(
-          gitlabPlatformForAccount,
+          customGitlabPlatformForAccount,
         );
       });
     });

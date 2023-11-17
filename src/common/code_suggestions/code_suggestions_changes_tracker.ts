@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 
-// eslint-disable-next-line no-shadow
 export enum SuggestionChangeType {
   Unknown = 'Unknown',
   InvalidDocument = 'InvalidDocument',
