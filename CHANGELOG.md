@@ -1,3 +1,12 @@
+## [3.86.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.86.0...v3.86.1) (2023-11-17)
+
+
+### Bug Fixes
+
+* Do not request suggestions when deleting or adding spaces ([d56d71f](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/d56d71f3c683bc91ad86071c0bc93952b30ba8fe))
+
+
+
 # [3.86.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.85.1...v3.86.0) (2023-11-16)
 
 
