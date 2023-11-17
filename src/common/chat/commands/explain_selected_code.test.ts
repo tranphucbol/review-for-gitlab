@@ -3,17 +3,15 @@ import { GitLabChatController } from '../gitlab_chat_controller';
 import { explainSelectedCode } from './explain_selected_code';
 import { createFakePartial } from '../../test_utils/create_fake_partial';
 
-const mockEditorSelection = (text: string) => {
-  vscode.window.activeTextEditor = createFakePartial<vscode.TextEditor>({
-    selection: createFakePartial<vscode.Selection>({
-      start: createFakePartial<vscode.Position>({ line: 0, character: 0 }),
-      end: createFakePartial<vscode.Position>({ line: 0, character: text.length }),
-    }),
-    document: createFakePartial<vscode.TextDocument>({
-      getText: jest.fn().mockReturnValue(text),
-    }),
-  });
-};
+let selectedTextValue: string | null = 'selectedText';
+const filenameValue = 'filename';
+
+jest.mock('../utils/editor_text_utils', () => ({
+  getSelectedText: jest.fn().mockImplementation(() => selectedTextValue),
+  getActiveFileName: jest.fn().mockImplementation(() => filenameValue),
+  getTextAfterSelected: jest.fn().mockReturnValue('textAfterSelection'),
+  getTextBeforeSelected: jest.fn().mockReturnValue('textBeforeSelection'),
+}));
 
 describe('explainSelectedCode', () => {
   let controller: GitLabChatController;
@@ -25,16 +23,22 @@ describe('explainSelectedCode', () => {
   });
 
   it('creates new "Explain this code" record', async () => {
-    mockEditorSelection('hello');
+    selectedTextValue = 'hello';
 
     await explainSelectedCode(controller);
+
     expect(controller.processNewUserRecord).toHaveBeenCalledWith(
       expect.objectContaining({
-        content: 'Explain this code\n\n```\nhello\n```',
+        content: 'Explain selected code',
         role: 'user',
         type: 'explainCode',
-        payload: {
-          selectedText: 'hello',
+        context: {
+          currentFile: {
+            selectedText: selectedTextValue,
+            fileName: filenameValue,
+            contentAboveCursor: 'textBeforeSelection',
+            contentBelowCursor: 'textAfterSelection',
+          },
         },
       }),
     );

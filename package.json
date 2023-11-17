@@ -106,7 +106,7 @@
         },
         {
           "command": "gl.generateTests",
-          "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && activeEditor"
+          "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && editorHasSelection"
         },
         {
           "command": "gl.newChatConversation",
@@ -128,7 +128,7 @@
         {
           "command": "gl.generateTests",
           "group": "navigation",
-          "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && activeEditor"
+          "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && editorHasSelection"
         }
       ]
     },
@@ -145,7 +145,7 @@
       },
       {
         "command": "gl.generateTests",
-        "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && activeEditor",
+        "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && editorHasSelection",
         "key": "alt+t"
       },
       {

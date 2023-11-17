@@ -4,7 +4,6 @@ import { GitLabChatView, ViewEmittedMessage } from './gitlab_chat_view';
 import { GitLabChatApi } from './gitlab_chat_api';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { log } from '../log';
-import { GitLabChatFileContext } from './gitlab_chat_file_context';
 import { submitFeedback } from './utils/submit_feedback';
 
 export class GitLabChatController implements vscode.WebviewViewProvider {
@@ -30,7 +29,10 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
   async viewMessageHandler(message: ViewEmittedMessage) {
     switch (message.eventType) {
       case 'newPrompt': {
-        const record = new GitLabChatRecord({ role: 'user', content: message.record.content });
+        const record = GitLabChatRecord.buildWithContext({
+          role: 'user',
+          content: message.record.content,
+        });
 
         await this.processNewUserRecord(record);
         break;
@@ -98,7 +100,7 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
     if (!record.content) throw new Error('Trying to send prompt without content.');
 
     await this.#api
-      .processNewUserPrompt(record.content, GitLabChatFileContext.forActiveFile())
+      .processNewUserPrompt(record.content, record.context?.currentFile)
       .then(actionResponse => {
         record.update(actionResponse.aiAction);
       })
