@@ -1,13 +1,3 @@
-<!--
-
----
-stage: Create
-group: Editor
-info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/product/ux/technical-writing/#assignments
----
-
--->
-
 # <img src="https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/ef3c16e228e51f522b1af0d19b6284b309c4f601/src/assets/logo.png" width="64" align="center" /> [GitLab VS Code Extension](https://gitlab.com/gitlab-org/gitlab-vscode-extension)
 
 This extension integrates GitLab into Visual Studio Code. After you [set up the extension](#setup), you can:

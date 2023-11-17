@@ -30,7 +30,7 @@ To assign any Git repository to any GitLab project, manually assign a GitLab pro
 
 ### Open issues
 
-- [Simplify matching GitLab projects with git remotes](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/577)
+- [Simplify matching GitLab projects with Git remotes](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/577)
 
 ## I have a trouble setting up an account on Ubuntu
 

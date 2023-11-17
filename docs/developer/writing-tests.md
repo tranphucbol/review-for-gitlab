@@ -28,7 +28,7 @@ You can debug unit tests by running the "Unit Tests" [Launch configuration](http
 
 Integration tests mock the GitLab API using the [`msw`](https://mswjs.io/docs/) module. All API calls made by the extension are intercepted by `msw` and handled by [`mock_server.js`](../test/integration/test_infrastructure/mock_server.js).
 
-A temporary workspace for integration tests is created once before running the test suite by `scripts/create_test_workspace.ts`. In this helper script, we use [`simple-git`](https://github.com/steveukx/git-js) module to initialize git repository.
+A temporary workspace for integration tests is created once before running the test suite by `scripts/create_test_workspace.ts`. In this helper script, we use [`simple-git`](https://github.com/steveukx/git-js) module to initialize Git repository.
 
 ## Two environments for integration tests
 
