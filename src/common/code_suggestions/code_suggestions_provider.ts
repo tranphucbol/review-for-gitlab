@@ -29,8 +29,13 @@ import { GitLabPlatformManagerForCodeSuggestions } from './gitlab_platform_manag
 import {
   CodeSuggestionTelemetryState,
   CodeSuggestionsTelemetryManager,
+  RejectCodeSuggestionReason,
 } from './code_suggestions_telemetry_manager';
 import { GitLabPlatformBase } from '../platform/gitlab_platform';
+import {
+  DefaultCodeSuggestionsChangeTracker,
+  SuggestionChangeType,
+} from './code_suggestions_changes_tracker';
 
 export const CIRCUIT_BREAK_INTERVAL_MS = 10000;
 export const MAX_ERRORS_BEFORE_CIRCUIT_BREAK = 4;
@@ -89,6 +94,8 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     MAX_ERRORS_BEFORE_CIRCUIT_BREAK,
     CIRCUIT_BREAK_INTERVAL_MS,
   );
+
+  private documentChangesTracker = new DefaultCodeSuggestionsChangeTracker();
 
   constructor({
     manager,
@@ -340,8 +347,37 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
   ): Promise<vscode.InlineCompletionItem[]> {
     CodeSuggestionsTelemetryManager.rejectOpenedSuggestions();
 
+    this.documentChangesTracker.trackCompletionRequest(document, position);
+
     if (this.debouncedCall !== undefined) {
       clearTimeout(this.debouncedCall);
+    }
+
+    if (this.documentChangesTracker.getLastChangeType(document) === SuggestionChangeType.NoChange) {
+      CodeSuggestionsTelemetryManager.rejectSuggestionRequest(
+        RejectCodeSuggestionReason.UnchangedDocument,
+      ).catch(e => log.error(e));
+      return [];
+    }
+
+    if (
+      this.documentChangesTracker.getLastChangeType(document) ===
+      SuggestionChangeType.DeletedCharacter
+    ) {
+      CodeSuggestionsTelemetryManager.rejectSuggestionRequest(
+        RejectCodeSuggestionReason.DeletingSingleCharacter,
+      ).catch(e => log.error(e));
+      return [];
+    }
+
+    if (
+      this.documentChangesTracker.getLastChangeType(document) ===
+      SuggestionChangeType.RepeatedSpaces
+    ) {
+      CodeSuggestionsTelemetryManager.rejectSuggestionRequest(
+        RejectCodeSuggestionReason.TypingRepeatedSpaces,
+      ).catch(e => log.error(e));
+      return [];
     }
 
     return new Promise(resolve => {
