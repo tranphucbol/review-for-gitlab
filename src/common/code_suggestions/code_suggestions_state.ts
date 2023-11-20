@@ -6,12 +6,6 @@ import {
 
 type ValueOf<T> = T[keyof T];
 
-export type GlobalCodeSuggestionsState = ValueOf<typeof GlobalCodeSuggestionsState>;
-export const GlobalCodeSuggestionsState = {
-  DISABLED_VIA_SETTINGS: 'code-suggestions-global-disabled-via-settings',
-  READY: 'code-suggestions-global-ready',
-} as const;
-
 export type TemporaryCodeSuggestionsState = ValueOf<typeof TemporaryCodeSuggestionsState>;
 export const TemporaryCodeSuggestionsState = {
   ERROR: 'code-suggestions-error',
@@ -20,7 +14,8 @@ export const TemporaryCodeSuggestionsState = {
 
 export type VisibleCodeSuggestionsState = ValueOf<typeof VisibleCodeSuggestionsState>;
 export const VisibleCodeSuggestionsState = {
-  ...GlobalCodeSuggestionsState,
+  DISABLED_VIA_SETTINGS: 'code-suggestions-global-disabled-via-settings',
+  READY: 'code-suggestions-global-ready',
   DISABLED_BY_USER: 'code-suggestions-disabled-by-user',
   ...TemporaryCodeSuggestionsState,
   UNSUPPORTED_LANGUAGE: 'code-suggestions-document-unsupported-language',
@@ -63,7 +58,7 @@ export class CodeSuggestionsStateManager {
 
   getVisibleState(): VisibleCodeSuggestionsState {
     if (this.#disabledInSettings) {
-      return GlobalCodeSuggestionsState.DISABLED_VIA_SETTINGS;
+      return VisibleCodeSuggestionsState.DISABLED_VIA_SETTINGS;
     }
 
     if (this.#isDisabledByUserForSession) {
@@ -74,7 +69,7 @@ export class CodeSuggestionsStateManager {
       return VisibleCodeSuggestionsState.UNSUPPORTED_LANGUAGE;
     }
 
-    return this.#temporaryState || GlobalCodeSuggestionsState.READY;
+    return this.#temporaryState || VisibleCodeSuggestionsState.READY;
   }
 
   updateState(handler: () => void) {
