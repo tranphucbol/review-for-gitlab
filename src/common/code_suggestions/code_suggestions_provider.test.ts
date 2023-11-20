@@ -466,7 +466,6 @@ describe('CodeSuggestionsProvider', () => {
       } as unknown as vscode.WorkspaceConfiguration);
       stateManager = new CodeSuggestionsStateManager();
       manager = createManager(project);
-      // stateManager.setGlobalState(GlobalCodeSuggestionsState.READY);
       glcp = new CodeSuggestionsProvider({
         manager,
         stateManager,

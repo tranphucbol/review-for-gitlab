@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import {
-  TemporaryCodeSuggestionsState as TemporaryState,
   CodeSuggestionsStateManager,
   VisibleCodeSuggestionsState,
   TemporaryCodeSuggestionsState,
@@ -16,7 +15,7 @@ describe('Code suggestions state manager', () => {
 
   function itShouldIgnoreAnyTemporaryStateAndReturn(state: VisibleCodeSuggestionsState) {
     it('should ignore any temporary state', () => {
-      Object.values(TemporaryState).forEach(temporaryState => {
+      Object.values(TemporaryCodeSuggestionsState).forEach(temporaryState => {
         stateManager.setTemporaryState(temporaryState);
 
         expect(stateManager.getVisibleState()).toBe(state);
@@ -112,9 +111,12 @@ describe('Code suggestions state manager', () => {
       expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.READY);
     });
 
-    it.each(Object.values(TemporaryState))('when temporary state is %s', tempState => {
-      stateManager.setTemporaryState(tempState);
-      expect(stateManager.getVisibleState()).toBe(tempState);
-    });
+    it.each(Object.values(TemporaryCodeSuggestionsState))(
+      'when temporary state is %s',
+      tempState => {
+        stateManager.setTemporaryState(tempState);
+        expect(stateManager.getVisibleState()).toBe(tempState);
+      },
+    );
   });
 });
