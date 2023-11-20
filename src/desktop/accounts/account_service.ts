@@ -14,7 +14,6 @@ import {
   TokenAccount,
 } from '../../common/platform/gitlab_account';
 import { Credentials } from './credentials';
-import { IAccountService } from '../../common/accounts';
 import { GITLAB_COM_URL } from '../../common/constants';
 
 interface TokenSecret {
@@ -79,7 +78,7 @@ const splitAccount = (
   throw new Error(`Unexpected account type for account ${JSON.stringify(account)}`);
 };
 
-export class AccountService implements IAccountService {
+export class AccountService {
   context?: ExtensionContext;
 
   secrets: SecretsForAccounts = {};
@@ -199,6 +198,7 @@ export class AccountService implements IAccountService {
 
     const { secret } = splitAccount(account);
     await this.#storeSecret(account.id, secret);
+    this.onDidChangeEmitter.fire();
   }
 
   /** Loads the latest secrets from OS Keychain, useful when other VS Code Windows manipulates the secrets. */

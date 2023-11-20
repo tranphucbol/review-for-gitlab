@@ -20,6 +20,12 @@ jest.mock('../accounts/account_service', () => ({
   },
 }));
 
+jest.mock('./gitlab_project_repository', () => ({
+  gitlabProjectRepository: {
+    onProjectChange: jest.fn(listener => listener([])), // immediately invoke added listener
+  },
+}));
+
 jest.mock('../commands/run_with_valid_project', () => ({
   getActiveProject: jest.fn(),
   getActiveProjectOrSelectOne: jest.fn(),
@@ -92,6 +98,16 @@ describe('gitlabPlatformManagerDesktop', () => {
       const platform = await gitlabPlatformManagerDesktop.getForActiveAccount();
       expect(platform).toBeUndefined();
       expect(pickAccount).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('onAccountChange', () => {
+    it('listens on project changes (as proxy to account changes)', async () => {
+      const listener = jest.fn();
+
+      gitlabPlatformManagerDesktop.onAccountChange(listener); // the project repository mock will immediately call the listener
+
+      expect(listener).toHaveBeenCalled();
     });
   });
 

@@ -12,16 +12,16 @@ import {
 } from 'vscode-languageclient';
 import { VisibleCodeSuggestionsState } from '../code_suggestions/code_suggestions_state';
 import { AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES } from '../code_suggestions/constants';
-import { GITLAB_COM_URL } from '../constants';
 import { setStatusBar } from '../utils/status_bar_item';
 import {
   CODE_SUGGESTIONS_STATUSES,
   createCodeSuggestionStatusBarItem,
 } from '../code_suggestions/code_suggestions_status_bar_item';
-import { IAccountService } from '../accounts';
 import { LanguageClientFactory } from './client_factory';
 import { getClientContext } from './get_client_context';
 import { createCodeSuggestionAcceptedCommand } from '../code_suggestions/commands/ls_suggestion_accepted';
+import { GitLabPlatformManager } from '../platform/gitlab_platform';
+import { GitLabPlatformManagerForCodeSuggestions } from '../code_suggestions/gitlab_platform_manager_for_code_suggestions';
 
 export const LANGUAGE_CLIENT_OPTIONS: LanguageClientOptions = {
   documentSelector: AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.map(language => ({ language })),
@@ -34,9 +34,7 @@ export const LANGUAGE_CLIENT_OPTIONS: LanguageClientOptions = {
 export function registerLanguageServer(
   context: vscode.ExtensionContext,
   clientFactory: LanguageClientFactory,
-  // FIXME: the account logic needs to be redesigned
-  // https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/1054
-  accounts?: IAccountService,
+  gitlabPlatformManager: GitLabPlatformManager,
 ) {
   const client = clientFactory.createLanguageClient(context, {
     ...LANGUAGE_CLIENT_OPTIONS,
@@ -67,7 +65,7 @@ export function registerLanguageServer(
         return;
       }
 
-      await syncConfig(client, accounts);
+      await syncConfig(client, gitlabPlatformManager);
     }),
 
     // TODO: export `NotificationType`s from LSP
@@ -80,30 +78,41 @@ export function registerLanguageServer(
       );
       return vscode.window.showErrorMessage(`Token check: [${reason}] ${message}`);
     }),
+    gitlabPlatformManager.onAccountChange(() => syncConfig(client, gitlabPlatformManager)),
 
-    start(client, accounts),
+    start(client, gitlabPlatformManager),
   );
 }
 
-async function syncConfig(client: BaseLanguageClient, accounts?: IAccountService) {
-  const baseUrl = vscode.workspace.getConfiguration().get<string>('gitlab.baseUrl', GITLAB_COM_URL);
-
+async function syncConfig(
+  client: BaseLanguageClient,
+  gitlabPlatformManager: GitLabPlatformManager,
+) {
+  const suggestionManager = new GitLabPlatformManagerForCodeSuggestions(gitlabPlatformManager);
+  const platform = await suggestionManager.getGitLabPlatform();
+  if (!platform) {
+    // TODO handle errors like these in one place, don't spread the error handling throughout the LS logic
+    // This should notify the sate manager that will be implemented in https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/1052
+    await vscode.window.showErrorMessage(
+      'There is no GitLab account available with access to suggestions',
+    );
+    return;
+  }
   const settings: IConfig = {
-    baseUrl,
-    // TODO: how do we pick the "right" account?
-    ...accounts?.getOneAccountForInstance(baseUrl),
+    baseUrl: platform.account.instanceUrl,
+    token: platform.account.token,
     telemetry: {
       actions: [{ action: TRACKING_EVENTS.ACCEPTED }],
     },
   };
 
-  return client.sendNotification(DidChangeConfigurationNotification.type, {
+  await client.sendNotification(DidChangeConfigurationNotification.type, {
     settings,
   });
 }
 
-function start(client: BaseLanguageClient, accounts?: IAccountService) {
-  const started = client.start().then(() => syncConfig(client, accounts));
+function start(client: BaseLanguageClient, gitlabPlatformManager: GitLabPlatformManager) {
+  const started = client.start().then(() => syncConfig(client, gitlabPlatformManager));
 
   return {
     dispose: async () => {

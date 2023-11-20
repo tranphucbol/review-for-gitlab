@@ -265,7 +265,11 @@ export const activate = async (context: vscode.ExtensionContext) => {
   const dependencyContainer = createDependencyContainer();
 
   if (featureFlags.isEnabled(featureFlags.FeatureFlag.LanguageServer)) {
-    registerLanguageServer(context, desktopLanguageClientFactory, accountService);
+    registerLanguageServer(
+      context,
+      desktopLanguageClientFactory,
+      dependencyContainer.gitLabPlatformManager,
+    );
   } else {
     context.subscriptions.push(new CodeSuggestions(dependencyContainer.gitLabPlatformManager));
   }

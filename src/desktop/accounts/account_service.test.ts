@@ -198,6 +198,18 @@ describe('AccountService', () => {
 
       expect(result).toEqual(updatedOAuthAccount);
     });
+
+    it('triggers onChange', async () => {
+      const firstAccount = createTokenAccount('https://gitlab.com', 1, 'abc');
+      const updatedTokenAccount = { ...firstAccount, token: 'xyz' };
+      await accountService.addAccount(firstAccount);
+      const listener = jest.fn();
+      accountService.onDidChange(listener);
+
+      await accountService.updateAccountSecret(updatedTokenAccount);
+
+      expect(listener).toHaveBeenCalled();
+    });
   });
   describe('OAuth accounts', () => {
     let account: OAuthAccount;
