@@ -1,4 +1,8 @@
 import * as vscode from 'vscode';
+import {
+  AI_ASSISTED_CODE_SUGGESTIONS_MODE,
+  getAiAssistedCodeSuggestionsConfiguration,
+} from '../utils/extension_configuration';
 
 type ValueOf<T> = T[keyof T];
 
@@ -23,7 +27,9 @@ export const VisibleCodeSuggestionsState = {
 } as const;
 
 export class CodeSuggestionsStateManager {
-  #globalState: GlobalCodeSuggestionsState = GlobalCodeSuggestionsState.DISABLED_VIA_SETTINGS;
+  #subscriptions: vscode.Disposable[] = [];
+
+  #disabledInSettings: boolean;
 
   #isDisabledByUserForSession = false;
 
@@ -39,16 +45,25 @@ export class CodeSuggestionsStateManager {
 
   onDidChangeEnabledState = this.#changeEnabledStateEmitter.event;
 
-  isEnabled() {
-    return !(
-      this.#globalState === GlobalCodeSuggestionsState.DISABLED_VIA_SETTINGS ||
-      this.#isDisabledByUserForSession
+  constructor() {
+    this.#disabledInSettings = !getAiAssistedCodeSuggestionsConfiguration().enabled;
+
+    this.#subscriptions.push(
+      vscode.workspace.onDidChangeConfiguration(e => {
+        if (e.affectsConfiguration(AI_ASSISTED_CODE_SUGGESTIONS_MODE)) {
+          this.#disabledInSettings = !getAiAssistedCodeSuggestionsConfiguration().enabled;
+        }
+      }),
     );
   }
 
+  isEnabled() {
+    return !(this.#disabledInSettings || this.#isDisabledByUserForSession);
+  }
+
   getVisibleState(): VisibleCodeSuggestionsState {
-    if (this.#globalState === GlobalCodeSuggestionsState.DISABLED_VIA_SETTINGS) {
-      return this.#globalState;
+    if (this.#disabledInSettings) {
+      return GlobalCodeSuggestionsState.DISABLED_VIA_SETTINGS;
     }
 
     if (this.#isDisabledByUserForSession) {
@@ -59,7 +74,7 @@ export class CodeSuggestionsStateManager {
       return VisibleCodeSuggestionsState.UNSUPPORTED_LANGUAGE;
     }
 
-    return this.#temporaryState || this.#globalState;
+    return this.#temporaryState || GlobalCodeSuggestionsState.READY;
   }
 
   updateState(handler: () => void) {
@@ -78,13 +93,6 @@ export class CodeSuggestionsStateManager {
     }
   }
 
-  setGlobalState(newState: GlobalCodeSuggestionsState) {
-    this.updateState(() => {
-      this.#globalState = newState;
-      this.#isDisabledByUserForSession = false;
-    });
-  }
-
   setTemporaryState(newState: TemporaryCodeSuggestionsState | null) {
     this.updateState(() => {
       this.#temporaryState = newState;
@@ -101,5 +109,9 @@ export class CodeSuggestionsStateManager {
     this.updateState(() => {
       this.#isUnsupportedLanguageDocument = newState;
     });
+  }
+
+  dispose() {
+    this.#subscriptions.forEach(s => s.dispose());
   }
 }
