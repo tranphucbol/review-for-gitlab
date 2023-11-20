@@ -22,15 +22,18 @@ export const VisibleCodeSuggestionsState = {
 } as const;
 
 export class CodeSuggestionsStateManager {
-  #subscriptions: vscode.Disposable[] = [];
-
+  // //////////
+  // boolean flags that indicate code suggestions are not on
   #disabledInSettings: boolean;
 
   #isDisabledByUserForSession = false;
 
-  #temporaryState: TemporaryCodeSuggestionsState | null = null;
-
   #isUnsupportedLanguageDocument = false;
+  // //////////
+
+  #subscriptions: vscode.Disposable[] = [];
+
+  #temporaryState: TemporaryCodeSuggestionsState | null = null;
 
   #changeVisibleStateEmitter = new vscode.EventEmitter<VisibleCodeSuggestionsState>();
 
@@ -46,7 +49,9 @@ export class CodeSuggestionsStateManager {
     this.#subscriptions.push(
       vscode.workspace.onDidChangeConfiguration(e => {
         if (e.affectsConfiguration(AI_ASSISTED_CODE_SUGGESTIONS_MODE)) {
-          this.#disabledInSettings = !getAiAssistedCodeSuggestionsConfiguration().enabled;
+          this.#updateState(() => {
+            this.#disabledInSettings = !getAiAssistedCodeSuggestionsConfiguration().enabled;
+          });
         }
       }),
     );
@@ -72,7 +77,7 @@ export class CodeSuggestionsStateManager {
     return this.#temporaryState || VisibleCodeSuggestionsState.READY;
   }
 
-  updateState(handler: () => void) {
+  #updateState(handler: () => void) {
     const previousVisibleState = this.getVisibleState();
     const previousEnabled = this.isEnabled();
     handler();
@@ -89,19 +94,19 @@ export class CodeSuggestionsStateManager {
   }
 
   setTemporaryState(newState: TemporaryCodeSuggestionsState | null) {
-    this.updateState(() => {
+    this.#updateState(() => {
       this.#temporaryState = newState;
     });
   }
 
   setTemporaryDisabled(newState: boolean) {
-    this.updateState(() => {
+    this.#updateState(() => {
       this.#isDisabledByUserForSession = newState;
     });
   }
 
   setUnsupportedLanguageDocument(newState: boolean) {
-    this.updateState(() => {
+    this.#updateState(() => {
       this.#isUnsupportedLanguageDocument = newState;
     });
   }

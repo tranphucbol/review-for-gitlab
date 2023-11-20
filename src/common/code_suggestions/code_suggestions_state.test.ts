@@ -3,6 +3,7 @@ import {
   TemporaryCodeSuggestionsState as TemporaryState,
   CodeSuggestionsStateManager,
   VisibleCodeSuggestionsState,
+  TemporaryCodeSuggestionsState,
 } from './code_suggestions_state';
 import {
   createConfigurationChangeTrigger,
@@ -40,11 +41,6 @@ describe('Code suggestions state manager', () => {
           .mocked(vscode.workspace.getConfiguration)
           .mockReturnValue(createFakeWorkspaceConfiguration({ enabled: isEnabledInSettings }));
         triggerSettingsRefresh();
-
-        const [[configurationChangeListener]] = jest.mocked(
-          vscode.workspace.onDidChangeConfiguration,
-        ).mock.calls;
-        configurationChangeListener({ affectsConfiguration: () => true });
 
         expect(stateManager.getVisibleState()).toBe(codeSuggestionState);
       },

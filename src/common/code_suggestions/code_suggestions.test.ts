@@ -12,6 +12,7 @@ jest.mock('./code_suggestions_state', () => ({
       setGlobalState: jest.fn(),
       onDidChangeEnabledState: jest.fn(),
       setUnsupportedLanguageDocument: jest.fn(),
+      dispose: jest.fn(),
     };
   },
 }));
