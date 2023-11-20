@@ -16,7 +16,6 @@
         "GITLAB_VSCODE_ENV": "development"
       }
     },
-
     {
       "name": "Unit Tests",
       "args": ["-i"],
