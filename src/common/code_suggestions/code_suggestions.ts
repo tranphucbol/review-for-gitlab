@@ -3,12 +3,8 @@ import { AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES } from './constants';
 import { log } from '../log';
 import { CodeSuggestionsProvider } from './code_suggestions_provider';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
-import { CodeSuggestionsStateManager, GlobalCodeSuggestionsState } from './code_suggestions_state';
+import { CodeSuggestionsStateManager } from './code_suggestions_state';
 import { CodeSuggestionsStatusBarItem } from './code_suggestions_status_bar_item';
-import {
-  AI_ASSISTED_CODE_SUGGESTIONS_MODE,
-  getAiAssistedCodeSuggestionsConfiguration,
-} from '../utils/extension_configuration';
 import { COMMAND_TOGGLE_CODE_SUGGESTIONS, toggleCodeSuggestions } from './commands/toggle';
 import { LegacyApiFallbackConfig } from './legacy_api_fallback_config';
 import { GitLabPlatformManagerForCodeSuggestions } from './gitlab_platform_manager_for_code_suggestions';
@@ -76,19 +72,6 @@ export class CodeSuggestions {
         this.activeTextEditorChangeDisposable?.dispose();
       }
     };
-    const syncExtensionGlobalState = () => {
-      const newState = getAiAssistedCodeSuggestionsConfiguration().enabled
-        ? GlobalCodeSuggestionsState.READY
-        : GlobalCodeSuggestionsState.DISABLED_VIA_SETTINGS;
-      this.stateManager.setGlobalState(newState);
-    };
-
-    vscode.workspace.onDidChangeConfiguration(e => {
-      if (e.affectsConfiguration(AI_ASSISTED_CODE_SUGGESTIONS_MODE)) {
-        syncExtensionGlobalState();
-      }
-    });
-    syncExtensionGlobalState();
 
     this.stateManager.onDidChangeEnabledState(enableOrDisableSuggestions);
     enableOrDisableSuggestions();
@@ -99,5 +82,6 @@ export class CodeSuggestions {
     this.providerDisposable?.dispose();
     this.activeTextEditorChangeDisposable?.dispose();
     this.toggleSuggestionsCommand?.dispose();
+    this.stateManager.dispose();
   }
 }

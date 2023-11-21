@@ -15,11 +15,7 @@ import {
   CodeSuggestionPrompt,
   CodeSuggestionsProvider,
 } from './code_suggestions_provider';
-import {
-  CodeSuggestionsStateManager,
-  GlobalCodeSuggestionsState,
-  VisibleCodeSuggestionsState,
-} from './code_suggestions_state';
+import { CodeSuggestionsStateManager, VisibleCodeSuggestionsState } from './code_suggestions_state';
 import { GitLabProject } from '../platform/gitlab_project';
 import { COMMAND_CODE_SUGGESTION_ACCEPTED } from './commands/code_suggestion_accepted';
 import { GITLAB_AI_ASSISTED_CODE_SUGGESTIONS_API_PATH } from './constants';
@@ -161,8 +157,6 @@ let legacyApiFallbackConfig: LegacyApiFallbackConfig;
 
 const cancellationToken = new vscode.CancellationTokenSource().token;
 
-const stateManager = new CodeSuggestionsStateManager();
-
 function getCompletionsWithDefaultArgs(glcp: CodeSuggestionsProvider) {
   return glcp.getCompletions({ document: mockDocument, position: mockPosition, cancellationToken });
 }
@@ -178,6 +172,8 @@ const codeSuggestionMonolithCalls = (mocked: jest.Mock) =>
     .mock.calls.filter(filterCodeSuggestionRequest) as unknown as PostRequest<unknown>[][];
 
 describe('CodeSuggestionsProvider', () => {
+  let stateManager: CodeSuggestionsStateManager;
+
   const testDocument = {
     getText(range: vscode.Range): string {
       if (range.start.character === 0 && range.start.line === 0) {
@@ -194,6 +190,10 @@ describe('CodeSuggestionsProvider', () => {
     line: 1,
     character: mockPrompt.length,
   } as vscode.Position;
+
+  beforeEach(() => {
+    stateManager = new CodeSuggestionsStateManager();
+  });
 
   describe('getCompletions', () => {
     const projectForSelfManaged: GitLabProject = {
@@ -245,11 +245,16 @@ describe('CodeSuggestionsProvider', () => {
     });
 
     describe('with new GitLab monolith code suggestion API available', () => {
-      const fetchFromApiMock = jest.fn();
-      const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
-        manager: createManager(project, fetchFromApiMock),
-        legacyApiFallbackConfig: createLegacyApiFallbackConfig(false),
-        stateManager,
+      let fetchFromApiMock = jest.fn();
+      let glcp: CodeSuggestionsProvider;
+
+      beforeEach(() => {
+        fetchFromApiMock = jest.fn();
+        glcp = new CodeSuggestionsProvider({
+          manager: createManager(project, fetchFromApiMock),
+          legacyApiFallbackConfig: createLegacyApiFallbackConfig(false),
+          stateManager,
+        });
       });
 
       it('should construct a payload with line above, line below, file name, prompt version, project id and path', async () => {
@@ -288,11 +293,16 @@ describe('CodeSuggestionsProvider', () => {
     });
 
     describe('input prompt', () => {
-      const fetchFromApiMock = jest.fn();
-      const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
-        manager: createManager(project, fetchFromApiMock),
-        legacyApiFallbackConfig: createLegacyApiFallbackConfig(false),
-        stateManager,
+      let fetchFromApiMock = jest.fn();
+      let glcp: CodeSuggestionsProvider;
+
+      beforeEach(() => {
+        fetchFromApiMock = jest.fn();
+        glcp = new CodeSuggestionsProvider({
+          manager: createManager(project, fetchFromApiMock),
+          legacyApiFallbackConfig: createLegacyApiFallbackConfig(false),
+          stateManager,
+        });
       });
 
       let testPrompt = '';
@@ -451,8 +461,11 @@ describe('CodeSuggestionsProvider', () => {
     let glcp: CodeSuggestionsProvider;
 
     beforeEach(() => {
+      jest.mocked(vscode.workspace.getConfiguration).mockReturnValue({
+        enabled: true,
+      } as unknown as vscode.WorkspaceConfiguration);
+      stateManager = new CodeSuggestionsStateManager();
       manager = createManager(project);
-      stateManager.setGlobalState(GlobalCodeSuggestionsState.READY);
       glcp = new CodeSuggestionsProvider({
         manager,
         stateManager,

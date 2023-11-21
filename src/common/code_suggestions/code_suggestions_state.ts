@@ -1,12 +1,10 @@
 import * as vscode from 'vscode';
+import {
+  AI_ASSISTED_CODE_SUGGESTIONS_MODE,
+  getAiAssistedCodeSuggestionsConfiguration,
+} from '../utils/extension_configuration';
 
 type ValueOf<T> = T[keyof T];
-
-export type GlobalCodeSuggestionsState = ValueOf<typeof GlobalCodeSuggestionsState>;
-export const GlobalCodeSuggestionsState = {
-  DISABLED_VIA_SETTINGS: 'code-suggestions-global-disabled-via-settings',
-  READY: 'code-suggestions-global-ready',
-} as const;
 
 export type TemporaryCodeSuggestionsState = ValueOf<typeof TemporaryCodeSuggestionsState>;
 export const TemporaryCodeSuggestionsState = {
@@ -16,20 +14,26 @@ export const TemporaryCodeSuggestionsState = {
 
 export type VisibleCodeSuggestionsState = ValueOf<typeof VisibleCodeSuggestionsState>;
 export const VisibleCodeSuggestionsState = {
-  ...GlobalCodeSuggestionsState,
+  DISABLED_VIA_SETTINGS: 'code-suggestions-global-disabled-via-settings',
+  READY: 'code-suggestions-global-ready',
   DISABLED_BY_USER: 'code-suggestions-disabled-by-user',
   ...TemporaryCodeSuggestionsState,
   UNSUPPORTED_LANGUAGE: 'code-suggestions-document-unsupported-language',
 } as const;
 
 export class CodeSuggestionsStateManager {
-  #globalState: GlobalCodeSuggestionsState = GlobalCodeSuggestionsState.DISABLED_VIA_SETTINGS;
+  // //////////
+  // boolean flags that indicate code suggestions are not on
+  #disabledInSettings: boolean;
 
   #isDisabledByUserForSession = false;
 
-  #temporaryState: TemporaryCodeSuggestionsState | null = null;
-
   #isUnsupportedLanguageDocument = false;
+  // //////////
+
+  #subscriptions: vscode.Disposable[] = [];
+
+  #temporaryState: TemporaryCodeSuggestionsState | null = null;
 
   #changeVisibleStateEmitter = new vscode.EventEmitter<VisibleCodeSuggestionsState>();
 
@@ -39,16 +43,27 @@ export class CodeSuggestionsStateManager {
 
   onDidChangeEnabledState = this.#changeEnabledStateEmitter.event;
 
-  isEnabled() {
-    return !(
-      this.#globalState === GlobalCodeSuggestionsState.DISABLED_VIA_SETTINGS ||
-      this.#isDisabledByUserForSession
+  constructor() {
+    this.#disabledInSettings = !getAiAssistedCodeSuggestionsConfiguration().enabled;
+
+    this.#subscriptions.push(
+      vscode.workspace.onDidChangeConfiguration(e => {
+        if (e.affectsConfiguration(AI_ASSISTED_CODE_SUGGESTIONS_MODE)) {
+          this.#updateState(() => {
+            this.#disabledInSettings = !getAiAssistedCodeSuggestionsConfiguration().enabled;
+          });
+        }
+      }),
     );
   }
 
+  isEnabled() {
+    return !(this.#disabledInSettings || this.#isDisabledByUserForSession);
+  }
+
   getVisibleState(): VisibleCodeSuggestionsState {
-    if (this.#globalState === GlobalCodeSuggestionsState.DISABLED_VIA_SETTINGS) {
-      return this.#globalState;
+    if (this.#disabledInSettings) {
+      return VisibleCodeSuggestionsState.DISABLED_VIA_SETTINGS;
     }
 
     if (this.#isDisabledByUserForSession) {
@@ -59,10 +74,10 @@ export class CodeSuggestionsStateManager {
       return VisibleCodeSuggestionsState.UNSUPPORTED_LANGUAGE;
     }
 
-    return this.#temporaryState || this.#globalState;
+    return this.#temporaryState || VisibleCodeSuggestionsState.READY;
   }
 
-  updateState(handler: () => void) {
+  #updateState(handler: () => void) {
     const previousVisibleState = this.getVisibleState();
     const previousEnabled = this.isEnabled();
     handler();
@@ -78,28 +93,25 @@ export class CodeSuggestionsStateManager {
     }
   }
 
-  setGlobalState(newState: GlobalCodeSuggestionsState) {
-    this.updateState(() => {
-      this.#globalState = newState;
-      this.#isDisabledByUserForSession = false;
-    });
-  }
-
   setTemporaryState(newState: TemporaryCodeSuggestionsState | null) {
-    this.updateState(() => {
+    this.#updateState(() => {
       this.#temporaryState = newState;
     });
   }
 
   setTemporaryDisabled(newState: boolean) {
-    this.updateState(() => {
+    this.#updateState(() => {
       this.#isDisabledByUserForSession = newState;
     });
   }
 
   setUnsupportedLanguageDocument(newState: boolean) {
-    this.updateState(() => {
+    this.#updateState(() => {
       this.#isUnsupportedLanguageDocument = newState;
     });
+  }
+
+  dispose() {
+    this.#subscriptions.forEach(s => s.dispose());
   }
 }

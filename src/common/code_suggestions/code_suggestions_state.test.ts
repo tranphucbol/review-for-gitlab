@@ -1,16 +1,21 @@
+import * as vscode from 'vscode';
 import {
-  GlobalCodeSuggestionsState as GlobalState,
-  TemporaryCodeSuggestionsState as TemporaryState,
   CodeSuggestionsStateManager,
   VisibleCodeSuggestionsState,
+  TemporaryCodeSuggestionsState,
 } from './code_suggestions_state';
+import {
+  createConfigurationChangeTrigger,
+  createFakeWorkspaceConfiguration,
+} from '../test_utils/vscode_fakes';
 
 describe('Code suggestions state manager', () => {
+  let triggerSettingsRefresh: () => void;
   let stateManager: CodeSuggestionsStateManager;
 
   function itShouldIgnoreAnyTemporaryStateAndReturn(state: VisibleCodeSuggestionsState) {
     it('should ignore any temporary state', () => {
-      Object.values(TemporaryState).forEach(temporaryState => {
+      Object.values(TemporaryCodeSuggestionsState).forEach(temporaryState => {
         stateManager.setTemporaryState(temporaryState);
 
         expect(stateManager.getVisibleState()).toBe(state);
@@ -19,32 +24,61 @@ describe('Code suggestions state manager', () => {
   }
 
   beforeEach(() => {
+    triggerSettingsRefresh = createConfigurationChangeTrigger();
     stateManager = new CodeSuggestionsStateManager();
   });
 
-  describe.each([GlobalState.DISABLED_VIA_SETTINGS])('when global state is %s', state => {
+  describe('state updates', () => {
+    it.each`
+      isEnabledInSettings | codeSuggestionState
+      ${false}            | ${VisibleCodeSuggestionsState.DISABLED_VIA_SETTINGS}
+      ${true}             | ${VisibleCodeSuggestionsState.READY}
+    `(
+      'sets state to $codeSuggestionState when code suggestions setting is $isEnabledInSettings',
+      ({ isEnabledInSettings, codeSuggestionState }) => {
+        jest
+          .mocked(vscode.workspace.getConfiguration)
+          .mockReturnValue(createFakeWorkspaceConfiguration({ enabled: isEnabledInSettings }));
+        triggerSettingsRefresh();
+
+        expect(stateManager.getVisibleState()).toBe(codeSuggestionState);
+      },
+    );
+  });
+
+  describe('when suggestions are disabled in settings', () => {
     beforeEach(() => {
-      stateManager.setGlobalState(state);
+      jest
+        .mocked(vscode.workspace.getConfiguration)
+        .mockReturnValue(createFakeWorkspaceConfiguration({ enabled: false }));
+      triggerSettingsRefresh();
     });
 
     it('should ignore unsupported document', () => {
       stateManager.setUnsupportedLanguageDocument(true);
 
-      expect(stateManager.getVisibleState()).toBe(state);
+      expect(stateManager.getVisibleState()).toBe(
+        VisibleCodeSuggestionsState.DISABLED_VIA_SETTINGS,
+      );
     });
 
     it('should ignore temporary disabled flag', () => {
       stateManager.setTemporaryDisabled(true);
 
-      expect(stateManager.getVisibleState()).toBe(state);
+      expect(stateManager.getVisibleState()).toBe(
+        VisibleCodeSuggestionsState.DISABLED_VIA_SETTINGS,
+      );
     });
 
-    itShouldIgnoreAnyTemporaryStateAndReturn(state);
+    itShouldIgnoreAnyTemporaryStateAndReturn(VisibleCodeSuggestionsState.DISABLED_VIA_SETTINGS);
   });
 
-  describe('when global state is ready', () => {
+  describe('when the extension is enabled in settings and no other flags are present', () => {
     beforeEach(() => {
-      stateManager.setGlobalState(GlobalState.READY);
+      jest
+        .mocked(vscode.workspace.getConfiguration)
+        .mockReturnValue(createFakeWorkspaceConfiguration({ enabled: true }));
+      triggerSettingsRefresh();
     });
 
     describe('when is temporary disabled', () => {
@@ -77,9 +111,12 @@ describe('Code suggestions state manager', () => {
       expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.READY);
     });
 
-    it.each(Object.values(TemporaryState))('when temporary state is %s', tempState => {
-      stateManager.setTemporaryState(tempState);
-      expect(stateManager.getVisibleState()).toBe(tempState);
-    });
+    it.each(Object.values(TemporaryCodeSuggestionsState))(
+      'when temporary state is %s',
+      tempState => {
+        stateManager.setTemporaryState(tempState);
+        expect(stateManager.getVisibleState()).toBe(tempState);
+      },
+    );
   });
 });
