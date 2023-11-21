@@ -37,10 +37,6 @@ export class CodeSuggestions {
     const updateCodeSuggestionsStateForEditor = (editor?: vscode.TextEditor) => {
       if (!editor) return;
 
-      this.stateManager.setUnsupportedLanguageDocument(
-        !AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.includes(editor.document.languageId),
-      );
-
       this.legacyApiFallbackConfig
         .verifyGitLabVersion()
         .catch(() => this.legacyApiFallbackConfig.flagLegacyVersion());

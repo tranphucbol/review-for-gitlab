@@ -18,3 +18,18 @@ export const createConfigurationChangeTrigger = () => {
     triggerSettingsRefresh();
   };
 };
+
+export const createActiveTextEditorChangeTrigger = () => {
+  let triggerTextEditorChange: ((te: vscode.TextEditor) => void) | undefined;
+
+  jest.mocked(vscode.window.onDidChangeActiveTextEditor).mockImplementation(listener => {
+    triggerTextEditorChange = te => listener(te);
+    return { dispose: () => {} };
+  });
+  return (te: vscode.TextEditor) => {
+    if (!triggerTextEditorChange) {
+      throw new Error('no active editor change listeners were registered');
+    }
+    triggerTextEditorChange(te);
+  };
+};

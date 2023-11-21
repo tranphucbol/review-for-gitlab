@@ -81,18 +81,6 @@ describe('CodeSuggestions', () => {
   });
 
   describe('state updates', () => {
-    it('sets state to unsupported when switching to document with unsupported language', () => {
-      const [[editorChangeListener]] = jest.mocked(vscode.window.onDidChangeActiveTextEditor).mock
-        .calls;
-      editorChangeListener({
-        document: { languageId: 'some-unsupported' },
-      } as unknown as vscode.TextEditor);
-
-      expect(codeSuggestions.stateManager.setUnsupportedLanguageDocument).toHaveBeenCalledWith(
-        true,
-      );
-    });
-
     it('request GitLab version check when switching document', () => {
       codeSuggestions.legacyApiFallbackConfig.verifyGitLabVersion = jest.fn(async () => {});
       expect(codeSuggestions.legacyApiFallbackConfig.verifyGitLabVersion).toHaveBeenCalledTimes(0);
