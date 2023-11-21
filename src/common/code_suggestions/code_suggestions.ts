@@ -3,7 +3,7 @@ import { AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES } from './constants';
 import { log } from '../log';
 import { CodeSuggestionsProvider } from './code_suggestions_provider';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
-import { CodeSuggestionsStateManager } from './code_suggestions_state';
+import { CodeSuggestionsStateManager } from './code_suggestions_state_manager';
 import { CodeSuggestionsStatusBarItem } from './code_suggestions_status_bar_item';
 import { COMMAND_TOGGLE_CODE_SUGGESTIONS, toggleCodeSuggestions } from './commands/toggle';
 import { LegacyApiFallbackConfig } from './legacy_api_fallback_config';

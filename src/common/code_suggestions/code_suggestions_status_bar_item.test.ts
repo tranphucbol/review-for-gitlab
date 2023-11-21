@@ -3,7 +3,10 @@ import {
   CODE_SUGGESTIONS_STATUSES,
   CodeSuggestionsStatusBarItem,
 } from './code_suggestions_status_bar_item';
-import { CodeSuggestionsStateManager, VisibleCodeSuggestionsState } from './code_suggestions_state';
+import {
+  CodeSuggestionsStateManager,
+  VisibleCodeSuggestionsState,
+} from './code_suggestions_state_manager';
 import { COMMAND_TOGGLE_CODE_SUGGESTIONS } from './commands/toggle';
 import { createFakePartial } from '../test_utils/create_fake_partial';
 

@@ -10,7 +10,7 @@ import {
   DidChangeConfigurationNotification,
   LanguageClientOptions,
 } from 'vscode-languageclient';
-import { VisibleCodeSuggestionsState } from '../code_suggestions/code_suggestions_state';
+import { VisibleCodeSuggestionsState } from '../code_suggestions/code_suggestions_state_manager';
 import { AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES } from '../code_suggestions/constants';
 import { setStatusBar } from '../utils/status_bar_item';
 import {

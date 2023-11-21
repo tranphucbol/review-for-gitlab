@@ -3,7 +3,7 @@ import {
   CodeSuggestionsStateManager,
   VisibleCodeSuggestionsState,
   TemporaryCodeSuggestionsState,
-} from './code_suggestions_state';
+} from './code_suggestions_state_manager';
 import {
   createConfigurationChangeTrigger,
   createFakeWorkspaceConfiguration,

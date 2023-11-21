@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
 import { IStatus, createStatusBarItem } from '../utils/status_bar_item';
-import { CodeSuggestionsStateManager, VisibleCodeSuggestionsState } from './code_suggestions_state';
+import {
+  CodeSuggestionsStateManager,
+  VisibleCodeSuggestionsState,
+} from './code_suggestions_state_manager';
 import { COMMAND_TOGGLE_CODE_SUGGESTIONS } from './commands/toggle';
 
 export const CODE_SUGGESTIONS_STATUSES: Record<VisibleCodeSuggestionsState, IStatus> = {

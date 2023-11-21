@@ -15,7 +15,7 @@ import { isEnabled, FeatureFlag } from '../feature_flags';
 import {
   CodeSuggestionsStateManager,
   TemporaryCodeSuggestionsState,
-} from './code_suggestions_state';
+} from './code_suggestions_state_manager';
 import {
   MODEL_GATEWAY_AI_ASSISTED_CODE_SUGGESTIONS_API_URL,
   GITLAB_AI_ASSISTED_CODE_SUGGESTIONS_API_PATH,
