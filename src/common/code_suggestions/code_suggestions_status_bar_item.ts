@@ -60,7 +60,7 @@ export class CodeSuggestionsStatusBarItem {
   }
 }
 
-export function createCodeSuggestionStatusBarItem() {
+function createCodeSuggestionStatusBarItem() {
   return createStatusBarItem({
     priority: 3,
     id: 'gl.status.code_suggestions',
