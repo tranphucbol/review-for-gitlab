@@ -73,6 +73,7 @@
         "@typescript-eslint/return-await": "error",
         "@typescript-eslint/parameter-properties": "error",
         "@typescript-eslint/no-floating-promises": "error",
+        "@typescript-eslint/no-shadow": ["error"],
         "@typescript-eslint/no-unused-vars": ["error"],
         "import/extensions": [
           "error",
@@ -87,6 +88,7 @@
           { "devDependencies": ["**/*.test.ts", "test/**/*"] }
         ],
         "no-console": "error",
+        "no-shadow": "off",
         "no-useless-constructor": "off",
         "no-unused-expressions": "off",
         "default-param-last": "off"

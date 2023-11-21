@@ -31,7 +31,7 @@ describe('SecurityFindingsGroupItem', () => {
       ).getChildren();
 
       const itemLabel = `${count} ${severity} severity`;
-      const item = children.find(item => item.getTreeItem().label === itemLabel)?.getTreeItem()
+      const item = children.find(child => child.getTreeItem().label === itemLabel)?.getTreeItem()
         .label;
       expect(item).toBe(itemLabel);
     });

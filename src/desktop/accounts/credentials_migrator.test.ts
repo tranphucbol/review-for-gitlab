@@ -20,9 +20,9 @@ describe('CredentialsMigrator', () => {
   let users: Record<string, RestUser>;
 
   const getUser = async (c: Credentials) => {
-    const user = users[`${c.instanceUrl}-${c.token}`];
-    if (!user) throw new Error('no user');
-    return user;
+    const userForInstance = users[`${c.instanceUrl}-${c.token}`];
+    if (!userForInstance) throw new Error('no user');
+    return userForInstance;
   };
 
   beforeEach(async () => {

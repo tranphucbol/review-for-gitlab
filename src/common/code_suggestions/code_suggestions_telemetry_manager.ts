@@ -3,7 +3,6 @@ import { v4 as uuid } from 'uuid';
 import { log } from '../log';
 import { Snowplow } from '../snowplow/snowplow';
 
-// eslint-disable-next-line no-shadow
 export enum CodeSuggestionTelemetryState {
   REQUESTED = 'suggestion_requested',
   LOADED = 'suggestion_loaded',

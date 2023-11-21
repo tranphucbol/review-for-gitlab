@@ -2,7 +2,6 @@ import { PayloadBuilder } from '@snowplow/tracker-core';
 
 export type SendEventCallback = (events: PayloadBuilder[]) => Promise<void>;
 
-// eslint-disable-next-line no-shadow
 enum EmitterState {
   STARTED,
   STOPPING,

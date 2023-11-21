@@ -4,7 +4,6 @@ import gitlabCiVariables = require('./ci_variables.json');
 /**
  * The characters currently in the document, which must be used or replaced.
  */
-// eslint-disable-next-line no-shadow
 enum CompletionCharacters {
   /**
    * A dollar sign without braces.
