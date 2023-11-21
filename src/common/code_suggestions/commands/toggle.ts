@@ -2,7 +2,7 @@ import {
   getAiAssistedCodeSuggestionsConfiguration,
   setAiAssistedCodeSuggestionsConfiguration,
 } from '../../utils/extension_configuration';
-import { CodeSuggestionsStateManager } from '../code_suggestions_state';
+import { CodeSuggestionsStateManager } from '../code_suggestions_state_manager';
 
 export const COMMAND_TOGGLE_CODE_SUGGESTIONS = 'gl.toggleCodeSuggestions';
 export const toggleCodeSuggestions = async ({

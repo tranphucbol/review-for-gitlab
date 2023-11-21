@@ -4,8 +4,8 @@ import { gitlabPlatformForAccount, gitlabPlatformForProject } from '../test_util
 import { CodeSuggestions } from './code_suggestions';
 import { createFakePartial } from '../test_utils/create_fake_partial';
 
-jest.mock('./code_suggestions_state', () => ({
-  ...jest.requireActual('./code_suggestions_state'),
+jest.mock('./code_suggestions_state_manager', () => ({
+  ...jest.requireActual('./code_suggestions_state_manager'),
   CodeSuggestionsStateManager: function CodeSuggestionsStateManager() {
     return {
       isEnabled: jest.fn().mockResolvedValue(true),
@@ -81,18 +81,6 @@ describe('CodeSuggestions', () => {
   });
 
   describe('state updates', () => {
-    it('sets state to unsupported when switching to document with unsupported language', () => {
-      const [[editorChangeListener]] = jest.mocked(vscode.window.onDidChangeActiveTextEditor).mock
-        .calls;
-      editorChangeListener({
-        document: { languageId: 'some-unsupported' },
-      } as unknown as vscode.TextEditor);
-
-      expect(codeSuggestions.stateManager.setUnsupportedLanguageDocument).toHaveBeenCalledWith(
-        true,
-      );
-    });
-
     it('request GitLab version check when switching document', () => {
       codeSuggestions.legacyApiFallbackConfig.verifyGitLabVersion = jest.fn(async () => {});
       expect(codeSuggestions.legacyApiFallbackConfig.verifyGitLabVersion).toHaveBeenCalledTimes(0);

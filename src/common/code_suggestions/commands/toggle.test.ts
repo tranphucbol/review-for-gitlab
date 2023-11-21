@@ -3,7 +3,7 @@ import {
   getAiAssistedCodeSuggestionsConfiguration,
   setAiAssistedCodeSuggestionsConfiguration,
 } from '../../utils/extension_configuration';
-import { CodeSuggestionsStateManager } from '../code_suggestions_state';
+import { CodeSuggestionsStateManager } from '../code_suggestions_state_manager';
 
 jest.mock('../../utils/extension_configuration', () => ({
   getAiAssistedCodeSuggestionsConfiguration: jest.fn(() => ({ enabled: false })),

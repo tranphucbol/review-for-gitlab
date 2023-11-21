@@ -3,6 +3,7 @@ import {
   AI_ASSISTED_CODE_SUGGESTIONS_MODE,
   getAiAssistedCodeSuggestionsConfiguration,
 } from '../utils/extension_configuration';
+import { AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES } from './constants';
 
 type ValueOf<T> = T[keyof T];
 
@@ -20,6 +21,9 @@ export const VisibleCodeSuggestionsState = {
   ...TemporaryCodeSuggestionsState,
   UNSUPPORTED_LANGUAGE: 'code-suggestions-document-unsupported-language',
 } as const;
+
+const isSupportedLanguage = (editor: vscode.TextEditor) =>
+  AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.includes(editor.document.languageId);
 
 export class CodeSuggestionsStateManager {
   // //////////
@@ -45,6 +49,12 @@ export class CodeSuggestionsStateManager {
 
   constructor() {
     this.#disabledInSettings = !getAiAssistedCodeSuggestionsConfiguration().enabled;
+    const checkIfLanguageSupported = (te?: vscode.TextEditor) => {
+      this.#updateState(() => {
+        this.#isUnsupportedLanguageDocument = te ? !isSupportedLanguage(te) : false;
+      });
+    };
+    checkIfLanguageSupported(vscode.window.activeTextEditor);
 
     this.#subscriptions.push(
       vscode.workspace.onDidChangeConfiguration(e => {
@@ -54,6 +64,7 @@ export class CodeSuggestionsStateManager {
           });
         }
       }),
+      vscode.window.onDidChangeActiveTextEditor(checkIfLanguageSupported),
     );
   }
 
@@ -102,12 +113,6 @@ export class CodeSuggestionsStateManager {
   setTemporaryDisabled(newState: boolean) {
     this.#updateState(() => {
       this.#isDisabledByUserForSession = newState;
-    });
-  }
-
-  setUnsupportedLanguageDocument(newState: boolean) {
-    this.#updateState(() => {
-      this.#isUnsupportedLanguageDocument = newState;
     });
   }
 

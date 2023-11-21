@@ -15,7 +15,10 @@ import {
   CodeSuggestionPrompt,
   CodeSuggestionsProvider,
 } from './code_suggestions_provider';
-import { CodeSuggestionsStateManager, VisibleCodeSuggestionsState } from './code_suggestions_state';
+import {
+  CodeSuggestionsStateManager,
+  VisibleCodeSuggestionsState,
+} from './code_suggestions_state_manager';
 import { GitLabProject } from '../platform/gitlab_project';
 import { COMMAND_CODE_SUGGESTION_ACCEPTED } from './commands/code_suggestion_accepted';
 import { GITLAB_AI_ASSISTED_CODE_SUGGESTIONS_API_PATH } from './constants';
