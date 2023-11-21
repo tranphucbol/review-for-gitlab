@@ -148,6 +148,18 @@ describe('AccountService', () => {
     expect(accountService.getSaaSAccount()?.token).toBe('abc');
   });
 
+  it('respects env variable when retrieveing SaaS account', async () => {
+    process.env.GITLAB_WORKFLOW_INSTANCE_URL = 'https://dev.gitlab.com';
+
+    await accountService.addAccount(createOAuthAccount('https://gitlab.com', 1, 'abc'));
+
+    expect(accountService.getSaaSAccount()).toBeUndefined();
+
+    await accountService.addAccount(createOAuthAccount('https://dev.gitlab.com', 1, 'abc'));
+
+    expect(accountService.getSaaSAccount()?.token).toBe('abc');
+  });
+
   it('can retrieve all instance URLs', async () => {
     await accountService.addAccount(createTokenAccount('https://gitlab.com', 1, 'abc'));
     await accountService.addAccount(createTokenAccount('https://dev.gitlab.com', 1, 'def'));

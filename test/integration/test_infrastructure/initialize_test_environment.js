@@ -43,11 +43,11 @@ const initializeTestEnvironment = async testRoot => {
     globalState: new InMemoryMemento(),
     extensionPath: `${testRoot}/../..`,
     extensionUri: vscode.Uri.file(`${testRoot}/../..`),
+    extensionMode: 3,
   };
-  extensionContext.globalState.update('GITLAB_SAAS_URL', GITLAB_URL);
-  accountService.init(extensionContext);
   process.env.GITLAB_WORKFLOW_INSTANCE_URL = GITLAB_URL;
   process.env.GITLAB_WORKFLOW_TOKEN = 'abcd-secret';
+  accountService.init(extensionContext);
   extensionState.init(accountService);
   registerRepositoryRootProvider(issuableController, pendingWebviewController);
   pendingWebviewController.init(extensionContext);

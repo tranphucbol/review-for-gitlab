@@ -128,12 +128,12 @@ export class AccountService {
   }
 
   /**
-   * See https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/1093#note_1641271590 for discussion.
    * @returns The first SaaS account registered
    */
   getSaaSAccount(): Account | undefined {
+    // Retrieve SaaS instance URL from GITLAB_WORKFLOW_INSTANCE_URL for development
     return this.getOneAccountForInstance(
-      this.context?.globalState.get('GITLAB_SAAS_URL') || GITLAB_COM_URL,
+      process.env.GITLAB_WORKFLOW_INSTANCE_URL || GITLAB_COM_URL,
     );
   }
 
