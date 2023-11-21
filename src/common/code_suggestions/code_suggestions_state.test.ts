@@ -13,110 +13,90 @@ describe('Code suggestions state manager', () => {
   let triggerSettingsRefresh: () => void;
   let stateManager: CodeSuggestionsStateManager;
 
-  function itShouldIgnoreAnyTemporaryStateAndReturn(state: VisibleCodeSuggestionsState) {
-    it('should ignore any temporary state', () => {
-      Object.values(TemporaryCodeSuggestionsState).forEach(temporaryState => {
-        stateManager.setTemporaryState(temporaryState);
-
-        expect(stateManager.getVisibleState()).toBe(state);
-      });
-    });
-  }
-
   beforeEach(() => {
     triggerSettingsRefresh = createConfigurationChangeTrigger();
+    // ensure the suggestions are enabled in settings
+    jest
+      .mocked(vscode.workspace.getConfiguration)
+      .mockReturnValue(createFakeWorkspaceConfiguration({ enabled: true }));
     stateManager = new CodeSuggestionsStateManager();
   });
 
-  describe('state updates', () => {
-    it.each`
-      isEnabledInSettings | codeSuggestionState
-      ${false}            | ${VisibleCodeSuggestionsState.DISABLED_VIA_SETTINGS}
-      ${true}             | ${VisibleCodeSuggestionsState.READY}
-    `(
-      'sets state to $codeSuggestionState when code suggestions setting is $isEnabledInSettings',
-      ({ isEnabledInSettings, codeSuggestionState }) => {
-        jest
-          .mocked(vscode.workspace.getConfiguration)
-          .mockReturnValue(createFakeWorkspaceConfiguration({ enabled: isEnabledInSettings }));
-        triggerSettingsRefresh();
+  const disableViaSettings = () => {
+    jest
+      .mocked(vscode.workspace.getConfiguration)
+      .mockReturnValue(createFakeWorkspaceConfiguration({ enabled: false }));
+    triggerSettingsRefresh();
+  };
 
-        expect(stateManager.getVisibleState()).toBe(codeSuggestionState);
+  describe('visible state', () => {
+    type StateMutation = () => void;
+    const mutationsFromLeastImportant: {
+      mutation: StateMutation;
+      expectedState: VisibleCodeSuggestionsState;
+    }[] = [
+      {
+        mutation: () => stateManager.setTemporaryState(TemporaryCodeSuggestionsState.ERROR),
+        expectedState: VisibleCodeSuggestionsState.ERROR,
       },
-    );
+      {
+        mutation: () => stateManager.setUnsupportedLanguageDocument(true),
+        expectedState: VisibleCodeSuggestionsState.UNSUPPORTED_LANGUAGE,
+      },
+      {
+        mutation: () => stateManager.setTemporaryDisabled(true),
+        expectedState: VisibleCodeSuggestionsState.DISABLED_BY_USER,
+      },
+      {
+        mutation: disableViaSettings,
+        expectedState: VisibleCodeSuggestionsState.DISABLED_VIA_SETTINGS,
+      },
+    ];
+
+    it('more important state takes precedence over less important state', () => {
+      expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.READY);
+
+      mutationsFromLeastImportant.forEach(scenario => {
+        scenario.mutation();
+        expect(stateManager.getVisibleState()).toBe(scenario.expectedState);
+      });
+    });
+
+    it('every state change triggers an event', async () => {
+      const visibleStateChangeListener = jest.fn();
+      stateManager.onDidChangeVisibleState(visibleStateChangeListener);
+      mutationsFromLeastImportant.forEach(scenario => {
+        visibleStateChangeListener.mockReset();
+        scenario.mutation();
+        expect(visibleStateChangeListener).toHaveBeenCalledWith(scenario.expectedState);
+      });
+    });
   });
 
-  describe('when suggestions are disabled in settings', () => {
+  describe('isEnabled', () => {
+    let enabledStateListener: jest.Func;
+
     beforeEach(() => {
-      jest
-        .mocked(vscode.workspace.getConfiguration)
-        .mockReturnValue(createFakeWorkspaceConfiguration({ enabled: false }));
-      triggerSettingsRefresh();
+      enabledStateListener = jest.fn();
+      stateManager.onDidChangeEnabledState(enabledStateListener);
     });
 
-    it('should ignore unsupported document', () => {
-      stateManager.setUnsupportedLanguageDocument(true);
-
-      expect(stateManager.getVisibleState()).toBe(
-        VisibleCodeSuggestionsState.DISABLED_VIA_SETTINGS,
-      );
+    it('is enabled', async () => {
+      expect(stateManager.isEnabled()).toBe(true);
     });
 
-    it('should ignore temporary disabled flag', () => {
+    it('changes to disabled when disabling via settings', () => {
+      disableViaSettings();
+
+      expect(stateManager.isEnabled()).toBe(false);
+      expect(enabledStateListener).toHaveBeenCalledWith(false);
+    });
+
+    it('changes to disabled when disabling temporarily for session', () => {
       stateManager.setTemporaryDisabled(true);
 
-      expect(stateManager.getVisibleState()).toBe(
-        VisibleCodeSuggestionsState.DISABLED_VIA_SETTINGS,
-      );
+      expect(stateManager.isEnabled()).toBe(false);
+      expect(enabledStateListener).toHaveBeenCalledWith(false);
     });
-
-    itShouldIgnoreAnyTemporaryStateAndReturn(VisibleCodeSuggestionsState.DISABLED_VIA_SETTINGS);
-  });
-
-  describe('when the extension is enabled in settings and no other flags are present', () => {
-    beforeEach(() => {
-      jest
-        .mocked(vscode.workspace.getConfiguration)
-        .mockReturnValue(createFakeWorkspaceConfiguration({ enabled: true }));
-      triggerSettingsRefresh();
-    });
-
-    describe('when is temporary disabled', () => {
-      beforeEach(() => {
-        stateManager.setTemporaryDisabled(true);
-      });
-
-      it('should report as temporary disabled', () => {
-        expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.DISABLED_BY_USER);
-      });
-
-      itShouldIgnoreAnyTemporaryStateAndReturn(VisibleCodeSuggestionsState.DISABLED_BY_USER);
-    });
-
-    describe('when in document with unsupported language', () => {
-      beforeEach(() => {
-        stateManager.setUnsupportedLanguageDocument(true);
-      });
-
-      it('should report as unsupported language', () => {
-        expect(stateManager.getVisibleState()).toBe(
-          VisibleCodeSuggestionsState.UNSUPPORTED_LANGUAGE,
-        );
-      });
-
-      itShouldIgnoreAnyTemporaryStateAndReturn(VisibleCodeSuggestionsState.UNSUPPORTED_LANGUAGE);
-    });
-
-    it('should report state as ready', () => {
-      expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.READY);
-    });
-
-    it.each(Object.values(TemporaryCodeSuggestionsState))(
-      'when temporary state is %s',
-      tempState => {
-        stateManager.setTemporaryState(tempState);
-        expect(stateManager.getVisibleState()).toBe(tempState);
-      },
-    );
   });
 });
