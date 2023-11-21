@@ -123,7 +123,7 @@ describe('GitLabChatApi', () => {
         contentBelowCursor: 'after_text',
       };
 
-      const response = await gitlabChatApi.processNewUserPrompt(mockPrompt, fileContext);
+      const response = await gitlabChatApi.processNewUserPrompt(mockPrompt, undefined, fileContext);
 
       expect(response.aiAction).toBe(mockedMutationResponse.aiAction);
 

@@ -25,3 +25,5 @@ export const serializeAccountSafe = (account: Account) =>
 
 export const makeAccountId = (instanceUrl: string, userId: string | number) =>
   `${instanceUrl}|${userId}`;
+
+export const extractUserId = (accountId: string) => accountId.split('|').pop();

@@ -4,7 +4,11 @@ import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { GitLabChatRecord } from './gitlab_chat_record';
 import { submitFeedback } from './utils/submit_feedback';
 
-const apiMock = { processNewUserPrompt: jest.fn(), pullAiMessage: jest.fn() };
+const apiMock = {
+  processNewUserPrompt: jest.fn(),
+  pullAiMessage: jest.fn(),
+  subscribeToUpdates: jest.fn(),
+};
 
 jest.mock('./gitlab_chat_api', () => ({
   GitLabChatApi: jest.fn().mockImplementation(() => apiMock),
@@ -196,7 +200,11 @@ describe('GitLabChatController', () => {
 
       await controller.processNewUserRecord(record);
 
-      expect(apiMock.processNewUserPrompt).toHaveBeenCalledWith('hello', currentFileContext);
+      expect(apiMock.processNewUserPrompt).toHaveBeenCalledWith(
+        'hello',
+        expect.any(String),
+        currentFileContext,
+      );
     });
 
     describe('with newChatConversation command', () => {

@@ -67,6 +67,7 @@ export default {
         }
         case 'newRecord': {
           this.newRecord(message.record);
+
           break;
         }
         case 'updateRecord': {
@@ -84,9 +85,7 @@ export default {
     },
     updateRecord(record) {
       const index = this.chatMessages.findIndex(r => r.id === record.id);
-
       this.chatMessages.splice(index, 1, record);
-
       this.scrollBottom();
     },
     scrollBottom() {
