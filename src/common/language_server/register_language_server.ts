@@ -11,87 +11,95 @@ import { getClientContext } from './get_client_context';
 import { createCodeSuggestionAcceptedCommand } from '../code_suggestions/commands/ls_suggestion_accepted';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { GitLabPlatformManagerForCodeSuggestions } from '../code_suggestions/gitlab_platform_manager_for_code_suggestions';
+import { CONFIG_NAMESPACE } from '../constants';
 
-export const LANGUAGE_CLIENT_OPTIONS: LanguageClientOptions = {
+const LANGUAGE_CLIENT_OPTIONS: LanguageClientOptions = {
   documentSelector: AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.map(language => ({ language })),
 };
 
-// 1. starts the VS Code client
-// 2. synchronizes settings when VS Code settings change
-// 3. performs token check
-export function registerLanguageServer(
-  context: vscode.ExtensionContext,
-  clientFactory: LanguageClientFactory,
-  gitlabPlatformManager: GitLabPlatformManager,
-) {
-  const client = clientFactory.createLanguageClient(context, {
-    ...LANGUAGE_CLIENT_OPTIONS,
-    initializationOptions: getClientContext(),
-  });
-  client.registerProposedFeatures();
-  context.subscriptions.push(
-    vscode.commands.registerCommand(
-      SUGGESTION_ACCEPTED_COMMAND,
-      createCodeSuggestionAcceptedCommand(client),
-    ),
-  );
-  context.subscriptions.push(
-    vscode.workspace.onDidChangeConfiguration(async e => {
-      if (!e.affectsConfiguration('gitlab')) {
-        return;
-      }
+export class LanguageClientWrapper {
+  #client: BaseLanguageClient;
 
-      await syncConfig(client, gitlabPlatformManager);
-    }),
+  #gitlabPlatformManager: GitLabPlatformManager;
 
+  #subscriptions: vscode.Disposable[] = [];
+
+  constructor(client: BaseLanguageClient, manager: GitLabPlatformManager) {
+    this.#client = client;
+    this.#gitlabPlatformManager = manager;
+  }
+
+  async initAndStart() {
+    this.#client.registerProposedFeatures();
+    this.#subscriptions.push();
     // TODO: export `NotificationType`s from LSP
     // https://gitlab.com/gitlab-org/editor-extensions/gitlab-language-server-for-code-suggestions/-/blob/v1.0.1/src/common/connection.ts#L61
-    client.onNotification(
+    this.#client.onNotification(
       '$/gitlab/token/check',
       (/* { message, reason }: TokenCheckResponse */) => {
         // TODO: set status to API error
       },
-    ),
-    gitlabPlatformManager.onAccountChange(() => syncConfig(client, gitlabPlatformManager)),
-
-    start(client, gitlabPlatformManager),
-  );
-}
-
-async function syncConfig(
-  client: BaseLanguageClient,
-  gitlabPlatformManager: GitLabPlatformManager,
-) {
-  const suggestionManager = new GitLabPlatformManagerForCodeSuggestions(gitlabPlatformManager);
-  const platform = await suggestionManager.getGitLabPlatform();
-  if (!platform) {
-    // TODO handle errors like these in one place, don't spread the error handling throughout the LS logic
-    // This should notify the sate manager that will be implemented in https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/1052
-    await vscode.window.showErrorMessage(
-      'There is no GitLab account available with access to suggestions',
     );
-    return;
+    await this.#client.start();
+    this.#subscriptions.push({ dispose: () => this.#client.stop() });
+    await this.syncConfig();
   }
-  const settings: IConfig = {
-    baseUrl: platform.account.instanceUrl,
-    token: platform.account.token,
-    telemetry: {
-      actions: [{ action: TRACKING_EVENTS.ACCEPTED }],
-    },
+
+  syncConfig = async () => {
+    const suggestionManager = new GitLabPlatformManagerForCodeSuggestions(
+      this.#gitlabPlatformManager,
+    );
+    const platform = await suggestionManager.getGitLabPlatform();
+    if (!platform) {
+      // TODO handle errors like these in one place, don't spread the error handling throughout the LS logic
+      // This should notify the sate manager that will be implemented in https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/1052
+      await vscode.window.showErrorMessage(
+        'There is no GitLab account available with access to suggestions',
+      );
+      return;
+    }
+    const settings: IConfig = {
+      baseUrl: platform.account.instanceUrl,
+      token: platform.account.token,
+      telemetry: {
+        actions: [{ action: TRACKING_EVENTS.ACCEPTED }],
+      },
+    };
+
+    await this.#client.sendNotification(DidChangeConfigurationNotification.type, {
+      settings,
+    });
   };
 
-  await client.sendNotification(DidChangeConfigurationNotification.type, {
-    settings,
+  dispose = () => {
+    this.#subscriptions.forEach(s => s.dispose());
+  };
+}
+
+export const registerLanguageServer = async (
+  context: vscode.ExtensionContext,
+  clientFactory: LanguageClientFactory,
+  gitlabPlatformManager: GitLabPlatformManager,
+) => {
+  const client = clientFactory.createLanguageClient(context, {
+    ...LANGUAGE_CLIENT_OPTIONS,
+    initializationOptions: getClientContext(),
   });
-}
+  const wrapper = new LanguageClientWrapper(client, gitlabPlatformManager);
+  await wrapper.initAndStart();
+  context.subscriptions.push(
+    wrapper,
+    vscode.commands.registerCommand(
+      SUGGESTION_ACCEPTED_COMMAND,
+      createCodeSuggestionAcceptedCommand(client),
+    ),
+    vscode.workspace.onDidChangeConfiguration(async e => {
+      if (e.affectsConfiguration(CONFIG_NAMESPACE)) {
+        return;
+      }
 
-function start(client: BaseLanguageClient, gitlabPlatformManager: GitLabPlatformManager) {
-  const started = client.start().then(() => syncConfig(client, gitlabPlatformManager));
-
-  return {
-    dispose: async () => {
-      await started;
-      await client.stop();
-    },
-  };
-}
+      await wrapper.syncConfig();
+    }),
+    gitlabPlatformManager.onAccountChange(wrapper.syncConfig),
+  );
+};
