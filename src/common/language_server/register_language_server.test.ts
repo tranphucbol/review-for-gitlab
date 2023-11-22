@@ -9,29 +9,29 @@ import { gitlabPlatformForAccount } from '../test_utils/entities';
 jest.mock('../code_suggestions/gitlab_platform_manager_for_code_suggestions');
 
 describe('LanguageClientWrapper', () => {
-  describe('initAndStart', () => {
-    let client: BaseLanguageClient;
+  let client: BaseLanguageClient;
 
-    // this value is ignored and used only as an argument when constructing GitLabManagerForCodeSuggestions
-    const fakeManager = createFakePartial<GitLabPlatformManager>({});
+  // this value is ignored and used only as an argument when constructing GitLabManagerForCodeSuggestions
+  const fakeManager = createFakePartial<GitLabPlatformManager>({});
 
-    let gitLabPlatform: GitLabPlatformForAccount;
+  let gitLabPlatform: GitLabPlatformForAccount;
 
-    beforeEach(() => {
-      gitLabPlatform = gitlabPlatformForAccount;
-      jest.mocked(GitLabPlatformManagerForCodeSuggestions).mockReturnValue(
-        createFakePartial<GitLabPlatformManagerForCodeSuggestions>({
-          getGitLabPlatform: async () => gitLabPlatform,
-        }),
-      );
-      client = createFakePartial<BaseLanguageClient>({
-        start: jest.fn(),
-        stop: jest.fn(),
-        registerProposedFeatures: jest.fn(),
-        onNotification: jest.fn(),
-        sendNotification: jest.fn(),
-      });
+  beforeEach(() => {
+    gitLabPlatform = gitlabPlatformForAccount;
+    jest.mocked(GitLabPlatformManagerForCodeSuggestions).mockReturnValue(
+      createFakePartial<GitLabPlatformManagerForCodeSuggestions>({
+        getGitLabPlatform: async () => gitLabPlatform,
+      }),
+    );
+    client = createFakePartial<BaseLanguageClient>({
+      start: jest.fn(),
+      stop: jest.fn(),
+      registerProposedFeatures: jest.fn(),
+      onNotification: jest.fn(),
+      sendNotification: jest.fn(),
     });
+  });
+  describe('initAndStart', () => {
     it('starts the client and synchronizes the configuration', async () => {
       const wrapper = new LanguageClientWrapper(client, fakeManager);
 
@@ -60,6 +60,24 @@ describe('LanguageClientWrapper', () => {
       wrapper.dispose();
 
       expect(client.stop).toHaveBeenCalled();
+    });
+  });
+
+  describe('sendSuggestionAcceptedEvent', () => {
+    it('sends accepted notification', async () => {
+      const wrapper = new LanguageClientWrapper(client, fakeManager);
+
+      // this is important step, we reference the function WITHOUT it's class instance
+      // to test that we can pass it around as a command
+      const { sendSuggestionAcceptedEvent } = wrapper;
+
+      await sendSuggestionAcceptedEvent('tracking id test');
+
+      expect(client.sendNotification).toHaveBeenCalledWith('$/gitlab/telemetry', {
+        category: 'code_suggestions',
+        action: TRACKING_EVENTS.ACCEPTED,
+        context: { trackingId: 'tracking id test' },
+      });
     });
   });
 });

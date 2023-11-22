@@ -1,5 +1,10 @@
 import vscode from 'vscode';
-import { IConfig, SUGGESTION_ACCEPTED_COMMAND, TRACKING_EVENTS } from '@gitlab-org/gitlab-lsp';
+import {
+  IConfig,
+  SUGGESTION_ACCEPTED_COMMAND,
+  TELEMETRY_NOTIFICATION,
+  TRACKING_EVENTS,
+} from '@gitlab-org/gitlab-lsp';
 import {
   BaseLanguageClient,
   DidChangeConfigurationNotification,
@@ -8,7 +13,6 @@ import {
 import { AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES } from '../code_suggestions/constants';
 import { LanguageClientFactory } from './client_factory';
 import { getClientContext } from './get_client_context';
-import { createCodeSuggestionAcceptedCommand } from '../code_suggestions/commands/ls_suggestion_accepted';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { GitLabPlatformManagerForCodeSuggestions } from '../code_suggestions/gitlab_platform_manager_for_code_suggestions';
 import { CONFIG_NAMESPACE } from '../constants';
@@ -71,6 +75,13 @@ export class LanguageClientWrapper {
     });
   };
 
+  sendSuggestionAcceptedEvent = async (trackingId: string) =>
+    this.#client.sendNotification(TELEMETRY_NOTIFICATION, {
+      category: 'code_suggestions',
+      action: TRACKING_EVENTS.ACCEPTED,
+      context: { trackingId },
+    });
+
   dispose = () => {
     this.#subscriptions.forEach(s => s.dispose());
   };
@@ -91,7 +102,7 @@ export const registerLanguageServer = async (
     wrapper,
     vscode.commands.registerCommand(
       SUGGESTION_ACCEPTED_COMMAND,
-      createCodeSuggestionAcceptedCommand(client),
+      wrapper.sendSuggestionAcceptedEvent,
     ),
     vscode.workspace.onDidChangeConfiguration(async e => {
       if (e.affectsConfiguration(CONFIG_NAMESPACE)) {
