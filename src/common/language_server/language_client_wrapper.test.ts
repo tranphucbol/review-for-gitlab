@@ -1,7 +1,7 @@
 import { TRACKING_EVENTS } from '@gitlab-org/gitlab-lsp';
 import { BaseLanguageClient, DidChangeConfigurationNotification } from 'vscode-languageclient';
+import { LanguageClientWrapper } from './language_client_wrapper';
 import { createFakePartial } from '../test_utils/create_fake_partial';
-import { LanguageClientWrapper } from './register_language_server';
 import { GitLabPlatformManagerForCodeSuggestions } from '../code_suggestions/gitlab_platform_manager_for_code_suggestions';
 import { GitLabPlatformForAccount, GitLabPlatformManager } from '../platform/gitlab_platform';
 import { gitlabPlatformForAccount } from '../test_utils/entities';
