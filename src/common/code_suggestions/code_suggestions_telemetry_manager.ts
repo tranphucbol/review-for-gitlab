@@ -14,7 +14,6 @@ export enum CodeSuggestionTelemetryState {
   NOT_PROVIDED = 'suggestion_not_provided',
 }
 
-// eslint-disable-next-line no-shadow
 export enum RejectCodeSuggestionReason {
   DeletingSingleCharacter = 'deleting_single_character',
   TypingRepeatedSpaces = 'typing_repeated_spaces',

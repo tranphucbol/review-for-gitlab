@@ -7,7 +7,7 @@
 
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-continue */
-/* eslint-disable no-shadow */
+
 /* eslint-disable no-bitwise */
 
 export enum ColorFlags {

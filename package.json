@@ -218,7 +218,7 @@
     "package": "node scripts/package.mjs",
     "publish": "vsce publish",
     "clean": "node scripts/clean.mjs",
-    "lint": "eslint --ext .js --ext .ts --ext .mjs . && prettier --check '**/*.{js,ts,mjs,vue,json,md}' && npm run --prefix webviews/vue lint && npm run --prefix webviews/vue2 lint",
+    "lint": "eslint --report-unused-disable-directives --ext .js --ext .ts --ext .mjs . && prettier --check '**/*.{js,ts,mjs,vue,json,md}' && npm run --prefix webviews/vue lint && npm run --prefix webviews/vue2 lint",
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "jest",
     "prepare:test:integration": "npm run build:desktop && cp -R node_modules dist-desktop/ && node scripts/create_test_workspace.mjs",
