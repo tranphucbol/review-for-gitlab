@@ -43,9 +43,9 @@ export class CodeSuggestionsStateManager {
 
   onDidChangeVisibleState = this.#changeVisibleStateEmitter.event;
 
-  #changeEnabledStateEmitter = new vscode.EventEmitter<boolean>();
+  #changeDisabledByUserStateEmitter = new vscode.EventEmitter<boolean>();
 
-  onDidChangeEnabledState = this.#changeEnabledStateEmitter.event;
+  onDidChangeDisabledByUserState = this.#changeDisabledByUserStateEmitter.event;
 
   constructor() {
     this.#disabledInSettings = !getAiAssistedCodeSuggestionsConfiguration().enabled;
@@ -68,8 +68,8 @@ export class CodeSuggestionsStateManager {
     );
   }
 
-  isEnabled() {
-    return !(this.#disabledInSettings || this.#isDisabledByUserForSession);
+  isDisabledByUser() {
+    return this.#disabledInSettings || this.#isDisabledByUserForSession;
   }
 
   getVisibleState(): VisibleCodeSuggestionsState {
@@ -90,17 +90,17 @@ export class CodeSuggestionsStateManager {
 
   #updateState(handler: () => void) {
     const previousVisibleState = this.getVisibleState();
-    const previousEnabled = this.isEnabled();
+    const previousDisabledByUser = this.isDisabledByUser();
     handler();
     const newVisibleState = this.getVisibleState();
-    const newEnabled = this.isEnabled();
+    const newDisabledByUser = this.isDisabledByUser();
 
     if (previousVisibleState !== newVisibleState) {
       this.#changeVisibleStateEmitter.fire(newVisibleState);
     }
 
-    if (previousEnabled !== newEnabled) {
-      this.#changeEnabledStateEmitter.fire(newEnabled);
+    if (previousDisabledByUser !== newDisabledByUser) {
+      this.#changeDisabledByUserStateEmitter.fire(newDisabledByUser);
     }
   }
 

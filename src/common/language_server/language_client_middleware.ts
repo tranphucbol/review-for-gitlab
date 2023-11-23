@@ -24,7 +24,7 @@ export class LanguageClientMiddleware implements InlineCompletionMiddleware, Com
     token: vscode.CancellationToken,
     next: ProvideInlineCompletionItemsSignature,
   ) {
-    if (!this.#stateManager.isEnabled()) {
+    if (this.#stateManager.isDisabledByUser()) {
       return [];
     }
     return next(document, position, context, token);

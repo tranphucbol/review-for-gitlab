@@ -18,7 +18,7 @@ describe('LanguageClientMiddleware', () => {
 
     it('returns empty array if suggestions are in a disabled state', async () => {
       const stateManager = createFakePartial<CodeSuggestionsStateManager>({
-        isEnabled: () => false,
+        isDisabledByUser: () => true,
       });
       const middleware = new LanguageClientMiddleware(stateManager);
       const next = jest.fn();
@@ -37,7 +37,7 @@ describe('LanguageClientMiddleware', () => {
 
     it('calls through to default logic if suggestions are enabled', async () => {
       const stateManager = createFakePartial<CodeSuggestionsStateManager>({
-        isEnabled: () => true,
+        isDisabledByUser: () => false,
       });
       const middleware = new LanguageClientMiddleware(stateManager);
       const item = createFakePartial<vscode.InlineCompletionItem>({});

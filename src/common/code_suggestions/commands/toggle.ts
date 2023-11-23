@@ -16,6 +16,6 @@ export const toggleCodeSuggestions = async ({
     await setAiAssistedCodeSuggestionsConfiguration({ enabled: true });
   } else {
     // Disable/enable extension only per session
-    stateManager.setTemporaryDisabled(stateManager.isEnabled());
+    stateManager.setTemporaryDisabled(!stateManager.isDisabledByUser());
   }
 };

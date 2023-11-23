@@ -3,17 +3,16 @@ import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { gitlabPlatformForAccount, gitlabPlatformForProject } from '../test_utils/entities';
 import { CodeSuggestions } from './code_suggestions';
 import { createFakePartial } from '../test_utils/create_fake_partial';
+import { CodeSuggestionsStateManager } from './code_suggestions_state_manager';
 
 jest.mock('./code_suggestions_state_manager', () => ({
   ...jest.requireActual('./code_suggestions_state_manager'),
-  CodeSuggestionsStateManager: function CodeSuggestionsStateManager() {
-    return {
-      isEnabled: jest.fn().mockResolvedValue(true),
-      setGlobalState: jest.fn(),
-      onDidChangeEnabledState: jest.fn(),
-      setUnsupportedLanguageDocument: jest.fn(),
+  CodeSuggestionsStateManager: function ConstructorFunc() {
+    return createFakePartial<CodeSuggestionsStateManager>({
+      isDisabledByUser: jest.fn().mockReturnValue(false),
+      onDidChangeDisabledByUserState: jest.fn(),
       dispose: jest.fn(),
-    };
+    });
   },
 }));
 
@@ -58,23 +57,23 @@ describe('CodeSuggestions', () => {
 
     beforeEach(() => {
       [[changeListener]] = jest.mocked(
-        codeSuggestions.stateManager.onDidChangeEnabledState,
+        codeSuggestions.stateManager.onDidChangeDisabledByUserState,
       ).mock.calls;
     });
 
     it('registers code suggestion provider when state becomes enabled', () => {
-      jest.mocked(codeSuggestions.stateManager.isEnabled).mockReturnValue(true);
+      jest.mocked(codeSuggestions.stateManager.isDisabledByUser).mockReturnValue(false);
       jest.mocked(vscode.languages.registerInlineCompletionItemProvider).mockClear();
 
-      changeListener(true);
+      changeListener(false);
 
       expect(vscode.languages.registerInlineCompletionItemProvider).toHaveBeenCalled();
     });
 
     it('unregisters code suggestion provider when state becomes disabled', () => {
-      jest.mocked(codeSuggestions.stateManager.isEnabled).mockReturnValue(false);
+      jest.mocked(codeSuggestions.stateManager.isDisabledByUser).mockReturnValue(true);
 
-      changeListener(false);
+      changeListener(true);
 
       expect(codeSuggestions.providerDisposable?.dispose).toHaveBeenCalled();
     });

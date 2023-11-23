@@ -58,18 +58,18 @@ export class CodeSuggestions {
     };
 
     const enableOrDisableSuggestions = () => {
-      const enabled = this.stateManager.isEnabled();
-      if (enabled) {
-        log.debug('Enabling code completion');
-        register();
-      } else {
+      const disabledByUser = this.stateManager.isDisabledByUser();
+      if (disabledByUser) {
         log.debug('Disabling code completion');
         this.providerDisposable?.dispose();
         this.activeTextEditorChangeDisposable?.dispose();
+      } else {
+        log.debug('Enabling code completion');
+        register();
       }
     };
 
-    this.stateManager.onDidChangeEnabledState(enableOrDisableSuggestions);
+    this.stateManager.onDidChangeDisabledByUserState(enableOrDisableSuggestions);
     enableOrDisableSuggestions();
   }
 
