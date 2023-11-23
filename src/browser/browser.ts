@@ -27,7 +27,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   await activateCommon(context, dependencyContainer, outputChannel);
 
   if (featureFlags.isEnabled(featureFlags.FeatureFlag.LanguageServer)) {
-    registerLanguageServer(
+    await registerLanguageServer(
       context,
       browserLanguageClientFactory,
       dependencyContainer.gitLabPlatformManager,
