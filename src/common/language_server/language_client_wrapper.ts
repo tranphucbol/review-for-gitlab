@@ -1,19 +1,35 @@
 import vscode from 'vscode';
-import { IConfig, TELEMETRY_NOTIFICATION, TRACKING_EVENTS } from '@gitlab-org/gitlab-lsp';
+import {
+  API_ERROR_NOTIFICATION,
+  API_RECOVERY_NOTIFICATION,
+  IConfig,
+  TELEMETRY_NOTIFICATION,
+  TRACKING_EVENTS,
+  TokenCheckResponse,
+} from '@gitlab-org/gitlab-lsp';
 import { BaseLanguageClient, DidChangeConfigurationNotification } from 'vscode-languageclient';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { GitLabPlatformManagerForCodeSuggestions } from '../code_suggestions/gitlab_platform_manager_for_code_suggestions';
+import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
+import { log } from '../log';
 
 export class LanguageClientWrapper {
   #client: BaseLanguageClient;
 
   #gitlabPlatformManager: GitLabPlatformManager;
 
+  #stateManager: CodeSuggestionsStateManager;
+
   #subscriptions: vscode.Disposable[] = [];
 
-  constructor(client: BaseLanguageClient, manager: GitLabPlatformManager) {
+  constructor(
+    client: BaseLanguageClient,
+    platformManager: GitLabPlatformManager,
+    stateManager: CodeSuggestionsStateManager,
+  ) {
     this.#client = client;
-    this.#gitlabPlatformManager = manager;
+    this.#gitlabPlatformManager = platformManager;
+    this.#stateManager = stateManager;
   }
 
   async initAndStart() {
@@ -23,9 +39,16 @@ export class LanguageClientWrapper {
     // https://gitlab.com/gitlab-org/editor-extensions/gitlab-language-server-for-code-suggestions/-/blob/v1.0.1/src/common/connection.ts#L61
     this.#client.onNotification(
       '$/gitlab/token/check',
-      (/* { message, reason }: TokenCheckResponse */) => {
-        // TODO: set status to API error
+      ({ message, reason }: TokenCheckResponse) => {
+        log.warn(
+          `Token validation failed in Language Server: (${message} - ${reason}). This can happen with OAuth token refresh. If the rest of the extension works, this won't be a problem.`,
+        );
       },
+    );
+
+    this.#client.onNotification(API_ERROR_NOTIFICATION, () => this.#stateManager.setError(true));
+    this.#client.onNotification(API_RECOVERY_NOTIFICATION, () =>
+      this.#stateManager.setError(false),
     );
     await this.#client.start();
     this.#subscriptions.push({ dispose: () => this.#client.stop() });
@@ -53,6 +76,7 @@ export class LanguageClientWrapper {
       },
     };
 
+    log.info(`Configuring Language Server - baseUrl: ${platform.account.instanceUrl}`);
     await this.#client.sendNotification(DidChangeConfigurationNotification.type, {
       settings,
     });

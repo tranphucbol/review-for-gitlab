@@ -31,7 +31,7 @@ export const registerLanguageServer = async (
     initializationOptions: getClientContext(),
     middleware: new LanguageClientMiddleware(stateManager),
   });
-  const wrapper = new LanguageClientWrapper(client, gitlabPlatformManager);
+  const wrapper = new LanguageClientWrapper(client, gitlabPlatformManager, stateManager);
   await wrapper.initAndStart();
   context.subscriptions.push(
     wrapper,
