@@ -27,6 +27,12 @@ export class LanguageClientMiddleware implements InlineCompletionMiddleware, Com
     if (this.#stateManager.isDisabledByUser()) {
       return [];
     }
-    return next(document, position, context, token);
+
+    this.#stateManager.setLoading(true);
+    try {
+      return await next(document, position, context, token);
+    } finally {
+      this.#stateManager.setLoading(false);
+    }
   }
 }
