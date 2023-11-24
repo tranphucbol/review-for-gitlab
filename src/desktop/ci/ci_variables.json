@@ -77,7 +77,7 @@
   },
   {
     "name": "CI_COMMIT_TIMESTAMP",
-    "description": "The timestamp of the commit in the [ISO 8601](https://www.rfc-editor.org/rfc/rfc3339#appendix-A) format."
+    "description": "The timestamp of the commit in the [ISO 8601](https://www.rfc-editor.org/rfc/rfc3339#appendix-A) format. For example, `2022-01-31T16:47:55Z`."
   },
   {
     "name": "CI_COMMIT_TITLE",
@@ -237,7 +237,7 @@
   },
   {
     "name": "CI_JOB_STARTED_AT",
-    "description": "The UTC datetime when a job started, in [ISO 8601](https://www.rfc-editor.org/rfc/rfc3339#appendix-A) format."
+    "description": "The UTC datetime when a job started, in [ISO 8601](https://www.rfc-editor.org/rfc/rfc3339#appendix-A) format. For example, `2022-01-31T16:47:55Z`."
   },
   {
     "name": "CI_JOB_STATUS",
@@ -268,6 +268,10 @@
     "description": "Comma-separated list of usernames of assignees for the merge request."
   },
   {
+    "name": "CI_MERGE_REQUEST_DESCRIPTION",
+    "description": "The description of the merge request."
+  },
+  {
     "name": "CI_MERGE_REQUEST_DIFF_BASE_SHA",
     "description": "The base SHA of the merge request diff."
   },
@@ -281,11 +285,11 @@
   },
   {
     "name": "CI_MERGE_REQUEST_ID",
-    "description": "The instance-level ID of the merge request. This is a unique ID across all projects on GitLab."
+    "description": "The instance-level ID of the merge request. This is a unique ID across all projects on the GitLab instance."
   },
   {
     "name": "CI_MERGE_REQUEST_IID",
-    "description": "The project-level IID (internal ID) of the merge request. This ID is unique for the current project."
+    "description": "The project-level IID (internal ID) of the merge request. This ID is unique for the current project, and is the number used in the merge request URL, page title, and other visible locations."
   },
   {
     "name": "CI_MERGE_REQUEST_LABELS",
@@ -377,7 +381,7 @@
   },
   {
     "name": "CI_PIPELINE_CREATED_AT",
-    "description": "The UTC datetime when the pipeline was created, in [ISO 8601](https://www.rfc-editor.org/rfc/rfc3339#appendix-A) format."
+    "description": "The UTC datetime when the pipeline was created, in [ISO 8601](https://www.rfc-editor.org/rfc/rfc3339#appendix-A) format. For example, `2022-01-31T16:47:55Z`."
   },
   {
     "name": "CI_PIPELINE_ID",
@@ -461,19 +465,19 @@
   },
   {
     "name": "CI_REGISTRY",
-    "description": "The address of the GitLab Container Registry. Only available if the Container Registry is enabled for the project. This variable includes a `:port` value if one is specified in the registry configuration."
+    "description": "Address of the [container registry](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../../user/packages/container_registry/index.md) server, formatted as `<host>[:<port>]`. For example: `registry.gitlab.example.com`. Only available if the container registry is enabled for the GitLab instance."
   },
   {
     "name": "CI_REGISTRY_IMAGE",
-    "description": "The address of the project's Container Registry. Only available if the Container Registry is enabled for the project."
+    "description": "Base address for the container registry to push, pull, or tag project's images, formatted as `<host>[:<port>]/<project_full_path>`. For example: `registry.gitlab.example.com/my_group/my_project`. Image names must follow the [container registry naming convention](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/ci/variables/../../user/packages/container_registry/index.md#naming-convention-for-your-container-images). Only available if the container registry is enabled for the project."
   },
   {
     "name": "CI_REGISTRY_PASSWORD",
-    "description": "The password to push containers to the project's GitLab Container Registry. Only available if the Container Registry is enabled for the project. This password value is the same as the `CI_JOB_TOKEN` and is valid only as long as the job is running. Use the `CI_DEPLOY_PASSWORD` for long-lived access to the registry"
+    "description": "The password to push containers to the GitLab project's container registry. Only available if the container registry is enabled for the project. This password value is the same as the `CI_JOB_TOKEN` and is valid only as long as the job is running. Use the `CI_DEPLOY_PASSWORD` for long-lived access to the registry"
   },
   {
     "name": "CI_REGISTRY_USER",
-    "description": "The username to push containers to the project's GitLab Container Registry. Only available if the Container Registry is enabled for the project."
+    "description": "The username to push containers to the project's GitLab Container Registry. Only available if the container registry is enabled for the project."
   },
   {
     "name": "CI_RELEASE_DESCRIPTION",
@@ -597,7 +601,7 @@
   },
   {
     "name": "GITLAB_USER_ID",
-    "description": "The ID of the user who started the pipeline, unless the job is a manual job. In manual jobs, the value is the ID of the user who started the job."
+    "description": "The numeric ID of the user who started the pipeline, unless the job is a manual job. In manual jobs, the value is the ID of the user who started the job."
   },
   {
     "name": "GITLAB_USER_LOGIN",
@@ -605,7 +609,7 @@
   },
   {
     "name": "GITLAB_USER_NAME",
-    "description": "The name of the user who started the pipeline, unless the job is a manual job. In manual jobs, the value is the name of the user who started the job."
+    "description": "The display name of the user who started the pipeline, unless the job is a manual job. In manual jobs, the value is the name of the user who started the job."
   },
   {
     "name": "KUBECONFIG",
