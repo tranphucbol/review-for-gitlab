@@ -7,19 +7,14 @@ import { AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES } from './constants';
 
 type ValueOf<T> = T[keyof T];
 
-export type TemporaryCodeSuggestionsState = ValueOf<typeof TemporaryCodeSuggestionsState>;
-export const TemporaryCodeSuggestionsState = {
-  ERROR: 'code-suggestions-error',
-  LOADING: 'code-suggestions-loading',
-} as const;
-
 export type VisibleCodeSuggestionsState = ValueOf<typeof VisibleCodeSuggestionsState>;
 export const VisibleCodeSuggestionsState = {
   DISABLED_VIA_SETTINGS: 'code-suggestions-global-disabled-via-settings',
   READY: 'code-suggestions-global-ready',
   DISABLED_BY_USER: 'code-suggestions-disabled-by-user',
-  ...TemporaryCodeSuggestionsState,
   UNSUPPORTED_LANGUAGE: 'code-suggestions-document-unsupported-language',
+  ERROR: 'code-suggestions-error',
+  LOADING: 'code-suggestions-loading',
 } as const;
 
 const isSupportedLanguage = (editor: vscode.TextEditor) =>
@@ -32,12 +27,17 @@ export class CodeSuggestionsStateManager {
 
   #isDisabledByUserForSession = false;
 
-  #isUnsupportedLanguageDocument = false;
+  #isUnsupportedLanguage = false;
+  // //////////
+
+  // //////////
+  // boolean flags indicating temporary states
+  #isInErrorState = false;
+
+  #isLoading = false;
   // //////////
 
   #subscriptions: vscode.Disposable[] = [];
-
-  #temporaryState: TemporaryCodeSuggestionsState | null = null;
 
   #changeVisibleStateEmitter = new vscode.EventEmitter<VisibleCodeSuggestionsState>();
 
@@ -50,18 +50,14 @@ export class CodeSuggestionsStateManager {
   constructor() {
     this.#disabledInSettings = !getAiAssistedCodeSuggestionsConfiguration().enabled;
     const checkIfLanguageSupported = (te?: vscode.TextEditor) => {
-      this.#updateState(() => {
-        this.#isUnsupportedLanguageDocument = te ? !isSupportedLanguage(te) : false;
-      });
+      this.#setUnsupportedLanguage(te ? !isSupportedLanguage(te) : false);
     };
     checkIfLanguageSupported(vscode.window.activeTextEditor);
 
     this.#subscriptions.push(
       vscode.workspace.onDidChangeConfiguration(e => {
         if (e.affectsConfiguration(AI_ASSISTED_CODE_SUGGESTIONS_MODE)) {
-          this.#updateState(() => {
-            this.#disabledInSettings = !getAiAssistedCodeSuggestionsConfiguration().enabled;
-          });
+          this.#setDisabledInSettings(!getAiAssistedCodeSuggestionsConfiguration().enabled);
         }
       }),
       vscode.window.onDidChangeActiveTextEditor(checkIfLanguageSupported),
@@ -81,17 +77,25 @@ export class CodeSuggestionsStateManager {
       return VisibleCodeSuggestionsState.DISABLED_BY_USER;
     }
 
-    if (this.#isUnsupportedLanguageDocument) {
+    if (this.#isUnsupportedLanguage) {
       return VisibleCodeSuggestionsState.UNSUPPORTED_LANGUAGE;
     }
 
-    return this.#temporaryState || VisibleCodeSuggestionsState.READY;
+    if (this.#isInErrorState) {
+      return VisibleCodeSuggestionsState.ERROR;
+    }
+
+    if (this.#isLoading) {
+      return VisibleCodeSuggestionsState.LOADING;
+    }
+
+    return VisibleCodeSuggestionsState.READY;
   }
 
-  #updateState(handler: () => void) {
+  #updateStateWrapper = (handler: (v: boolean) => void) => (value: boolean) => {
     const previousVisibleState = this.getVisibleState();
     const previousDisabledByUser = this.isDisabledByUser();
-    handler();
+    handler(value);
     const newVisibleState = this.getVisibleState();
     const newDisabledByUser = this.isDisabledByUser();
 
@@ -102,19 +106,27 @@ export class CodeSuggestionsStateManager {
     if (previousDisabledByUser !== newDisabledByUser) {
       this.#changeDisabledByUserStateEmitter.fire(newDisabledByUser);
     }
-  }
+  };
 
-  setTemporaryState(newState: TemporaryCodeSuggestionsState | null) {
-    this.#updateState(() => {
-      this.#temporaryState = newState;
-    });
-  }
+  #setDisabledInSettings = this.#updateStateWrapper(isDisabled => {
+    this.#disabledInSettings = isDisabled;
+  });
 
-  setTemporaryDisabled(newState: boolean) {
-    this.#updateState(() => {
-      this.#isDisabledByUserForSession = newState;
-    });
-  }
+  #setUnsupportedLanguage = this.#updateStateWrapper(isUnsupportedLanguage => {
+    this.#isUnsupportedLanguage = isUnsupportedLanguage;
+  });
+
+  setError = this.#updateStateWrapper(isError => {
+    this.#isInErrorState = isError;
+  });
+
+  setLoading = this.#updateStateWrapper(isLoading => {
+    this.#isLoading = isLoading;
+  });
+
+  setTemporaryDisabled = this.#updateStateWrapper(isDisabled => {
+    this.#isDisabledByUserForSession = isDisabled;
+  });
 
   dispose() {
     this.#subscriptions.forEach(s => s.dispose());

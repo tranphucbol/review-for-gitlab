@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import {
   CodeSuggestionsStateManager,
   VisibleCodeSuggestionsState,
-  TemporaryCodeSuggestionsState,
 } from './code_suggestions_state_manager';
 import {
   createActiveTextEditorChangeTrigger,
@@ -69,7 +68,11 @@ describe('Code suggestions state manager', () => {
       expectedState: VisibleCodeSuggestionsState;
     }[] = [
       {
-        mutation: () => stateManager.setTemporaryState(TemporaryCodeSuggestionsState.ERROR),
+        mutation: () => stateManager.setLoading(true),
+        expectedState: VisibleCodeSuggestionsState.LOADING,
+      },
+      {
+        mutation: () => stateManager.setError(true),
         expectedState: VisibleCodeSuggestionsState.ERROR,
       },
       {
