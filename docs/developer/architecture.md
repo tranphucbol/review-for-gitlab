@@ -53,6 +53,12 @@ This section describes code specific to the Workflow Desktop version. The key th
 - can open multiple projects from multiple GitLab instances at once
 - can create multiple accounts even for the same instance
 
+## `browser`
+
+The primary goal of the content in the `browser` folder is to implement the `GitLabPlatform` in the browser. It uses mediator commands to communicate with the WebIDE. The folder's content also sets up telemetry for the browser environment.
+
+It also contains some WebIDE-unrelated logic (like `crypto` or providing empty UserAgent headers) because the browser can't override them.
+
 ### The key concepts
 
 - GitLab project is represented by a Git remote URL in the local repository.
@@ -106,11 +112,24 @@ The status bar is the last row at the bottom of the editor. We add multiple [Sta
 
 We periodically check for changes (every 30 seconds). [`CurrentBranchRefresher`](../../src/desktop/current_branch_refresher.ts) is responsible for refreshing the information. [`StatusBar`](../../src/desktop/status_bar.ts) is then responsible for adding the items to the status bar.
 
-### Webviews (`webviews/`) (desktop-only)
+### Webviews (`webviews/`)
 
-[Webview](https://code.visualstudio.com/api/extension-guides/webview) is an API that allows extensions to show a custom web page into an editor tab.
+[Webview](https://code.visualstudio.com/api/extension-guides/webview) is an API that allows extensions to show a custom web page in an editor tab or the side panel.
 
-We use Webview to show merge request and issue details (`webviews/issuable`). We use a separate NPM module with its tests and build system (`webpack`, `babel`). This NPM module contains a Vue app that is compiled into dist `js` files. `src/desktop/issuable_controller.js` is placed in the extension project, and initializes the whole Webview.
+Currently, the extension hosts webviews of different complexity: from the simple [pendingjob](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/4a6d73db6ec59e2a7c9f937f57382384994e85cd/webviews/pendingjob.html) residing in the root of `webviews/` to the more sophisticated Vue applications.
+
+The Vue webviews reside in the `webviews/vue` and `webviews/vue2` sub-folders. These folders are independent NPM packages with their own
+`package.json` and [`vite`](https://vitejs.dev/guide/) configurations and are compiled into different dist folders. They don't
+share dependencies with each other or with the main extension project. `webviews/vue` uses Vue 3, `webviews/vue2` uses Vue 2.
+
+Here are a couple of examples of the existing Vue webviews:
+
+- `webviews/vue/issuable` - Issuable. This webview shows merge requests and issue details in the side-panel.
+- `webviews/vue2/gitlab_duo_chat` - GitLab Duo Chat. This webview integrates [the GitLab Duo Chat](https://docs.gitlab.com/ee/development/ai_features/duo_chat.html) into the extension.
+
+#### Issuable Webview
+
+We use Issuable Webview Panel to show merge request and issue details (`webviews/vue/issuable`) in the editor's tab. `src/desktop/issuable_controller.js` is placed in the extension project, and initializes the issuable webview.
 
 ```mermaid
 graph LR;
@@ -118,15 +137,63 @@ subgraph extension
 A[GitLab Worflow] --> B[issuable_controller]
 end
 subgraph webview
-B --> C["dist/app.js"]
+B --> C["dist-desktop/webviews/issuable/assets/app.js"]
 C --> D[initialize App.vue]
+end
+
+```
+
+#### GitLab Duo Chat
+
+GitLab Duo Chat is a `common` webview and should work the same in desktop VS Code and Web IDE. (Compare to Issuable, which is a `desktop` webview.) GitLab Duo Chat is rendered in the sidebar.
+
+```mermaid
+graph LR;
+subgraph extension
+A[GitLab Worflow] --> B[gitlab_chat]
+B --> C[gitlab_chat_controller]
+C --> D[gitlab_chat_view]
+end
+subgraph webview
+D --> E["webviews/vue2/assets/app.js"]
+E --> F[initialize App.vue]
 end
 ```
 
-When creating a folder for a new webview, make sure to copy `webviews/vue/index-copy-this-into-a-new-webview-folder.html` as `index.html`
-into your webview's root and adjust it for your needs. The file contains a good-practices boilerplate to deal with `Content-Security-Policy`.
+#### Create a new webview
 
-To further understand how the extension communicates with Webview, read the [Webview extension guide](https://code.visualstudio.com/api/extension-guides/webview).
+##### Simple Webview
+
+Use a simple webview when you need minimal user interaction. This is useful for showing user non-interactive information.
+
+Copy the approach of the `pendingjob.html` webview:
+
+- [controller](https://gitlab.com/gitlab-org/gitlab-vscode-extension/blob/7bbd570118c43dea80c045bd5cf02b84d24a6ed5/src/desktop/ci/pending_job_webview_controller.ts#L15)
+- [webview](https://gitlab.com/gitlab-org/gitlab-vscode-extension/blob/7bbd570118c43dea80c045bd5cf02b84d24a6ed5/webviews/pendingjob.html#L1)
+
+##### Vue webview
+
+Use a Vue webview for interactive webviews. In interactive webviews users can, for example: add comments, toggle UI elements, and input text.
+
+1. Create a new folder:
+   - If you need `gitlab-ui` compatibility, create the folder in `webviews/vue2`.
+   - If you don't need `gitlab-ui` compatibility, create the folder in `webviews/vue`.
+1. Copy `webviews/index-copy-this-into-a-new-webview-folder.html` as `index.html` into your webview folder's root. Adjust it to meet your needs. The file contains a best-practices boilerplate for `Content-Security-Policy`.
+1. Structure the content in this folder as you see fit. If you create a Vue webview, you can extend the default vite configuration. Depending on your webview folder's location, it is in `webviews/vue/vite.config.shared.js` or `webviews/vue2/vite.config.shared.js`.
+1. Update `package.json` within the relevant `webviews/` sub-folder to include your new webview into the `watch` and `build` scripts. Your webview must be picked up when the whole extension is built.
+
+If you build a Vue webview, copied `webviews/index-copy-this-into-a-new-webview-folder.html` as `index.html`, and extended the `vite.config.shared.js`, running `npm run build` in the relevant `webviews/` sub-folder should build your webview into the following structure in `dist/`:
+
+```plaintext
+- index.html
+- assets
+  - app.js
+  - index.css
+```
+
+In this case, your extension will be automatically picked by the extension's build process while preparing all relevant webviews in `src/common/utils/webviews/prepare_webview_source.ts`.
+
+To understand how the extension communicates with Webview, read the [Webview extension guide](https://code.visualstudio.com/api/extension-guides/webview).
 
 ### Accounts (`src/desktop/accounts/account_service.ts`) (desktop-only)
 
