@@ -1,3 +1,17 @@
+# [3.87.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.86.1...v3.87.0) (2023-11-24)
+
+
+### Bug Fixes
+
+* Only catch unchanged_document in intellisense context ([ca24ae7](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/ca24ae72e7081ada2105c8eda7b98a1c45301c67))
+
+
+### Features
+
+* Language Server listens on account changes and updates token ([5b2aea3](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/5b2aea31164105490c271fa60af5482114569ed6))
+
+
+
 ## [3.86.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.86.0...v3.86.1) (2023-11-17)
 
 
