@@ -353,7 +353,10 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       clearTimeout(this.debouncedCall);
     }
 
-    if (this.documentChangesTracker.getLastChangeType(document) === SuggestionChangeType.NoChange) {
+    if (
+      this.documentChangesTracker.getLastChangeType(document) === SuggestionChangeType.NoChange &&
+      context.selectedCompletionInfo
+    ) {
       CodeSuggestionsTelemetryManager.rejectSuggestionRequest(
         RejectCodeSuggestionReason.UnchangedDocument,
       ).catch(e => log.error(e));
