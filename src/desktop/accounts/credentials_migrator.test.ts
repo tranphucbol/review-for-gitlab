@@ -1,6 +1,6 @@
 import { ExtensionContext } from 'vscode';
 import { createTokenAccount, user } from '../test_utils/entities';
-import { SecretStorage } from '../test_utils/secret_storage';
+import { SecretStorage } from '../../common/test_utils/secret_storage';
 import { AccountService } from './account_service';
 import { Credentials } from './credentials';
 import { migrateCredentials } from './credentials_migrator';

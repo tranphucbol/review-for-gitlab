@@ -43,7 +43,7 @@ export const registerLanguageServer = async (
       toggleCodeSuggestions({ stateManager }),
     ),
     vscode.workspace.onDidChangeConfiguration(async e => {
-      if (e.affectsConfiguration(CONFIG_NAMESPACE)) {
+      if (!e.affectsConfiguration(CONFIG_NAMESPACE)) {
         return;
       }
 

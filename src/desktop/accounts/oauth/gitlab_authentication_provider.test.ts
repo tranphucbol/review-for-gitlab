@@ -4,12 +4,13 @@ import { GitLabService } from '../../gitlab/gitlab_service';
 import { GitLabUriHandler } from '../../gitlab_uri_handler';
 import { openUrl } from '../../commands/openers';
 import { asMock } from '../../test_utils/as_mock';
-import { createExtensionContext, createOAuthAccount } from '../../test_utils/entities';
+import { createOAuthAccount } from '../../test_utils/entities';
 import { AccountService } from '../account_service';
 import { GitLabAuthenticationProvider } from './gitlab_authentication_provider';
 import { TokenExchangeService } from '../../gitlab/token_exchange_service';
 import { createFakeFetchFromApi } from '../../../common/test_utils/create_fake_fetch_from_api';
 import { currentUserRequest } from '../../../common/gitlab/api/get_current_user';
+import { createExtensionContext } from '../../../common/test_utils/entities';
 
 jest.mock('../../commands/openers');
 jest.mock('../../gitlab/gitlab_service');

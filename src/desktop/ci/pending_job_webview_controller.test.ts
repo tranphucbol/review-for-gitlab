@@ -2,9 +2,10 @@ import * as vscode from 'vscode';
 import { cancelJob, executeJob, retryJob } from '../commands/job_actions';
 import { TreeState } from '../current_branch_refresher';
 import { asMock } from '../test_utils/as_mock';
-import { job, projectInRepository, createExtensionContext } from '../test_utils/entities';
+import { job, projectInRepository } from '../test_utils/entities';
 import { JobItemModel } from '../tree_view/items/job_item_model';
 import { PendingJobWebviewController } from './pending_job_webview_controller';
+import { createExtensionContext } from '../../common/test_utils/entities';
 
 jest.mock('../commands/job_actions');
 jest.mock('../gitlab/get_gitlab_service');

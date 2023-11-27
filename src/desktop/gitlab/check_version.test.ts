@@ -5,8 +5,9 @@ import { log } from '../../common/log';
 import { gitlabProjectRepository } from './gitlab_project_repository';
 import { GitLabService } from './gitlab_service';
 import SpyInstance = jest.SpyInstance;
-import { createExtensionContext, createTokenAccount } from '../test_utils/entities';
+import { createTokenAccount } from '../test_utils/entities';
 import { accountService } from '../accounts/account_service';
+import { createExtensionContext } from '../../common/test_utils/entities';
 
 describe('check_version', () => {
   describe('getVersionForEachRepo', () => {

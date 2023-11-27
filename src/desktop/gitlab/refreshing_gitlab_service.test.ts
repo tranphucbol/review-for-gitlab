@@ -1,6 +1,7 @@
 import { Account } from '../../common/platform/gitlab_account';
+import { createExtensionContext } from '../../common/test_utils/entities';
 import { AccountService } from '../accounts/account_service';
-import { createExtensionContext, createOAuthAccount } from '../test_utils/entities';
+import { createOAuthAccount } from '../test_utils/entities';
 import { RefreshingGitLabService } from './refreshing_gitlab_service';
 import { TokenExchangeService } from './token_exchange_service';
 
