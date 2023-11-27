@@ -10,7 +10,7 @@ import { LegacyApiFallbackConfig } from './legacy_api_fallback_config';
 import { GitLabPlatformManagerForCodeSuggestions } from './gitlab_platform_manager_for_code_suggestions';
 
 export class CodeSuggestions {
-  stateManager = new CodeSuggestionsStateManager();
+  stateManager: CodeSuggestionsStateManager;
 
   statusBarItem: CodeSuggestionsStatusBarItem;
 
@@ -23,6 +23,7 @@ export class CodeSuggestions {
   legacyApiFallbackConfig: LegacyApiFallbackConfig;
 
   constructor(manager: GitLabPlatformManager) {
+    this.stateManager = new CodeSuggestionsStateManager(manager);
     this.toggleSuggestionsCommand = vscode.commands.registerCommand(
       COMMAND_TOGGLE_CODE_SUGGESTIONS,
       () => toggleCodeSuggestions({ stateManager: this.stateManager }),
@@ -71,6 +72,10 @@ export class CodeSuggestions {
 
     this.stateManager.onDidChangeDisabledByUserState(enableOrDisableSuggestions);
     enableOrDisableSuggestions();
+  }
+
+  async init() {
+    await this.stateManager.init();
   }
 
   dispose() {

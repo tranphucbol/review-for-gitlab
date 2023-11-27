@@ -31,6 +31,10 @@ export const CODE_SUGGESTIONS_STATUSES: Record<VisibleCodeSuggestionsState, ISta
     text: '$(gitlab-code-suggestions-disabled)',
     tooltip: 'Code suggestions are disabled per user request. Click to enable',
   },
+  [VisibleCodeSuggestionsState.NO_ACCOUNT]: {
+    text: '$(gitlab-code-suggestions-disabled)',
+    tooltip: 'Code suggestions are disabled because there is no user account',
+  },
 };
 
 export class CodeSuggestionsStatusBarItem {

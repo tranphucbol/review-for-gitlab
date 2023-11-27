@@ -29,6 +29,7 @@ import {
   CodeSuggestionsTelemetryManager,
   CodeSuggestionTelemetryState,
 } from './code_suggestions_telemetry_manager';
+import { createFakePartial } from '../test_utils/create_fake_partial';
 
 jest.mock('../log');
 jest.mock('../fetch_logged');
@@ -194,8 +195,10 @@ describe('CodeSuggestionsProvider', () => {
     character: mockPrompt.length,
   } as vscode.Position;
 
+  const platformManager = createFakePartial<GitLabPlatformManager>({});
+
   beforeEach(() => {
-    stateManager = new CodeSuggestionsStateManager();
+    stateManager = new CodeSuggestionsStateManager(platformManager);
   });
 
   describe('getCompletions', () => {
@@ -467,7 +470,7 @@ describe('CodeSuggestionsProvider', () => {
       jest.mocked(vscode.workspace.getConfiguration).mockReturnValue({
         enabled: true,
       } as unknown as vscode.WorkspaceConfiguration);
-      stateManager = new CodeSuggestionsStateManager();
+      stateManager = new CodeSuggestionsStateManager(platformManager);
       manager = createManager(project);
       glcp = new CodeSuggestionsProvider({
         manager,

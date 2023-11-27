@@ -9,13 +9,16 @@ import {
   createFakeWorkspaceConfiguration,
 } from '../test_utils/vscode_fakes';
 import { createFakePartial } from '../test_utils/create_fake_partial';
+import { GitLabPlatformManager } from '../platform/gitlab_platform';
+import { gitlabPlatformForProject } from '../test_utils/entities';
 
 describe('Code suggestions state manager', () => {
   let triggerSettingsRefresh: () => void;
   let triggerActiveTextEditorChange: (te: vscode.TextEditor) => void;
   let stateManager: CodeSuggestionsStateManager;
+  let platformManager: GitLabPlatformManager;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vscode.window.activeTextEditor = undefined; // pretend that there is no active editor
 
     // these triggers need to be created BEFORE state manager adds listeners to VS Code API
@@ -27,7 +30,15 @@ describe('Code suggestions state manager', () => {
       .mocked(vscode.workspace.getConfiguration)
       .mockReturnValue(createFakeWorkspaceConfiguration({ enabled: true }));
 
-    stateManager = new CodeSuggestionsStateManager();
+    platformManager = createFakePartial<GitLabPlatformManager>({
+      // FIXME: this is also testing the GitLabPlatformManagerForCodeSuggestions
+      getForActiveProject: async () => gitlabPlatformForProject,
+      getForAllAccounts: async () => [],
+      onAccountChange: jest.fn(),
+    });
+
+    stateManager = new CodeSuggestionsStateManager(platformManager);
+    await stateManager.init();
   });
 
   const disableViaSettings = () => {
@@ -43,7 +54,7 @@ describe('Code suggestions state manager', () => {
         .mocked(vscode.workspace.getConfiguration)
         .mockReturnValue(createFakeWorkspaceConfiguration({ enabled: false }));
 
-      stateManager = new CodeSuggestionsStateManager();
+      stateManager = new CodeSuggestionsStateManager(platformManager);
 
       expect(stateManager.getVisibleState()).toBe(
         VisibleCodeSuggestionsState.DISABLED_VIA_SETTINGS,
@@ -55,14 +66,29 @@ describe('Code suggestions state manager', () => {
         document: { languageId: 'json' },
       });
 
-      stateManager = new CodeSuggestionsStateManager();
+      stateManager = new CodeSuggestionsStateManager(platformManager);
 
       expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.UNSUPPORTED_LANGUAGE);
     });
   });
 
+  describe('init', () => {
+    it('it checks if there is an account for suggestions', async () => {
+      platformManager = createFakePartial<GitLabPlatformManager>({
+        getForActiveProject: async () => undefined,
+        getForAllAccounts: async () => [],
+        onAccountChange: jest.fn(),
+      });
+
+      stateManager = new CodeSuggestionsStateManager(platformManager);
+      await stateManager.init();
+
+      expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.NO_ACCOUNT);
+    });
+  });
+
   describe('visible state', () => {
-    type StateMutation = () => void;
+    type StateMutation = () => void | Promise<void>;
     const mutationsFromLeastImportant: {
       mutation: StateMutation;
       expectedState: VisibleCodeSuggestionsState;
@@ -85,6 +111,13 @@ describe('Code suggestions state manager', () => {
         expectedState: VisibleCodeSuggestionsState.UNSUPPORTED_LANGUAGE,
       },
       {
+        mutation: async () => {
+          platformManager.getForActiveProject = async () => undefined;
+          await jest.mocked(platformManager.onAccountChange).mock.calls[0][0]();
+        },
+        expectedState: VisibleCodeSuggestionsState.NO_ACCOUNT,
+      },
+      {
         mutation: () => stateManager.setTemporaryDisabled(true),
         expectedState: VisibleCodeSuggestionsState.DISABLED_BY_USER,
       },
@@ -94,23 +127,28 @@ describe('Code suggestions state manager', () => {
       },
     ];
 
-    it('more important state takes precedence over less important state', () => {
+    it('more important state takes precedence over less important state', async () => {
       expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.READY);
 
-      mutationsFromLeastImportant.forEach(scenario => {
-        scenario.mutation();
+      for (const scenario of mutationsFromLeastImportant) {
+        // we want to ensure that we execute the mutations in series
+        // eslint-disable-next-line no-await-in-loop
+        await scenario.mutation();
         expect(stateManager.getVisibleState()).toBe(scenario.expectedState);
-      });
+      }
     });
 
     it('every state change triggers an event', async () => {
       const visibleStateChangeListener = jest.fn();
       stateManager.onDidChangeVisibleState(visibleStateChangeListener);
-      mutationsFromLeastImportant.forEach(scenario => {
+
+      for (const scenario of mutationsFromLeastImportant) {
         visibleStateChangeListener.mockReset();
-        scenario.mutation();
+        // we want to ensure that we execute the mutations in series
+        // eslint-disable-next-line no-await-in-loop
+        await scenario.mutation();
         expect(visibleStateChangeListener).toHaveBeenCalledWith(scenario.expectedState);
-      });
+      }
     });
   });
 

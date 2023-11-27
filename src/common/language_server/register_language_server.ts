@@ -24,7 +24,8 @@ export const registerLanguageServer = async (
   clientFactory: LanguageClientFactory,
   gitlabPlatformManager: GitLabPlatformManager,
 ) => {
-  const stateManager = new CodeSuggestionsStateManager();
+  const stateManager = new CodeSuggestionsStateManager(gitlabPlatformManager);
+  await stateManager.init();
   const statusBarItem = new CodeSuggestionsStatusBarItem(stateManager);
   const client = clientFactory.createLanguageClient(context, {
     ...LANGUAGE_CLIENT_OPTIONS,

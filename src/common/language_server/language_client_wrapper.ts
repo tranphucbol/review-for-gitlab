@@ -61,11 +61,7 @@ export class LanguageClientWrapper {
     );
     const platform = await suggestionManager.getGitLabPlatform();
     if (!platform) {
-      // TODO handle errors like these in one place, don't spread the error handling throughout the LS logic
-      // This should notify the sate manager that will be implemented in https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/1052
-      await vscode.window.showErrorMessage(
-        'There is no GitLab account available with access to suggestions',
-      );
+      log.warn('There is no GitLab account available with access to suggestions');
       return;
     }
     const settings: IConfig = {

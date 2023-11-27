@@ -271,7 +271,9 @@ export const activate = async (context: vscode.ExtensionContext) => {
       dependencyContainer.gitLabPlatformManager,
     );
   } else {
-    context.subscriptions.push(new CodeSuggestions(dependencyContainer.gitLabPlatformManager));
+    const codeSuggestions = new CodeSuggestions(dependencyContainer.gitLabPlatformManager);
+    await codeSuggestions.init();
+    context.subscriptions.push(codeSuggestions);
   }
 
   // we don't want to hold the extension startup by waiting on VS Code and GitLab API

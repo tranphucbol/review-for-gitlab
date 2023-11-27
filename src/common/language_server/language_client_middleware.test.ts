@@ -2,10 +2,13 @@ import vscode from 'vscode';
 import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
 import { createFakePartial } from '../test_utils/create_fake_partial';
 import { LanguageClientMiddleware } from './language_client_middleware';
+import { GitLabPlatformManager } from '../platform/gitlab_platform';
 
 describe('LanguageClientMiddleware', () => {
   it('disables standard completion - provideCompletionItem always returns empty array', () => {
-    const stateManager = new CodeSuggestionsStateManager();
+    const stateManager = new CodeSuggestionsStateManager(
+      createFakePartial<GitLabPlatformManager>({}),
+    );
     const middleware = new LanguageClientMiddleware(stateManager);
     expect(middleware.provideCompletionItem()).toEqual([]);
   });
