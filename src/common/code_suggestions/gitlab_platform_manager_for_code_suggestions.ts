@@ -72,7 +72,6 @@ export class GitLabPlatformManagerForCodeSuggestions {
 
     // Using a for await loop in this context because we want to stop
     // evaluating accounts as soon as we find one with code suggestions enabled
-    // eslint-disable-next-line no-restricted-syntax
     for await (const result of platforms.map(supportsCodeSuggestions)) {
       if (result.codeSuggestionsEnabled) {
         preferredPlatform = result.platform;
