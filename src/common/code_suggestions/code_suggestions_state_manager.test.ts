@@ -10,13 +10,17 @@ import {
 } from '../test_utils/vscode_fakes';
 import { createFakePartial } from '../test_utils/create_fake_partial';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
+import { GitLabPlatformManagerForCodeSuggestions } from './gitlab_platform_manager_for_code_suggestions';
 import { gitlabPlatformForProject } from '../test_utils/entities';
+
+jest.mock('./gitlab_platform_manager_for_code_suggestions');
 
 describe('Code suggestions state manager', () => {
   let triggerSettingsRefresh: () => void;
   let triggerActiveTextEditorChange: (te: vscode.TextEditor) => void;
   let stateManager: CodeSuggestionsStateManager;
   let platformManager: GitLabPlatformManager;
+  let suggestionsPlatformManager: GitLabPlatformManagerForCodeSuggestions;
 
   beforeEach(async () => {
     vscode.window.activeTextEditor = undefined; // pretend that there is no active editor
@@ -31,11 +35,15 @@ describe('Code suggestions state manager', () => {
       .mockReturnValue(createFakeWorkspaceConfiguration({ enabled: true }));
 
     platformManager = createFakePartial<GitLabPlatformManager>({
-      // FIXME: this is also testing the GitLabPlatformManagerForCodeSuggestions
-      getForActiveProject: async () => gitlabPlatformForProject,
-      getForAllAccounts: async () => [],
       onAccountChange: jest.fn(),
     });
+    // pretend there is a GitLab account
+    suggestionsPlatformManager = createFakePartial<GitLabPlatformManagerForCodeSuggestions>({
+      getGitLabPlatform: jest.fn().mockResolvedValue(gitlabPlatformForProject),
+    });
+    jest
+      .mocked(GitLabPlatformManagerForCodeSuggestions)
+      .mockReturnValue(suggestionsPlatformManager);
 
     stateManager = new CodeSuggestionsStateManager(platformManager);
     await stateManager.init();
@@ -74,11 +82,7 @@ describe('Code suggestions state manager', () => {
 
   describe('init', () => {
     it('it checks if there is an account for suggestions', async () => {
-      platformManager = createFakePartial<GitLabPlatformManager>({
-        getForActiveProject: async () => undefined,
-        getForAllAccounts: async () => [],
-        onAccountChange: jest.fn(),
-      });
+      jest.mocked(suggestionsPlatformManager.getGitLabPlatform).mockResolvedValue(undefined);
 
       stateManager = new CodeSuggestionsStateManager(platformManager);
       await stateManager.init();
@@ -112,7 +116,7 @@ describe('Code suggestions state manager', () => {
       },
       {
         mutation: async () => {
-          platformManager.getForActiveProject = async () => undefined;
+          jest.mocked(suggestionsPlatformManager.getGitLabPlatform).mockResolvedValue(undefined);
           await jest.mocked(platformManager.onAccountChange).mock.calls[0][0]();
         },
         expectedState: VisibleCodeSuggestionsState.NO_ACCOUNT,
@@ -207,7 +211,7 @@ describe('Code suggestions state manager', () => {
     });
 
     it('changes to inactive when there is no account', async () => {
-      platformManager.getForActiveProject = async () => undefined;
+      jest.mocked(suggestionsPlatformManager.getGitLabPlatform).mockResolvedValue(undefined);
       await jest.mocked(platformManager.onAccountChange).mock.calls[0][0]();
 
       expect(stateManager.isActive()).toBe(false);
