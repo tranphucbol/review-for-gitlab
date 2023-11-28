@@ -7,7 +7,7 @@ export const COMMAND_NEW_CHAT_CONVERSATION = 'gl.newChatConversation';
  * Command will start new chat conversation
  */
 export const newChatConversation = async (controller: GitLabChatController) => {
-  const record = new GitLabChatRecord({
+  const record = GitLabChatRecord.buildWithContext({
     role: 'user',
     type: 'newConversation',
     content: `/reset`,

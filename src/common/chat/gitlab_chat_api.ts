@@ -6,9 +6,15 @@ import { GitLabChatFileContext } from './gitlab_chat_file_context';
 
 export const AI_ACTIONS = {
   chat: gql`
-    mutation chat($question: String!, $resourceId: AiModelID, $currentFile: AiCurrentFileInput) {
+    mutation chat(
+      $question: String!
+      $resourceId: AiModelID
+      $currentFileContext: AiCurrentFileInput
+    ) {
       aiAction(
-        input: { chat: { resourceId: $resourceId, content: $question, currentFile: $currentFile } }
+        input: {
+          chat: { resourceId: $resourceId, content: $question, currentFile: $currentFileContext }
+        }
       ) {
         requestId
         errors
@@ -99,18 +105,9 @@ export class GitLabChatApi {
 
   async processNewUserPrompt(
     question: string,
-    activeFileContext: GitLabChatFileContext | null,
+    currentFileContext: GitLabChatFileContext | undefined = undefined,
   ): Promise<AiActionResponseType> {
-    const currentFile = activeFileContext
-      ? {
-          fileName: activeFileContext.fileName,
-          selectedText: activeFileContext.selectedText,
-          contentAboveCursor: activeFileContext.contentAboveCursor,
-          contentBelowCursor: activeFileContext.contentBelowCursor,
-        }
-      : null;
-
-    return this.sendAiAction(AI_ACTIONS.chat, { question, currentFile });
+    return this.sendAiAction(AI_ACTIONS.chat, { question, currentFileContext });
   }
 
   async pullAiMessage(requestId: string, role: string): Promise<AiMessage> {

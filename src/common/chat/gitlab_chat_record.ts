@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { buildCurrentContext, GitLabChatRecordContext } from './gitlab_chat_record_context';
 
 type ChatRecordRole = 'user' | 'assistant' | 'system';
 type ChatRecordState = 'pending' | 'ready';
@@ -11,7 +12,6 @@ type GitLabChatRecordAttributes = {
   contentHtml?: string;
   requestId?: string;
   state?: ChatRecordState;
-  payload?: object;
   errors?: string[];
   timestamp?: string;
   extras?: {
@@ -32,8 +32,6 @@ export class GitLabChatRecord {
 
   state: ChatRecordState;
 
-  payload?: object;
-
   timestamp: number;
 
   type: ChatRecordType;
@@ -44,6 +42,8 @@ export class GitLabChatRecord {
     sources: object[];
   };
 
+  context?: GitLabChatRecordContext;
+
   constructor({
     type,
     role,
@@ -51,7 +51,6 @@ export class GitLabChatRecord {
     contentHtml,
     state,
     requestId,
-    payload,
     errors,
     timestamp,
     extras,
@@ -61,12 +60,18 @@ export class GitLabChatRecord {
     this.contentHtml = contentHtml;
     this.type = type ?? this.detectType();
     this.state = state ?? 'ready';
-    this.payload = payload ?? {};
     this.requestId = requestId;
     this.errors = errors ?? [];
     this.id = uuidv4();
     this.timestamp = timestamp ? Date.parse(timestamp) : Date.now();
     this.extras = extras;
+  }
+
+  static buildWithContext(attributes: GitLabChatRecordAttributes): GitLabChatRecord {
+    const record = new GitLabChatRecord(attributes);
+    record.context = buildCurrentContext();
+
+    return record;
   }
 
   update(attributes: Partial<GitLabChatRecordAttributes>) {

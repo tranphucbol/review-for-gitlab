@@ -5,42 +5,25 @@ import {
   getTextBeforeSelected,
 } from './utils/editor_text_utils';
 
-type ChatFileContextAttributes = {
+export type GitLabChatFileContext = {
   fileName: string;
   selectedText: string;
   contentAboveCursor: string | null;
   contentBelowCursor: string | null;
 };
 
-export class GitLabChatFileContext {
-  fileName: string;
+export const getActiveFileContext = (): GitLabChatFileContext | undefined => {
+  const selectedText = getSelectedText();
+  const fileName = getActiveFileName();
 
-  selectedText: string;
-
-  contentAboveCursor: string | null;
-
-  contentBelowCursor: string | null;
-
-  constructor(attributes: ChatFileContextAttributes) {
-    this.fileName = attributes.fileName;
-    this.selectedText = attributes.selectedText;
-    this.contentAboveCursor = attributes.contentAboveCursor;
-    this.contentBelowCursor = attributes.contentBelowCursor;
+  if (!selectedText || !fileName) {
+    return undefined;
   }
 
-  static forActiveFile(): null | GitLabChatFileContext {
-    const selectedText = getSelectedText();
-    const fileName = getActiveFileName();
-
-    if (!selectedText || !fileName) {
-      return null;
-    }
-
-    return new GitLabChatFileContext({
-      selectedText,
-      fileName,
-      contentAboveCursor: getTextBeforeSelected(),
-      contentBelowCursor: getTextAfterSelected(),
-    });
-  }
-}
+  return {
+    selectedText,
+    fileName,
+    contentAboveCursor: getTextBeforeSelected(),
+    contentBelowCursor: getTextAfterSelected(),
+  };
+};
