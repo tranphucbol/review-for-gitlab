@@ -4,16 +4,17 @@ import {
   setAiAssistedCodeSuggestionsConfiguration,
 } from '../../utils/extension_configuration';
 import { CodeSuggestionsStateManager } from '../code_suggestions_state_manager';
+import { createFakePartial } from '../../test_utils/create_fake_partial';
 
 jest.mock('../../utils/extension_configuration', () => ({
   getAiAssistedCodeSuggestionsConfiguration: jest.fn(() => ({ enabled: false })),
   setAiAssistedCodeSuggestionsConfiguration: jest.fn(),
 }));
 
-const stateManager = {
+const stateManager = createFakePartial<CodeSuggestionsStateManager>({
   setTemporaryDisabled: jest.fn(),
-  isEnabled: jest.fn().mockReturnValue(true),
-} as unknown as CodeSuggestionsStateManager;
+  isDisabledByUser: jest.fn().mockReturnValue(false),
+});
 
 describe('toggle code suggestions command', () => {
   it('enables code suggestions globally if previously disabled', async () => {

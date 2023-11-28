@@ -12,10 +12,7 @@ import {
 } from './code_suggestions_telemetry';
 import { GitLabProject } from '../platform/gitlab_project';
 import { isEnabled, FeatureFlag } from '../feature_flags';
-import {
-  CodeSuggestionsStateManager,
-  TemporaryCodeSuggestionsState,
-} from './code_suggestions_state_manager';
+import { CodeSuggestionsStateManager } from './code_suggestions_state_manager';
 import {
   MODEL_GATEWAY_AI_ASSISTED_CODE_SUGGESTIONS_API_URL,
   GITLAB_AI_ASSISTED_CODE_SUGGESTIONS_API_PATH,
@@ -208,7 +205,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       log.warn(
         'AI Assist: could not obtain suggestions, there is no active project or GitLab account registered. Open GitLab project or authorise to GitLab account with code suggestions enabled to continue.',
       );
-      this.stateManager.setTemporaryState(TemporaryCodeSuggestionsState.ERROR);
+      this.stateManager.setError(true);
       return [];
     }
 
@@ -244,7 +241,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       isEnabled(FeatureFlag.ForceCodeSuggestionsViaMonolith);
 
     try {
-      this.stateManager.setTemporaryState(TemporaryCodeSuggestionsState.LOADING);
+      this.stateManager.setLoading(true);
       if (gitlabMonolithApiAvailable) {
         response = await this.fetchCompletionsFromGitLab(platform, prompt, traceID);
       } else {
@@ -259,8 +256,6 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
         response = await this.fetchCompletions(platform, token, prompt, traceID);
       }
 
-      this.stateManager.setTemporaryState(null);
-
       if (response.model !== undefined) model = response.model;
       if (response.experiments !== undefined) experiments = response.experiments;
       CodeSuggestionsTelemetryManager.setSuggestionModel(traceID, model.name, model.engine);
@@ -271,6 +266,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
         CodeSuggestionTelemetryState.LOADED,
       );
 
+      this.stateManager.setError(false);
       this.circuitBreaker.success();
 
       // The previous counts were successfully sent...
@@ -293,8 +289,8 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       }
     } catch (e) {
       log.error(`AI Assist: Error fetching completions: ${e.toString()}`);
+      this.stateManager.setError(true);
       this.circuitBreaker.error();
-      this.stateManager.setTemporaryState(TemporaryCodeSuggestionsState.ERROR);
 
       codeSuggestionsTelemetry.storeExperiments(model, experiments);
       codeSuggestionsTelemetry.incRequestCount(model);
@@ -305,6 +301,8 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
         CodeSuggestionTelemetryState.ERROR,
       );
       return [];
+    } finally {
+      this.stateManager.setLoading(false);
     }
     const choices = response.choices || [];
 

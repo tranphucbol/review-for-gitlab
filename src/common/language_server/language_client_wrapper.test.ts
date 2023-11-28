@@ -1,18 +1,30 @@
-import { TRACKING_EVENTS } from '@gitlab-org/gitlab-lsp';
-import { BaseLanguageClient, DidChangeConfigurationNotification } from 'vscode-languageclient';
+import {
+  API_ERROR_NOTIFICATION,
+  API_RECOVERY_NOTIFICATION,
+  TRACKING_EVENTS,
+} from '@gitlab-org/gitlab-lsp';
+import {
+  BaseLanguageClient,
+  DidChangeConfigurationNotification,
+  GenericNotificationHandler,
+} from 'vscode-languageclient';
 import { LanguageClientWrapper } from './language_client_wrapper';
 import { createFakePartial } from '../test_utils/create_fake_partial';
 import { GitLabPlatformManagerForCodeSuggestions } from '../code_suggestions/gitlab_platform_manager_for_code_suggestions';
 import { GitLabPlatformForAccount, GitLabPlatformManager } from '../platform/gitlab_platform';
 import { gitlabPlatformForAccount } from '../test_utils/entities';
+import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
 
 jest.mock('../code_suggestions/gitlab_platform_manager_for_code_suggestions');
+jest.mock('../log'); // disable logging in tests
 
 describe('LanguageClientWrapper', () => {
   let client: BaseLanguageClient;
 
   // this value is ignored and used only as an argument when constructing GitLabManagerForCodeSuggestions
   const fakeManager = createFakePartial<GitLabPlatformManager>({});
+
+  let stateManager: CodeSuggestionsStateManager;
 
   let gitLabPlatform: GitLabPlatformForAccount;
 
@@ -30,10 +42,14 @@ describe('LanguageClientWrapper', () => {
       onNotification: jest.fn(),
       sendNotification: jest.fn(),
     });
+    stateManager = createFakePartial<CodeSuggestionsStateManager>({
+      setError: jest.fn(),
+    });
   });
+
   describe('initAndStart', () => {
     it('starts the client and synchronizes the configuration', async () => {
-      const wrapper = new LanguageClientWrapper(client, fakeManager);
+      const wrapper = new LanguageClientWrapper(client, fakeManager, stateManager);
 
       await wrapper.initAndStart();
 
@@ -54,7 +70,7 @@ describe('LanguageClientWrapper', () => {
     });
 
     it('stops client when disposed', async () => {
-      const wrapper = new LanguageClientWrapper(client, fakeManager);
+      const wrapper = new LanguageClientWrapper(client, fakeManager, stateManager);
 
       await wrapper.initAndStart();
       wrapper.dispose();
@@ -65,7 +81,7 @@ describe('LanguageClientWrapper', () => {
 
   describe('sendSuggestionAcceptedEvent', () => {
     it('sends accepted notification', async () => {
-      const wrapper = new LanguageClientWrapper(client, fakeManager);
+      const wrapper = new LanguageClientWrapper(client, fakeManager, stateManager);
 
       // this is important step, we reference the function WITHOUT it's class instance
       // to test that we can pass it around as a command
@@ -78,6 +94,34 @@ describe('LanguageClientWrapper', () => {
         action: TRACKING_EVENTS.ACCEPTED,
         context: { trackingId: 'tracking id test' },
       });
+    });
+  });
+
+  describe('reacts on API errors', () => {
+    let notificationHandlers: Record<string, GenericNotificationHandler>;
+
+    let wrapper: LanguageClientWrapper;
+
+    beforeEach(async () => {
+      notificationHandlers = {};
+      jest.mocked(client.onNotification).mockImplementation((type, handler) => {
+        notificationHandlers[type] = handler;
+        return { dispose: () => {} };
+      });
+      wrapper = new LanguageClientWrapper(client, fakeManager, stateManager);
+      await wrapper.initAndStart();
+    });
+
+    it('sets error state when receiving api error notification', async () => {
+      notificationHandlers[API_ERROR_NOTIFICATION]();
+
+      expect(stateManager.setError).toHaveBeenLastCalledWith(true);
+    });
+
+    it('resets error state when receiving api recovery notification', async () => {
+      notificationHandlers[API_RECOVERY_NOTIFICATION]();
+
+      expect(stateManager.setError).toHaveBeenLastCalledWith(false);
     });
   });
 });

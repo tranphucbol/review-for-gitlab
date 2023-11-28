@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import {
   CodeSuggestionsStateManager,
   VisibleCodeSuggestionsState,
-  TemporaryCodeSuggestionsState,
 } from './code_suggestions_state_manager';
 import {
   createActiveTextEditorChangeTrigger,
@@ -69,7 +68,11 @@ describe('Code suggestions state manager', () => {
       expectedState: VisibleCodeSuggestionsState;
     }[] = [
       {
-        mutation: () => stateManager.setTemporaryState(TemporaryCodeSuggestionsState.ERROR),
+        mutation: () => stateManager.setLoading(true),
+        expectedState: VisibleCodeSuggestionsState.LOADING,
+      },
+      {
+        mutation: () => stateManager.setError(true),
         expectedState: VisibleCodeSuggestionsState.ERROR,
       },
       {
@@ -111,30 +114,30 @@ describe('Code suggestions state manager', () => {
     });
   });
 
-  describe('isEnabled', () => {
-    let enabledStateListener: jest.Func;
+  describe('isDisabledByUser', () => {
+    let disabledByUserListener: jest.Func;
 
     beforeEach(() => {
-      enabledStateListener = jest.fn();
-      stateManager.onDidChangeEnabledState(enabledStateListener);
+      disabledByUserListener = jest.fn();
+      stateManager.onDidChangeDisabledByUserState(disabledByUserListener);
     });
 
-    it('is enabled', async () => {
-      expect(stateManager.isEnabled()).toBe(true);
+    it('isDisabledByUser', async () => {
+      expect(stateManager.isDisabledByUser()).toBe(false);
     });
 
     it('changes to disabled when disabling via settings', () => {
       disableViaSettings();
 
-      expect(stateManager.isEnabled()).toBe(false);
-      expect(enabledStateListener).toHaveBeenCalledWith(false);
+      expect(stateManager.isDisabledByUser()).toBe(true);
+      expect(disabledByUserListener).toHaveBeenCalledWith(true);
     });
 
     it('changes to disabled when disabling temporarily for session', () => {
       stateManager.setTemporaryDisabled(true);
 
-      expect(stateManager.isEnabled()).toBe(false);
-      expect(enabledStateListener).toHaveBeenCalledWith(false);
+      expect(stateManager.isDisabledByUser()).toBe(true);
+      expect(disabledByUserListener).toHaveBeenCalledWith(true);
     });
   });
 });

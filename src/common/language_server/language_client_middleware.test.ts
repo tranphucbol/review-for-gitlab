@@ -11,47 +11,69 @@ describe('LanguageClientMiddleware', () => {
   });
 
   describe('provideInlineCompletionItem', () => {
-    const document = createFakePartial<vscode.TextDocument>({});
-    const position = createFakePartial<vscode.Position>({});
-    const context = createFakePartial<vscode.InlineCompletionContext>({});
-    const token = createFakePartial<vscode.CancellationToken>({});
+    const d = createFakePartial<vscode.TextDocument>({});
+    const p = createFakePartial<vscode.Position>({});
+    const ctx = createFakePartial<vscode.InlineCompletionContext>({});
+    const tkn = createFakePartial<vscode.CancellationToken>({});
 
     it('returns empty array if suggestions are in a disabled state', async () => {
       const stateManager = createFakePartial<CodeSuggestionsStateManager>({
-        isEnabled: () => false,
+        isDisabledByUser: () => true,
       });
       const middleware = new LanguageClientMiddleware(stateManager);
       const next = jest.fn();
 
-      const result = await middleware.provideInlineCompletionItems(
-        document,
-        position,
-        context,
-        token,
-        next,
-      );
+      const result = await middleware.provideInlineCompletionItems(d, p, ctx, tkn, next);
 
       expect(result).toEqual([]);
       expect(next).not.toHaveBeenCalled();
     });
 
-    it('calls through to default logic if suggestions are enabled', async () => {
-      const stateManager = createFakePartial<CodeSuggestionsStateManager>({
-        isEnabled: () => true,
+    describe('when suggestions enabled', () => {
+      let stateManager: CodeSuggestionsStateManager;
+      let middleware: LanguageClientMiddleware;
+
+      let setLoading: jest.Func;
+
+      beforeEach(() => {
+        setLoading = jest.fn();
+        stateManager = createFakePartial<CodeSuggestionsStateManager>({
+          isDisabledByUser: () => false,
+          setLoading,
+        });
+        middleware = new LanguageClientMiddleware(stateManager);
       });
-      const middleware = new LanguageClientMiddleware(stateManager);
-      const item = createFakePartial<vscode.InlineCompletionItem>({});
-      const next = jest.fn().mockResolvedValue([item]);
 
-      const result = await middleware.provideInlineCompletionItems(
-        document,
-        position,
-        context,
-        token,
-        next,
-      );
+      it('calls through to default logic if suggestions are enabled', async () => {
+        const mockItem = createFakePartial<vscode.InlineCompletionItem>({});
+        const next = jest.fn().mockResolvedValue([mockItem]);
 
-      expect(result).toEqual([item]);
+        const result = await middleware.provideInlineCompletionItems(d, p, ctx, tkn, next);
+
+        expect(result).toEqual([mockItem]);
+      });
+
+      it('sets suggestions to loading state', async () => {
+        const next = jest.fn().mockResolvedValue([]);
+
+        await middleware.provideInlineCompletionItems(d, p, ctx, tkn, next);
+
+        expect(setLoading).toHaveBeenCalledTimes(2);
+        expect(setLoading).toHaveBeenCalledWith(true);
+        expect(setLoading).toHaveBeenLastCalledWith(false);
+      });
+
+      it('sets loading to false even if fetching suggestions throws an error', async () => {
+        const next = jest.fn().mockRejectedValue(new Error());
+
+        await expect(
+          middleware.provideInlineCompletionItems(d, p, ctx, tkn, next),
+        ).rejects.toThrow();
+
+        expect(setLoading).toHaveBeenCalledTimes(2);
+        expect(setLoading).toHaveBeenCalledWith(true);
+        expect(setLoading).toHaveBeenLastCalledWith(false);
+      });
     });
   });
 });
