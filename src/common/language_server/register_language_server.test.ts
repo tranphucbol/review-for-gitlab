@@ -1,0 +1,71 @@
+import vscode from 'vscode';
+import { BaseLanguageClient } from 'vscode-languageclient';
+import { SUGGESTION_ACCEPTED_COMMAND } from '@gitlab-org/gitlab-lsp';
+import { GitLabPlatformManager } from '../platform/gitlab_platform';
+import { createFakePartial } from '../test_utils/create_fake_partial';
+import { LanguageClientFactory } from './client_factory';
+import { registerLanguageServer } from './register_language_server';
+import { createExtensionContext } from '../test_utils/entities';
+import { LanguageClientWrapper } from './language_client_wrapper';
+import { createConfigurationChangeTrigger } from '../test_utils/vscode_fakes';
+import { COMMAND_TOGGLE_CODE_SUGGESTIONS } from '../code_suggestions/commands/toggle';
+
+jest.mock('../code_suggestions/code_suggestions_status_bar_item');
+jest.mock('./language_client_wrapper');
+
+describe('registerLanguageServer', () => {
+  let triggerConfigChange: () => void;
+  let clientWrapper: LanguageClientWrapper;
+  let client: BaseLanguageClient;
+  let languageClientFactory: LanguageClientFactory;
+  let gitlabPlatformManager: GitLabPlatformManager;
+
+  beforeEach(async () => {
+    triggerConfigChange = createConfigurationChangeTrigger();
+    clientWrapper = createFakePartial<LanguageClientWrapper>({
+      initAndStart: jest.fn(),
+      sendSuggestionAcceptedEvent: jest.fn(),
+      syncConfig: jest.fn(),
+    });
+    jest.mocked(LanguageClientWrapper).mockReturnValue(clientWrapper);
+    client = createFakePartial<BaseLanguageClient>({});
+    languageClientFactory = createFakePartial<LanguageClientFactory>({
+      createLanguageClient: () => client,
+    });
+    gitlabPlatformManager = createFakePartial<GitLabPlatformManager>({
+      onAccountChange: jest.fn(),
+    });
+    await registerLanguageServer(
+      createExtensionContext(),
+      languageClientFactory,
+      gitlabPlatformManager,
+    );
+  });
+
+  it('initializes the language client wrapper', async () => {
+    expect(clientWrapper.initAndStart).toHaveBeenCalled();
+  });
+
+  it('registers suggestion accepted command', () => {
+    expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+      SUGGESTION_ACCEPTED_COMMAND,
+      clientWrapper.sendSuggestionAcceptedEvent,
+    );
+  });
+
+  it('registers the command to toggle code sugegestions on/off', () => {
+    expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+      COMMAND_TOGGLE_CODE_SUGGESTIONS,
+      expect.any(Function),
+    );
+  });
+
+  it('registers configuration change listener', () => {
+    triggerConfigChange();
+    expect(clientWrapper.syncConfig).toHaveBeenCalled();
+  });
+
+  it('registers on account change listener', () => {
+    expect(gitlabPlatformManager.onAccountChange).toHaveBeenCalledWith(clientWrapper.syncConfig);
+  });
+});

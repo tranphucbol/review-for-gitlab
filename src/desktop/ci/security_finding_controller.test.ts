@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import { asMock } from '../test_utils/as_mock';
-import { createExtensionContext, securityReport } from '../test_utils/entities';
+import { securityReport } from '../test_utils/entities';
 import { SecurityFindingWebviewController } from './security_finding_controller';
+import { createExtensionContext } from '../../common/test_utils/entities';
 
 jest.mock('../../common/utils/webviews/wait_for_webview');
 jest.mock('../../common/utils/webviews/prepare_webview_source', () => ({

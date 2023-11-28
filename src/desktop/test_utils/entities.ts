@@ -1,12 +1,9 @@
-import vscode from 'vscode';
 import { GitRemote, GitRepository } from '../git/new_git';
 import { CustomQueryType } from '../../common/gitlab/custom_query_type';
 import { ProjectInRepository } from '../gitlab/new_project';
 import { ReviewParams as ReviewUriParams } from '../review/review_uri';
 import { makeAccountId, OAuthAccount, TokenAccount } from '../../common/platform/gitlab_account';
 import { createFakeRepository } from './fake_git_extension';
-import { InMemoryMemento } from '../../../test/integration/test_infrastructure/in_memory_memento';
-import { SecretStorage } from './secret_storage';
 import { GqlSecurityFindingReport } from '../gitlab/security_findings/api/get_security_finding_report';
 import { GqlSecurityReportFinding } from '../gitlab/graphql/get_security_finding';
 import { GqlProjectWithRepoInfo } from '../gitlab/api/get_projects_with_repository_info';
@@ -186,15 +183,6 @@ export const user: RestUser = {
   state: 'active',
   username: 'test-user',
 };
-
-export const createExtensionContext = (): vscode.ExtensionContext =>
-  ({
-    globalState: new InMemoryMemento(),
-    workspaceState: new InMemoryMemento(),
-    secrets: new SecretStorage(),
-    extensionPath: '',
-    subscriptions: [],
-  }) as unknown as vscode.ExtensionContext;
 
 export const securityReport: GqlSecurityFindingReport = {
   baseReportCreatedAt: '2023-04-18T02:10:10.460Z',

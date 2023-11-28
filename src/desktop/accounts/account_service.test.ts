@@ -1,5 +1,5 @@
 import { createOAuthAccount, createTokenAccount } from '../test_utils/entities';
-import { SecretStorage } from '../test_utils/secret_storage';
+import { SecretStorage } from '../../common/test_utils/secret_storage';
 import { Account, OAuthAccount } from '../../common/platform/gitlab_account';
 import { AccountService } from './account_service';
 import { InMemoryMemento } from '../../../test/integration/test_infrastructure/in_memory_memento';

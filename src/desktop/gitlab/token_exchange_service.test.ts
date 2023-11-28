@@ -1,13 +1,10 @@
 import { ExtensionContext } from 'vscode';
 import { AccountService } from '../accounts/account_service';
 import { asMock } from '../test_utils/as_mock';
-import {
-  createExtensionContext,
-  createOAuthAccount,
-  createTokenAccount,
-} from '../test_utils/entities';
+import { createOAuthAccount, createTokenAccount } from '../test_utils/entities';
 import { GitLabService } from './gitlab_service';
 import { TokenExchangeService } from './token_exchange_service';
+import { createExtensionContext } from '../../common/test_utils/entities';
 
 jest.mock('./gitlab_service');
 

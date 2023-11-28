@@ -1,8 +1,11 @@
+import vscode from 'vscode';
+import { InMemoryMemento } from '../../../test/integration/test_infrastructure/in_memory_memento';
 import { GqlProject, convertToGitLabProject } from '../gitlab/api/get_project';
 import { Account } from '../platform/gitlab_account';
 import { GitLabPlatformForAccount, GitLabPlatformForProject } from '../platform/gitlab_platform';
 import { GitLabProject } from '../platform/gitlab_project';
 import { createFakeFetchFromApi } from './create_fake_fetch_from_api';
+import { SecretStorage } from './secret_storage';
 
 export const gqlProject: GqlProject = {
   id: 'gid://gitlab/Project/5261717',
@@ -40,3 +43,12 @@ export const gitlabPlatformForProject: GitLabPlatformForProject = {
   fetchFromApi: createFakeFetchFromApi(),
   getUserAgentHeader: () => ({}),
 };
+
+export const createExtensionContext = (): vscode.ExtensionContext =>
+  ({
+    globalState: new InMemoryMemento(),
+    workspaceState: new InMemoryMemento(),
+    secrets: new SecretStorage(),
+    extensionPath: '',
+    subscriptions: [],
+  }) as unknown as vscode.ExtensionContext;
