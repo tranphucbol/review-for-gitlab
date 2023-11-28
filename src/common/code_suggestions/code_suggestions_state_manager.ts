@@ -89,6 +89,16 @@ export class CodeSuggestionsStateManager {
     return this.#disabledInSettings || this.#isDisabledByUserForSession;
   }
 
+  /** isActive indicates whether the suggestions are on and suggestion requests are being sent to the API */
+  isActive() {
+    return !(
+      this.#disabledInSettings ||
+      this.#isDisabledByUserForSession ||
+      this.#isMissingAccount ||
+      this.#isUnsupportedLanguage
+    );
+  }
+
   getVisibleState(): VisibleCodeSuggestionsState {
     if (this.#disabledInSettings) {
       return VisibleCodeSuggestionsState.DISABLED_VIA_SETTINGS;

@@ -166,30 +166,51 @@ describe('Code suggestions state manager', () => {
     });
   });
 
-  describe('isDisabledByUser', () => {
+  describe('disabled & active', () => {
     let disabledByUserListener: jest.Func;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       disabledByUserListener = jest.fn();
       stateManager.onDidChangeDisabledByUserState(disabledByUserListener);
+      await stateManager.init();
     });
 
-    it('isDisabledByUser', async () => {
+    it('by default is not disabled and it is active', async () => {
       expect(stateManager.isDisabledByUser()).toBe(false);
+      expect(stateManager.isActive()).toBe(true);
     });
 
-    it('changes to disabled when disabling via settings', () => {
+    it('changes to disabled and inactive when disabling via settings', () => {
       disableViaSettings();
 
       expect(stateManager.isDisabledByUser()).toBe(true);
       expect(disabledByUserListener).toHaveBeenCalledWith(true);
+
+      expect(stateManager.isActive()).toBe(false);
     });
 
-    it('changes to disabled when disabling temporarily for session', () => {
+    it('changes to disabled and inactive when disabling temporarily for session', () => {
       stateManager.setTemporaryDisabled(true);
 
       expect(stateManager.isDisabledByUser()).toBe(true);
       expect(disabledByUserListener).toHaveBeenCalledWith(true);
+
+      expect(stateManager.isActive()).toBe(false);
+    });
+
+    it('changes to inactive when document has unsupported language', () => {
+      triggerActiveTextEditorChange(
+        createFakePartial<vscode.TextEditor>({ document: { languageId: 'json' } }),
+      );
+
+      expect(stateManager.isActive()).toBe(false);
+    });
+
+    it('changes to inactive when there is no account', async () => {
+      platformManager.getForActiveProject = async () => undefined;
+      await jest.mocked(platformManager.onAccountChange).mock.calls[0][0]();
+
+      expect(stateManager.isActive()).toBe(false);
     });
   });
 });
