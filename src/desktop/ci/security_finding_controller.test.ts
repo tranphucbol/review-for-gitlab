@@ -58,4 +58,13 @@ describe('SecurityFindingWebviewController', () => {
     const webviewHtml = panel.webview.html;
     expect(webviewHtml).toBe('preparedWebviewSource');
   });
+
+  it('sends correct postMessage to panel', async () => {
+    const panel = await controller.open(finding, projectInRepository);
+    expect(getGitLabService).toHaveBeenCalled();
+    expect(panel.webview.postMessage).toHaveBeenCalledWith({
+      type: 'findingDetails',
+      finding: securityReportFinding.project.pipeline.securityReportFinding,
+    });
+  });
 });
