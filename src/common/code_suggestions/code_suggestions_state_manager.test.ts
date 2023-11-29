@@ -114,6 +114,20 @@ describe('Code suggestions state manager', () => {
     });
   });
 
+  describe('Loading state', () => {
+    it('handles parallel operations', () => {
+      stateManager.setLoading(true);
+      stateManager.setLoading(true);
+      stateManager.setLoading(false);
+
+      expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.LOADING);
+
+      stateManager.setLoading(false);
+
+      expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.READY);
+    });
+  });
+
   describe('isDisabledByUser', () => {
     let disabledByUserListener: jest.Func;
 
