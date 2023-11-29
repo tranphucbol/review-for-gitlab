@@ -34,7 +34,7 @@ export class CodeSuggestionsStateManager {
   // boolean flags indicating temporary states
   #isInErrorState = false;
 
-  #isLoading = false;
+  #isLoading = 0;
   // //////////
 
   #subscriptions: vscode.Disposable[] = [];
@@ -121,7 +121,11 @@ export class CodeSuggestionsStateManager {
   });
 
   setLoading = this.#updateStateWrapper(isLoading => {
-    this.#isLoading = isLoading;
+    if (isLoading) {
+      this.#isLoading += 1;
+    } else {
+      this.#isLoading -= 1;
+    }
   });
 
   setTemporaryDisabled = this.#updateStateWrapper(isDisabled => {
