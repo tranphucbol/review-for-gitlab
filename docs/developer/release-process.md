@@ -129,7 +129,7 @@ Our [CI/CD jobs](https://gitlab.com/gitlab-org/gitlab-vscode-extension/blob/e80e
 
 1. Sign in to [Microsoft Azure](https://azure.microsoft.com/) with `VScode Marketplace`
    credentials from the "VS Code Extension" 1Password Vault.
-1. Go to **Personal Access Tokens**.
+1. Go to [**Personal Access Tokens**](https://dev.azure.com/GitLabEditorExtensions/_usersSettings/tokens).
    ([Official VS Code publishing documentation](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#get-a-personal-access-token)).
 1. You can either:
    - Extend the expiration date of an existing token. **This solution is the best one when you receive token expiration email.**
