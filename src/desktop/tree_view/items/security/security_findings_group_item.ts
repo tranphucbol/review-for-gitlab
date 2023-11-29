@@ -14,7 +14,7 @@ export class SecurityFindingsGroupItem extends ItemModel {
 
   readonly #securityFindingGroupType: SecurityFindingGroupType;
 
-  readonly projectInRepository: ProjectInRepository;
+  readonly #projectInRepository: ProjectInRepository;
 
   constructor(
     securityFindingGroupType: SecurityFindingGroupType,
@@ -24,7 +24,7 @@ export class SecurityFindingsGroupItem extends ItemModel {
     super();
     this.#findings = findings;
     this.#securityFindingGroupType = securityFindingGroupType;
-    this.projectInRepository = projectInRepository;
+    this.#projectInRepository = projectInRepository;
   }
 
   getTreeItem(): vscode.TreeItem {
@@ -48,7 +48,7 @@ export class SecurityFindingsGroupItem extends ItemModel {
           new SecurityFindingSeverityGroup(
             findings,
             severity as Severity,
-            this.projectInRepository,
+            this.#projectInRepository,
           ),
       );
   }

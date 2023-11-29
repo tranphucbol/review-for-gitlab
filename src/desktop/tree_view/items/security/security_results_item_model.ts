@@ -12,7 +12,7 @@ export class SecurityResultsItemModel extends ItemModel {
 
   readonly #securityResultsType: SecurityResultsType;
 
-  readonly projectInRepository: ProjectInRepository;
+  readonly #projectInRepository: ProjectInRepository;
 
   constructor(
     projectInRepository: ProjectInRepository,
@@ -22,7 +22,7 @@ export class SecurityResultsItemModel extends ItemModel {
     super();
     this.#securityReport = securityReport;
     this.#securityResultsType = securityResultsType;
-    this.projectInRepository = projectInRepository;
+    this.#projectInRepository = projectInRepository;
   }
 
   getTreeItem(): vscode.TreeItem {
@@ -46,10 +46,10 @@ export class SecurityResultsItemModel extends ItemModel {
       const fixedSecurityFindings = this.#securityReport.fixed;
 
       securityFindingGroups.push(
-        new SecurityFindingsGroupItem('ADDED', addedSecurityFindings, this.projectInRepository),
+        new SecurityFindingsGroupItem('ADDED', addedSecurityFindings, this.#projectInRepository),
       );
       securityFindingGroups.push(
-        new SecurityFindingsGroupItem('FIXED', fixedSecurityFindings, this.projectInRepository),
+        new SecurityFindingsGroupItem('FIXED', fixedSecurityFindings, this.#projectInRepository),
       );
     }
 

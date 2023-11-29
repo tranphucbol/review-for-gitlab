@@ -11,7 +11,7 @@ export class SecurityFindingSeverityGroup extends ItemModel {
 
   readonly #severity: Severity;
 
-  readonly projectInRepository: ProjectInRepository;
+  readonly #projectInRepository: ProjectInRepository;
 
   constructor(
     findings: GqlSecurityFinding[],
@@ -21,7 +21,7 @@ export class SecurityFindingSeverityGroup extends ItemModel {
     super();
     this.#severity = severity;
     this.#findings = findings;
-    this.projectInRepository = projectInRepository;
+    this.#projectInRepository = projectInRepository;
   }
 
   getTreeItem(): vscode.TreeItem {
@@ -35,7 +35,7 @@ export class SecurityFindingSeverityGroup extends ItemModel {
 
   async getChildren(): Promise<vscode.TreeItem[]> {
     return this.#findings.map(
-      finding => new SecurityFindingItem(finding, this.#severity, this.projectInRepository),
+      finding => new SecurityFindingItem(finding, this.#severity, this.#projectInRepository),
     );
   }
 }
