@@ -10,7 +10,7 @@ export const explainSelectedCode = async (controller: GitLabChatController) => {
   const record = GitLabChatRecord.buildWithContext({
     role: 'user',
     type: 'explainCode',
-    content: `Explain selected code`,
+    content: `/explain`,
   });
 
   if (!record.context?.currentFile.selectedText) return;
