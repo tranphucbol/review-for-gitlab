@@ -1,5 +1,5 @@
 import { SecurityFindingSeverityGroup } from './security_finding_severity_group_item';
-import { securityReport } from '../../../test_utils/entities';
+import { securityReport, projectInRepository } from '../../../test_utils/entities';
 import { SecurityFindingItem } from './security_finding_item';
 import { Severity, severityToIcon } from './severity_to_icon';
 
@@ -12,7 +12,7 @@ describe('SecurityFindingSeverityGroup', () => {
     'with %s severity',
     severity => {
       beforeEach(() => {
-        subject = new SecurityFindingSeverityGroup(TEST_FINDINGS, severity);
+        subject = new SecurityFindingSeverityGroup(TEST_FINDINGS, severity, projectInRepository);
       });
 
       it('getTreeItem() returns tree item', () => {
@@ -27,7 +27,9 @@ describe('SecurityFindingSeverityGroup', () => {
 
       it('getChildren() returns children items', async () => {
         await expect(subject.getChildren()).resolves.toEqual(
-          TEST_FINDINGS.map(finding => new SecurityFindingItem(finding, severity)),
+          TEST_FINDINGS.map(
+            finding => new SecurityFindingItem(finding, severity, projectInRepository),
+          ),
         );
       });
     },

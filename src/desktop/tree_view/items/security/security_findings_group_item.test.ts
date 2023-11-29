@@ -1,16 +1,24 @@
 import { SecurityFindingsGroupItem } from './security_findings_group_item';
-import { securityReport } from '../../../test_utils/entities';
+import { securityReport, projectInRepository } from '../../../test_utils/entities';
 
 describe('SecurityFindingsGroupItem', () => {
   describe('types', () => {
     it('has new findings', () => {
-      const item = new SecurityFindingsGroupItem('ADDED', securityReport.added).getTreeItem();
+      const item = new SecurityFindingsGroupItem(
+        'ADDED',
+        securityReport.added,
+        projectInRepository,
+      ).getTreeItem();
       expect(item.label).toBe('New findings');
       expect(item.description).toBe('6');
     });
 
     it('has fixed findings', () => {
-      const item = new SecurityFindingsGroupItem('FIXED', securityReport.fixed).getTreeItem();
+      const item = new SecurityFindingsGroupItem(
+        'FIXED',
+        securityReport.fixed,
+        projectInRepository,
+      ).getTreeItem();
       expect(item.label).toBe('Fixed findings');
       expect(item.description).toBe('6');
     });
@@ -28,6 +36,7 @@ describe('SecurityFindingsGroupItem', () => {
       const children = await new SecurityFindingsGroupItem(
         'FIXED',
         securityReport.fixed,
+        projectInRepository,
       ).getChildren();
 
       const itemLabel = `${count} ${severity} severity`;

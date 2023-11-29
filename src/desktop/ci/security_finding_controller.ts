@@ -3,14 +3,18 @@ import * as path from 'path';
 import assert from 'assert';
 import { WEBVIEW_SECURITY_FINDING } from '../constants';
 import { GqlSecurityFinding } from '../gitlab/security_findings/api/get_security_finding_report';
-import { waitForWebview } from '../../common/utils/webviews/wait_for_webview';
 import { prepareWebviewSource } from '../../common/utils/webviews/prepare_webview_source';
+import { getSecurityFinding } from '../gitlab/security_findings/api/get_security_finding';
+import { getGitLabService } from '../gitlab/get_gitlab_service';
+import { RepositoryRootWebviewProvider } from '../commands/run_with_valid_project';
+import { ProjectInRepository } from '../gitlab/new_project';
 
 export type SecurityFindingWebviewPanel = vscode.WebviewPanel & {
   finding: GqlSecurityFinding;
+  repositoryRoot?: string;
 };
 
-export class SecurityFindingWebviewController {
+export class SecurityFindingWebviewController implements RepositoryRootWebviewProvider {
   #context?: vscode.ExtensionContext;
 
   #panel?: SecurityFindingWebviewPanel;
@@ -49,6 +53,7 @@ export class SecurityFindingWebviewController {
 
   async createOrUpdateWebview(
     finding: GqlSecurityFinding,
+    projectInRepository: ProjectInRepository,
     existingPanel?: SecurityFindingWebviewPanel,
   ): Promise<SecurityFindingWebviewPanel> {
     assert(this.#context);
@@ -62,30 +67,40 @@ export class SecurityFindingWebviewController {
       this.#context,
       'security_finding',
     );
-    await this.initPanelIfActive(panel, finding);
-    return panel;
-  }
 
-  async initPanelIfActive(
-    panel: vscode.WebviewPanel,
-    finding: GqlSecurityFinding,
-  ): Promise<null | undefined> {
-    assert(this.#context);
-    if (!panel.active) return;
+    panel.repositoryRoot = projectInRepository.pointer.repository.rootFsPath;
 
-    const waitPromise = waitForWebview(panel.webview);
+    const data = await getGitLabService(projectInRepository).fetchFromApi(
+      getSecurityFinding(projectInRepository.project, finding.foundByPipelineIid, finding.uuid),
+    );
 
-    await waitPromise;
+    const securityReportFinding = data?.project.pipeline.securityReportFinding;
+
     await panel.webview.postMessage({
       type: 'findingDetails',
-      finding,
+      finding: securityReportFinding,
     });
+
+    return panel;
   }
 
-  async open(item: GqlSecurityFinding): Promise<SecurityFindingWebviewPanel> {
-    const panel = await this.createOrUpdateWebview(item, this.#panel);
+  async open(
+    item: GqlSecurityFinding,
+    projectInRepository: ProjectInRepository,
+  ): Promise<SecurityFindingWebviewPanel> {
+    const panel = await this.createOrUpdateWebview(item, projectInRepository, this.#panel);
     panel.reveal();
     return panel;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  matchesViewType(viewType: string): boolean {
+    return viewType === `mainThreadWebview-security`;
+  }
+
+  get repositoryRootForActiveTab(): string | undefined {
+    if (!this.#panel?.active) return undefined;
+    return this.#panel.repositoryRoot;
   }
 }
 

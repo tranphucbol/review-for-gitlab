@@ -15,6 +15,7 @@ import { initializeLogging } from '../common/log';
 import { handleError } from '../common/errors/handle_error';
 import { GitContentProvider } from './review/git_content_provider';
 import { GqlSecurityFinding } from './gitlab/security_findings/api/get_security_finding_report';
+import { ProjectInRepository } from './gitlab/new_project';
 import {
   REVIEW_URI_SCHEME,
   REMOTE_URI_SCHEME,
@@ -164,8 +165,12 @@ const registerCommands = (context: vscode.ExtensionContext) => {
     [USER_COMMANDS.WAIT_FOR_PENDING_JOB]: async (item: JobItemModel) => {
       await pendingWebviewController.waitForPendingJob(item);
     },
-    [USER_COMMANDS.VIEW_SECURITY_FINDING]: (item: GqlSecurityFinding) =>
-      securityFindingWebviewController.open(item),
+    [USER_COMMANDS.VIEW_SECURITY_FINDING]: async (
+      item: GqlSecurityFinding,
+      projectInRepository: ProjectInRepository,
+    ) => {
+      await securityFindingWebviewController.open(item, projectInRepository);
+    },
     [USER_COMMANDS.SAVE_RAW_JOB_TRACE]: saveRawJobTrace,
     [USER_COMMANDS.SCROLL_TO_BOTTOM]: scrollToBottom,
     [USER_COMMANDS.EXECUTE_JOB]: executeJob,
@@ -259,7 +264,11 @@ export const activate = async (context: vscode.ExtensionContext) => {
   );
   await extensionState.init(accountService);
   registerSidebarTreeDataProviders();
-  registerRepositoryRootProvider(issuableController, pendingWebviewController);
+  registerRepositoryRootProvider(
+    issuableController,
+    pendingWebviewController,
+    securityFindingWebviewController,
+  );
   await migrateCredentials(context, accountService).catch(e => handleError(e));
 
   const dependencyContainer = createDependencyContainer();

@@ -68,7 +68,11 @@ export class CurrentBranchDataProvider
   }
 
   static createSecurityFindingsItem(state: BranchState): ItemModel {
-    return new SecurityResultsItemModel(this.getSecurityReportType(state), state.securityFindings);
+    return new SecurityResultsItemModel(
+      state.projectInRepository,
+      this.getSecurityReportType(state),
+      state.securityFindings,
+    );
   }
 
   createMrItem(state: BranchState): vscode.TreeItem | ItemModel {
