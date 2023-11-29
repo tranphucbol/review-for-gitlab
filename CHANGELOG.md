@@ -1,3 +1,22 @@
+# [3.88.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.87.0...v3.88.0) (2023-11-29)
+
+
+### Bug Fixes
+
+* add npm install for commit-lint ([9aa45a6](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/9aa45a68788bd32f40f755d80d9eef3918426180))
+* **code suggestions:** increase size of status icon ([9a37631](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/9a3763162ebb0b2fc14ddda54cd3b238c5051626))
+* **code suggestions:** un-fill loading and error status icon ([5a78020](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/5a7802083526856d80cf96a552af83b12d7e3136))
+* **status icon:** Handle parallel completion requests ([6a84948](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/6a84948caac290948a824bf76c6c18728b2d7fdf))
+
+
+### Features
+
+* language server suggestions react to api errors ([0fdd611](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/0fdd611ce9e64f0e363466049f5f52e8e2ef7617))
+* show loading state for LS suggestions ([80651b2](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/80651b2ca88809a9966e4f7992f205a112e193e9))
+* suggestions status manager handles missing account ([1a35c74](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/1a35c7499a160b411e3bbaf50f4a4167467de023))
+
+
+
 # [3.87.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.86.1...v3.87.0) (2023-11-24)
 
 
