@@ -31,10 +31,12 @@ export class CodeSuggestionsStateManager {
   // //////////
 
   // //////////
-  // boolean flags indicating temporary states
+  // boolean flags and counters indicating temporary states
   #isInErrorState = false;
 
-  #isLoading = 0;
+  // this can't be a boolean flag because it's possible that response from first
+  // request comes after we send second request (which would incorrectly set loading to false)
+  #loadingCounter = 0;
   // //////////
 
   #subscriptions: vscode.Disposable[] = [];
@@ -85,7 +87,7 @@ export class CodeSuggestionsStateManager {
       return VisibleCodeSuggestionsState.ERROR;
     }
 
-    if (this.#isLoading) {
+    if (this.#loadingCounter !== 0) {
       return VisibleCodeSuggestionsState.LOADING;
     }
 
@@ -122,9 +124,9 @@ export class CodeSuggestionsStateManager {
 
   setLoading = this.#updateStateWrapper(isLoading => {
     if (isLoading) {
-      this.#isLoading += 1;
+      this.#loadingCounter += 1;
     } else {
-      this.#isLoading -= 1;
+      this.#loadingCounter -= 1;
     }
   });
 
