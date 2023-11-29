@@ -2,10 +2,13 @@ import vscode from 'vscode';
 import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
 import { createFakePartial } from '../test_utils/create_fake_partial';
 import { LanguageClientMiddleware } from './language_client_middleware';
+import { GitLabPlatformManager } from '../platform/gitlab_platform';
 
 describe('LanguageClientMiddleware', () => {
   it('disables standard completion - provideCompletionItem always returns empty array', () => {
-    const stateManager = new CodeSuggestionsStateManager();
+    const stateManager = new CodeSuggestionsStateManager(
+      createFakePartial<GitLabPlatformManager>({}),
+    );
     const middleware = new LanguageClientMiddleware(stateManager);
     expect(middleware.provideCompletionItem()).toEqual([]);
   });
@@ -16,9 +19,9 @@ describe('LanguageClientMiddleware', () => {
     const ctx = createFakePartial<vscode.InlineCompletionContext>({});
     const tkn = createFakePartial<vscode.CancellationToken>({});
 
-    it('returns empty array if suggestions are in a disabled state', async () => {
+    it('returns empty array if suggestions are not active', async () => {
       const stateManager = createFakePartial<CodeSuggestionsStateManager>({
-        isDisabledByUser: () => true,
+        isActive: () => false,
       });
       const middleware = new LanguageClientMiddleware(stateManager);
       const next = jest.fn();
@@ -29,7 +32,7 @@ describe('LanguageClientMiddleware', () => {
       expect(next).not.toHaveBeenCalled();
     });
 
-    describe('when suggestions enabled', () => {
+    describe('when suggestions are active', () => {
       let stateManager: CodeSuggestionsStateManager;
       let middleware: LanguageClientMiddleware;
 
@@ -38,7 +41,7 @@ describe('LanguageClientMiddleware', () => {
       beforeEach(() => {
         setLoading = jest.fn();
         stateManager = createFakePartial<CodeSuggestionsStateManager>({
-          isDisabledByUser: () => false,
+          isActive: () => true,
           setLoading,
         });
         middleware = new LanguageClientMiddleware(stateManager);

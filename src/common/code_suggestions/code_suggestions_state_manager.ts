@@ -4,6 +4,8 @@ import {
   getAiAssistedCodeSuggestionsConfiguration,
 } from '../utils/extension_configuration';
 import { AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES } from './constants';
+import { GitLabPlatformManager } from '../platform/gitlab_platform';
+import { GitLabPlatformManagerForCodeSuggestions } from './gitlab_platform_manager_for_code_suggestions';
 
 type ValueOf<T> = T[keyof T];
 
@@ -12,6 +14,7 @@ export const VisibleCodeSuggestionsState = {
   DISABLED_VIA_SETTINGS: 'code-suggestions-global-disabled-via-settings',
   READY: 'code-suggestions-global-ready',
   DISABLED_BY_USER: 'code-suggestions-disabled-by-user',
+  NO_ACCOUNT: 'code-suggestions-no-account',
   UNSUPPORTED_LANGUAGE: 'code-suggestions-document-unsupported-language',
   ERROR: 'code-suggestions-error',
   LOADING: 'code-suggestions-loading',
@@ -27,6 +30,8 @@ export class CodeSuggestionsStateManager {
 
   #isDisabledByUserForSession = false;
 
+  #isMissingAccount = false;
+
   #isUnsupportedLanguage = false;
   // //////////
 
@@ -41,6 +46,8 @@ export class CodeSuggestionsStateManager {
 
   #subscriptions: vscode.Disposable[] = [];
 
+  #gitlabPlatformManager: GitLabPlatformManager;
+
   #changeVisibleStateEmitter = new vscode.EventEmitter<VisibleCodeSuggestionsState>();
 
   onDidChangeVisibleState = this.#changeVisibleStateEmitter.event;
@@ -49,25 +56,47 @@ export class CodeSuggestionsStateManager {
 
   onDidChangeDisabledByUserState = this.#changeDisabledByUserStateEmitter.event;
 
-  constructor() {
+  constructor(gitlabPlatformManager: GitLabPlatformManager) {
+    this.#gitlabPlatformManager = gitlabPlatformManager;
     this.#disabledInSettings = !getAiAssistedCodeSuggestionsConfiguration().enabled;
     const checkIfLanguageSupported = (te?: vscode.TextEditor) => {
-      this.#setUnsupportedLanguage(te ? !isSupportedLanguage(te) : false);
+      this.#setIsUnsupportedLanguage(te ? !isSupportedLanguage(te) : false);
     };
     checkIfLanguageSupported(vscode.window.activeTextEditor);
 
     this.#subscriptions.push(
       vscode.workspace.onDidChangeConfiguration(e => {
         if (e.affectsConfiguration(AI_ASSISTED_CODE_SUGGESTIONS_MODE)) {
-          this.#setDisabledInSettings(!getAiAssistedCodeSuggestionsConfiguration().enabled);
+          this.#setIsDisabledInSettings(!getAiAssistedCodeSuggestionsConfiguration().enabled);
         }
       }),
       vscode.window.onDidChangeActiveTextEditor(checkIfLanguageSupported),
     );
   }
 
+  async init() {
+    const checkIfAccountPresent = async () => {
+      const manager = new GitLabPlatformManagerForCodeSuggestions(this.#gitlabPlatformManager);
+      const platform = await manager.getGitLabPlatform();
+      this.#setIsMissingAccount(!platform);
+    };
+    await checkIfAccountPresent();
+
+    this.#gitlabPlatformManager.onAccountChange(checkIfAccountPresent);
+  }
+
   isDisabledByUser() {
     return this.#disabledInSettings || this.#isDisabledByUserForSession;
+  }
+
+  /** isActive indicates whether the suggestions are on and suggestion requests are being sent to the API */
+  isActive() {
+    return !(
+      this.#disabledInSettings ||
+      this.#isDisabledByUserForSession ||
+      this.#isMissingAccount ||
+      this.#isUnsupportedLanguage
+    );
   }
 
   getVisibleState(): VisibleCodeSuggestionsState {
@@ -77,6 +106,10 @@ export class CodeSuggestionsStateManager {
 
     if (this.#isDisabledByUserForSession) {
       return VisibleCodeSuggestionsState.DISABLED_BY_USER;
+    }
+
+    if (this.#isMissingAccount) {
+      return VisibleCodeSuggestionsState.NO_ACCOUNT;
     }
 
     if (this.#isUnsupportedLanguage) {
@@ -110,11 +143,15 @@ export class CodeSuggestionsStateManager {
     }
   };
 
-  #setDisabledInSettings = this.#updateStateWrapper(isDisabled => {
+  #setIsMissingAccount = this.#updateStateWrapper(isMissing => {
+    this.#isMissingAccount = isMissing;
+  });
+
+  #setIsDisabledInSettings = this.#updateStateWrapper(isDisabled => {
     this.#disabledInSettings = isDisabled;
   });
 
-  #setUnsupportedLanguage = this.#updateStateWrapper(isUnsupportedLanguage => {
+  #setIsUnsupportedLanguage = this.#updateStateWrapper(isUnsupportedLanguage => {
     this.#isUnsupportedLanguage = isUnsupportedLanguage;
   });
 

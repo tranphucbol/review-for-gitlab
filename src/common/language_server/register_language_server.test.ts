@@ -9,8 +9,10 @@ import { createExtensionContext } from '../test_utils/entities';
 import { LanguageClientWrapper } from './language_client_wrapper';
 import { createConfigurationChangeTrigger } from '../test_utils/vscode_fakes';
 import { COMMAND_TOGGLE_CODE_SUGGESTIONS } from '../code_suggestions/commands/toggle';
+import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
 
 jest.mock('../code_suggestions/code_suggestions_status_bar_item');
+jest.mock('../code_suggestions/code_suggestions_state_manager');
 jest.mock('./language_client_wrapper');
 
 describe('registerLanguageServer', () => {
@@ -19,6 +21,7 @@ describe('registerLanguageServer', () => {
   let client: BaseLanguageClient;
   let languageClientFactory: LanguageClientFactory;
   let gitlabPlatformManager: GitLabPlatformManager;
+  let stateManager: CodeSuggestionsStateManager;
 
   beforeEach(async () => {
     triggerConfigChange = createConfigurationChangeTrigger();
@@ -35,6 +38,10 @@ describe('registerLanguageServer', () => {
     gitlabPlatformManager = createFakePartial<GitLabPlatformManager>({
       onAccountChange: jest.fn(),
     });
+    stateManager = createFakePartial<CodeSuggestionsStateManager>({
+      init: jest.fn(),
+    });
+    jest.mocked(CodeSuggestionsStateManager).mockReturnValue(stateManager);
     await registerLanguageServer(
       createExtensionContext(),
       languageClientFactory,
@@ -44,6 +51,10 @@ describe('registerLanguageServer', () => {
 
   it('initializes the language client wrapper', async () => {
     expect(clientWrapper.initAndStart).toHaveBeenCalled();
+  });
+
+  it('initializes state manager', async () => {
+    expect(stateManager.init).toHaveBeenCalled();
   });
 
   it('registers suggestion accepted command', () => {
