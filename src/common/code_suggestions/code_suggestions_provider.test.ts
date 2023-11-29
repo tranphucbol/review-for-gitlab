@@ -150,7 +150,6 @@ function createLegacyApiFallbackConfig(shouldUseModelGateway: boolean): LegacyAp
     retryDelayMS: 1,
     manager,
     isLegacyVersion: false,
-    fallbackToModelGateway: jest.fn(),
     shouldUseModelGateway: jest.fn().mockReturnValue(shouldUseModelGateway),
     flagLegacyVersion: jest.fn(),
     verifyGitLabVersion: jest.fn(),
@@ -212,30 +211,7 @@ describe('CodeSuggestionsProvider', () => {
     };
 
     describe('without new GitLab monolith code suggestion API available', () => {
-      const fetchFromApiMock = jest.fn().mockImplementation(request => {
-        if (request.path === '/code_suggestions/tokens') {
-          return Promise.resolve(token);
-        }
-        // eslint-disable-next-line prefer-promise-reject-errors
-        return Promise.reject({ status: 403 });
-      });
-
-      it('after receiving 403 flags API as legacy and retries', async () => {
-        legacyApiFallbackConfig = createLegacyApiFallbackConfig(false);
-        const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({
-          manager: createManager(project, fetchFromApiMock),
-          legacyApiFallbackConfig,
-          stateManager,
-        });
-
-        expect(legacyApiFallbackConfig.fallbackToModelGateway).toHaveBeenCalledTimes(0);
-
-        await glcp.getCompletions({ document: testDocument, position, cancellationToken });
-
-        expect(codeSuggestionMonolithCalls(fetchFromApiMock).length).toBe(1);
-        expect(crossFetchCalls().length).toBe(1);
-        expect(legacyApiFallbackConfig.fallbackToModelGateway).toHaveBeenCalledTimes(1);
-      });
+      const fetchFromApiMock = jest.fn().mockImplementation(() => Promise.resolve(token));
 
       it('should use model gateway API directly when flagged as legacy', async () => {
         const glcp: CodeSuggestionsProvider = new CodeSuggestionsProvider({

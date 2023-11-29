@@ -243,7 +243,7 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     try {
       this.stateManager.setLoading(true);
       if (gitlabMonolithApiAvailable) {
-        response = await this.fetchCompletionsFromGitLab(platform, prompt, traceID);
+        response = await CodeSuggestionsProvider.fetchCompletionsFromGitLab(platform, prompt);
       } else {
         // FIXME: when we start supporting SM, we need to get the token from the **platform**, now the project might not match the token
         // Also, passing the project to the API might get deprecated: https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/merge_requests/143#note_1419849871
@@ -422,10 +422,9 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
     return data;
   }
 
-  async fetchCompletionsFromGitLab(
+  static async fetchCompletionsFromGitLab(
     platform: GitLabPlatformBase,
     prompt: CodeSuggestionPrompt,
-    traceID: string,
   ): Promise<CodeSuggestionsResponse> {
     log.debug(`AI Assist: fetching completions via monolith...`);
     const codeSuggestionRequest: PostRequest<CodeSuggestionsResponse> = {
@@ -435,26 +434,8 @@ export class CodeSuggestionsProvider implements vscode.InlineCompletionItemProvi
       body: prompt,
     };
 
-    let response: CodeSuggestionsResponse;
-    // Temporary handling for graduall rollout of new API, once API
-    // is globaly available all error handling should be removed
-    // https://gitlab.com/gitlab-org/gitlab/-/issues/419809
-    try {
-      response = await platform.fetchFromApi(codeSuggestionRequest);
-    } catch (e) {
-      CodeSuggestionsTelemetryManager.setSuggestionStatusCode(traceID, e?.status);
+    const response = await platform.fetchFromApi(codeSuggestionRequest);
 
-      if ('status' in e && e.status === 403) {
-        this.legacyApiFallbackConfig.fallbackToModelGateway();
-        const token = await this.tokenManager.getToken();
-        if (!token) {
-          throw new Error('AI Assist: Could not fetch token');
-        }
-        response = await this.fetchCompletions(platform, token, prompt, traceID);
-      } else {
-        throw e;
-      }
-    }
     return response;
   }
 
