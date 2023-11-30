@@ -36,6 +36,43 @@ export const querySecurityFinding = gql`
             name
           }
           reportType
+          location {
+            ... on VulnerabilityLocationContainerScanning {
+              image
+              operatingSystem
+            }
+            ... on VulnerabilityLocationSast {
+              startLine
+              endLine
+              file
+              blobPath
+            }
+            ... on VulnerabilityLocationDependencyScanning {
+              blobPath
+              file
+            }
+            ... on VulnerabilityLocationSecretDetection {
+              startLine
+              endLine
+              file
+              blobPath
+            }
+            ... on VulnerabilityLocationCoverageFuzzing {
+              startLine
+              endLine
+              file
+              blobPath
+              crashAddress
+              crashType
+              stacktraceSnippet
+              vulnerableMethod
+              vulnerableClass
+            }
+            ... on VulnerabilityLocationDast {
+              hostname
+              path
+            }
+          }
         }
       }
     }
