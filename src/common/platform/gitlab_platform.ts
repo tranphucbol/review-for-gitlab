@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { Cable as ActionCableCable } from '@anycable/core';
 import { fetchFromApi } from './web_ide';
 import { GitLabProject } from './gitlab_project';
 import { Account } from './gitlab_account';
@@ -8,6 +9,7 @@ import { Account } from './gitlab_account';
  */
 export interface GitLabPlatformBase {
   fetchFromApi: fetchFromApi;
+  connectToCable: () => Promise<ActionCableCable>;
   account: Account;
   /**
    * What user agent should be used for API calls that are not made to GitLab API

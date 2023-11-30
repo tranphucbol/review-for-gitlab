@@ -156,4 +156,19 @@ describe('gitlabPlatformManagerDesktop', () => {
       expect(getGitLabService).toHaveBeenCalledWith(projectInRepository);
     });
   });
+
+  describe('connectToCable', () => {
+    const connectionMock = jest.fn();
+
+    it('calls connectToCable on gitlabService', async () => {
+      (getGitLabServiceForAccount as jest.Mock).mockReturnValue({
+        connectToCable: async () => connectionMock,
+      });
+
+      const platform = await gitlabPlatformManagerDesktop.getForActiveAccount();
+      const result = await platform?.connectToCable();
+      expect(result).toBe(connectionMock);
+      expect(getGitLabServiceForAccount).toHaveBeenCalledTimes(1);
+    });
+  });
 });

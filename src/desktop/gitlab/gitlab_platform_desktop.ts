@@ -28,6 +28,7 @@ function createGitLabPlatformForAccount(account: Account): GitLabPlatformForAcco
     account,
     project: undefined,
     fetchFromApi: async req => getGitLabServiceForAccount(account).fetchFromApi(req),
+    connectToCable: async () => getGitLabServiceForAccount(account).connectToCable(),
     getUserAgentHeader,
   };
 }
@@ -43,6 +44,8 @@ export const gitlabPlatformManagerDesktop: GitLabPlatformManager = {
       account: projectInRepository.account,
       project: projectInRepository.project,
       fetchFromApi: async req => getGitLabService(projectInRepository).fetchFromApi(req),
+      connectToCable: async () =>
+        getGitLabServiceForAccount(projectInRepository.account).connectToCable(),
       getUserAgentHeader,
     };
   },

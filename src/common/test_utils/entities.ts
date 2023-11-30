@@ -7,6 +7,7 @@ import { GitLabProject } from '../platform/gitlab_project';
 import { createFakeFetchFromApi } from './create_fake_fetch_from_api';
 import { SecretStorage } from './secret_storage';
 import { createFakePartial } from './create_fake_partial';
+import { connectToCable } from '../gitlab/api/action_cable';
 
 export const gqlProject: GqlProject = {
   id: 'gid://gitlab/Project/5261717',
@@ -34,6 +35,7 @@ export const gitlabPlatformForAccount: GitLabPlatformForAccount = {
   account,
   project: undefined,
   fetchFromApi: createFakeFetchFromApi(),
+  connectToCable: () => connectToCable(''),
   getUserAgentHeader: () => ({}),
 };
 
@@ -42,6 +44,7 @@ export const gitlabPlatformForProject: GitLabPlatformForProject = {
   project,
   account,
   fetchFromApi: createFakeFetchFromApi(),
+  connectToCable: () => connectToCable(''),
   getUserAgentHeader: () => ({}),
 };
 
