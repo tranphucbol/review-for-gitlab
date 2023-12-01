@@ -1,3 +1,12 @@
+# [3.89.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.88.0...v3.89.0) (2023-12-01)
+
+
+### Features
+
+* **security:** add more security finding details ([025bc54](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/025bc54479540cfbd2773a9e7f1b917ef12016f8))
+
+
+
 # [3.88.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.87.0...v3.88.0) (2023-11-29)
 
 
