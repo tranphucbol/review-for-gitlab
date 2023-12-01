@@ -10,7 +10,7 @@ export const getClientContext = (): IClientContext => {
       version: vscode.version,
     },
     extension: {
-      name: 'GitLab Workflow LS',
+      name: 'GitLab Workflow',
       version: extension?.packageJSON?.version,
     },
   };
