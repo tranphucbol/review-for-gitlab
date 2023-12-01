@@ -1,5 +1,7 @@
 # [3.89.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.88.0...v3.89.0) (2023-12-01)
 
+This Version also updates code suggestions Language server from version [3.17.0 to 3.18.1](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/blob/main/CHANGELOG.md).
+
 
 ### Features
 
