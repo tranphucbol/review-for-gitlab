@@ -150,7 +150,7 @@ GitLab Duo Chat is a `common` webview and should work the same in desktop VS Cod
 ```mermaid
 graph LR;
 subgraph extension
-A[GitLab Worflow] --> B[gitlab_chat]
+A[GitLab Workflow] --> B[gitlab_chat]
 B --> C[gitlab_chat_controller]
 C --> D[gitlab_chat_view]
 end
