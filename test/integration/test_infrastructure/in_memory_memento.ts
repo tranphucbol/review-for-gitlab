@@ -1,16 +1,20 @@
 /* This is an in-memory implementation of the VS Code globalState */
 export class InMemoryMemento {
-  state: Record<string, any>;
+  state: Record<string, unknown>;
 
   constructor() {
     this.state = {};
   }
 
-  update(key: string, value: any) {
+  async update(key: string, value: unknown) {
     this.state[key] = value;
   }
 
-  get(key: string, defaultValue: any) {
-    return this.state[key] || defaultValue;
+  get<T>(key: string): T | undefined;
+
+  get<T>(key: string, defaultValue: T): T;
+
+  get<T>(key: string, defaultValue?: T): T | undefined {
+    return key in this.state ? (this.state[key] as T) : defaultValue;
   }
 }

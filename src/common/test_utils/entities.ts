@@ -6,6 +6,7 @@ import { GitLabPlatformForAccount, GitLabPlatformForProject } from '../platform/
 import { GitLabProject } from '../platform/gitlab_project';
 import { createFakeFetchFromApi } from './create_fake_fetch_from_api';
 import { SecretStorage } from './secret_storage';
+import { createFakePartial } from './create_fake_partial';
 
 export const gqlProject: GqlProject = {
   id: 'gid://gitlab/Project/5261717',
@@ -45,10 +46,11 @@ export const gitlabPlatformForProject: GitLabPlatformForProject = {
 };
 
 export const createExtensionContext = (): vscode.ExtensionContext =>
-  ({
+  createFakePartial<vscode.ExtensionContext>({
     globalState: new InMemoryMemento(),
     workspaceState: new InMemoryMemento(),
     secrets: new SecretStorage(),
     extensionPath: '',
     subscriptions: [],
-  }) as unknown as vscode.ExtensionContext;
+    asAbsolutePath: relativePath => `/test/abs/${relativePath}`,
+  });

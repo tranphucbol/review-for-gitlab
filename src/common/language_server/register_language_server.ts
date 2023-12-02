@@ -9,6 +9,7 @@ import { CONFIG_NAMESPACE } from '../constants';
 import { LanguageClientWrapper } from './language_client_wrapper';
 import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
 import { CodeSuggestionsStatusBarItem } from '../code_suggestions/code_suggestions_status_bar_item';
+import { CodeSuggestionsGutterIcon } from '../code_suggestions/code_suggestions_gutter_icon';
 import { LanguageClientMiddleware } from './language_client_middleware';
 import {
   COMMAND_TOGGLE_CODE_SUGGESTIONS,
@@ -27,6 +28,7 @@ export const registerLanguageServer = async (
   const stateManager = new CodeSuggestionsStateManager(gitlabPlatformManager);
   await stateManager.init();
   const statusBarItem = new CodeSuggestionsStatusBarItem(stateManager);
+  const gutterIcon = new CodeSuggestionsGutterIcon(context, stateManager);
   const client = clientFactory.createLanguageClient(context, {
     ...LANGUAGE_CLIENT_OPTIONS,
     initializationOptions: getClientContext(),
@@ -52,5 +54,6 @@ export const registerLanguageServer = async (
     }),
     gitlabPlatformManager.onAccountChange(wrapper.syncConfig),
     statusBarItem,
+    gutterIcon,
   );
 };

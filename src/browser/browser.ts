@@ -33,7 +33,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
       dependencyContainer.gitLabPlatformManager,
     );
   } else {
-    const codeSuggestions = new CodeSuggestions(dependencyContainer.gitLabPlatformManager);
+    const codeSuggestions = new CodeSuggestions(context, dependencyContainer.gitLabPlatformManager);
     await codeSuggestions.init();
     context.subscriptions.push(codeSuggestions);
   }
