@@ -16,6 +16,7 @@ jest.mock('./code_suggestions_state_manager', () => ({
   },
 }));
 
+jest.mock('./code_suggestions_gutter_icon');
 jest.mock('./code_suggestions_provider');
 jest.mock('./code_suggestions_status_bar_item');
 
@@ -41,11 +42,13 @@ const manager: GitLabPlatformManager = createFakePartial<GitLabPlatformManager>(
   getForAllAccounts: jest.fn(),
 });
 
+const context = createFakePartial<vscode.ExtensionContext>({});
+
 describe('CodeSuggestions', () => {
   let codeSuggestions: CodeSuggestions;
 
   beforeEach(() => {
-    codeSuggestions = new CodeSuggestions(manager);
+    codeSuggestions = new CodeSuggestions(context, manager);
   });
 
   afterEach(() => {

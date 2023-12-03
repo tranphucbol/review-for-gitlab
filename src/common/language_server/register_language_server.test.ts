@@ -10,7 +10,9 @@ import { LanguageClientWrapper } from './language_client_wrapper';
 import { createConfigurationChangeTrigger } from '../test_utils/vscode_fakes';
 import { COMMAND_TOGGLE_CODE_SUGGESTIONS } from '../code_suggestions/commands/toggle';
 import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
+import { CodeSuggestionsGutterIcon } from '../code_suggestions/code_suggestions_gutter_icon';
 
+jest.mock('../code_suggestions/code_suggestions_gutter_icon');
 jest.mock('../code_suggestions/code_suggestions_status_bar_item');
 jest.mock('../code_suggestions/code_suggestions_state_manager');
 jest.mock('./language_client_wrapper');
@@ -22,6 +24,7 @@ describe('registerLanguageServer', () => {
   let languageClientFactory: LanguageClientFactory;
   let gitlabPlatformManager: GitLabPlatformManager;
   let stateManager: CodeSuggestionsStateManager;
+  let context: vscode.ExtensionContext;
 
   beforeEach(async () => {
     triggerConfigChange = createConfigurationChangeTrigger();
@@ -40,13 +43,11 @@ describe('registerLanguageServer', () => {
     });
     stateManager = createFakePartial<CodeSuggestionsStateManager>({
       init: jest.fn(),
+      onDidChangeVisibleState: jest.fn(),
     });
+    context = createExtensionContext();
     jest.mocked(CodeSuggestionsStateManager).mockReturnValue(stateManager);
-    await registerLanguageServer(
-      createExtensionContext(),
-      languageClientFactory,
-      gitlabPlatformManager,
-    );
+    await registerLanguageServer(context, languageClientFactory, gitlabPlatformManager);
   });
 
   it('initializes the language client wrapper', async () => {
@@ -78,5 +79,10 @@ describe('registerLanguageServer', () => {
 
   it('registers on account change listener', () => {
     expect(gitlabPlatformManager.onAccountChange).toHaveBeenCalledWith(clientWrapper.syncConfig);
+  });
+
+  it('creates CodeSuggestionsGutterIcon', () => {
+    expect(CodeSuggestionsGutterIcon).toHaveBeenCalledTimes(1);
+    expect(CodeSuggestionsGutterIcon).toHaveBeenCalledWith(context, stateManager);
   });
 });

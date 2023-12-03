@@ -8,11 +8,14 @@ import { CodeSuggestionsStatusBarItem } from './code_suggestions_status_bar_item
 import { COMMAND_TOGGLE_CODE_SUGGESTIONS, toggleCodeSuggestions } from './commands/toggle';
 import { LegacyApiFallbackConfig } from './legacy_api_fallback_config';
 import { GitLabPlatformManagerForCodeSuggestions } from './gitlab_platform_manager_for_code_suggestions';
+import { CodeSuggestionsGutterIcon } from './code_suggestions_gutter_icon';
 
 export class CodeSuggestions {
   stateManager: CodeSuggestionsStateManager;
 
   statusBarItem: CodeSuggestionsStatusBarItem;
+
+  #gutterIcon: CodeSuggestionsGutterIcon;
 
   toggleSuggestionsCommand?: vscode.Disposable;
 
@@ -22,7 +25,7 @@ export class CodeSuggestions {
 
   legacyApiFallbackConfig: LegacyApiFallbackConfig;
 
-  constructor(manager: GitLabPlatformManager) {
+  constructor(context: vscode.ExtensionContext, manager: GitLabPlatformManager) {
     this.stateManager = new CodeSuggestionsStateManager(manager);
     this.toggleSuggestionsCommand = vscode.commands.registerCommand(
       COMMAND_TOGGLE_CODE_SUGGESTIONS,
@@ -32,6 +35,7 @@ export class CodeSuggestions {
     const platformManagerForCodeSuggestions = new GitLabPlatformManagerForCodeSuggestions(manager);
 
     this.statusBarItem = new CodeSuggestionsStatusBarItem(this.stateManager);
+    this.#gutterIcon = new CodeSuggestionsGutterIcon(context, this.stateManager);
 
     this.legacyApiFallbackConfig = new LegacyApiFallbackConfig(platformManagerForCodeSuggestions);
 
@@ -80,6 +84,7 @@ export class CodeSuggestions {
 
   dispose() {
     this.statusBarItem?.dispose();
+    this.#gutterIcon.dispose();
     this.providerDisposable?.dispose();
     this.activeTextEditorChangeDisposable?.dispose();
     this.toggleSuggestionsCommand?.dispose();

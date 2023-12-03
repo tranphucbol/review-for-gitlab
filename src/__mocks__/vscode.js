@@ -51,6 +51,7 @@ module.exports = {
     tabGroups: {
       activeTabGroup: {},
     },
+    createTextEditorDecorationType: jest.fn(),
   },
   commands: {
     executeCommand: jest.fn(),
