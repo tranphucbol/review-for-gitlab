@@ -1,3 +1,13 @@
+# [3.90.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.89.0...v3.90.0) (2023-12-03)
+
+
+### Features
+
+* Code suggestions gutter icon status ([24373b4](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/24373b42eaaef7783bacb168b8d97f78b79ae3cd))
+* use LS Code Suggestions by default ([e7ee390](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/e7ee3906e2abe88722c8f1a42c33114c0395bce4))
+
+
+
 # [3.89.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.88.0...v3.89.0) (2023-12-01)
 
 This Version also updates code suggestions Language server from version [3.17.0 to 3.18.1](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/blob/main/CHANGELOG.md).
