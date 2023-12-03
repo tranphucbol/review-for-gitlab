@@ -12,5 +12,5 @@ export const FEATURE_FLAGS_DEFAULT_VALUES = {
   [FeatureFlag.SecurityScans]: true,
   [FeatureFlag.ForceCodeSuggestionsViaMonolith]: false,
   [FeatureFlag.TestFlag]: false,
-  [FeatureFlag.LanguageServer]: false,
+  [FeatureFlag.LanguageServer]: true,
 };
