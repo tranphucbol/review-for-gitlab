@@ -272,7 +272,7 @@
   },
   "dependencies": {
     "@gitlab-org/gitlab-lsp": "^3.20.0",
-    "@snowplow/tracker-core": "3.17.0",
+    "@snowplow/tracker-core": "3.18.0",
     "cross-fetch": "^3.1.8",
     "dayjs": "^1.11.10",
     "graphql": "^16.8.1",
