@@ -20,6 +20,7 @@ export interface ExtensionConfiguration {
 export interface AiAssistedCodeSuggestionsConfiguration {
   enabled: boolean;
   preferredAccount?: string;
+  suggestionsCache?: { enabled?: boolean };
 }
 
 // VS Code returns a value or `null` but undefined is better for using default function arguments
@@ -43,6 +44,7 @@ export function getAiAssistedCodeSuggestionsConfiguration(): AiAssistedCodeSugge
   return {
     enabled: aiAssistedCodeSuggestionsConfig.enabled,
     preferredAccount: aiAssistedCodeSuggestionsConfig.preferredAccount,
+    suggestionsCache: aiAssistedCodeSuggestionsConfig.suggestionsCache || { enabled: false },
   };
 }
 

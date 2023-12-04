@@ -68,6 +68,9 @@ describe('LanguageClientWrapper', () => {
             featureFlags: {
               codeSuggestionsClientDirectToGateway: false,
             },
+            suggestionsCache: {
+              enabled: false,
+            },
           },
         },
       );
