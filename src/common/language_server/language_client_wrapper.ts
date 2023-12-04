@@ -12,6 +12,10 @@ import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { GitLabPlatformManagerForCodeSuggestions } from '../code_suggestions/gitlab_platform_manager_for_code_suggestions';
 import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
 import { log } from '../log';
+import { FeatureFlag, isEnabled } from '../feature_flags';
+
+// note: Temporary until new gitlab-lsp version bumps with IConfig updated
+type LspConfig = IConfig | { featureFlags: Record<string, boolean> };
 
 export class LanguageClientWrapper {
   #client: BaseLanguageClient;
@@ -64,11 +68,16 @@ export class LanguageClientWrapper {
       log.warn('There is no GitLab account available with access to suggestions');
       return;
     }
-    const settings: IConfig = {
+    const settings: LspConfig = {
       baseUrl: platform.account.instanceUrl,
       token: platform.account.token,
       telemetry: {
         actions: [{ action: TRACKING_EVENTS.ACCEPTED }],
+      },
+      featureFlags: {
+        [FeatureFlag.CodeSuggestionsClientDirectToGateway]: isEnabled(
+          FeatureFlag.CodeSuggestionsClientDirectToGateway,
+        ),
       },
     };
 
