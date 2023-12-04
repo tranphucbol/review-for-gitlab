@@ -1,4 +1,6 @@
 <script>
+import Row from './FindingRow.vue';
+
 export default {
   name: 'FindingDetails',
   props: {
@@ -7,20 +9,19 @@ export default {
       required: true,
     },
   },
+  components: {
+    Row,
+  },
 };
 </script>
 
 <template>
   <div>
     <h2>{{ finding.title }}</h2>
-    <h3>Description</h3>
-    <p>{{ finding.description }}</p>
-    <h3>Severity</h3>
-    <span>{{ finding.severity }}</span>
-    <h3>Tool</h3>
-    <span>{{ finding.reportType }}</span>
-    <h3>Scanner</h3>
-    <span>{{ finding.scanner.name }}</span>
+    <row label="Description"> {{ finding.description }}</row>
+    <row label="Severity"> {{ finding.severity }}</row>
+    <row label="Tool"> {{ finding.reportType }}</row>
+    <row label="Scanner"> {{ finding.scanner.name }}</row>
   </div>
 </template>
 
