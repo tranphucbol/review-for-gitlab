@@ -1,3 +1,23 @@
+## [3.90.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.90.0...v3.90.1) (2023-12-04)
+
+
+### Bug Fixes
+
+* Code suggestion gutter icons in Web IDE ([e1dd6ad](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/e1dd6adfa0bb29065f76d0642b10cea8d9048c34))
+* Do not enable LSP in Web IDE ([97cc301](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/97cc301754af0d3b52f4e1c6fbfe7fbe23895fa6))
+* Fix gutter icon persisting across tabs ([553ff7e](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/553ff7e726b583c30e3e7e027f7483bca626ce82))
+
+
+### Features
+
+* Add "codeSuggestionsClientDirectToGateway" feature flag ([7a6e048](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/7a6e048fa9aa59b2b74279ec7983feac08579e07))
+* add passing suggestions cache config flag ([f9ba575](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/f9ba5750ba28e2d37f986c48372fc0fac38d7708))
+* Bump version of LSP to v3.20.0 ([cbe85a2](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/cbe85a2a6e687919e2a5ba41f702d477c25d53db))
+* open securty finding in sideview ([4279470](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/4279470e39fbe3e4aec984ae296f94cca2dad5c0))
+* render markdown for security findings ([c0749b8](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/c0749b8ee3a960540da5585b83b4f804a8da9838))
+
+
+
 # [3.90.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.89.0...v3.90.0) (2023-12-03)
 
 
