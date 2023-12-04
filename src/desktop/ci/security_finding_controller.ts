@@ -29,7 +29,10 @@ export class SecurityFindingWebviewController implements RepositoryRootWebviewPr
     const panel = vscode.window.createWebviewPanel(
       WEBVIEW_SECURITY_FINDING,
       '',
-      vscode.ViewColumn.Active,
+      {
+        preserveFocus: true,
+        viewColumn: vscode.ViewColumn.Beside,
+      },
       {
         enableScripts: true,
         localResourceRoots: [
