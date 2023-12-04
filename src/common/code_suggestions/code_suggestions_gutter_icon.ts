@@ -50,6 +50,12 @@ export class CodeSuggestionsGutterIcon {
         this.#update(this.#lastState);
       }),
 
+      vscode.window.onDidChangeActiveTextEditor(editor => {
+        if (editor) {
+          this.#update(VisibleCodeSuggestionsState.READY);
+        }
+      }),
+
       state.onDidChangeVisibleState(currentState => {
         this.#update(currentState);
       }),
