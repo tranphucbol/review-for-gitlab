@@ -5,6 +5,7 @@ export enum FeatureFlag {
   SecurityScans = 'securityScansFlag',
   ForceCodeSuggestionsViaMonolith = 'forceCodeSuggestionsViaMonolith',
   LanguageServer = 'languageServer',
+  LanguageServerWebIDE = 'languageServerWebIDE',
   CodeSuggestionsClientDirectToGateway = 'codeSuggestionsClientDirectToGateway',
 }
 
@@ -15,4 +16,5 @@ export const FEATURE_FLAGS_DEFAULT_VALUES = {
   [FeatureFlag.TestFlag]: false,
   [FeatureFlag.LanguageServer]: true,
   [FeatureFlag.CodeSuggestionsClientDirectToGateway]: false,
+  [FeatureFlag.LanguageServerWebIDE]: false,
 };
