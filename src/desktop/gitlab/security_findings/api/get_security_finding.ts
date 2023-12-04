@@ -30,6 +30,7 @@ export const querySecurityFinding = gql`
         securityReportFinding(uuid: $findingUuid) {
           title
           description
+          descriptionHtml
           severity
           scanner {
             name
