@@ -52,5 +52,6 @@ export const createExtensionContext = (): vscode.ExtensionContext =>
     secrets: new SecretStorage(),
     extensionPath: '',
     subscriptions: [],
+    extensionUri: vscode.Uri.parse('https://localhost'),
     asAbsolutePath: relativePath => `/test/abs/${relativePath}`,
   });

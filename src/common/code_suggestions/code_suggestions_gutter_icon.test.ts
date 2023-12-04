@@ -22,6 +22,12 @@ describe('CodeSuggestionsGutterIcon', () => {
       .mock.calls.forEach(([listener]) => listener(e));
   };
 
+  const triggerActiveTextEditorChange = (e: vscode.TextEditor | undefined) => {
+    jest
+      .mocked(vscode.window.onDidChangeActiveTextEditor)
+      .mock.calls.forEach(([listener]) => listener(e));
+  };
+
   beforeEach(() => {
     textEditorDecorationTypeMap = new Map<string, vscode.TextEditorDecorationType>();
     setDecorationsSpy = jest.fn();
@@ -52,6 +58,9 @@ describe('CodeSuggestionsGutterIcon', () => {
     jest.mocked(vscode.window.onDidChangeTextEditorSelection).mockReturnValue({
       dispose: jest.fn(),
     });
+    jest.mocked(vscode.window.onDidChangeActiveTextEditor).mockReturnValue({
+      dispose: jest.fn(),
+    });
 
     context = createExtensionContext();
     codeSuggestionsStateManager = createFakePartial<CodeSuggestionsStateManager>({
@@ -71,8 +80,8 @@ describe('CodeSuggestionsGutterIcon', () => {
 
     it.each`
       state                                  | iconPath
-      ${VisibleCodeSuggestionsState.LOADING} | ${'/test/abs/assets/icons/gitlab-code-suggestions-loading.svg'}
-      ${VisibleCodeSuggestionsState.ERROR}   | ${'/test/abs/assets/icons/gitlab-code-suggestions-error.svg'}
+      ${VisibleCodeSuggestionsState.LOADING} | ${'https://localhost/assets/icons/gitlab-code-suggestions-loading.svg'}
+      ${VisibleCodeSuggestionsState.ERROR}   | ${'https://localhost/assets/icons/gitlab-code-suggestions-error.svg'}
     `(
       'when manager state changes to $state, updates decorations to $iconPath',
       ({ state, iconPath }) => {
@@ -105,7 +114,7 @@ describe('CodeSuggestionsGutterIcon', () => {
       mockStateChangeEmitter.fire(VisibleCodeSuggestionsState.READY);
 
       const loadingDecoration = textEditorDecorationTypeMap.get(
-        '/test/abs/assets/icons/gitlab-code-suggestions-loading.svg',
+        'https://localhost/assets/icons/gitlab-code-suggestions-loading.svg',
       );
 
       expect(setDecorationsSpy).toHaveBeenCalledTimes(1);
@@ -122,7 +131,7 @@ describe('CodeSuggestionsGutterIcon', () => {
       );
 
       const loadingDecoration = textEditorDecorationTypeMap.get(
-        '/test/abs/assets/icons/gitlab-code-suggestions-loading.svg',
+        'https://localhost/assets/icons/gitlab-code-suggestions-loading.svg',
       );
 
       expect(setDecorationsSpy).toHaveBeenCalledTimes(2);
@@ -142,6 +151,27 @@ describe('CodeSuggestionsGutterIcon', () => {
       mockStateChangeEmitter.fire(VisibleCodeSuggestionsState.LOADING);
 
       expect(setDecorationsSpy).not.toHaveBeenCalled();
+    });
+
+    it('clears current decoration when active text editor changes', () => {
+      mockStateChangeEmitter.fire(VisibleCodeSuggestionsState.LOADING);
+
+      triggerActiveTextEditorChange(createFakePartial<vscode.TextEditor>({}));
+
+      const loadingDecoration = textEditorDecorationTypeMap.get(
+        'https://localhost/assets/icons/gitlab-code-suggestions-loading.svg',
+      );
+
+      expect(setDecorationsSpy).toHaveBeenCalledTimes(2);
+      expect(setDecorationsSpy).toHaveBeenCalledWith(loadingDecoration, [
+        {
+          range: {
+            start: { line: 7 },
+            end: { line: 7 },
+          },
+        },
+      ]);
+      expect(setDecorationsSpy).toHaveBeenCalledWith(loadingDecoration, []);
     });
   });
 

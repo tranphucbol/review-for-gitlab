@@ -28,7 +28,7 @@ const createGutterIconDecorations = (context: vscode.ExtensionContext): GutterIc
     status =>
       status &&
       vscode.window.createTextEditorDecorationType({
-        gutterIconPath: context.asAbsolutePath(status.path),
+        gutterIconPath: vscode.Uri.joinPath(context.extensionUri, status.path),
       }),
   );
 
@@ -48,6 +48,12 @@ export class CodeSuggestionsGutterIcon {
       // We might actually not need to listen to this change since the stateSubscription likely changes after the text selection changes
       vscode.window.onDidChangeTextEditorSelection(() => {
         this.#update(this.#lastState);
+      }),
+
+      vscode.window.onDidChangeActiveTextEditor(editor => {
+        if (editor) {
+          this.#update(VisibleCodeSuggestionsState.READY);
+        }
       }),
 
       state.onDidChangeVisibleState(currentState => {
