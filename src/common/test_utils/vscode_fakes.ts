@@ -1,8 +1,21 @@
 import * as vscode from 'vscode';
+import { CONFIG_NAMESPACE } from '../constants';
 
 export const createFakeWorkspaceConfiguration = (
   config: Record<string, unknown>,
 ): vscode.WorkspaceConfiguration => config as unknown as vscode.WorkspaceConfiguration;
+
+export const setFakeWorkspaceConfiguration = (config: Record<string, unknown>) => {
+  const configuration = createFakeWorkspaceConfiguration(config);
+
+  jest.mocked(vscode.workspace.getConfiguration).mockImplementation(section => {
+    if (section === CONFIG_NAMESPACE) {
+      return configuration;
+    }
+
+    return createFakeWorkspaceConfiguration({});
+  });
+};
 
 export const createConfigurationChangeTrigger = () => {
   let triggerSettingsRefresh: (() => void) | undefined;

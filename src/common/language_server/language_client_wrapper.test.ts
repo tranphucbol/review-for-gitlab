@@ -14,6 +14,7 @@ import { GitLabPlatformManagerForCodeSuggestions } from '../code_suggestions/git
 import { GitLabPlatformForAccount, GitLabPlatformManager } from '../platform/gitlab_platform';
 import { gitlabPlatformForAccount } from '../test_utils/entities';
 import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
+import { setFakeWorkspaceConfiguration } from '../test_utils/vscode_fakes';
 
 jest.mock('../code_suggestions/gitlab_platform_manager_for_code_suggestions');
 jest.mock('../log'); // disable logging in tests
@@ -63,6 +64,9 @@ describe('LanguageClientWrapper', () => {
             token: gitlabPlatformForAccount.account.token,
             telemetry: {
               actions: [{ action: TRACKING_EVENTS.ACCEPTED }],
+            },
+            featureFlags: {
+              codeSuggestionsClientDirectToGateway: false,
             },
           },
         },
@@ -122,6 +126,42 @@ describe('LanguageClientWrapper', () => {
       notificationHandlers[API_RECOVERY_NOTIFICATION]();
 
       expect(stateManager.setError).toHaveBeenLastCalledWith(false);
+    });
+  });
+
+  describe('syncConfig', () => {
+    let subject: LanguageClientWrapper;
+
+    beforeEach(async () => {
+      subject = new LanguageClientWrapper(client, fakeManager, stateManager);
+      await subject.initAndStart();
+
+      // initAndStart() will trigger some mocks, so let's start from a clean slate
+      jest.clearAllMocks();
+    });
+
+    it('reads featureFlags configuration', async () => {
+      setFakeWorkspaceConfiguration({
+        featureFlags: {
+          codeSuggestionsClientDirectToGateway: true,
+          // Include somethingElse to show that it is not included
+          somethingElse: false,
+        },
+      });
+
+      await subject.syncConfig();
+
+      expect(client.sendNotification).toHaveBeenCalledTimes(1);
+      expect(client.sendNotification).toHaveBeenCalledWith(
+        DidChangeConfigurationNotification.type,
+        {
+          settings: expect.objectContaining({
+            featureFlags: {
+              codeSuggestionsClientDirectToGateway: true,
+            },
+          }),
+        },
+      );
     });
   });
 });
