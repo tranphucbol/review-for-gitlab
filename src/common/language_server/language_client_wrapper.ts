@@ -11,11 +11,15 @@ import { BaseLanguageClient, DidChangeConfigurationNotification } from 'vscode-l
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { GitLabPlatformManagerForCodeSuggestions } from '../code_suggestions/gitlab_platform_manager_for_code_suggestions';
 import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
+import { getAiAssistedCodeSuggestionsConfiguration } from '../utils/extension_configuration';
 import { log } from '../log';
 import { FeatureFlag, isEnabled } from '../feature_flags';
 
 // note: Temporary until new gitlab-lsp version bumps with IConfig updated
-type LspConfig = IConfig | { featureFlags: Record<string, boolean> };
+type LspConfig =
+  | IConfig
+  | { featureFlags: Record<string, boolean> }
+  | { suggestionsCache?: { enabled?: boolean } };
 
 export class LanguageClientWrapper {
   #client: BaseLanguageClient;
@@ -79,6 +83,7 @@ export class LanguageClientWrapper {
           FeatureFlag.CodeSuggestionsClientDirectToGateway,
         ),
       },
+      suggestionsCache: getAiAssistedCodeSuggestionsConfiguration().suggestionsCache,
     };
 
     log.info(`Configuring Language Server - baseUrl: ${platform.account.instanceUrl}`);
