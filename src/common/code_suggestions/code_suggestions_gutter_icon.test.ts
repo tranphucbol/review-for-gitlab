@@ -71,8 +71,8 @@ describe('CodeSuggestionsGutterIcon', () => {
 
     it.each`
       state                                  | iconPath
-      ${VisibleCodeSuggestionsState.LOADING} | ${'/test/abs/assets/icons/gitlab-code-suggestions-loading.svg'}
-      ${VisibleCodeSuggestionsState.ERROR}   | ${'/test/abs/assets/icons/gitlab-code-suggestions-error.svg'}
+      ${VisibleCodeSuggestionsState.LOADING} | ${'https://localhost/assets/icons/gitlab-code-suggestions-loading.svg'}
+      ${VisibleCodeSuggestionsState.ERROR}   | ${'https://localhost/assets/icons/gitlab-code-suggestions-error.svg'}
     `(
       'when manager state changes to $state, updates decorations to $iconPath',
       ({ state, iconPath }) => {
@@ -105,7 +105,7 @@ describe('CodeSuggestionsGutterIcon', () => {
       mockStateChangeEmitter.fire(VisibleCodeSuggestionsState.READY);
 
       const loadingDecoration = textEditorDecorationTypeMap.get(
-        '/test/abs/assets/icons/gitlab-code-suggestions-loading.svg',
+        'https://localhost/assets/icons/gitlab-code-suggestions-loading.svg',
       );
 
       expect(setDecorationsSpy).toHaveBeenCalledTimes(1);
@@ -122,7 +122,7 @@ describe('CodeSuggestionsGutterIcon', () => {
       );
 
       const loadingDecoration = textEditorDecorationTypeMap.get(
-        '/test/abs/assets/icons/gitlab-code-suggestions-loading.svg',
+        'https://localhost/assets/icons/gitlab-code-suggestions-loading.svg',
       );
 
       expect(setDecorationsSpy).toHaveBeenCalledTimes(2);

@@ -28,7 +28,7 @@ const createGutterIconDecorations = (context: vscode.ExtensionContext): GutterIc
     status =>
       status &&
       vscode.window.createTextEditorDecorationType({
-        gutterIconPath: context.asAbsolutePath(status.path),
+        gutterIconPath: vscode.Uri.joinPath(context.extensionUri, status.path),
       }),
   );
 
