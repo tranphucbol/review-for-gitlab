@@ -15,6 +15,7 @@ export const desktopLanguageClientFactory: LanguageClientFactory = {
     };
 
     const lsDebug = vscode.workspace.getConfiguration().get(CONFIG_LS_DEBUG);
+
     const debugArgs = lsDebug ? ['--inspect=6010'] : [];
 
     return new LanguageClient(
