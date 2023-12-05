@@ -29,7 +29,7 @@ describe('explainSelectedCode', () => {
 
     expect(controller.processNewUserRecord).toHaveBeenCalledWith(
       expect.objectContaining({
-        content: 'Explain selected code',
+        content: '/explain',
         role: 'user',
         type: 'explainCode',
         context: {

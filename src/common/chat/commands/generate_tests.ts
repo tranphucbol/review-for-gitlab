@@ -10,7 +10,7 @@ export const generateTests = async (controller: GitLabChatController) => {
   const record = GitLabChatRecord.buildWithContext({
     role: 'user',
     type: 'generateTests',
-    content: `Write tests for selected code`,
+    content: `/tests`,
   });
 
   if (!record.context?.currentFile.selectedText) return;

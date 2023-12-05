@@ -28,7 +28,7 @@ describe('generateTests', () => {
     await generateTests(controller);
     expect(controller.processNewUserRecord).toHaveBeenCalledWith(
       expect.objectContaining({
-        content: 'Write tests for selected code',
+        content: '/tests',
         role: 'user',
         type: 'generateTests',
         context: {
