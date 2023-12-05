@@ -132,6 +132,7 @@ export default {
     error=""
     :is-loading="isLoading"
     :predefined-prompts="$options.i18n.predefinedPrompts"
+    with-slash-commands
     @send-chat-prompt="onSendChatPrompt"
     @track-feedback="onTrackFeedback"
   />

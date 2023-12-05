@@ -50,6 +50,12 @@
   --glDuoChat-buttonSecondary-foreground: var(--vscode-button-secondaryForeground);
   --glDuoChat-buttonSecondary-background: var(--vscode-button-secondaryBackground);
   --glDuoChat-buttonSecondary-background-hover: var(--vscode-button-secondaryHoverBackground);
+
+  --glDuoChat-list-background: var(--vscode-dropdown-background);
+  --glDuoChat-list-foreground: var(--vscode-dropdown-foreground);
+  --glDuoChat-list-border: var(--vscode-dropdown-border);
+  --glDuoChat-list-background-active: var(--vscode-list-activeSelectionBackground);
+  --glDuoChat-list-foreground-active: var(--vscode-list-activeSelectionForeground);
 }
 body {
   @include gl-p-0;
@@ -410,4 +416,34 @@ pre.code {
 
 .duo-chat copy-code .gl-button.gl-button.btn-default {
   @include gl-bg-transparent;
+}
+.slash-commands {
+  background-color: var(--glDuoChat-list-background);
+  border-color: var(--glDuoChat-list-border);
+  
+  small {
+    // Will be gone once https://gitlab.com/gitlab-org/gitlab-ui/-/issues/2429 is addressed
+    @include gl-text-right;
+    @include gl-pl-3;
+  }
+
+  button.dropdown-item {
+    color: var(--glDuoChat-list-foreground);
+
+    &:hover {
+      color: var(--glDuoChat-list-foreground-active) !important;
+    }
+  }
+
+  .active-command {
+    background-color: var(--glDuoChat-list-background-active);
+
+    button.dropdown-item {
+      color: var(--glDuoChat-list-foreground-active);
+
+      small {
+        color: var(--glDuoChat-list-foreground-active);
+      }
+    }
+  }
 }
