@@ -1,3 +1,18 @@
+## [3.90.2](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.90.1...v3.90.2) (2023-12-06)
+
+
+### Bug Fixes
+
+* upgraded @gitlab/ui package to 71.6.0 ([2b3ce81](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/2b3ce817dc898cdfb040e1144b5152e6ee520298))
+
+
+### Features
+
+* enabled slash-commands for DuoChat ([3dc0d9d](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/3dc0d9d648f12dc6dd424adda6a719a9d2d686c1))
+* migrate chat commands to slash commands ([82bdfb8](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/82bdfb854ee6b5f6ebaeaabff19c51d21cc55f40))
+
+
+
 ## [3.90.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.90.0...v3.90.1) (2023-12-04)
 
 
