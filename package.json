@@ -237,7 +237,7 @@
     "@types/lodash": "^4.14.202",
     "@types/node": "^13.13.52",
     "@types/request-promise": "^4.1.51",
-    "@types/semver": "^7.5.4",
+    "@types/semver": "^7.5.6",
     "@types/sinon": "^10.0.20",
     "@types/source-map-support": "^0.5.10",
     "@types/temp": "^0.9.4",
