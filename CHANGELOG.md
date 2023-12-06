@@ -1,4 +1,4 @@
-## [3.90.2](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.90.1...v3.90.2) (2023-12-06)
+## [3.91.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.90.1...v3.91.0) (2023-12-06)
 
 
 ### Bug Fixes
