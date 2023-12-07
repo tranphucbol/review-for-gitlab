@@ -71,6 +71,7 @@ describe('LanguageClientWrapper', () => {
             suggestionsCache: {
               enabled: false,
             },
+            logLevel: 'info',
           },
         },
       );
