@@ -78,6 +78,11 @@
         "category": "GitLab Duo"
       },
       {
+        "command": "gl.refactorCode",
+        "title": "Refactor",
+        "category": "GitLab Duo"
+      },
+      {
         "command": "gl.newChatConversation",
         "title": "Start a new conversation",
         "category": "GitLab Duo Chat"
@@ -109,6 +114,10 @@
           "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && editorHasSelection"
         },
         {
+          "command": "gl.refactorCode",
+          "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && editorHasSelection"
+        },
+        {
           "command": "gl.newChatConversation",
           "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount"
         }
@@ -129,6 +138,11 @@
           "command": "gl.generateTests",
           "group": "navigation",
           "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && editorHasSelection"
+        },
+        {
+          "command": "gl.refactorCode",
+          "group": "navigation",
+          "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && editorHasSelection"
         }
       ]
     },
@@ -147,6 +161,11 @@
         "command": "gl.generateTests",
         "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && editorHasSelection",
         "key": "alt+t"
+      },
+      {
+        "command": "gl.refactorCode",
+        "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && editorHasSelection",
+        "key": "alt+r"
       },
       {
         "command": "gl.newChatConversation",

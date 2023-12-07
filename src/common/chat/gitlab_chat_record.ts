@@ -3,7 +3,12 @@ import { buildCurrentContext, GitLabChatRecordContext } from './gitlab_chat_reco
 
 type ChatRecordRole = 'user' | 'assistant' | 'system';
 type ChatRecordState = 'pending' | 'ready';
-type ChatRecordType = 'general' | 'explainCode' | 'generateTests' | 'newConversation';
+type ChatRecordType =
+  | 'general'
+  | 'explainCode'
+  | 'generateTests'
+  | 'refactorCode'
+  | 'newConversation';
 
 type GitLabChatRecordAttributes = {
   type?: ChatRecordType;
