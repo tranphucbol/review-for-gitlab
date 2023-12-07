@@ -62,7 +62,7 @@ async function isConventional(message) {
 
 async function lintLocal() {
   console.log('INFO: Linting in local mode...');
-  const commits = await read({ from: 'main', to: 'HEAD' });
+  const commits = await read({ from: 'origin/main', to: 'HEAD' });
   return Promise.all(commits.map(isConventional));
 }
 
