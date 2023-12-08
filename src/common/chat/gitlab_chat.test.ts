@@ -21,7 +21,8 @@ describe('activateChat', () => {
       .mockReturnValueOnce('command1')
       .mockReturnValueOnce('command2')
       .mockReturnValueOnce('command3')
-      .mockReturnValueOnce('command4');
+      .mockReturnValueOnce('command4')
+      .mockReturnValueOnce('command5');
   });
 
   it('registers view provider', () => {
@@ -54,6 +55,11 @@ describe('activateChat', () => {
     );
     expect(vscode.commands.registerCommand).toHaveBeenNthCalledWith(
       4,
+      'gl.refactorCode',
+      expect.any(Function),
+    );
+    expect(vscode.commands.registerCommand).toHaveBeenNthCalledWith(
+      5,
       'gl.newChatConversation',
       expect.any(Function),
     );
@@ -62,5 +68,6 @@ describe('activateChat', () => {
     expect(context.subscriptions[2]).toEqual('command2');
     expect(context.subscriptions[3]).toEqual('command3');
     expect(context.subscriptions[4]).toEqual('command4');
+    expect(context.subscriptions[5]).toEqual('command5');
   });
 });

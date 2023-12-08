@@ -12,6 +12,7 @@ import {
 } from './commands/new_chat_conversation';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { CHAT_SIDEBAR_VIEW_ID } from './gitlab_chat_view';
+import { COMMAND_REFACTOR_CODE, refactorCode } from './commands/refactorCode';
 
 export const activateChat = (context: vscode.ExtensionContext, manager: GitLabPlatformManager) => {
   const controller = new GitLabChatController(manager, context);
@@ -31,6 +32,9 @@ export const activateChat = (context: vscode.ExtensionContext, manager: GitLabPl
     }),
     vscode.commands.registerCommand(COMMAND_GENERATE_TESTS, async () => {
       await generateTests(controller);
+    }),
+    vscode.commands.registerCommand(COMMAND_REFACTOR_CODE, async () => {
+      await refactorCode(controller);
     }),
     vscode.commands.registerCommand(COMMAND_NEW_CHAT_CONVERSATION, async () => {
       await newChatConversation(controller);
