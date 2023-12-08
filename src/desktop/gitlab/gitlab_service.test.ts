@@ -17,12 +17,14 @@ import { GetRequest, PostRequest } from '../../common/platform/web_ide';
 import { UnsupportedVersionError } from '../errors/unsupported_version_error';
 import { createFakeFetchFromApi } from '../../common/test_utils/create_fake_fetch_from_api';
 import { currentUserRequest } from '../../common/gitlab/api/get_current_user';
+import { connectToCable } from '../../common/gitlab/api/action_cable';
 
 jest.mock('graphql-request');
 jest.mock('../accounts/account_service');
 jest.mock('../../common/fetch_logged');
 jest.mock('../../common/utils/extension_configuration');
 jest.mock('./http/get_http_agent_options');
+jest.mock('../../common/gitlab/api/action_cable');
 
 const crossFetchCallArgument = () => (fetch as jest.Mock).mock.calls[0][0];
 const crossFetchResponse = (response?: unknown, headers?: Record<string, unknown>) => ({
@@ -631,6 +633,19 @@ describe('gitlab_service', () => {
       await expect(
         service.validateVersion(TEST_FEATURE_NAME, featureVersion),
       ).resolves.toBeUndefined();
+    });
+  });
+
+  describe('connectToCable', () => {
+    it('connects to ActionCable with Authorization headers', async () => {
+      await service.connectToCable();
+
+      expect(connectToCable).toHaveBeenCalledWith(testCredentials().instanceUrl, {
+        headers: expect.objectContaining({
+          Origin: testCredentials().instanceUrl,
+          Authorization: `Bearer ${testCredentials().token}`,
+        }),
+      });
     });
   });
 });

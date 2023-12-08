@@ -15,6 +15,7 @@ import { convertToGitLabProject, getProject } from '../common/gitlab/api/get_pro
 import { currentUserRequest } from '../common/gitlab/api/get_current_user';
 import { TokenAccount } from '../common/platform/gitlab_account';
 import { GITLAB_COM_URL } from '../common/constants';
+import { connectToCable } from '../common/gitlab/api/action_cable';
 
 const getMediatorToken: () => Promise<string> = memoize(async () =>
   vscode.commands.executeCommand(COMMAND_MEDIATOR_TOKEN),
@@ -64,6 +65,7 @@ export const createGitLabPlatformManagerBrowser: () => Promise<GitLabPlatformMan
     const accountPlatform: GitLabPlatformForAccount = {
       type: 'account',
       fetchFromApi,
+      connectToCable: async () => connectToCable(account.instanceUrl),
       // browser won't let us change User-Agent header
       // so we don't have to construct it
       getUserAgentHeader: () => ({}),

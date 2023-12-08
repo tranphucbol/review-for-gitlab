@@ -56,6 +56,7 @@ import { createQueryString, QueryValue } from '../utils/create_query_string';
 import { ApiRequest, fetchFromApi } from '../../common/platform/web_ide';
 import { GqlSecurityReportFinding } from './graphql/get_security_finding';
 import { currentUserRequest } from '../../common/gitlab/api/get_current_user';
+import { connectToCable } from '../../common/gitlab/api/action_cable';
 
 interface CreateNoteResult {
   createNote: {
@@ -234,6 +235,15 @@ export class GitLabService {
       ...init,
       headers: { ...fetchOptions.headers, ...init.headers },
     });
+  }
+
+  async connectToCable() {
+    const fetchOptions = await this.#getFetchOptions();
+    const websocketOptions = {
+      headers: { ...fetchOptions.headers, Origin: this.#credentials.instanceUrl },
+    };
+
+    return connectToCable(this.#credentials.instanceUrl, websocketOptions);
   }
 
   async getCredentials(): Promise<Credentials> {

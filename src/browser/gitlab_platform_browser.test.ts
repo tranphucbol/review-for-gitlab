@@ -12,6 +12,9 @@ import {
   GitLabPlatformManager,
 } from '../common/platform/gitlab_platform';
 import { user } from '../desktop/test_utils/entities';
+import { connectToCable } from '../common/gitlab/api/action_cable';
+
+jest.mock('../common/gitlab/api/action_cable');
 
 const FAKE_MEDIATOR_TOKEN = 'fake-mediator-token';
 
@@ -38,19 +41,19 @@ describe('createGitLabPlatformManagerBrowser', () => {
     });
   };
 
-  describe('functionality', () => {
-    let manager: GitLabPlatformManager;
+  let manager: GitLabPlatformManager;
 
-    beforeEach(async () => {
-      mockCommandsForInitialSetup();
+  beforeEach(async () => {
+    mockCommandsForInitialSetup();
 
-      manager = await createGitLabPlatformManagerBrowser();
-    });
+    manager = await createGitLabPlatformManagerBrowser();
+  });
 
-    afterEach(() => {
-      jest.clearAllMocks();
-    });
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
+  describe('fetchFromApi', () => {
     describe('without GitLab hosted project', () => {
       let platform: GitLabPlatformForAccount | undefined;
 
@@ -142,6 +145,18 @@ describe('createGitLabPlatformManagerBrowser', () => {
           testRequest,
         );
       });
+    });
+  });
+
+  describe('connectToCable', () => {
+    it('delegates to api/action_cable', async () => {
+      const platform = await manager.getForActiveAccount();
+
+      expect(platform).toBeDefined();
+
+      await platform?.connectToCable();
+
+      expect(connectToCable).toHaveBeenCalledWith('https://gitlab.com');
     });
   });
 });
