@@ -1,3 +1,13 @@
+# [3.92.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.91.0...v3.92.0) (2023-12-08)
+
+
+### Features
+
+* add refactor command to Duo Chat ([3c87525](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/3c875251f4e340fb38a5c1dee132a133cd9ddb6e))
+* Support log level configuration ([6288dbd](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/6288dbdc983ec029f50622be9c8c911178d72cd8))
+
+
+
 ## [3.91.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.90.1...v3.91.0) (2023-12-06)
 
 
