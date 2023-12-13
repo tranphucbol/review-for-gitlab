@@ -12,7 +12,7 @@ import { LanguageClientWrapper } from './language_client_wrapper';
 import { createFakePartial } from '../test_utils/create_fake_partial';
 import { GitLabPlatformManagerForCodeSuggestions } from '../code_suggestions/gitlab_platform_manager_for_code_suggestions';
 import { GitLabPlatformForAccount, GitLabPlatformManager } from '../platform/gitlab_platform';
-import { gitlabPlatformForAccount } from '../test_utils/entities';
+import { gitlabPlatformForAccount, gitlabPlatformForProject } from '../test_utils/entities';
 import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
 import { setFakeWorkspaceConfiguration } from '../test_utils/vscode_fakes';
 
@@ -61,6 +61,7 @@ describe('LanguageClientWrapper', () => {
         {
           settings: {
             baseUrl: gitlabPlatformForAccount.account.instanceUrl,
+            projectPath: '',
             token: gitlabPlatformForAccount.account.token,
             telemetry: {
               actions: [{ action: TRACKING_EVENTS.ACCEPTED }],
@@ -84,6 +85,41 @@ describe('LanguageClientWrapper', () => {
       wrapper.dispose();
 
       expect(client.stop).toHaveBeenCalled();
+    });
+
+    describe('inside a GitLab project', () => {
+      beforeEach(() => {
+        jest.mocked(GitLabPlatformManagerForCodeSuggestions).mockReturnValue(
+          createFakePartial<GitLabPlatformManagerForCodeSuggestions>({
+            getGitLabPlatform: async () => gitlabPlatformForProject,
+          }),
+        );
+        client = createFakePartial<BaseLanguageClient>({
+          start: jest.fn(),
+          stop: jest.fn(),
+          registerProposedFeatures: jest.fn(),
+          onNotification: jest.fn(),
+          sendNotification: jest.fn(),
+        });
+        stateManager = createFakePartial<CodeSuggestionsStateManager>({
+          setError: jest.fn(),
+        });
+      });
+
+      it('sends the project path', async () => {
+        const wrapper = new LanguageClientWrapper(client, fakeManager, stateManager);
+
+        await wrapper.initAndStart();
+
+        expect(client.sendNotification).toHaveBeenCalledWith(
+          DidChangeConfigurationNotification.type,
+          {
+            settings: expect.objectContaining({
+              projectPath: gitlabPlatformForProject.project?.namespaceWithPath,
+            }),
+          },
+        );
+      });
     });
   });
 

@@ -18,12 +18,6 @@ import {
 import { log } from '../log';
 import { FeatureFlag, isEnabled } from '../feature_flags';
 
-// note: Temporary until new gitlab-lsp version bumps with IConfig updated
-type LspConfig =
-  | IConfig
-  | { featureFlags: Record<string, boolean> }
-  | { suggestionsCache?: { enabled?: boolean } };
-
 export class LanguageClientWrapper {
   #client: BaseLanguageClient;
 
@@ -75,7 +69,7 @@ export class LanguageClientWrapper {
       log.warn('There is no GitLab account available with access to suggestions');
       return;
     }
-    const settings: LspConfig = {
+    const settings: IConfig = {
       baseUrl: platform.account.instanceUrl,
       token: platform.account.token,
       telemetry: {
@@ -88,6 +82,7 @@ export class LanguageClientWrapper {
       },
       suggestionsCache: getAiAssistedCodeSuggestionsConfiguration().suggestionsCache,
       logLevel: getExtensionConfiguration().debug ? 'debug' : 'info',
+      projectPath: platform.project?.namespaceWithPath ?? '',
     };
 
     log.info(`Configuring Language Server - baseUrl: ${platform.account.instanceUrl}`);
