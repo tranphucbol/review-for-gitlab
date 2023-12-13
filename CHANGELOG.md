@@ -1,3 +1,12 @@
+# [3.93.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.92.0...v3.93.0) (2023-12-13)
+
+
+### Features
+
+* Specify project path in LSP workspace settings ([7aad253](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/7aad253a3e9249c480d9dddc03089f6ba8c4a803))
+
+
+
 # [3.92.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.91.0...v3.92.0) (2023-12-08)
 
 
