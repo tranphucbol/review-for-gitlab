@@ -731,13 +731,14 @@ describe('CodeSuggestionsProvider', () => {
     });
 
     it('should send a state of cancelled when suggestion is cancelled', async () => {
-      const cancelToken = new vscode.CancellationTokenSource().token;
-      cancelToken.isCancellationRequested = true;
+      const cancelTokenSource = new vscode.CancellationTokenSource();
+
+      cancelTokenSource.cancel();
 
       await glcp.getCompletions({
         document: mockDocument,
         position: mockPosition,
-        cancellationToken: cancelToken,
+        cancellationToken: cancelTokenSource.token,
       });
 
       expect(updateSuggestionState.mock.calls[0]).toEqual([

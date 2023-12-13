@@ -98,10 +98,24 @@ module.exports = {
     return { start: args[0], end: args[1] };
   },
   CancellationTokenSource: function CancellationTokenSource() {
+    const controller = new AbortController();
+
     return {
-      token: { isCancellationRequested: false },
+      token: {
+        get isCancellationRequested() {
+          return controller.signal.aborted;
+        },
+        set isCancellationRequested(val) {
+          throw new Error(
+            'Cannot set isCancellationRequested. Try using the CancellationTokenSource.',
+          );
+        },
+        onCancellationRequested(callback) {
+          return controller.signal.addEventListener('abort', callback);
+        },
+      },
       cancel() {
-        this.token.isCancellationRequested = true;
+        controller.abort();
       },
     };
   },
