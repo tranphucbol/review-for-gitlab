@@ -324,7 +324,7 @@ Alternatively, run the **GitLab: Open Remote Repository** command and select `En
 ### Code Suggestions (Beta)
 
 Write code more efficiently by using generative AI to suggest code while you’re developing. To learn more about this feature, see the
-[Code Suggestions documentation](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html#enable-code-suggestions-in-vs-code).
+[Code Suggestions documentation](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html).
 
 This feature is in
 [Beta](https://docs.gitlab.com/ee/policy/experiment-beta-support.html#beta).
