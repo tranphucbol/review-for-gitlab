@@ -1,3 +1,13 @@
+## [3.93.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.93.0...v3.93.1) (2023-12-14)
+
+
+### Bug Fixes
+
+* enable suggestions cache by default ([8d7865f](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/8d7865f4b17e2347642e85d2452baa6814d1d808))
+* End LS request when canceled ([ce78d2c](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/ce78d2c425063016d8a8a51384ba76dd78743b40))
+
+
+
 # [3.93.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.92.0...v3.93.0) (2023-12-13)
 
 
