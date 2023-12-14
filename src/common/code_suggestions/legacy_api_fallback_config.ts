@@ -7,8 +7,6 @@ import { GitLabPlatformManagerForCodeSuggestions } from './gitlab_platform_manag
 export class LegacyApiFallbackConfig {
   private tryAgainAfterTimestamp = 0;
 
-  private readonly retryDelayMS = 60 * 60 * 1000;
-
   private manager;
 
   private isLegacyVersion;
@@ -18,12 +16,8 @@ export class LegacyApiFallbackConfig {
     this.isLegacyVersion = true;
   }
 
-  fallbackToModelGateway() {
-    this.tryAgainAfterTimestamp = Date.now() + this.retryDelayMS;
-  }
-
   shouldUseModelGateway() {
-    return this.isLegacyVersion || Date.now() < this.tryAgainAfterTimestamp;
+    return this.isLegacyVersion;
   }
 
   flagLegacyVersion() {

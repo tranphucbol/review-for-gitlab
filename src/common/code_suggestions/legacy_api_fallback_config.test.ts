@@ -49,25 +49,5 @@ describe('LegacyApiFallbackConfig', () => {
     it('does not fallback by default', () => {
       expect(config.shouldUseModelGateway()).toBe(false);
     });
-
-    it('fallbacks after flag is set', () => {
-      expect(config.shouldUseModelGateway()).toBe(false);
-      config.fallbackToModelGateway();
-      expect(config.shouldUseModelGateway()).toBe(true);
-    });
-
-    it('removes the fallbacks after the retryDelayMS', async () => {
-      const errorDate = new Date();
-      jest.useFakeTimers().setSystemTime(errorDate);
-
-      config = new LegacyApiFallbackConfig(manager);
-      await config.verifyGitLabVersion();
-      config.fallbackToModelGateway();
-
-      expect(config.shouldUseModelGateway()).toBe(true);
-      // after 3600001 ms, the falback is removed
-      jest.useFakeTimers().setSystemTime(new Date(errorDate.valueOf() + 3600001));
-      expect(config.shouldUseModelGateway()).toBe(false);
-    });
   });
 });
