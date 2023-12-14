@@ -10,7 +10,7 @@
     "url": "https://gitlab.com/gitlab-org/gitlab-vscode-extension"
   },
   "engines": {
-    "vscode": "^1.68.0"
+    "vscode": "^1.82.0"
   },
   "categories": [
     "Other"
