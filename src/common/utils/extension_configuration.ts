@@ -44,7 +44,7 @@ export function getAiAssistedCodeSuggestionsConfiguration(): AiAssistedCodeSugge
   return {
     enabled: aiAssistedCodeSuggestionsConfig.enabled,
     preferredAccount: aiAssistedCodeSuggestionsConfig.preferredAccount,
-    suggestionsCache: aiAssistedCodeSuggestionsConfig.suggestionsCache || { enabled: false },
+    suggestionsCache: aiAssistedCodeSuggestionsConfig.suggestionsCache,
   };
 }
 
