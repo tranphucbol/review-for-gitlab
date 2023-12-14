@@ -55,6 +55,7 @@ async function isConventional(message) {
         messageMatcher(/^[Rr]evert .*/),
         messageMatcher(/^(?:fixup|squash)!/),
         messageMatcher(/^Merge branch/),
+        messageMatcher(/^\d+\.\d+\.\d+/),
       ],
     },
   );
