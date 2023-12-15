@@ -1,8 +1,7 @@
 import WebSocket from 'isomorphic-ws';
+import { createCable } from '@anycable/core';
 
 export const connectToCable = async (instanceUrl: string, websocketOptions?: object) => {
-  const { createCable } = await import('@anycable/core');
-
   const cableUrl = new URL('/-/cable', instanceUrl);
   cableUrl.protocol = cableUrl.protocol === 'http:' ? 'ws:' : 'wss:';
 
