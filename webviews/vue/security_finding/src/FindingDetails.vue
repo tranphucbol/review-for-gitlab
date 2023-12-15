@@ -21,7 +21,47 @@ export default {
       return this.finding;
     },
     hasDescription() {
-      return this.vulnerability.description_html || this.vulnerability.description;
+      return this.vulnerability.descriptionHtml || this.vulnerability.description;
+    },
+    vulnLocation() {
+      return this.finding.location;
+    },
+    image() {
+      return this.vulnLocation?.image;
+    },
+    namespace() {
+      return this.vulnLocation?.operatingSystem;
+    },
+    file() {
+      const file = this.finding?.location?.file;
+      if (!file) {
+        return null;
+      }
+      let lineSuffix = '';
+      const { startLine, endLine } = this.vulnLocation;
+      if (startLine) {
+        lineSuffix += `:${startLine}`;
+        if (endLine && startLine !== endLine) {
+          lineSuffix += `-${endLine}`;
+        }
+      }
+      return `${file}${lineSuffix}`;
+    },
+  },
+  methods: {
+    reportType(type) {
+      const mapping = {
+        SAST: 'SAST',
+        DEPENDENCY_SCANNING: 'Dependency Scanning',
+        CONTAINER_SCANNING: 'Container Scanning',
+        DAST: 'DAST',
+        SECRET_DETECTION: 'Secret Detection',
+        COVERAGE_FUZZING: 'Coverage Fuzzing',
+        API_FUZZING: 'API Fuzzing',
+        CLUSTER_IMAGE_SCANNING: 'Cluster Image Scanning',
+        GENERIC: 'Generic Report',
+      };
+      return mapping[type] || type;
     },
   },
 };
@@ -35,8 +75,23 @@ export default {
       <p v-else>{{ vulnerability.description }}</p>
     </row>
     <row label="Severity"> {{ finding.severity }}</row>
-    <row label="Tool"> {{ finding.reportType }}</row>
+    <row label="Tool"> {{ reportType(finding.reportType) }}</row>
     <row label="Scanner"> {{ finding.scanner.name }}</row>
+    <row v-if="file" label="Location">
+      <a
+        v-if="vulnerability.blobPath"
+        ref="fileLink"
+        :href="vulnerability.blobPath"
+        target="_blank"
+      >
+        {{ file }}
+      </a>
+      <template v-else> {{ file }}</template>
+    </row>
+    <row v-if="image" label="Image"> {{ image }}</row>
+    <row v-if="namespace" label="Namespace">
+      {{ namespace }}
+    </row>
   </div>
 </template>
 
