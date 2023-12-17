@@ -224,11 +224,13 @@ export class GitLabService {
       './api/graphql',
       ensureEndsWithSlash((await this.getCredentials()).instanceUrl),
     ).href; // supports GitLab instances that are on a custom path, e.g. "https://example.com/gitlab"
-    const client = new GraphQLClient(endpoint, await this.#getFetchOptions());
+    const client = new GraphQLClient(endpoint, {
+      fetch: (input: URL | RequestInfo, init?: RequestInit) => this.crossFetch(input, init),
+    });
     return client.request(document, variables);
   }
 
-  async crossFetch(input: RequestInfo, init: RequestInit = {}): Promise<Response> {
+  async crossFetch(input: URL | RequestInfo, init: RequestInit = {}): Promise<Response> {
     const fetchOptions = await this.#getFetchOptions();
     return fetch(input, {
       ...fetchOptions,
@@ -267,6 +269,10 @@ export class GitLabService {
       : {};
     return {
       headers: {
+        // Setting this header normally isn't necessary if the HTTP agent has
+        // keepAlive: true set, but due to https://github.com/microsoft/vscode/issues/173861
+        // something is clobbering this header no matter how `http.proxySupport` is set.
+        Connection: 'keep-alive',
         ...authorizationHeader,
         ...getUserAgentHeader(),
       },
