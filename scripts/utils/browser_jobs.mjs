@@ -23,6 +23,10 @@ async function buildExtension(args = [], signal) {
       '--bundle',
       '--outfile=dist-browser/browser.js',
       '--external:vscode',
+      // For the fs and path fixes, see:
+      // https://github.com/tree-sitter/tree-sitter/tree/660481dbf71413eba5a928b0b0ab8da50c1109e0/lib/binding_web#cant-resolve-fs-in-node_modulesweb-tree-sitter
+      '--external:fs',
+      '--external:path',
       '--format=cjs',
       '--sourcemap',
       ...args,
