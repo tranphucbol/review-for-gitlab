@@ -4,6 +4,7 @@ import * as openers from './commands/openers';
 import * as tokenInput from './token_input';
 import { accountService } from './accounts/account_service';
 import { extensionState } from './extension_state';
+import { initializeNetworkAgent } from './fetch';
 import { setupCodeSuggestionsPromo } from './code_suggestions_promo';
 import { createSnippet } from './commands/create_snippet';
 import { insertSnippet } from './commands/insert_snippet';
@@ -215,6 +216,7 @@ const activateDebugMode = () => {
  */
 export const activate = async (context: vscode.ExtensionContext) => {
   activateDebugMode();
+  initializeNetworkAgent();
   contextUtils.init(context);
 
   const outputChannel = vscode.window.createOutputChannel('GitLab Workflow');
