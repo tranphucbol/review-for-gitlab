@@ -3,6 +3,7 @@ import { GitLabChatController } from './gitlab_chat_controller';
 import { GitLabPlatformManagerForChat } from './get_platform_manager_for_chat';
 import { GitLabChatRecord } from './gitlab_chat_record';
 import { submitFeedback } from './utils/submit_feedback';
+import { SPECIAL_MESSAGES } from './constants';
 
 const apiMock = {
   processNewUserPrompt: jest.fn(),
@@ -209,7 +210,7 @@ describe('GitLabChatController', () => {
 
     describe('with newChatConversation command', () => {
       beforeEach(() => {
-        record = new GitLabChatRecord({ role: 'user', content: '/reset' });
+        record = new GitLabChatRecord({ role: 'user', content: SPECIAL_MESSAGES.RESET });
       });
 
       it('sends only new user record and doesnt wait for response', async () => {
@@ -217,13 +218,13 @@ describe('GitLabChatController', () => {
 
         expect(viewMock.addRecord).toHaveBeenNthCalledWith(
           1,
-          expect.objectContaining({ content: '/reset', state: 'ready', role: 'user' }),
+          expect.objectContaining({ content: SPECIAL_MESSAGES.RESET, state: 'ready', role: 'user' }),
         );
         expect(viewMock.addRecord).toHaveBeenCalledTimes(1);
 
         expect(controller.chatHistory[0]).toEqual(
           expect.objectContaining({
-            content: '/reset',
+            content: SPECIAL_MESSAGES.RESET,
             state: 'ready',
             role: 'user',
             type: 'newConversation',

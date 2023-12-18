@@ -1,5 +1,6 @@
 import { GitLabChatController } from '../gitlab_chat_controller';
 import { newChatConversation } from './new_chat_conversation';
+import { SPECIAL_MESSAGES } from '../constants';
 
 describe('newChatConversation', () => {
   let controller: GitLabChatController;
@@ -14,7 +15,7 @@ describe('newChatConversation', () => {
     await newChatConversation(controller);
     expect(controller.processNewUserRecord).toHaveBeenCalledWith(
       expect.objectContaining({
-        content: '/reset',
+        content: SPECIAL_MESSAGES.RESET,
         role: 'user',
         type: 'newConversation',
       }),
