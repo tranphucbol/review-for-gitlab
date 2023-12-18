@@ -12,7 +12,7 @@ These expressions create the list of items shown in the **Issues and Merge reque
 of the [sidebar](https://gitlab.com/gitlab-org/gitlab-vscode-extension/README.md#sidebar) of Visual Studio code.
 
 The default custom queries are defined in the
-[extension `package.json`](https://gitlab.com/gitlab-org/gitlab-vscode-extension/blob/c3f029555a723964789ee0a855dede3f1b3b3af2/package.json#L578-614).
+[extension `desktop.package.json`](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/8e4350232154fe5bf0ef8a6c0765b2eac0496dc7/desktop.package.json#L955-998).
 When you specify the `gitlab.customQueries` setting, your definition overrides all
 the default queries. For example:
 
