@@ -297,7 +297,7 @@ This extension integrates with the built-in Git Extension and allows you to sear
 - You can search for projects on each GitLab instance for which you [added an access-token](#step-2-add-token-to-gitlab-workflow-extension).
 - Only projects where you are a **member of** are displayed.
 - You can clone with SSH or HTTPS
-- With HTTPS your access-token will be used for cloning the repository and fetching/pushing commits. This is also the case for all GitLab projects that are cloned manually with HTTPS and then opened in VS Code.
+- With HTTPS your access-token is used for cloning the repository and fetching/pushing commits. This is also the case for all GitLab projects that are cloned manually with HTTPS and then opened in VS Code.
 
 ![Demonstration of cloning a project from GitLab.com](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/git-clone.gif)
 
@@ -323,20 +323,22 @@ Alternatively, run the **GitLab: Open Remote Repository** command and select `En
 
 ### Code Suggestions (Beta)
 
-Write code more efficiently by using generative AI to suggest code while you’re developing. To learn more about this feature, see the
-[Code Suggestions documentation](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html).
+Write code more efficiently by using generative AI to suggest code while you're developing. To learn more about this feature, see the
+[Code Suggestions documentation](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html). With Code Suggestions, you get:
+
+- Code Completion, which suggests completions the current line you are typing. These suggestions are usually low latency.
+- Code Generation, which generates code based on a natural language code comment block. Responses for code generation are streamed in VS Code to quickly begin giving results.
 
 This feature is in
 [Beta](https://docs.gitlab.com/ee/policy/experiment-beta-support.html#beta).
-Code Suggestions is a generative artificial intelligence (AI) model. GitLab currently leverages [Google Cloud’s Vertex AI Codey API models](https://cloud.google.com/vertex-ai/docs/generative-ai/code/code-models-overview)
+Code Suggestions is a generative artificial intelligence (AI) model. GitLab selects the best-in-class large-language models for specific tasks. We use [Google Vertex AI Code Models](https://cloud.google.com/vertex-ai/docs/generative-ai/code/code-models-overview) and [Anthropic Claude](https://www.anthropic.com/product) for Code Suggestions.
 
 No new additional data is collected to enable this feature. Private non-public GitLab customer data is not used as training data.
-Learn more about [Google Vertex AI Codey APIs Data Governance](https://cloud.google.com/vertex-ai/docs/generative-ai/data-governance)
+Learn more about [Code Suggestion data usage](https://docs.gitlab.com/ee/user/project/repository/code_suggestions/#code-suggestions-data-usage).
 
 Beta users should read about the [known limitations](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html#known-limitations).
 
-Report issues in the
-[feedback issue](https://gitlab.com/gitlab-org/gitlab/-/issues/405152).
+Report issues by [creating an issue](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/new).
 
 ---
 
