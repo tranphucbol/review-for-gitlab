@@ -13,6 +13,10 @@
 * Ensure HTTP agent settings are used in VSCode with keepalives ([af38e25](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/af38e25b48bbb8e7b64406225f6aa870641514e5))
 * Use Keep-Alive connection to connect to server (part 1) ([2138233](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/21382337e9de767ee2705903b1f1b12c99682f86))
 
+### Community contributions 👑 (not user-facing)
+
+* Fixed by [@mjgardner](https://gitlab.com/mjgardner)
+    * [docs: fix default custom queries link](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/1274) 👍🏽
 
 
 ## [3.93.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.93.0...v3.93.1) (2023-12-14)
