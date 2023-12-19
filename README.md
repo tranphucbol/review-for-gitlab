@@ -349,7 +349,7 @@ You must meet all these conditions to use Code Suggestions:
   [enabled for your instance](https://docs.gitlab.com/ee/user/project/repository/code_suggestions/self_managed.html).
 - For GitLab.com, Code Suggestions must be
   enabled for your top-level group. See instructions
-  [for SaaS](https://docs.gitlab.com/ee/user/group/manage.html#enable-code-suggestions-for-a-group
+  [for SaaS](https://docs.gitlab.com/ee/user/group/manage.html#enable-code-suggestions-for-a-group).
 
 If you meet all these conditions, continue [setting up this extension](#setup) to use Code Suggestions.
 
