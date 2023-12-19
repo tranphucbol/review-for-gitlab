@@ -297,7 +297,7 @@ This extension integrates with the built-in Git Extension and allows you to sear
 - You can search for projects on each GitLab instance for which you [added an access-token](#step-2-add-token-to-gitlab-workflow-extension).
 - Only projects where you are a **member of** are displayed.
 - You can clone with SSH or HTTPS
-- With HTTPS your access-token is used for cloning the repository and fetching/pushing commits. This is also the case for all GitLab projects that are cloned manually with HTTPS and then opened in VS Code.
+- With HTTPS, your access token is used to clone the repository, fetch commits, and push commits. Access tokens are used this way for all GitLab projects that are cloned manually with HTTPS, then opened in VS Code.
 
 ![Demonstration of cloning a project from GitLab.com](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/git-clone.gif)
 
@@ -326,8 +326,8 @@ Alternatively, run the **GitLab: Open Remote Repository** command and select `En
 Write code more efficiently by using generative AI to suggest code while you're developing. To learn more about this feature, see the
 [Code Suggestions documentation](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html). With Code Suggestions, you get:
 
-- Code Completion, which suggests completions the current line you are typing. These suggestions are usually low latency.
-- Code Generation, which generates code based on a natural language code comment block. Responses for code generation are streamed in VS Code to quickly begin giving results.
+- Code Completion, which suggests completions for the current line you are typing. These suggestions usually have low latency.
+- Code Generation, which generates code based on a natural-language code comment block. Responses for code generation are streamed in VS Code to quickly begin giving results.
 
 This feature is in
 [Beta](https://docs.gitlab.com/ee/policy/experiment-beta-support.html#beta).
