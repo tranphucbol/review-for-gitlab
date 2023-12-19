@@ -340,6 +340,19 @@ Beta users should read about the [known limitations](https://docs.gitlab.com/ee/
 
 Report issues by [creating an issue](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/new).
 
+#### Set up Code Suggestions
+
+You must meet all these conditions to use Code Suggestions:
+
+- You must be using GitLab Enterprise Edition.
+- For self-managed installations, Code Suggestions must be
+  [enabled for your instance](https://docs.gitlab.com/ee/user/project/repository/code_suggestions/self_managed.html).
+- For GitLab.com, Code Suggestions must be
+  enabled for your top-level group. See instructions
+  [for SaaS](https://docs.gitlab.com/ee/user/group/manage.html#enable-code-suggestions-for-a-group).
+
+If you meet all these conditions, continue [setting up this extension](#setup) to use Code Suggestions.
+
 ---
 
 ## Contribution
