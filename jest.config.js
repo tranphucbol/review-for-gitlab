@@ -21,5 +21,9 @@ module.exports = {
     ],
   ],
   testPathIgnorePatterns: ['/node_modules/', '<rootDir>/webviews/', '/dist-/'],
+  transformIgnorePatterns: ['/node_modules/(?!(@anycable/core|nanoevents)/)'],
+  transform: {
+    '/node_modules/(@anycable/core|nanoevents).+\\.(js|ts)$': 'ts-jest',
+  },
   testEnvironment: 'node',
 };
