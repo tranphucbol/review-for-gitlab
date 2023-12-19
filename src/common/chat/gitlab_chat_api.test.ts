@@ -4,6 +4,7 @@ import { gitlabPlatformForAccount } from '../test_utils/entities';
 import { GitLabChatApi, AI_ACTIONS, AI_MESSAGES_QUERY } from './gitlab_chat_api';
 import { API_PULLING } from './api/pulling';
 import { createFakePartial } from '../test_utils/create_fake_partial';
+import { SPECIAL_MESSAGES } from './constants';
 
 API_PULLING.interval = 1; // wait only 1ms between pulling attempts.
 
@@ -36,6 +37,8 @@ const mockPrompt = 'What is a fork?';
 
 describe('GitLabChatApi', () => {
   let makeApiRequest: jest.Mock;
+  let manager;
+  let gitlabChatApi: GitLabChatApi;
 
   const createManager = (
     queryContent = mockedQueryResponse,
@@ -59,11 +62,13 @@ describe('GitLabChatApi', () => {
     });
   };
 
+  beforeEach(() => {
+    manager = createManager(mockedQueryResponse);
+    gitlabChatApi = new GitLabChatApi(manager);
+  });
+
   describe('getAiMessage', () => {
     it('returns first message with given requestId and role', async () => {
-      const manager = createManager(mockedQueryResponse);
-      const gitlabChatApi = new GitLabChatApi(manager);
-
       const expectedMessage = mockedQueryResponse.aiMessages.nodes[0];
 
       const response = await gitlabChatApi.pullAiMessage(
@@ -84,8 +89,8 @@ describe('GitLabChatApi', () => {
     });
 
     it('returns an error if pulling timeout is reached', async () => {
-      const manager = createManager(mockedEmptyQueryResponse);
-      const gitlabChatApi = new GitLabChatApi(manager);
+      manager = createManager(mockedEmptyQueryResponse);
+      gitlabChatApi = new GitLabChatApi(manager);
 
       const response = await gitlabChatApi.pullAiMessage('123', 'assistant');
 
@@ -96,9 +101,6 @@ describe('GitLabChatApi', () => {
 
   describe('processNewUserPrompt', () => {
     it('sends user prompt as mutation', async () => {
-      const manager = createManager(mockedQueryResponse);
-      const gitlabChatApi = new GitLabChatApi(manager);
-
       const response = await gitlabChatApi.processNewUserPrompt(mockPrompt);
 
       expect(response.aiAction).toBe(mockedMutationResponse.aiAction);
@@ -110,9 +112,6 @@ describe('GitLabChatApi', () => {
     });
 
     it('when active file context is provided it also sends it with the prompt', async () => {
-      const manager = createManager(mockedQueryResponse);
-      const gitlabChatApi = new GitLabChatApi(manager);
-
       const fileContext = {
         fileName: 'foo.rb',
         selectedText: 'selected_text',
@@ -128,6 +127,20 @@ describe('GitLabChatApi', () => {
 
       expect(aiActionMutation.query).toBe(AI_ACTIONS.chat);
       expect(aiActionMutation.variables.currentFileContext).toStrictEqual(fileContext);
+    });
+  });
+
+  describe('cleanChat', () => {
+    it('sends the correct variables to chat mutation', async () => {
+      await gitlabChatApi.cleanChat();
+      expect(makeApiRequest).toHaveBeenCalledWith({
+        query: AI_ACTIONS.chat,
+        type: 'graphql',
+        variables: {
+          currentFileContext: undefined,
+          question: SPECIAL_MESSAGES.CLEAN,
+        },
+      });
     });
   });
 });

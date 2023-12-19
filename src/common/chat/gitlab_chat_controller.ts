@@ -46,6 +46,24 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
 
         break;
       }
+      case 'cleanChat':
+        try {
+          const res = await this.#api.cleanChat();
+          if (res.aiAction.errors.length > 0) {
+            await vscode.window.showErrorMessage(res.aiAction.errors.join(', '));
+          } else {
+            // we have to clean the view and reset the user input.
+            // Ideally, this should be done by re-fetching messages from API
+            // which should return empty array. However, we don't have a way to fetch
+            // messages yet. Will be handled aas part of https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/1065
+            // Hence for now we handle it on the client
+            await this.#view.cleanChat();
+          }
+        } catch (err) {
+          log.error(err.toString());
+          await vscode.window.showErrorMessage(err.toString());
+        }
+        break;
       default:
         log.warn(`Unhandled chat-webview message`);
         break;

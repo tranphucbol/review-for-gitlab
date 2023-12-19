@@ -40,19 +40,23 @@ describe('GitLabChatView', () => {
     });
 
     it('sets message processing and dispose callbacks', () => {
-      expect(webview.webview.onDidReceiveMessage).toBeCalledWith(expect.any(Function));
-      expect(webview.onDidChangeVisibility).toBeCalledWith(expect.any(Function));
-      expect(webview.onDidDispose).toBeCalledWith(expect.any(Function), view);
+      expect(webview.webview.onDidReceiveMessage).toHaveBeenCalledWith(expect.any(Function));
+      expect(webview.onDidChangeVisibility).toHaveBeenCalledWith(expect.any(Function));
+      expect(webview.onDidDispose).toHaveBeenCalledWith(expect.any(Function), view);
     });
 
     it('sends focus event', () => {
-      expect(webview.webview.postMessage).toBeCalledWith({ eventType: 'focus' });
+      expect(webview.webview.postMessage).toHaveBeenCalledWith({ eventType: 'focus' });
     });
 
     it('updates the view with correct html content', async () => {
       await view.resolveWebviewView(webview);
       expect(webview.webview.html).toBe('preparedWebviewSource');
-      expect(prepareWebviewSource).toBeCalledWith(webview.webview, context, 'gitlab_duo_chat');
+      expect(prepareWebviewSource).toHaveBeenCalledWith(
+        webview.webview,
+        context,
+        'gitlab_duo_chat',
+      );
     });
   });
 
@@ -63,7 +67,7 @@ describe('GitLabChatView', () => {
       await view.show();
 
       expect(webview.show).toBeCalled();
-      expect(webview.webview.postMessage).toBeCalledWith({ eventType: 'focus' });
+      expect(webview.webview.postMessage).toHaveBeenCalledWith({ eventType: 'focus' });
     });
 
     it('executes vscode command if the view is not present', async () => {
@@ -71,7 +75,7 @@ describe('GitLabChatView', () => {
 
       await view.show();
 
-      expect(vscode.commands.executeCommand).toBeCalledWith('gl.chatView.focus');
+      expect(vscode.commands.executeCommand).toHaveBeenCalledWith('gl.chatView.focus');
     });
   });
 
@@ -86,7 +90,10 @@ describe('GitLabChatView', () => {
 
         await view.addRecord(record);
 
-        expect(webview.webview.postMessage).toBeCalledWith({ eventType: 'newRecord', record });
+        expect(webview.webview.postMessage).toHaveBeenCalledWith({
+          eventType: 'newRecord',
+          record,
+        });
       });
     });
 
@@ -96,7 +103,18 @@ describe('GitLabChatView', () => {
 
         await view.updateRecord(record);
 
-        expect(webview.webview.postMessage).toBeCalledWith({ eventType: 'updateRecord', record });
+        expect(webview.webview.postMessage).toHaveBeenCalledWith({
+          eventType: 'updateRecord',
+          record,
+        });
+      });
+    });
+
+    describe('cleanChat', () => {
+      it('sends `cleanChat` view message', async () => {
+        await view.cleanChat();
+
+        expect(webview.webview.postMessage).toHaveBeenCalledWith({ eventType: 'cleanChat' });
       });
     });
   });

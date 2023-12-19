@@ -3,6 +3,7 @@ import { GraphQLRequest } from '../platform/web_ide';
 import { GitLabPlatformManagerForChat } from './get_platform_manager_for_chat';
 import { pullHandler } from './api/pulling';
 import { GitLabChatFileContext } from './gitlab_chat_file_context';
+import { SPECIAL_MESSAGES } from './constants';
 import {
   AiCompletionResponseChannel,
   AiCompletionResponseMessageType,
@@ -134,6 +135,10 @@ export class GitLabChatApi {
     return new Promise(resolve => {
       resolve(successResponse(response));
     });
+  }
+
+  async cleanChat(): Promise<AiActionResponseType> {
+    return this.sendAiAction(AI_ACTIONS.chat, { question: SPECIAL_MESSAGES.CLEAN });
   }
 
   private async currentPlatform() {
