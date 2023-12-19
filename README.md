@@ -353,7 +353,7 @@ You must meet all these conditions to use Code Suggestions:
   and for
   [self-managed](https://docs.gitlab.com/ee/user/project/repository/code_suggestions/self_managed.html) installations.
 
-If you meet all these conditions, continue [setting up this extension](#setup).
+If you meet all these conditions, continue [setting up this extension](#setup) to use Code Suggestions.
 
 ---
 
