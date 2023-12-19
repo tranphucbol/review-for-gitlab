@@ -1,3 +1,20 @@
+# [3.94.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.93.1...v3.94.0) (2023-12-19)
+
+
+### Bug Fixes
+
+* unblock build with path and fs fixes ([738161d](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/738161d70b5538450869cd504a3e14f294d472e4))
+* update min VS Code version to 1.82.0 to support Language Server ([e98d557](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/e98d5574312975e119800b110f86840862fd0897))
+
+
+### Features
+
+* add vulnerabiltiy location to webview ([5db715a](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/5db715a300e1e6fda1c90bddddd54461c2061ffe))
+* Ensure HTTP agent settings are used in VSCode with keepalives ([af38e25](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/af38e25b48bbb8e7b64406225f6aa870641514e5))
+* Use Keep-Alive connection to connect to server (part 1) ([2138233](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/21382337e9de767ee2705903b1f1b12c99682f86))
+
+
+
 ## [3.93.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.93.0...v3.93.1) (2023-12-14)
 
 
