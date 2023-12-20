@@ -99,14 +99,15 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
   private async sendNewPrompt(record: GitLabChatRecord) {
     if (!record.content) throw new Error('Trying to send prompt without content.');
 
-    await this.#api
-      .processNewUserPrompt(record.content, record.context?.currentFile)
-      .then(actionResponse => {
-        record.update(actionResponse.aiAction);
-      })
-      .catch(err => {
-        record.update({ errors: [`API error: ${err.response.errors[0].message}`] });
-      });
+    try {
+      const actionResponse = await this.#api.processNewUserPrompt(
+        record.content,
+        record.context?.currentFile,
+      );
+      record.update(actionResponse.aiAction);
+    } catch (err) {
+      record.update({ errors: [`API error: ${err.response.errors[0].message}`] });
+    }
   }
 
   private async refreshRecord(record: GitLabChatRecord) {
