@@ -1,3 +1,18 @@
+# [3.95.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.94.0...v3.95.0) (2023-12-20)
+
+
+### Bug Fixes
+
+* Fix language server browser build path ([f3cfd39](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/f3cfd39af82f5d67bc3cf536368582bf003a68ef))
+
+
+### Features
+
+* **code_suggestions:** Added LSP based streaming ([56b2cc8](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/56b2cc8b0a654317b68614b8b85a8f6986fac44f))
+* Decide whether to stream data based on the intent ([140cb27](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/140cb27feb3c431353c1f69e970565f86aa9d0c8))
+
+
+
 # [3.94.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.93.1...v3.94.0) (2023-12-19)
 
 
