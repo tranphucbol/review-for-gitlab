@@ -163,7 +163,7 @@ export class CodeSuggestionsStateManager {
     if (isLoading) {
       this.#loadingCounter += 1;
     } else {
-      this.#loadingCounter -= 1;
+      this.#loadingCounter = Math.max(0, this.#loadingCounter - 1);
     }
   });
 

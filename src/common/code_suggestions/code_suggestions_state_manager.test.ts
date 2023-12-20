@@ -168,6 +168,19 @@ describe('Code suggestions state manager', () => {
 
       expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.READY);
     });
+
+    it('can never enter negative loading', () => {
+      stateManager.setLoading(true);
+      stateManager.setLoading(false);
+      stateManager.setLoading(false);
+      stateManager.setLoading(false);
+
+      expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.READY);
+
+      stateManager.setLoading(true);
+
+      expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.LOADING);
+    });
   });
 
   describe('disabled & active', () => {
