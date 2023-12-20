@@ -1,18 +1,11 @@
 const path = require('path');
 const Mocha = require('mocha');
 // glob is available in the VS Code runtime
-// eslint-disable-next-line import/no-extraneous-dependencies
-const glob = require('glob');
+const { glob } = require('glob');
 const { initializeTestEnvironment } = require('./test_infrastructure/initialize_test_environment');
 const { validateTestEnvironment } = require('./test_infrastructure/validate_test_environment');
 
-const getAllTestFiles = testsRoot =>
-  new Promise((resolve, reject) => {
-    glob('**/**.test.js', { cwd: testsRoot }, (err, files) => {
-      if (err) reject(err);
-      resolve(files);
-    });
-  });
+const getAllTestFiles = testsRoot => glob.glob('**/**.test.js', { cwd: testsRoot });
 
 async function run(testsRoot) {
   require('source-map-support').install(); // eslint-disable-line global-require

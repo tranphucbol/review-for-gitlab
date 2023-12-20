@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 // eslint-disable-next-line import/no-unresolved
 import { copy } from 'fs-extra/esm';
+import * as glob from 'glob';
 import { root, run } from './run_utils.mjs';
 import { generateFont } from './generate_font.mjs';
 import { prettyPrint } from './packages.mjs';
@@ -11,6 +12,21 @@ const prepareDistDirs = async env => {
   fs.mkdirSync(path.join(root, `dist-${env}`));
   fs.mkdirSync(path.join(root, `dist-${env}/webviews`));
   fs.mkdirSync(path.join(root, `dist-${env}/assets`));
+};
+
+const copyLanguageServerAssets = env => {
+  const platformDirectory = env === 'desktop' ? 'node' : 'browser';
+  const basePath = path.join(root, 'node_modules/@gitlab-org/gitlab-lsp/out');
+  const platformAssets = glob.sync([
+    path.join(basePath, platformDirectory, '**', 'main-bundle.*'),
+    path.join(basePath, '**', '*.wasm'),
+  ]);
+
+  return Promise.all(
+    platformAssets.map(asset =>
+      copy(asset, path.join(`dist-${env}/assets/language-server`, asset.replace(basePath, ''))),
+    ),
+  );
 };
 
 export async function cleanBuild(env) {
@@ -36,10 +52,7 @@ export async function prepareWebviews(webviews, env) {
 export async function generateAssets(packageJson, env) {
   return Promise.all([
     copy(path.join(root, 'src/assets'), path.join(root, `dist-${env}/assets`)),
-    copy(
-      path.join(root, 'node_modules/@gitlab-org/gitlab-lsp/out'),
-      path.join(root, `dist-${env}/assets/language-server`),
-    ),
+    copyLanguageServerAssets(env),
     generateFont(packageJson, `dist-${env}`),
   ]);
 }

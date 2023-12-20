@@ -10,7 +10,7 @@ export const browserLanguageClientFactory: LanguageClientFactory = {
   createLanguageClient(context, clientOptions) {
     const module = vscode.Uri.joinPath(
       context.extensionUri,
-      './assets/language-server/browser/main.js',
+      './assets/language-server/browser/main-bundle.js',
     );
     const worker = new Worker(module.toString(true));
 
