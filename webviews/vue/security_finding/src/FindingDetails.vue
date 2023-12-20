@@ -92,6 +92,14 @@ export default {
     <row v-if="namespace" label="Namespace">
       {{ namespace }}
     </row>
+    <row v-if="vulnerability.identifiers.length" label="Identifiers">
+      <ul>
+        <li v-for="identifier in vulnerability.identifiers" :key="identifier.name">
+          {{ identifier.name }}
+        </li>
+      </ul>
+    </row>
+    <row v-if="finding.solution" label="Solution"> {{ finding.solution }}</row>
   </div>
 </template>
 

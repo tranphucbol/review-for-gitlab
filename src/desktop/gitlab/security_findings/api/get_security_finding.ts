@@ -73,6 +73,11 @@ export const querySecurityFinding = gql`
               path
             }
           }
+          identifiers {
+            name
+            url
+          }
+          solution
         }
       }
     }
