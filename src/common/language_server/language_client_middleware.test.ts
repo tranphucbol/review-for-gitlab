@@ -1,5 +1,6 @@
 import vscode from 'vscode';
 import { BaseLanguageClient, TextDocumentPositionParams } from 'vscode-languageclient';
+import { GET_COMPLETION_INTENT_REQUEST } from '@gitlab-org/gitlab-lsp';
 import { ProvideInlineCompletionItemsSignature } from 'vscode-languageclient/lib/common/inlineCompletion';
 import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
 import { createFakePartial } from '../test_utils/create_fake_partial';
@@ -31,6 +32,7 @@ describe('LanguageClientMiddleware', () => {
   });
 
   describe('provideInlineCompletionItem', () => {
+    const documentFilePath = 'file:///home/user/dev/test.md';
     const d = createFakePartial<vscode.TextDocument>({
       uri: vscode.Uri.parse('file:///home/user/dev/test.md'),
     });
@@ -69,6 +71,9 @@ describe('LanguageClientMiddleware', () => {
       describe('when suggestions are active', () => {
         let stateManager: CodeSuggestionsStateManager;
         let middleware: LanguageClientMiddleware;
+        const client = createFakePartial<BaseLanguageClient>({
+          sendRequest: jest.fn(),
+        });
 
         let setLoading: jest.Func;
 
@@ -79,6 +84,7 @@ describe('LanguageClientMiddleware', () => {
             setLoading,
           });
           middleware = new LanguageClientMiddleware(stateManager);
+          middleware.client = client;
         });
 
         it('calls through to default logic if suggestions are enabled', async () => {
@@ -145,6 +151,21 @@ describe('LanguageClientMiddleware', () => {
           await expect(result).resolves.toEqual([]);
           expect(jest.mocked(setLoading).mock.calls).toEqual([[true], [false]]);
         });
+
+        it('should not make a call to detect intent', async () => {
+          const mockItem = createFakePartial<vscode.InlineCompletionItem>({});
+          const next = jest.fn().mockResolvedValue([mockItem]);
+
+          await middleware.provideInlineCompletionItems(
+            d,
+            p,
+            ctx,
+            cancellationTokenSource.token,
+            next,
+          );
+
+          expect(client.sendRequest).not.toHaveBeenCalled();
+        });
       });
     });
 
@@ -172,16 +193,18 @@ describe('LanguageClientMiddleware', () => {
         middleware = new LanguageClientMiddleware(stateManager);
       });
 
-      it('returns [] if client is not set', async () => {
+      it('calls the inlineCompletion (next) if client is not set', async () => {
+        const mockItem = createFakePartial<vscode.InlineCompletionItem>({});
+        const nextReturnsItem = jest.fn().mockResolvedValue([mockItem]);
         const result = await middleware.provideInlineCompletionItems(
           d,
           p,
           ctx,
           cancellationTokenSource.token,
-          next,
+          nextReturnsItem,
         );
 
-        expect(result).toEqual([]);
+        expect(result).toEqual([mockItem]);
         expect(next).not.toHaveBeenCalled();
       });
 
@@ -197,6 +220,7 @@ describe('LanguageClientMiddleware', () => {
               asTextDocumentPositionParams,
             },
             onNotification: jest.fn().mockImplementation(() => Promise.resolve()),
+            sendRequest: jest.fn(),
           });
 
           middleware.client = client;
@@ -227,98 +251,152 @@ describe('LanguageClientMiddleware', () => {
           });
         }
 
-        it('calls getStreamingCompletion on language client', async () => {
-          client.onNotification = invokeNotifications([
-            { id: 'code-suggestion-stream-uniqueId', completion: '', done: false },
-          ]);
-          const result = (await middleware.provideInlineCompletionItems(
-            d,
-            p,
-            ctx,
-            cancellationTokenSource.token,
-            next,
-          )) as vscode.InlineCompletionItem[];
+        describe('Intent detection', () => {
+          const nonStreamingCompletionHandler = jest.fn().mockResolvedValue([]);
+          let streamingCompletionHandler: jest.SpyInstance;
 
-          expect(client.sendNotification).toHaveBeenCalledTimes(1);
-          expect(result[0].insertText).toEqual('');
+          beforeEach(() => {
+            streamingCompletionHandler = jest
+              .spyOn(middleware, 'provideStreamingInlineCompletionItems')
+              .mockImplementationOnce(() => Promise.resolve([]));
+          });
+
+          const triggerInlineCompletion = async () => {
+            await middleware.provideInlineCompletionItems(
+              d,
+              p,
+              ctx,
+              cancellationTokenSource.token,
+              nonStreamingCompletionHandler,
+            );
+          };
+          it('should make a call to detect intent', async () => {
+            await triggerInlineCompletion();
+            expect(client.sendRequest).toHaveBeenCalledWith(GET_COMPLETION_INTENT_REQUEST, {
+              documentUri: documentFilePath,
+              position: p,
+            });
+          });
+
+          it('should proceed to non-streaming completion when intent is not `generation`', async () => {
+            jest.mocked(client.sendRequest).mockResolvedValue({
+              intent: 'completion',
+            });
+            await triggerInlineCompletion();
+            expect(nonStreamingCompletionHandler).toHaveBeenCalled();
+            expect(streamingCompletionHandler).not.toHaveBeenCalled();
+          });
+
+          it('should proceed to streaming completion when intent is `generation`', async () => {
+            jest.mocked(client.sendRequest).mockResolvedValue({
+              intent: 'generation',
+            });
+            await triggerInlineCompletion();
+            jest.advanceTimersByTime(10);
+            expect(nonStreamingCompletionHandler).not.toHaveBeenCalled();
+            expect(streamingCompletionHandler).toHaveBeenCalled();
+          });
         });
 
-        it('getStreamingCompletion keeps receiving notifications until done', async () => {
-          client.onNotification = invokeNotifications([
-            { id: 'code-suggestion-stream-uniqueId', completion: 'test', done: false },
-            { id: 'code-suggestion-stream-uniqueId', completion: '', done: true },
-          ]);
+        describe('generation', () => {
+          beforeEach(() => {
+            jest.mocked(client.sendRequest).mockResolvedValue({
+              intent: 'generation',
+            });
+          });
+          it('calls getStreamingCompletion on language client', async () => {
+            client.onNotification = invokeNotifications([
+              { id: 'code-suggestion-stream-uniqueId', completion: '', done: false },
+            ]);
+            const result = (await middleware.provideInlineCompletionItems(
+              d,
+              p,
+              ctx,
+              cancellationTokenSource.token,
+              next,
+            )) as vscode.InlineCompletionItem[];
 
-          const result = (await middleware.provideInlineCompletionItems(
-            d,
-            p,
-            ctx,
-            cancellationTokenSource.token,
-            next,
-          )) as vscode.InlineCompletionItem[];
-          expect(result[0].insertText).toEqual('test');
-        });
+            expect(client.sendNotification).toHaveBeenCalledTimes(1);
+            expect(result[0].insertText).toEqual('');
+          });
 
-        it('if position does not change. Returns the existing response', async () => {
-          client.onNotification = invokeNotifications([
-            { id: 'code-suggestion-stream-uniqueId', completion: 'test 123', done: false },
-            { id: 'code-suggestion-stream-uniqueId', completion: '', done: true },
-          ]);
+          it('getStreamingCompletion keeps receiving notifications until done', async () => {
+            client.onNotification = invokeNotifications([
+              { id: 'code-suggestion-stream-uniqueId', completion: 'test', done: false },
+              { id: 'code-suggestion-stream-uniqueId', completion: '', done: true },
+            ]);
 
-          await middleware.provideInlineCompletionItems(
-            d,
-            p,
-            ctx,
-            cancellationTokenSource.token,
-            next,
-          );
-          const result = (await middleware.provideInlineCompletionItems(
-            d,
-            p,
-            ctx,
-            cancellationTokenSource.token,
-            next,
-          )) as vscode.InlineCompletionItem[];
-          expect(result[0].insertText).toEqual('test 123');
-        });
+            const result = (await middleware.provideInlineCompletionItems(
+              d,
+              p,
+              ctx,
+              cancellationTokenSource.token,
+              next,
+            )) as vscode.InlineCompletionItem[];
+            expect(result[0].insertText).toEqual('test');
+          });
 
-        it('if position does change. Returns the new stream', async () => {
-          client.onNotification = invokeNotifications([
-            { id: 'code-suggestion-stream-uniqueId', completion: 'test', done: false },
-            { id: 'code-suggestion-stream-uniqueId', completion: '', done: true },
-          ]);
+          it('if position does not change. Returns the existing response', async () => {
+            client.onNotification = invokeNotifications([
+              { id: 'code-suggestion-stream-uniqueId', completion: 'test 123', done: false },
+              { id: 'code-suggestion-stream-uniqueId', completion: '', done: true },
+            ]);
 
-          await middleware.provideInlineCompletionItems(
-            d,
-            p,
-            ctx,
-            cancellationTokenSource.token,
-            next,
-          );
-          await middleware.provideInlineCompletionItems(
-            d,
-            p,
-            ctx,
-            cancellationTokenSource.token,
-            next,
-          );
-          const p2 = {
-            line: 1,
-            character: 0,
-          } as vscode.Position;
+            await middleware.provideInlineCompletionItems(
+              d,
+              p,
+              ctx,
+              cancellationTokenSource.token,
+              next,
+            );
+            const result = (await middleware.provideInlineCompletionItems(
+              d,
+              p,
+              ctx,
+              cancellationTokenSource.token,
+              next,
+            )) as vscode.InlineCompletionItem[];
+            expect(result[0].insertText).toEqual('test 123');
+          });
 
-          client.onNotification = invokeNotifications([
-            { id: 'code-suggestion-stream-uniqueId', completion: 'test2', done: false },
-            { id: 'code-suggestion-stream-uniqueId', completion: '', done: true },
-          ]);
-          const result = (await middleware.provideInlineCompletionItems(
-            d,
-            p2,
-            ctx,
-            cancellationTokenSource.token,
-            next,
-          )) as vscode.InlineCompletionItem[];
-          expect(result[0].insertText).toEqual('test2');
+          it('if position does change. Returns the new stream', async () => {
+            client.onNotification = invokeNotifications([
+              { id: 'code-suggestion-stream-uniqueId', completion: 'test', done: false },
+              { id: 'code-suggestion-stream-uniqueId', completion: '', done: true },
+            ]);
+
+            await middleware.provideInlineCompletionItems(
+              d,
+              p,
+              ctx,
+              cancellationTokenSource.token,
+              next,
+            );
+            await middleware.provideInlineCompletionItems(
+              d,
+              p,
+              ctx,
+              cancellationTokenSource.token,
+              next,
+            );
+            const p2 = {
+              line: 1,
+              character: 0,
+            } as vscode.Position;
+
+            client.onNotification = invokeNotifications([
+              { id: 'code-suggestion-stream-uniqueId', completion: 'test2', done: false },
+              { id: 'code-suggestion-stream-uniqueId', completion: '', done: true },
+            ]);
+            const result = (await middleware.provideInlineCompletionItems(
+              d,
+              p2,
+              ctx,
+              cancellationTokenSource.token,
+              next,
+            )) as vscode.InlineCompletionItem[];
+            expect(result[0].insertText).toEqual('test2');
+          });
         });
       });
     });

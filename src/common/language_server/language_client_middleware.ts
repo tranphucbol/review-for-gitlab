@@ -1,5 +1,10 @@
 import vscode from 'vscode';
 import { BaseLanguageClient, Middleware } from 'vscode-languageclient';
+import {
+  Intent,
+  ICompletionIntentResponse,
+  GET_COMPLETION_INTENT_REQUEST,
+} from '@gitlab-org/gitlab-lsp';
 import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
 import { waitForCancellationToken } from '../utils/wait_for_cancellation_token';
 import { waitForMs } from '../utils/wait_for_ms';
@@ -63,7 +68,7 @@ export class LanguageClientMiddleware implements Middleware {
       return [];
     }
 
-    if (!this.#hasStreamingEnabled) {
+    const provideInlineCompletionItems = async () => {
       this.#stateManager.setLoading(true);
 
       // Short circuit after both cancellation and time have passed
@@ -76,6 +81,15 @@ export class LanguageClientMiddleware implements Middleware {
       } finally {
         this.#stateManager.setLoading(false);
       }
+    };
+
+    if (!this.#hasStreamingEnabled) {
+      return provideInlineCompletionItems();
+    }
+
+    const intent = await this.#getIntent(document, position);
+    if (intent !== 'generation') {
+      return provideInlineCompletionItems();
     }
 
     try {
@@ -175,5 +189,24 @@ export class LanguageClientMiddleware implements Middleware {
 
     await editor.edit(edit => edit.replace(replaceRange, value));
     await vscode.commands.executeCommand('editor.action.inlineSuggest.trigger');
+  }
+
+  async #getIntent(
+    document: vscode.TextDocument,
+    position: vscode.Position,
+  ): Promise<Intent | undefined> {
+    let intentTypeResponse: ICompletionIntentResponse | undefined;
+
+    try {
+      intentTypeResponse = await this.#client?.sendRequest(GET_COMPLETION_INTENT_REQUEST, {
+        documentUri: document.uri.toString(),
+        position,
+      });
+    } catch (error) {
+      log.warn(`Failed to detect completion intent`, error);
+    }
+
+    log.debug(`INTENT: ${intentTypeResponse?.intent}`);
+    return intentTypeResponse?.intent;
   }
 }
