@@ -7,6 +7,7 @@ export enum FeatureFlag {
   LanguageServer = 'languageServer',
   LanguageServerWebIDE = 'languageServerWebIDE',
   CodeSuggestionsClientDirectToGateway = 'codeSuggestionsClientDirectToGateway',
+  StreamCodeGenerations = 'streamCodeGenerations',
 }
 
 // Set the feature flag default value here
@@ -17,4 +18,5 @@ export const FEATURE_FLAGS_DEFAULT_VALUES = {
   [FeatureFlag.LanguageServer]: true,
   [FeatureFlag.CodeSuggestionsClientDirectToGateway]: false,
   [FeatureFlag.LanguageServerWebIDE]: false,
+  [FeatureFlag.StreamCodeGenerations]: false,
 };

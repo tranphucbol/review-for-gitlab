@@ -1,9 +1,21 @@
 import vscode from 'vscode';
+import { BaseLanguageClient, TextDocumentPositionParams } from 'vscode-languageclient';
+import { ProvideInlineCompletionItemsSignature } from 'vscode-languageclient/lib/common/inlineCompletion';
 import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
 import { createFakePartial } from '../test_utils/create_fake_partial';
 import { LanguageClientMiddleware } from './language_client_middleware';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { waitForCancellationToken } from '../utils/wait_for_cancellation_token';
+import { setFakeWorkspaceConfiguration } from '../test_utils/vscode_fakes';
+
+jest.mock('lodash', () => {
+  const allLodash = jest.requireActual('lodash');
+
+  return {
+    ...allLodash,
+    uniqueId: (prefix: string) => `${prefix}uniqueId`,
+  };
+});
 
 describe('LanguageClientMiddleware', () => {
   beforeAll(() => {
@@ -19,8 +31,13 @@ describe('LanguageClientMiddleware', () => {
   });
 
   describe('provideInlineCompletionItem', () => {
-    const d = createFakePartial<vscode.TextDocument>({});
-    const p = createFakePartial<vscode.Position>({});
+    const d = createFakePartial<vscode.TextDocument>({
+      uri: vscode.Uri.parse('file:///home/user/dev/test.md'),
+    });
+    const p = createFakePartial<vscode.Position>({
+      character: 7,
+      line: 77,
+    });
     const ctx = createFakePartial<vscode.InlineCompletionContext>({});
 
     let cancellationTokenSource: vscode.CancellationTokenSource;
@@ -29,43 +46,13 @@ describe('LanguageClientMiddleware', () => {
       cancellationTokenSource = new vscode.CancellationTokenSource();
     });
 
-    it('returns empty array if suggestions are not active', async () => {
-      const stateManager = createFakePartial<CodeSuggestionsStateManager>({
-        isActive: () => false,
-      });
-      const middleware = new LanguageClientMiddleware(stateManager);
-      const next = jest.fn();
-
-      const result = await middleware.provideInlineCompletionItems(
-        d,
-        p,
-        ctx,
-        cancellationTokenSource.token,
-        next,
-      );
-
-      expect(result).toEqual([]);
-      expect(next).not.toHaveBeenCalled();
-    });
-
-    describe('when suggestions are active', () => {
-      let stateManager: CodeSuggestionsStateManager;
-      let middleware: LanguageClientMiddleware;
-
-      let setLoading: jest.Func;
-
-      beforeEach(() => {
-        setLoading = jest.fn();
-        stateManager = createFakePartial<CodeSuggestionsStateManager>({
-          isActive: () => true,
-          setLoading,
+    describe('when streaming is disabled', () => {
+      it('returns empty array if suggestions are not active', async () => {
+        const stateManager = createFakePartial<CodeSuggestionsStateManager>({
+          isActive: () => false,
         });
-        middleware = new LanguageClientMiddleware(stateManager);
-      });
-
-      it('calls through to default logic if suggestions are enabled', async () => {
-        const mockItem = createFakePartial<vscode.InlineCompletionItem>({});
-        const next = jest.fn().mockResolvedValue([mockItem]);
+        const middleware = new LanguageClientMiddleware(stateManager);
+        const next = jest.fn();
 
         const result = await middleware.provideInlineCompletionItems(
           d,
@@ -75,13 +62,118 @@ describe('LanguageClientMiddleware', () => {
           next,
         );
 
-        expect(result).toEqual([mockItem]);
+        expect(result).toEqual([]);
+        expect(next).not.toHaveBeenCalled();
       });
 
-      it('sets suggestions to loading state', async () => {
-        const next = jest.fn().mockResolvedValue([]);
+      describe('when suggestions are active', () => {
+        let stateManager: CodeSuggestionsStateManager;
+        let middleware: LanguageClientMiddleware;
 
-        await middleware.provideInlineCompletionItems(
+        let setLoading: jest.Func;
+
+        beforeEach(() => {
+          setLoading = jest.fn();
+          stateManager = createFakePartial<CodeSuggestionsStateManager>({
+            isActive: () => true,
+            setLoading,
+          });
+          middleware = new LanguageClientMiddleware(stateManager);
+        });
+
+        it('calls through to default logic if suggestions are enabled', async () => {
+          const mockItem = createFakePartial<vscode.InlineCompletionItem>({});
+          const next = jest.fn().mockResolvedValue([mockItem]);
+
+          const result = await middleware.provideInlineCompletionItems(
+            d,
+            p,
+            ctx,
+            cancellationTokenSource.token,
+            next,
+          );
+
+          expect(result).toEqual([mockItem]);
+        });
+
+        it('sets suggestions to loading state', async () => {
+          const next = jest.fn().mockResolvedValue([]);
+
+          await middleware.provideInlineCompletionItems(
+            d,
+            p,
+            ctx,
+            cancellationTokenSource.token,
+            next,
+          );
+
+          expect(setLoading).toHaveBeenCalledTimes(2);
+          expect(setLoading).toHaveBeenCalledWith(true);
+          expect(setLoading).toHaveBeenLastCalledWith(false);
+        });
+
+        it('sets loading to false even if fetching suggestions throws an error', async () => {
+          const next = jest.fn().mockRejectedValue(new Error());
+
+          await expect(
+            middleware.provideInlineCompletionItems(d, p, ctx, cancellationTokenSource.token, next),
+          ).rejects.toThrow();
+
+          expect(setLoading).toHaveBeenCalledTimes(2);
+          expect(setLoading).toHaveBeenCalledWith(true);
+          expect(setLoading).toHaveBeenLastCalledWith(false);
+        });
+
+        it('sets loading to false if token is canceled and next never resolves', async () => {
+          const next = jest.fn().mockReturnValue(new Promise(() => {}));
+
+          const result = middleware.provideInlineCompletionItems(
+            d,
+            p,
+            ctx,
+            cancellationTokenSource.token,
+            next,
+          );
+
+          // We need to flush promises after canceling, so we use our waitFor helper here
+          const waitForCanceled = waitForCancellationToken(cancellationTokenSource.token);
+
+          cancellationTokenSource.cancel();
+          await waitForCanceled;
+          jest.advanceTimersByTime(150);
+
+          await expect(result).resolves.toEqual([]);
+          expect(jest.mocked(setLoading).mock.calls).toEqual([[true], [false]]);
+        });
+      });
+    });
+
+    describe('when streaming is enabled', () => {
+      let next: ProvideInlineCompletionItemsSignature;
+      let stateManager: CodeSuggestionsStateManager;
+      let middleware: LanguageClientMiddleware;
+      let setLoading;
+
+      beforeEach(() => {
+        jest.useRealTimers();
+        next = jest.fn().mockRejectedValue(new Error()); // we shouldn't be calling next for streaming
+
+        setFakeWorkspaceConfiguration({
+          featureFlags: {
+            streamCodeGenerations: true,
+          },
+        });
+
+        setLoading = jest.fn();
+        stateManager = createFakePartial<CodeSuggestionsStateManager>({
+          isActive: () => true,
+          setLoading,
+        });
+        middleware = new LanguageClientMiddleware(stateManager);
+      });
+
+      it('returns [] if client is not set', async () => {
+        const result = await middleware.provideInlineCompletionItems(
           d,
           p,
           ctx,
@@ -89,43 +181,145 @@ describe('LanguageClientMiddleware', () => {
           next,
         );
 
-        expect(setLoading).toHaveBeenCalledTimes(2);
-        expect(setLoading).toHaveBeenCalledWith(true);
-        expect(setLoading).toHaveBeenLastCalledWith(false);
+        expect(result).toEqual([]);
+        expect(next).not.toHaveBeenCalled();
       });
 
-      it('sets loading to false even if fetching suggestions throws an error', async () => {
-        const next = jest.fn().mockRejectedValue(new Error());
+      describe('when the language client is set', () => {
+        let client: BaseLanguageClient;
 
-        await expect(
-          middleware.provideInlineCompletionItems(d, p, ctx, cancellationTokenSource.token, next),
-        ).rejects.toThrow();
+        beforeEach(() => {
+          const asTextDocumentPositionParams = jest.fn();
 
-        expect(setLoading).toHaveBeenCalledTimes(2);
-        expect(setLoading).toHaveBeenCalledWith(true);
-        expect(setLoading).toHaveBeenLastCalledWith(false);
-      });
+          client = createFakePartial<BaseLanguageClient>({
+            sendNotification: jest.fn().mockImplementation(() => Promise.resolve()),
+            code2ProtocolConverter: {
+              asTextDocumentPositionParams,
+            },
+            onNotification: jest.fn().mockImplementation(() => Promise.resolve()),
+          });
 
-      it('sets loading to false if token is canceled and next never resolves', async () => {
-        const next = jest.fn().mockReturnValue(new Promise(() => {}));
+          middleware.client = client;
 
-        const result = middleware.provideInlineCompletionItems(
-          d,
-          p,
-          ctx,
-          cancellationTokenSource.token,
-          next,
-        );
+          asTextDocumentPositionParams.mockReturnValue({
+            textDocument: {
+              uri: 'uri',
+            },
+            position: {
+              line: 0,
+              character: 0,
+            },
+          } as TextDocumentPositionParams);
+        });
 
-        // We need to flush promises after canceling, so we use our waitFor helper here
-        const waitForCanceled = waitForCancellationToken(cancellationTokenSource.token);
+        function invokeNotifications(list: unknown[]) {
+          return jest.fn((_, callback) => {
+            for (const element of list) {
+              setTimeout(() => {
+                const notificationData = element;
+                callback(notificationData);
+              }, 0);
+            }
 
-        cancellationTokenSource.cancel();
-        await waitForCanceled;
-        jest.advanceTimersByTime(150);
+            return {
+              dispose: () => {},
+            };
+          });
+        }
 
-        await expect(result).resolves.toEqual([]);
-        expect(jest.mocked(setLoading).mock.calls).toEqual([[true], [false]]);
+        it('calls getStreamingCompletion on language client', async () => {
+          client.onNotification = invokeNotifications([
+            { id: 'code-suggestion-stream-uniqueId', completion: '', done: false },
+          ]);
+          const result = (await middleware.provideInlineCompletionItems(
+            d,
+            p,
+            ctx,
+            cancellationTokenSource.token,
+            next,
+          )) as vscode.InlineCompletionItem[];
+
+          expect(client.sendNotification).toHaveBeenCalledTimes(1);
+          expect(result[0].insertText).toEqual('');
+        });
+
+        it('getStreamingCompletion keeps receiving notifications until done', async () => {
+          client.onNotification = invokeNotifications([
+            { id: 'code-suggestion-stream-uniqueId', completion: 'test', done: false },
+            { id: 'code-suggestion-stream-uniqueId', completion: '', done: true },
+          ]);
+
+          const result = (await middleware.provideInlineCompletionItems(
+            d,
+            p,
+            ctx,
+            cancellationTokenSource.token,
+            next,
+          )) as vscode.InlineCompletionItem[];
+          expect(result[0].insertText).toEqual('test');
+        });
+
+        it('if position does not change. Returns the existing response', async () => {
+          client.onNotification = invokeNotifications([
+            { id: 'code-suggestion-stream-uniqueId', completion: 'test 123', done: false },
+            { id: 'code-suggestion-stream-uniqueId', completion: '', done: true },
+          ]);
+
+          await middleware.provideInlineCompletionItems(
+            d,
+            p,
+            ctx,
+            cancellationTokenSource.token,
+            next,
+          );
+          const result = (await middleware.provideInlineCompletionItems(
+            d,
+            p,
+            ctx,
+            cancellationTokenSource.token,
+            next,
+          )) as vscode.InlineCompletionItem[];
+          expect(result[0].insertText).toEqual('test 123');
+        });
+
+        it('if position does change. Returns the new stream', async () => {
+          client.onNotification = invokeNotifications([
+            { id: 'code-suggestion-stream-uniqueId', completion: 'test', done: false },
+            { id: 'code-suggestion-stream-uniqueId', completion: '', done: true },
+          ]);
+
+          await middleware.provideInlineCompletionItems(
+            d,
+            p,
+            ctx,
+            cancellationTokenSource.token,
+            next,
+          );
+          await middleware.provideInlineCompletionItems(
+            d,
+            p,
+            ctx,
+            cancellationTokenSource.token,
+            next,
+          );
+          const p2 = {
+            line: 1,
+            character: 0,
+          } as vscode.Position;
+
+          client.onNotification = invokeNotifications([
+            { id: 'code-suggestion-stream-uniqueId', completion: 'test2', done: false },
+            { id: 'code-suggestion-stream-uniqueId', completion: '', done: true },
+          ]);
+          const result = (await middleware.provideInlineCompletionItems(
+            d,
+            p2,
+            ctx,
+            cancellationTokenSource.token,
+            next,
+          )) as vscode.InlineCompletionItem[];
+          expect(result[0].insertText).toEqual('test2');
+        });
       });
     });
   });

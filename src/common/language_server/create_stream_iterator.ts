@@ -1,0 +1,94 @@
+import { Disposable } from 'vscode';
+import {
+  CANCEL_STREAMING_COMPLETION_NOTIFICATION,
+  STREAMING_COMPLETION_RESPONSE_NOTIFICATION,
+} from '@gitlab-org/gitlab-lsp';
+import { BaseLanguageClient, CancellationToken } from 'vscode-languageclient';
+import { log } from '../log';
+
+interface CompletionPart {
+  completion: string;
+  done: boolean;
+}
+
+export const createStreamIterator = (
+  client: BaseLanguageClient,
+  streamId: string,
+  cancellationToken?: CancellationToken,
+): AsyncIterator<string> => {
+  let resolveWait: ((val: CompletionPart) => void) | null = null;
+  const queue: CompletionPart[] = [];
+  const subscriptions: Disposable[] = [];
+
+  const waitForNext = (): Promise<CompletionPart> => {
+    if (queue.length) {
+      return Promise.resolve(queue.shift()!);
+    }
+
+    return new Promise<CompletionPart>(resolve => {
+      resolveWait = resolve;
+    });
+  };
+
+  const onComplete = () => {
+    subscriptions.forEach(x => x.dispose());
+  };
+
+  const onNext = (part: CompletionPart): void => {
+    if (resolveWait) {
+      resolveWait(part);
+      resolveWait = null;
+    } else {
+      queue.push(part);
+    }
+  };
+
+  if (cancellationToken) {
+    subscriptions.push(
+      cancellationToken.onCancellationRequested(async () => {
+        // TODO use CancelStreaming as the notification type (it is type safe)
+        // ATM we can't do that because something is wrong with the LSP exporting types/constants
+        await client.sendNotification(CANCEL_STREAMING_COMPLETION_NOTIFICATION, { id: streamId });
+        onNext({
+          completion: '',
+          done: true,
+        });
+      }),
+    );
+  }
+
+  subscriptions.push(
+    client.onNotification(
+      // TODO use StreamingCompletionResponse as the notification type (it is type safe)
+      // ATM we can't do that because something is wrong with the LSP exporting types/constants
+      STREAMING_COMPLETION_RESPONSE_NOTIFICATION,
+      ({ id, completion, done }) => {
+        if (id !== streamId) {
+          return;
+        }
+
+        onNext({
+          completion: completion || '',
+          done,
+        });
+      },
+    ),
+  );
+
+  return {
+    async next() {
+      const { completion, done } = await waitForNext();
+
+      log.debug(`Streaming Suggestion: ${completion}, Done is ${done}`);
+
+      if (done) {
+        onComplete();
+      }
+
+      return {
+        value: completion,
+        done,
+      };
+    },
+  };
+};

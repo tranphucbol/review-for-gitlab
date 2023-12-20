@@ -15,6 +15,10 @@ import {
   COMMAND_TOGGLE_CODE_SUGGESTIONS,
   toggleCodeSuggestions,
 } from '../code_suggestions/commands/toggle';
+import {
+  COMMAND_CODE_SUGGESTION_STREAM_ACCEPTED,
+  codeSuggestionStreamAccepted,
+} from '../code_suggestions/commands/code_suggestion_stream_accepted';
 
 const LANGUAGE_CLIENT_OPTIONS: LanguageClientOptions = {
   documentSelector: AI_ASSISTED_CODE_SUGGESTIONS_LANGUAGES.map(language => ({ language })),
@@ -29,11 +33,14 @@ export const registerLanguageServer = async (
   await stateManager.init();
   const statusBarItem = new CodeSuggestionsStatusBarItem(stateManager);
   const gutterIcon = new CodeSuggestionsGutterIcon(context, stateManager);
+  const middleware = new LanguageClientMiddleware(stateManager);
+
   const client = clientFactory.createLanguageClient(context, {
     ...LANGUAGE_CLIENT_OPTIONS,
     initializationOptions: getClientContext(),
-    middleware: new LanguageClientMiddleware(stateManager),
+    middleware,
   });
+  middleware.client = client;
   const wrapper = new LanguageClientWrapper(client, gitlabPlatformManager, stateManager);
   await wrapper.initAndStart();
   context.subscriptions.push(
@@ -44,6 +51,10 @@ export const registerLanguageServer = async (
     ),
     vscode.commands.registerCommand(COMMAND_TOGGLE_CODE_SUGGESTIONS, () =>
       toggleCodeSuggestions({ stateManager }),
+    ),
+    vscode.commands.registerCommand(
+      COMMAND_CODE_SUGGESTION_STREAM_ACCEPTED,
+      codeSuggestionStreamAccepted,
     ),
     vscode.workspace.onDidChangeConfiguration(async e => {
       if (!e.affectsConfiguration(CONFIG_NAMESPACE)) {

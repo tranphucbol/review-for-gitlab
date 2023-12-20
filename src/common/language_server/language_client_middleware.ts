@@ -1,21 +1,46 @@
 import vscode from 'vscode';
-import { CompletionMiddleware } from 'vscode-languageclient';
-import {
-  InlineCompletionMiddleware,
-  ProvideInlineCompletionItemsSignature,
-} from 'vscode-languageclient/lib/common/inlineCompletion';
+import { BaseLanguageClient, Middleware } from 'vscode-languageclient';
 import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
 import { waitForCancellationToken } from '../utils/wait_for_cancellation_token';
 import { waitForMs } from '../utils/wait_for_ms';
+import { log } from '../log';
+import { COMMAND_CODE_SUGGESTION_STREAM_ACCEPTED } from '../code_suggestions/commands/code_suggestion_stream_accepted';
+import { CompletionStream, getStreamContextId } from './completion_stream';
+import { FeatureFlag, isEnabled } from '../feature_flags';
+import { CONFIG_NAMESPACE } from '../constants';
 
 // We need to wait just a bit after cancellation, otherwise the loading icon flickers while someone types
 const CANCELLATION_DELAY = 150;
 
-export class LanguageClientMiddleware implements InlineCompletionMiddleware, CompletionMiddleware {
+export class LanguageClientMiddleware implements Middleware {
   #stateManager: CodeSuggestionsStateManager;
+
+  #subscriptions: vscode.Disposable[] = [];
+
+  #hasStreamingEnabled: boolean | undefined;
+
+  #client?: BaseLanguageClient;
+
+  #activeStreams: Record<string, CompletionStream | undefined> = {};
 
   constructor(stateManager: CodeSuggestionsStateManager) {
     this.#stateManager = stateManager;
+    this.#hasStreamingEnabled = isEnabled(FeatureFlag.StreamCodeGenerations);
+    this.#subscriptions.push(
+      vscode.workspace.onDidChangeConfiguration(e => {
+        if (e.affectsConfiguration(CONFIG_NAMESPACE)) {
+          this.#hasStreamingEnabled = isEnabled(FeatureFlag.StreamCodeGenerations);
+        }
+      }),
+    );
+  }
+
+  dispose() {
+    this.#subscriptions.forEach(s => s.dispose());
+  }
+
+  set client(client: BaseLanguageClient) {
+    this.#client = client;
   }
 
   // we disable standard completion form LS and only use inline completion
@@ -27,23 +52,128 @@ export class LanguageClientMiddleware implements InlineCompletionMiddleware, Com
     position: vscode.Position,
     context: vscode.InlineCompletionContext,
     token: vscode.CancellationToken,
-    next: ProvideInlineCompletionItemsSignature,
+    next: (
+      document: vscode.TextDocument,
+      position: vscode.Position,
+      context: vscode.InlineCompletionContext,
+      token: vscode.CancellationToken,
+    ) => vscode.ProviderResult<vscode.InlineCompletionItem[] | vscode.InlineCompletionList>,
   ) {
     if (!this.#stateManager.isActive()) {
       return [];
     }
 
-    this.#stateManager.setLoading(true);
+    if (!this.#hasStreamingEnabled) {
+      this.#stateManager.setLoading(true);
 
-    // Short circuit after both cancellation and time have passed
-    const shortCircuit = waitForCancellationToken(token)
-      .then(() => waitForMs(CANCELLATION_DELAY))
-      .then(() => []);
+      // Short circuit after both cancellation and time have passed
+      const shortCircuit = waitForCancellationToken(token)
+        .then(() => waitForMs(CANCELLATION_DELAY))
+        .then(() => []);
+
+      try {
+        return await Promise.race([shortCircuit, next(document, position, context, token)]);
+      } finally {
+        this.#stateManager.setLoading(false);
+      }
+    }
 
     try {
-      return await Promise.race([shortCircuit, next(document, position, context, token)]);
-    } finally {
-      this.#stateManager.setLoading(false);
+      return await this.provideStreamingInlineCompletionItems(document, position, token);
+    } catch (e) {
+      log.error(e);
+      return [];
     }
+  }
+
+  async provideStreamingInlineCompletionItems(
+    document: vscode.TextDocument,
+    position: vscode.Position,
+    token: vscode.CancellationToken,
+  ): Promise<vscode.InlineCompletionItem[] | vscode.InlineCompletionList | undefined> {
+    if (!this.#client) {
+      log.error(
+        'Invoking LanguageServer client without initializing the inline completion middleware',
+      );
+      return [];
+    }
+
+    let stream = this.#activeStreams[getStreamContextId(document, position)];
+
+    if (!stream) {
+      Object.entries(this.#activeStreams).forEach(([contextId, oldStream]) => {
+        oldStream?.cancel();
+        delete this.#activeStreams[contextId];
+        if (oldStream?.loading) {
+          this.#stateManager.setLoading(false);
+        }
+      });
+
+      stream = new CompletionStream(this.#client, document, position);
+      await stream.start();
+      stream.loading = true;
+      this.#stateManager.setLoading(true);
+
+      this.#activeStreams[getStreamContextId(document, position)] = stream;
+    }
+
+    token.onCancellationRequested(() => stream!.cancel());
+
+    const streamResult = await stream.iterator.next();
+    log.debug(`streamResult.done = ${streamResult.done}`);
+
+    const acceptedCommand: vscode.Command = {
+      title: 'Code Suggestion Stream Accepted',
+      command: COMMAND_CODE_SUGGESTION_STREAM_ACCEPTED,
+      arguments: [stream],
+    };
+
+    if (streamResult.done) {
+      if (stream.loading) {
+        this.#stateManager.setLoading(false);
+      }
+      this.#activeStreams[getStreamContextId(document, position)] = undefined;
+      return [
+        new vscode.InlineCompletionItem(
+          stream.lastSuggestion,
+          new vscode.Range(position, position),
+          acceptedCommand,
+        ),
+      ];
+    }
+
+    setTimeout(() => {
+      LanguageClientMiddleware.forceTriggerInlineCompletion().catch(e => log.error(e));
+    }, 0);
+
+    return [
+      new vscode.InlineCompletionItem(
+        streamResult.value || '',
+        new vscode.Range(position, position),
+        acceptedCommand,
+      ),
+    ];
+  }
+
+  static async forceTriggerInlineCompletion(): Promise<void> {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+      return;
+    }
+
+    const { document } = editor;
+    const activePosition = editor.selection.active;
+    const activeOffset = document.offsetAt(activePosition);
+
+    if (activeOffset === 0) {
+      return;
+    }
+
+    const prevCharPosition = document.positionAt(activeOffset - 1);
+    const replaceRange = new vscode.Range(prevCharPosition, activePosition);
+    const value = document.getText(replaceRange);
+
+    await editor.edit(edit => edit.replace(replaceRange, value));
+    await vscode.commands.executeCommand('editor.action.inlineSuggest.trigger');
   }
 }

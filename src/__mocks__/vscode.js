@@ -111,7 +111,13 @@ module.exports = {
           );
         },
         onCancellationRequested(callback) {
-          return controller.signal.addEventListener('abort', callback);
+          controller.signal.addEventListener('abort', callback);
+
+          return {
+            dispose() {
+              controller.signal.removeEventListener('abort', callback);
+            },
+          };
         },
       },
       cancel() {
