@@ -203,10 +203,10 @@ export class LanguageClientMiddleware implements Middleware {
         position,
       });
     } catch (error) {
-      log.error(`Failed to detect completion intent`, error);
+      log.warn(`Failed to detect completion intent`, error);
     }
 
-    log.info(`INTENT: ${intentTypeResponse?.intent}`);
+    log.debug(`INTENT: ${intentTypeResponse?.intent}`);
     return intentTypeResponse?.intent;
   }
 }
