@@ -321,7 +321,7 @@ To open and browse a repository, either:
 
 Alternatively, run the **GitLab: Open Remote Repository** command and select `Enter gitlab-remote URL` option or manually add a `gitlab-remote` URL to your [workspace file](https://code.visualstudio.com/docs/editor/multi-root-workspaces#_workspace-file). For information about how to create GitLab remote URL, please see [GitLab remote URL format documentation](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/remote-fs-url-format.md)
 
-### Code Suggestions (Beta)
+### Code Suggestions
 
 Write code more efficiently by using generative AI to suggest code while you're developing. To learn more about this feature, see the
 [Code Suggestions documentation](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html). With Code Suggestions, you get:
@@ -329,14 +329,12 @@ Write code more efficiently by using generative AI to suggest code while you're 
 - Code Completion, which suggests completions for the current line you are typing. These suggestions usually have low latency.
 - Code Generation, which generates code based on a natural-language code comment block. Responses for code generation are streamed in VS Code to quickly begin giving results.
 
-This feature is in
-[Beta](https://docs.gitlab.com/ee/policy/experiment-beta-support.html#beta).
 Code Suggestions is a generative artificial intelligence (AI) model. GitLab selects the best-in-class large-language models for specific tasks. We use [Google Vertex AI Code Models](https://cloud.google.com/vertex-ai/docs/generative-ai/code/code-models-overview) and [Anthropic Claude](https://www.anthropic.com/product) for Code Suggestions.
 
 No new additional data is collected to enable this feature. Private non-public GitLab customer data is not used as training data.
 Learn more about [Code Suggestion data usage](https://docs.gitlab.com/ee/user/project/repository/code_suggestions/#code-suggestions-data-usage).
 
-Beta users should read about the [known limitations](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html#known-limitations).
+Users should read about the [known limitations](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html#known-limitations).
 
 Report issues by [creating an issue](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/new).
 
