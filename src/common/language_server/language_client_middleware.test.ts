@@ -6,7 +6,6 @@ import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestion
 import { createFakePartial } from '../test_utils/create_fake_partial';
 import { LanguageClientMiddleware } from './language_client_middleware';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
-import { waitForCancellationToken } from '../utils/wait_for_cancellation_token';
 import { setFakeWorkspaceConfiguration } from '../test_utils/vscode_fakes';
 
 jest.mock('lodash', () => {
@@ -141,12 +140,10 @@ describe('LanguageClientMiddleware', () => {
             next,
           );
 
-          // We need to flush promises after canceling, so we use our waitFor helper here
-          const waitForCanceled = waitForCancellationToken(cancellationTokenSource.token);
-
+          // why: We need to flush some promises before we cancel
+          await jest.runOnlyPendingTimersAsync();
           cancellationTokenSource.cancel();
-          await waitForCanceled;
-          jest.advanceTimersByTime(150);
+          await jest.advanceTimersByTimeAsync(150);
 
           await expect(result).resolves.toEqual([]);
           expect(jest.mocked(setLoading).mock.calls).toEqual([[true], [false]]);
@@ -253,13 +250,6 @@ describe('LanguageClientMiddleware', () => {
 
         describe('Intent detection', () => {
           const nonStreamingCompletionHandler = jest.fn().mockResolvedValue([]);
-          let streamingCompletionHandler: jest.SpyInstance;
-
-          beforeEach(() => {
-            streamingCompletionHandler = jest
-              .spyOn(middleware, 'provideStreamingInlineCompletionItems')
-              .mockImplementationOnce(() => Promise.resolve([]));
-          });
 
           const triggerInlineCompletion = async () => {
             await middleware.provideInlineCompletionItems(
@@ -270,6 +260,13 @@ describe('LanguageClientMiddleware', () => {
               nonStreamingCompletionHandler,
             );
           };
+
+          beforeEach(() => {
+            client.onNotification = invokeNotifications([
+              { id: 'code-suggestion-stream-uniqueId', completion: '', done: false },
+            ]);
+          });
+
           it('should make a call to detect intent', async () => {
             await triggerInlineCompletion();
             expect(client.sendRequest).toHaveBeenCalledWith(GET_COMPLETION_INTENT_REQUEST, {
@@ -284,7 +281,7 @@ describe('LanguageClientMiddleware', () => {
             });
             await triggerInlineCompletion();
             expect(nonStreamingCompletionHandler).toHaveBeenCalled();
-            expect(streamingCompletionHandler).not.toHaveBeenCalled();
+            expect(client.sendNotification).not.toHaveBeenCalled();
           });
 
           it('should proceed to streaming completion when intent is `generation`', async () => {
@@ -294,7 +291,10 @@ describe('LanguageClientMiddleware', () => {
             await triggerInlineCompletion();
             jest.advanceTimersByTime(10);
             expect(nonStreamingCompletionHandler).not.toHaveBeenCalled();
-            expect(streamingCompletionHandler).toHaveBeenCalled();
+            expect(client.sendNotification).toHaveBeenCalledWith(
+              'streamingCompletionRequest',
+              expect.anything(),
+            );
           });
         });
 
