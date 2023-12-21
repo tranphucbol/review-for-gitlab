@@ -1,3 +1,20 @@
+# [3.96.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.95.0...v3.96.0) (2023-12-21)
+
+
+### Bug Fixes
+
+* **cs-stream:** Clean loading icon flicker ([e3d45bb](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/e3d45bba6358f233c497dc9d5345a44fa62fd88f))
+
+
+### Features
+
+* add vulnerability identifiers & solution ([f384024](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/f38402496af690b95e39311d0f9e1f8a04aacd26))
+* enable streaming for the chat ([5e5432c](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/5e5432cfcfa85713a47ee8a453dd2b25a5a42be0))
+* enable suggestion streaming by default ([65a968a](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/65a968aa1ca422d65a7ff1b288a400163c3b8bba))
+* Support using web ide in the language server ([bda65ec](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/bda65ec3b4bd2a30133be4120bfb23e23c30984e))
+
+
+
 # [3.95.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.94.0...v3.95.0) (2023-12-20)
 
 
