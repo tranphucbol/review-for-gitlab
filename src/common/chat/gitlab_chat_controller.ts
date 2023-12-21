@@ -6,7 +6,6 @@ import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { log } from '../log';
 import { submitFeedback } from './utils/submit_feedback';
 import { AiCompletionResponseMessageType } from '../api/graphql/ai_completion_response_channel';
-import { FeatureFlag, isEnabled } from '../feature_flags';
 
 export class GitLabChatController implements vscode.WebviewViewProvider {
   readonly chatHistory: GitLabChatRecord[];
@@ -78,8 +77,10 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
     });
     await this.addToChat(responseRecord);
 
-    if (isEnabled(FeatureFlag.ChatStreaming)) {
+    try {
       await this.#api.subscribeToUpdates(this.subscriptionUpdateHandler.bind(this), record.id);
+    } catch (err) {
+      log.error(err);
     }
     // Fallback if websocket fails or disabled.
     await Promise.all([this.refreshRecord(record), this.refreshRecord(responseRecord)]);
