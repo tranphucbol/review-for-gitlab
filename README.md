@@ -63,6 +63,21 @@ You must meet all these conditions to use Code Suggestions:
 
 If you meet all these conditions, continue [setting up this extension](#setup) to use Code Suggestions.
 
+#### Use Code Generation
+
+To use Code Generation:
+
+1. Add a comment to a supported file type.
+1. In the comment, use natural language to describe the code you want to build.
+1. To accept the generated code:
+   - To accept the entire suggestion, press <kbd>Tab</kbd>.
+   - To accept the suggestion line-by-line, select **Accept Line**.
+   - To accept the suggestion word-by-word, press <kbd>Command</kbd> + <kbd>→</kbd> (right arrow).
+
+![Demo of Code Generation in use](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d20455832b118aa92ca7f634166e2b14a1c7a5c5/docs/assets/streaming.gif)
+
+You can [disable the streaming function](docs/user/troubleshooting.md#disable-streaming), if needed.
+
 ### Browse issues, review MRs
 
 See your issues, MRs (including changed files) and other [custom search results](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/custom-queries.md) on a dedicated panel in the VS Code sidebar. [Read more](#sidebar---details)
@@ -350,22 +365,6 @@ To open and browse a repository, either:
 - Select GitLab instance, project and branch/tag that you would like to browse
 
 Alternatively, run the **GitLab: Open Remote Repository** command and select `Enter gitlab-remote URL` option or manually add a `gitlab-remote` URL to your [workspace file](https://code.visualstudio.com/docs/editor/multi-root-workspaces#_workspace-file). For information about how to create GitLab remote URL, please see [GitLab remote URL format documentation](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/remote-fs-url-format.md)
-
-
-#### Use Code Generation
-
-To use Code Generation:
-
-1. Add a comment to a supported file type.
-1. In the comment, use natural language to describe the code you want to build.
-1. To accept the generated code:
-   - To accept the entire suggestion, press <kbd>Tab</kbd>.
-   - To accept the suggestion line-by-line, select **Accept Line**.
-   - To accept the suggestion word-by-word, press <kbd>Command</kbd> + <kbd>→</kbd> (right arrow).
-
-![Demo of Code Generation in use](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d20455832b118aa92ca7f634166e2b14a1c7a5c5/docs/assets/streaming.gif)
-
-You can [disable the streaming function](docs/user/troubleshooting.md#disable-streaming), if needed.
 
 ---
 
