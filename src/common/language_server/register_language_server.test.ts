@@ -36,7 +36,7 @@ describe('registerLanguageServer', () => {
     jest.mocked(LanguageClientWrapper).mockReturnValue(clientWrapper);
     client = createFakePartial<BaseLanguageClient>({});
     languageClientFactory = createFakePartial<LanguageClientFactory>({
-      createLanguageClient: () => client,
+      createLanguageClient: jest.fn(() => client),
     });
     gitlabPlatformManager = createFakePartial<GitLabPlatformManager>({
       onAccountChange: jest.fn(),
@@ -48,6 +48,17 @@ describe('registerLanguageServer', () => {
     context = createExtensionContext();
     jest.mocked(CodeSuggestionsStateManager).mockReturnValue(stateManager);
     await registerLanguageServer(context, languageClientFactory, gitlabPlatformManager);
+  });
+
+  it('creates a language client and provides a baseAssetsUrl', () => {
+    expect(languageClientFactory.createLanguageClient).toHaveBeenCalledWith(
+      context,
+      expect.objectContaining({
+        initializationOptions: expect.objectContaining({
+          baseAssetsUrl: 'https://localhost/assets/language-server/',
+        }),
+      }),
+    );
   });
 
   it('initializes the language client wrapper', async () => {
