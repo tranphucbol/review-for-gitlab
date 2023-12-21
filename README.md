@@ -33,6 +33,36 @@ To find your GitLab version, visit `/help` (like `https://gitlab.com/help`).
 
 _You need to set up your access token(s) to use these features, please see [Setup](#setup) section below._
 
+### Code Suggestions
+
+Write code more efficiently by using generative AI to suggest code while you're developing. To learn more about this feature, see the
+[Code Suggestions documentation](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html). With Code Suggestions, you get:
+
+- Code Completion, which suggests completions for the current line you are typing. These suggestions usually have low latency.
+- Code Generation, which generates code based on a natural-language code comment block. Responses for code generation are streamed in VS Code to quickly begin giving results.
+
+Code Suggestions is a generative artificial intelligence (AI) model. GitLab selects the best-in-class large-language models for specific tasks. We use [Google Vertex AI Code Models](https://cloud.google.com/vertex-ai/docs/generative-ai/code/code-models-overview) and [Anthropic Claude](https://www.anthropic.com/product) for Code Suggestions.
+
+No new additional data is collected to enable this feature. Private non-public GitLab customer data is not used as training data.
+Learn more about [Code Suggestion data usage](https://docs.gitlab.com/ee/user/project/repository/code_suggestions/#code-suggestions-data-usage).
+
+Users should read about the [known limitations](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html#known-limitations).
+
+Report issues by [creating an issue](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/new).
+
+#### Set up Code Suggestions
+
+You must meet all these conditions to use Code Suggestions:
+
+- You must be using GitLab Enterprise Edition.
+- For self-managed installations, Code Suggestions must be
+  [enabled for your instance](https://docs.gitlab.com/ee/user/project/repository/code_suggestions/self_managed.html).
+- For GitLab.com, Code Suggestions must be
+  enabled for your top-level group. See instructions
+  [for SaaS](https://docs.gitlab.com/ee/user/group/manage.html#enable-code-suggestions-for-a-group).
+
+If you meet all these conditions, continue [setting up this extension](#setup) to use Code Suggestions.
+
 ### Browse issues, review MRs
 
 See your issues, MRs (including changed files) and other [custom search results](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/custom-queries.md) on a dedicated panel in the VS Code sidebar. [Read more](#sidebar---details)
@@ -321,35 +351,6 @@ To open and browse a repository, either:
 
 Alternatively, run the **GitLab: Open Remote Repository** command and select `Enter gitlab-remote URL` option or manually add a `gitlab-remote` URL to your [workspace file](https://code.visualstudio.com/docs/editor/multi-root-workspaces#_workspace-file). For information about how to create GitLab remote URL, please see [GitLab remote URL format documentation](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/remote-fs-url-format.md)
 
-### Code Suggestions
-
-Write code more efficiently by using generative AI to suggest code while you're developing. To learn more about this feature, see the
-[Code Suggestions documentation](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html). With Code Suggestions, you get:
-
-- Code Completion, which suggests completions for the current line you are typing. These suggestions usually have low latency.
-- Code Generation, which generates code based on a natural-language code comment block. Responses for code generation are streamed in VS Code to quickly begin giving results.
-
-Code Suggestions is a generative artificial intelligence (AI) model. GitLab selects the best-in-class large-language models for specific tasks. We use [Google Vertex AI Code Models](https://cloud.google.com/vertex-ai/docs/generative-ai/code/code-models-overview) and [Anthropic Claude](https://www.anthropic.com/product) for Code Suggestions.
-
-No new additional data is collected to enable this feature. Private non-public GitLab customer data is not used as training data.
-Learn more about [Code Suggestion data usage](https://docs.gitlab.com/ee/user/project/repository/code_suggestions/#code-suggestions-data-usage).
-
-Users should read about the [known limitations](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html#known-limitations).
-
-Report issues by [creating an issue](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/new).
-
-#### Set up Code Suggestions
-
-You must meet all these conditions to use Code Suggestions:
-
-- You must be using GitLab Enterprise Edition.
-- For self-managed installations, Code Suggestions must be
-  [enabled for your instance](https://docs.gitlab.com/ee/user/project/repository/code_suggestions/self_managed.html).
-- For GitLab.com, Code Suggestions must be
-  enabled for your top-level group. See instructions
-  [for SaaS](https://docs.gitlab.com/ee/user/group/manage.html#enable-code-suggestions-for-a-group).
-
-If you meet all these conditions, continue [setting up this extension](#setup) to use Code Suggestions.
 
 #### Use Code Generation
 
