@@ -27,3 +27,16 @@ _Deprecated. Please see [the SSL setup guide](https://gitlab.com/gitlab-org/gitl
 **`gitlab.ignoreCertificateErrors`** _(required: false, default: false)_
 
 **Unsupported** - See [&6244](https://gitlab.com/groups/gitlab-org/-/epics/6244). _If you are using a self-managed GitLab instance with no SSL certificate or having certificate issues and unable to use the extension you may want to set this option to `true` to ignore certificate errors._
+
+## Disable streaming
+
+To disable streaming (note that this will mean code generation requests may be perceived as taking longer to resolve):
+
+1. Edit your `settings.json` file.
+1. Edit/add this line, setting `gitlab.aiAssistedCodeSuggestions.enabled` to `false`:
+
+   ```json
+   "gitlab.aiAssistedCodeSuggestions.enabled": false,
+   ```
+
+1. Save your changes.
