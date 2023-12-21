@@ -51,6 +51,14 @@ describe('LanguageClientMiddleware', () => {
     });
 
     describe('when streaming is disabled', () => {
+      beforeEach(() => {
+        setFakeWorkspaceConfiguration({
+          featureFlags: {
+            streamCodeGenerations: false,
+          },
+        });
+      });
+
       it('returns empty array if suggestions are not active', async () => {
         jest.spyOn(stateManager, 'isActive').mockReturnValue(false);
         const middleware = new LanguageClientMiddleware(stateManager);
