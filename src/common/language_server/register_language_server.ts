@@ -34,10 +34,17 @@ export const registerLanguageServer = async (
   const statusBarItem = new CodeSuggestionsStatusBarItem(stateManager);
   const gutterIcon = new CodeSuggestionsGutterIcon(context, stateManager);
   const middleware = new LanguageClientMiddleware(stateManager);
+  const baseAssetsUrl = vscode.Uri.joinPath(
+    context.extensionUri,
+    './assets/language-server/',
+  ).toString();
 
   const client = clientFactory.createLanguageClient(context, {
     ...LANGUAGE_CLIENT_OPTIONS,
-    initializationOptions: getClientContext(),
+    initializationOptions: {
+      ...getClientContext(),
+      baseAssetsUrl,
+    },
     middleware,
   });
   middleware.client = client;

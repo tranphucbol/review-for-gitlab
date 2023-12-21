@@ -13,6 +13,7 @@ import { COMMAND_CODE_SUGGESTION_STREAM_ACCEPTED } from '../code_suggestions/com
 import { CompletionStream, getStreamContextId } from './completion_stream';
 import { FeatureFlag, isEnabled } from '../feature_flags';
 import { CONFIG_NAMESPACE } from '../constants';
+import { serializeInlineCompletionContext, serializePosition } from './serialization_utils';
 
 // We need to wait just a bit after cancellation, otherwise the loading icon flickers while someone types
 const CANCELLATION_DELAY = 150;
@@ -106,7 +107,10 @@ export class LanguageClientMiddleware implements Middleware {
       .then(() => []);
 
     try {
-      return await Promise.race([shortCircuit, next(document, position, context, token)]);
+      return await Promise.race([
+        shortCircuit,
+        next(document, position, serializeInlineCompletionContext(context), token),
+      ]);
     } finally {
       this.#stateManager.setLoading(false);
     }
@@ -248,7 +252,7 @@ export class LanguageClientMiddleware implements Middleware {
     try {
       intentTypeResponse = await this.#client?.sendRequest(GET_COMPLETION_INTENT_REQUEST, {
         documentUri: document.uri.toString(),
-        position,
+        position: serializePosition(position),
       });
     } catch (error) {
       log.warn(`Failed to detect completion intent`, error);
