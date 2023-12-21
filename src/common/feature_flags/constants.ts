@@ -19,6 +19,6 @@ export const FEATURE_FLAGS_DEFAULT_VALUES = {
   [FeatureFlag.LanguageServer]: true,
   [FeatureFlag.CodeSuggestionsClientDirectToGateway]: false,
   [FeatureFlag.LanguageServerWebIDE]: false,
-  [FeatureFlag.StreamCodeGenerations]: false,
+  [FeatureFlag.StreamCodeGenerations]: true,
   [FeatureFlag.ChatStreaming]: false,
 };
