@@ -361,8 +361,8 @@ To use Code Generation:
 1. In the comment, use natural language to describe the code you want to build.
 1. To accept the generated code:
    - To accept the entire suggestion, press <kbd>Tab</kbd>.
-   - To accept a specific line, place your cursor on that line, then select **Accept Line**.
-   - To accept a single word, place your cursor on that word, then press <kbd>Command</kbd> + <kbd>→</kbd> (right arrow).
+   - To accept the suggestion line-by-line, select **Accept Line**.
+   - To accept the suggestion word-by-word, press <kbd>Command</kbd> + <kbd>→</kbd> (right arrow).
 
 ![Demo of Code Generation in use](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d20455832b118aa92ca7f634166e2b14a1c7a5c5/docs/assets/streaming.gif)
 
