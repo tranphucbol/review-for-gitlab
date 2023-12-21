@@ -3,6 +3,11 @@ import { GraphQLRequest } from '../platform/web_ide';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { pullHandler } from './api/pulling';
 import { GitLabChatFileContext } from './gitlab_chat_file_context';
+import {
+  AiCompletionResponseChannel,
+  AiCompletionResponseMessageType,
+} from '../api/graphql/ai_completion_response_channel';
+import { extractUserId } from '../platform/gitlab_account';
 
 export const AI_ACTIONS = {
   chat: gql`
@@ -10,10 +15,12 @@ export const AI_ACTIONS = {
       $question: String!
       $resourceId: AiModelID
       $currentFileContext: AiCurrentFileInput
+      $clientSubscriptionId: String
     ) {
       aiAction(
         input: {
           chat: { resourceId: $resourceId, content: $question, currentFile: $currentFileContext }
+          clientSubscriptionId: $clientSubscriptionId
         }
       ) {
         requestId
@@ -45,22 +52,23 @@ export const AI_MESSAGES_QUERY = gql`
   }
 `;
 
-type AiMessagesResponseType = {
-  aiMessages: {
-    nodes: {
-      requestId: string;
-      role: string;
-      content: string;
-      contentHtml: string;
-      timestamp: string;
-      errors: string[];
-      extras?: {
-        sources: object[];
-      };
-    }[];
+type AiMessageResponseType = {
+  requestId: string;
+  role: string;
+  content: string;
+  contentHtml: string;
+  timestamp: string;
+  errors: string[];
+  extras?: {
+    sources: object[];
   };
 };
-type AiMessageResponseType = AiMessagesResponseType['aiMessages']['nodes'][0];
+
+type AiMessagesResponseType = {
+  aiMessages: {
+    nodes: AiMessageResponseType[];
+  };
+};
 
 interface ErrorMessage {
   type: 'error';
@@ -105,9 +113,14 @@ export class GitLabChatApi {
 
   async processNewUserPrompt(
     question: string,
-    currentFileContext: GitLabChatFileContext | undefined = undefined,
+    subscriptionId?: string,
+    currentFileContext?: GitLabChatFileContext,
   ): Promise<AiActionResponseType> {
-    return this.sendAiAction(AI_ACTIONS.chat, { question, currentFileContext });
+    return this.sendAiAction(AI_ACTIONS.chat, {
+      question,
+      currentFileContext,
+      clientSubscriptionId: subscriptionId,
+    });
   }
 
   async pullAiMessage(requestId: string, role: string): Promise<AiMessage> {
@@ -143,6 +156,33 @@ export class GitLabChatApi {
     const history = await platform.fetchFromApi(request);
 
     return history.aiMessages.nodes[0];
+  }
+
+  async subscribeToUpdates(
+    messageCallback: (message: AiCompletionResponseMessageType) => Promise<void>,
+    subscriptionId?: string,
+  ) {
+    const platform = await this.currentPlatform();
+
+    const channel = new AiCompletionResponseChannel({
+      htmlResponse: true,
+      userId: `gid://gitlab/User/${extractUserId(platform.account.id)}`,
+      aiAction: 'CHAT',
+      clientSubscriptionId: subscriptionId,
+    });
+
+    const cable = await platform.connectToCable();
+
+    channel.on('newChunk', messageCallback);
+    channel.on('fullMessage', async message => {
+      await messageCallback(message);
+
+      if (subscriptionId) {
+        cable.disconnect();
+      }
+    });
+
+    cable.subscribe(channel);
   }
 
   private async sendAiAction(

@@ -5,6 +5,8 @@ import { GitLabChatApi } from './gitlab_chat_api';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { log } from '../log';
 import { submitFeedback } from './utils/submit_feedback';
+import { AiCompletionResponseMessageType } from '../api/graphql/ai_completion_response_channel';
+import { FeatureFlag, isEnabled } from '../feature_flags';
 
 export class GitLabChatController implements vscode.WebviewViewProvider {
   readonly chatHistory: GitLabChatRecord[];
@@ -67,22 +69,41 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
 
     await this.addToChat(record);
 
-    switch (record.type) {
-      case 'newConversation': {
-        // do nothing.
-        break;
-      }
-      default: {
-        const responseRecord = new GitLabChatRecord({
-          role: 'assistant',
-          state: 'pending',
-          requestId: record.requestId,
-        });
-        await this.addToChat(responseRecord);
+    if (record.type === 'newConversation') return;
 
-        await Promise.all([this.refreshRecord(record), this.refreshRecord(responseRecord)]);
-      }
+    const responseRecord = new GitLabChatRecord({
+      role: 'assistant',
+      state: 'pending',
+      requestId: record.requestId,
+    });
+    await this.addToChat(responseRecord);
+
+    if (isEnabled(FeatureFlag.ChatStreaming)) {
+      await this.#api.subscribeToUpdates(this.subscriptionUpdateHandler.bind(this), record.id);
     }
+    // Fallback if websocket fails or disabled.
+    await Promise.all([this.refreshRecord(record), this.refreshRecord(responseRecord)]);
+  }
+
+  private async subscriptionUpdateHandler(data: AiCompletionResponseMessageType) {
+    const record = this.findRecord(data);
+
+    if (!record) return;
+
+    if (!data.chunkId) {
+      record.update({
+        content: data.content,
+        contentHtml: data.contentHtml,
+        extras: data.extras,
+        timestamp: data.timestamp,
+        errors: data.errors,
+      });
+    } else {
+      record.chunks[data.chunkId - 1] = data.content;
+    }
+
+    record.state = 'ready';
+    await this.#view.updateRecord(record);
   }
 
   private async restoreHistory() {
@@ -102,6 +123,7 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
     try {
       const actionResponse = await this.#api.processNewUserPrompt(
         record.content,
+        record.id,
         record.context?.currentFile,
       );
       record.update(actionResponse.aiAction);
@@ -123,11 +145,16 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
         contentHtml: apiResponse.contentHtml,
         extras: apiResponse.extras,
         timestamp: apiResponse.timestamp,
-        errors: apiResponse.errors,
       });
     }
 
     record.update({ errors: apiResponse.errors, state: 'ready' });
     await this.#view.updateRecord(record);
+  }
+
+  private findRecord(data: { requestId: string; role: string }) {
+    return this.chatHistory.find(
+      r => r.requestId === data.requestId && r.role.toLowerCase() === data.role.toLowerCase(),
+    );
   }
 }

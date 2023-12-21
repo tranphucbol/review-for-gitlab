@@ -43,6 +43,8 @@ export class GitLabChatRecord {
 
   errors: string[];
 
+  chunks: string[];
+
   extras?: {
     sources: object[];
   };
@@ -70,6 +72,7 @@ export class GitLabChatRecord {
     this.id = uuidv4();
     this.timestamp = timestamp ? Date.parse(timestamp) : Date.now();
     this.extras = extras;
+    this.chunks = [];
   }
 
   static buildWithContext(attributes: GitLabChatRecordAttributes): GitLabChatRecord {
