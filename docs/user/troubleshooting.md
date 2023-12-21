@@ -30,7 +30,8 @@ _Deprecated. Please see [the SSL setup guide](https://gitlab.com/gitlab-org/gitl
 
 ## Disable streaming
 
-To disable streaming (note that this will mean code generation requests may be perceived as taking longer to resolve):
+Disabling streaming means that code generation requests may be _perceived_
+as taking longer to resolve. To disable streaming:
 
 1. Edit your `settings.json` file.
 1. Add this line, or edit it if it already exists, to set

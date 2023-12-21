@@ -353,6 +353,21 @@ You must meet all these conditions to use Code Suggestions:
 
 If you meet all these conditions, continue [setting up this extension](#setup) to use Code Suggestions.
 
+#### Use Code Generation
+
+To use Code Generation:
+
+1. Add a comment to a supported file type.
+1. In the comment, use natural language to describe the code you want to build.
+1. To accept the generated code:
+   - To accept the entire suggestion, press <kbd>Tab</kbd>.
+   - To accept a specific line, place your cursor on that line, then select **Accept Line**.
+   - To accept a single word, place your cursor on that word, then press <kbd>Command</kbd> + <kbd>→</kbd> (right arrow).
+
+![Demo of Code Generation in use](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d20455832b118aa92ca7f634166e2b14a1c7a5c5/docs/assets/streaming.gif)
+
+You can [disable the streaming function](docs/user/troubleshooting.md#disable-streaming), if needed.
+
 ---
 
 ## Contribution
