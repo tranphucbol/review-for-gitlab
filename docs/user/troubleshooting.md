@@ -33,7 +33,8 @@ _Deprecated. Please see [the SSL setup guide](https://gitlab.com/gitlab-org/gitl
 To disable streaming (note that this will mean code generation requests may be perceived as taking longer to resolve):
 
 1. Edit your `settings.json` file.
-1. Edit/add this line, setting `gitlab.aiAssistedCodeSuggestions.enabled` to `false`:
+1. Add this line, or edit it if it already exists, to set
+   `gitlab.aiAssistedCodeSuggestions.enabled` to `false`:
 
    ```json
    "gitlab.aiAssistedCodeSuggestions.enabled": false,
