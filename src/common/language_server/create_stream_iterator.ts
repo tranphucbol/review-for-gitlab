@@ -8,6 +8,7 @@ import { log } from '../log';
 
 interface CompletionPart {
   completion: string;
+  canceled?: boolean;
   done: boolean;
 }
 
@@ -15,8 +16,10 @@ export const createStreamIterator = (
   client: BaseLanguageClient,
   streamId: string,
   cancellationToken?: CancellationToken,
-): AsyncIterator<string> => {
+): AsyncIterator<{ completion: string }, { completion: string; canceled?: boolean }> => {
   let resolveWait: ((val: CompletionPart) => void) | null = null;
+  let lastCompletion = '';
+
   const queue: CompletionPart[] = [];
   const subscriptions: Disposable[] = [];
 
@@ -35,6 +38,8 @@ export const createStreamIterator = (
   };
 
   const onNext = (part: CompletionPart): void => {
+    lastCompletion = part.completion;
+
     if (resolveWait) {
       resolveWait(part);
       resolveWait = null;
@@ -49,10 +54,7 @@ export const createStreamIterator = (
         // TODO use CancelStreaming as the notification type (it is type safe)
         // ATM we can't do that because something is wrong with the LSP exporting types/constants
         await client.sendNotification(CANCEL_STREAMING_COMPLETION_NOTIFICATION, { id: streamId });
-        onNext({
-          completion: '',
-          done: true,
-        });
+        onNext({ completion: lastCompletion, done: true, canceled: true });
       }),
     );
   }
@@ -67,8 +69,14 @@ export const createStreamIterator = (
           return;
         }
 
+        let completionValue = completion || '';
+
+        if (!completionValue && done) {
+          completionValue = lastCompletion;
+        }
+
         onNext({
-          completion: completion || '',
+          completion: completionValue,
           done,
         });
       },
@@ -77,7 +85,18 @@ export const createStreamIterator = (
 
   return {
     async next() {
-      const { completion, done } = await waitForNext();
+      const { completion, done, canceled = false } = await waitForNext();
+
+      if (canceled) {
+        onComplete();
+        return {
+          value: {
+            completion,
+            canceled,
+          },
+          done: true,
+        };
+      }
 
       log.debug(`Streaming Suggestion: ${completion}, Done is ${done}`);
 
@@ -86,7 +105,10 @@ export const createStreamIterator = (
       }
 
       return {
-        value: completion,
+        value: {
+          completion,
+          canceled,
+        },
         done,
       };
     },

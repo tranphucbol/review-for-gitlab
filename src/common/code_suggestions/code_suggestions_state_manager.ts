@@ -39,6 +39,8 @@ export class CodeSuggestionsStateManager {
   // boolean flags and counters indicating temporary states
   #isInErrorState = false;
 
+  #loadingResources = new WeakSet();
+
   // this can't be a boolean flag because it's possible that response from first
   // request comes after we send second request (which would incorrectly set loading to false)
   #loadingCounter = 0;
@@ -125,6 +127,20 @@ export class CodeSuggestionsStateManager {
     }
 
     return VisibleCodeSuggestionsState.READY;
+  }
+
+  setLoadingResource(resource: object, isLoading: boolean) {
+    const isResourceLoading = this.#loadingResources.has(resource);
+
+    if (isResourceLoading !== isLoading) {
+      this.setLoading(isLoading);
+    }
+
+    if (isLoading) {
+      this.#loadingResources.add(resource);
+    } else {
+      this.#loadingResources.delete(resource);
+    }
   }
 
   #updateStateWrapper = (handler: (v: boolean) => void) => (value: boolean) => {

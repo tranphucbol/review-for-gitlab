@@ -181,6 +181,26 @@ describe('Code suggestions state manager', () => {
 
       expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.LOADING);
     });
+
+    it('can associate loading with a resource', () => {
+      const resource1 = {};
+      const resource2 = {};
+
+      stateManager.setLoadingResource(resource1, true);
+      stateManager.setLoadingResource(resource1, true);
+      stateManager.setLoadingResource(resource2, false);
+      stateManager.setLoadingResource(resource2, false);
+
+      expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.LOADING);
+
+      stateManager.setLoadingResource(resource1, false);
+
+      expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.READY);
+
+      stateManager.setLoadingResource(resource2, true);
+
+      expect(stateManager.getVisibleState()).toBe(VisibleCodeSuggestionsState.LOADING);
+    });
   });
 
   describe('disabled & active', () => {

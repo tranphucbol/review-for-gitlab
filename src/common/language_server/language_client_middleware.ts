@@ -127,14 +127,24 @@ export class LanguageClientMiddleware implements Middleware {
     let stream = this.#getStreamAt(document, position);
 
     if (!stream) {
+      stream = new CompletionStream(this.#client, document, position);
+
+      // Add new loading state __before__ canceling old streams so that icon doesn't flicker
+      this.#stateManager.setLoadingResource(stream, true);
       this.#cancelAllStreams();
 
-      stream = new CompletionStream(this.#client, document, position);
-      await stream.start();
-      stream.loading = true;
-      this.#stateManager.setLoading(true);
+      try {
+        await stream.start();
+      } catch (e) {
+        this.#stateManager.setLoadingResource(stream, false);
+        throw e;
+      }
 
       this.#saveStreamAt(document, position, stream);
+    }
+
+    if (token.isCancellationRequested) {
+      stream.cancel();
     }
 
     token.onCancellationRequested(() => stream!.cancel());
@@ -147,29 +157,24 @@ export class LanguageClientMiddleware implements Middleware {
       command: COMMAND_CODE_SUGGESTION_STREAM_ACCEPTED,
       arguments: [stream],
     };
+    const { completion } = streamResult.value;
 
     if (streamResult.done) {
-      if (stream.loading) {
-        this.#stateManager.setLoading(false);
+      if (streamResult.value.canceled) {
+        await waitForMs(CANCELLATION_DELAY);
       }
+
+      this.#stateManager.setLoadingResource(stream, false);
       this.#deleteStreamAt(document, position);
-
-      return [
-        new vscode.InlineCompletionItem(
-          stream.lastSuggestion,
-          new vscode.Range(position, position),
-          acceptedCommand,
-        ),
-      ];
+    } else {
+      setTimeout(() => {
+        LanguageClientMiddleware.forceTriggerInlineCompletion().catch(e => log.error(e));
+      }, 0);
     }
-
-    setTimeout(() => {
-      LanguageClientMiddleware.forceTriggerInlineCompletion().catch(e => log.error(e));
-    }, 0);
 
     return [
       new vscode.InlineCompletionItem(
-        streamResult.value || '',
+        completion,
         new vscode.Range(position, position),
         acceptedCommand,
       ),
@@ -220,10 +225,8 @@ export class LanguageClientMiddleware implements Middleware {
   #cancelAllStreams(): void {
     Object.entries(this.#activeStreams).forEach(([contextId, oldStream]) => {
       oldStream.cancel();
+      this.#stateManager.setLoadingResource(oldStream, false);
       delete this.#activeStreams[contextId];
-      if (oldStream.loading) {
-        this.#stateManager.setLoading(false);
-      }
     });
   }
 
