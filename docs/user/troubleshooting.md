@@ -28,7 +28,7 @@ _Deprecated. Please see [the SSL setup guide](https://gitlab.com/gitlab-org/gitl
 
 **Unsupported** - See [&6244](https://gitlab.com/groups/gitlab-org/-/epics/6244). _If you are using a self-managed GitLab instance with no SSL certificate or having certificate issues and unable to use the extension you may want to set this option to `true` to ignore certificate errors._
 
-# Disable code suggestions
+## Disable code suggestions
 
 By default, code completion is enabled and usable as long as you
 [have access to the Code Suggestions](https://docs.gitlab.com/ee/user/project/repository/code_suggestions/#start-using-code-suggestions).
