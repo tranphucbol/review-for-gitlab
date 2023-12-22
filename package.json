@@ -182,7 +182,7 @@
           "description": "Turning on debug mode turns on better stack trace resolution (source maps) and shows more detailed logs. Restart the extension after enabling this option."
         },
         "gitlab.aiAssistedCodeSuggestions.enabled": {
-          "description": "Enable code completion (Beta)",
+          "description": "Enable code completion",
           "type": "boolean",
           "default": true
         },
