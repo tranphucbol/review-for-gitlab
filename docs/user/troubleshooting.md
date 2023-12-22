@@ -44,7 +44,7 @@ If you would like to disable code completion:
 By default, code generation streams AI-generated code. When streaming is
 enabled, the suggested code is generated and sent to your editor incrementally rather than
 waiting for the full code snippet to be complete before sending the suggestions.
-This allows for a more interactive and resonsive experience.
+This allows for a more interactive and responsive experience.
 
 If you prefer to only see code generation results printed in their entirety, you can turn off streaming.
 Disabling streaming means that code generation requests may be _perceived_
