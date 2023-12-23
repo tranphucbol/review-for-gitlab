@@ -16,8 +16,6 @@ const isDiffNote = (note: GqlNote): note is GqlTextDiffNote =>
   Boolean(note.position && note.position.positionType === 'text');
 
 export class GitLabCommentThread {
-  #resolved: boolean;
-
   #vsThread: vscode.CommentThread;
 
   #gqlDiscussion: GqlTextDiffDiscussion;
@@ -43,13 +41,24 @@ export class GitLabCommentThread {
     );
     this.#vsThread.collapsibleState = vscode.CommentThreadCollapsibleState.Expanded;
     this.#vsThread.canReply = firstNoteFrom(gqlDiscussion).userPermissions.createNote;
-    this.#resolved = gqlDiscussion.resolved;
+    this.#vsThread.state = gqlDiscussion.resolved
+      ? vscode.CommentThreadState.Resolved
+      : vscode.CommentThreadState.Unresolved;
     this.updateThreadContext();
   }
 
   async toggleResolved(): Promise<void> {
-    await this.#gitlabService.setResolved(this.#gqlDiscussion.replyId, !this.#resolved);
-    this.#resolved = !this.#resolved;
+    const newState =
+      this.#vsThread.state === vscode.CommentThreadState.Resolved
+        ? vscode.CommentThreadState.Unresolved
+        : vscode.CommentThreadState.Resolved;
+
+    await this.#gitlabService.setResolved(
+      this.#gqlDiscussion.replyId,
+      newState === vscode.CommentThreadState.Resolved,
+    );
+
+    this.#vsThread.state = newState;
     this.updateThreadContext();
   }
 
@@ -119,7 +128,8 @@ export class GitLabCommentThread {
     // resolve/unresolve buttons at all (`context` stays `undefined`) because otherwise
     // user would be presented with buttons that don't do anything when clicked
     if (this.#gqlDiscussion.resolvable && this.allowedToResolve()) {
-      this.#vsThread.contextValue = this.#resolved ? 'resolved' : 'unresolved';
+      this.#vsThread.contextValue =
+        this.#vsThread.state === vscode.CommentThreadState.Resolved ? 'resolved' : 'unresolved';
     }
   }
 }

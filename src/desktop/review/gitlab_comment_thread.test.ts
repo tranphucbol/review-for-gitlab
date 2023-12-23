@@ -106,6 +106,7 @@ describe('GitLabCommentThread', () => {
 
       await gitlabCommentThread.toggleResolved();
 
+      expect(vsCommentThread.state).toBe(vscode.CommentThreadState.Resolved);
       expect(vsCommentThread.contextValue).toBe('resolved');
       expect(gitlabService.setResolved).toHaveBeenLastCalledWith(discussionOnDiff.replyId, true);
     });
@@ -116,6 +117,7 @@ describe('GitLabCommentThread', () => {
 
       await expect(gitlabCommentThread.toggleResolved()).rejects.toBe(error);
 
+      expect(vsCommentThread.state).toBe(vscode.CommentThreadState.Unresolved);
       expect(vsCommentThread.contextValue).toBe('unresolved');
     });
 
@@ -130,6 +132,7 @@ describe('GitLabCommentThread', () => {
 
       createGitLabCommentThread(discussionWithoutPermission);
 
+      expect(vsCommentThread.state).toBe(vscode.CommentThreadState.Unresolved);
       expect(vsCommentThread.contextValue).toBe(undefined);
     });
   });
