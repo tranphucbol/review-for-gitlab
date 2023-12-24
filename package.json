@@ -249,7 +249,7 @@
     "update-ci-variables": "node ./scripts/update_ci_variables.js",
     "create-test-workspace": "npm run build:desktop && node ./scripts/create_workspace_for_test_debugging.js",
     "version": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md",
-    "postinstall": "npm install --prefix webviews/vue && npm install --prefix webviews/vue2 && npm install --prefix scripts/commit-lint && npm run prettier-package-json"
+    "postinstall": "node scripts/postinstall.mjs && npm run prettier-package-json"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
