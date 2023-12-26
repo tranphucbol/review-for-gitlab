@@ -37,7 +37,7 @@ If you would like to disable code completion:
 
 1. On the left sidebar, select **Extensions > GitLab Workflow**.
 1. Click the **Manage** cogwheel icon (next to "Uninstall" button), and then select **Extension Settings**.
-1. In **GitLab > AI Assisted Code Suggestions**, disable the **Enable code completion** checkbox.
+1. In **GitLab > AI Assisted Code Suggestions**, disable the **Enable GitLab Duo Code Suggestions** checkbox.
 
 ## Disable streaming
 
