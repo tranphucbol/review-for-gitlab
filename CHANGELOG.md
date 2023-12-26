@@ -1,3 +1,12 @@
+# [3.97.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.96.1...v3.97.0) (2023-12-26)
+
+
+### Features
+
+* Update label for code suggestions flag ([cf849e3](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/cf849e31598c12eb9e3725e0b961a27a84ee2400))
+
+
+
 ## [3.96.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.96.0...v3.96.1) (2023-12-21)
 
 
