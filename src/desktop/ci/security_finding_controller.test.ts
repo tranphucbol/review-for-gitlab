@@ -65,6 +65,7 @@ describe('SecurityFindingWebviewController', () => {
     expect(panel.webview.postMessage).toHaveBeenCalledWith({
       type: 'findingDetails',
       finding: securityReportFinding.project.pipeline.securityReportFinding,
+      instanceUrl: projectInRepository.account.instanceUrl,
     });
   });
 });

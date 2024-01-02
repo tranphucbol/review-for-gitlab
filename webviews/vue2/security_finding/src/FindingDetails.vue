@@ -9,6 +9,11 @@ export default {
       type: Object,
       required: true,
     },
+    instanceUrl: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
   components: {
     Row,
@@ -48,6 +53,9 @@ export default {
       }
       return `${file}${lineSuffix}`;
     },
+    locationBlobPath() {
+      return this.vulnLocation?.blobPath ? this.instanceUrl + this.vulnLocation.blobPath : '';
+    },
   },
   methods: {
     reportType(type) {
@@ -79,11 +87,7 @@ export default {
     <row label="Tool"> {{ reportType(finding.reportType) }}</row>
     <row label="Scanner"> {{ finding.scanner.name }}</row>
     <row v-if="file" label="Location">
-      <gl-link
-        v-if="vulnerability.location.blobPath"
-        :href="vulnerability.location.blobPath"
-        target="_blank"
-      >
+      <gl-link v-if="locationBlobPath" :href="locationBlobPath" target="_blank">
         {{ file }}
       </gl-link>
       <template v-else> {{ file }}</template>

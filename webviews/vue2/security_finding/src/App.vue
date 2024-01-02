@@ -17,7 +17,9 @@ export default {
 
     window.addEventListener('message', event => {
       if (event.data.type === 'findingDetails') {
-        this.finding = event.data.finding;
+        const { finding, instanceUrl } = event.data;
+        this.finding = finding;
+        this.instanceUrl = instanceUrl;
         this.isLoading = false;
       }
     });
@@ -39,7 +41,7 @@ export default {
         >create an issue.</a
       >
     </p>
-    <finding-details v-else :finding="finding" />
+    <finding-details v-else :finding="finding" :instance-url="instanceUrl" />
   </div>
 </template>
 
