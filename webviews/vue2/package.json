@@ -6,8 +6,10 @@
     "dev": "vite",
     "chat": "vite --config gitlab_duo_chat/vite.config.js build",
     "chat-watch": "vite --config gitlab_duo_chat/vite.config.js build --watch",
-    "build": "rm -rf dist/ && concurrently 'npm:chat'",
-    "watch": "rm -rf dist/ && concurrently 'npm:chat-watch'",
+    "security": "vite --config security_finding/vite.config.js build",
+    "security-watch": "vite --config security_finding/vite.config.js build --watch",
+    "build": "rm -rf dist/ && concurrently 'npm:chat' 'npm:security'",
+    "watch": "rm -rf dist/ && concurrently 'npm:chat-watch' 'npm:security-watch'",
     "test": "",
     "preview": "vite preview --port 4173",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"

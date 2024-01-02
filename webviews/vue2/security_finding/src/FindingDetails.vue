@@ -1,6 +1,6 @@
 <script>
+import { GlSafeHtmlDirective as SafeHtml } from '@gitlab/ui';
 import Row from './FindingRow.vue';
-import { SafeHtmlDirective } from '../../issuable/src/directives/safe_html/safe_html';
 
 export default {
   name: 'FindingDetails',
@@ -14,7 +14,7 @@ export default {
     Row,
   },
   directives: {
-    SafeHtml: SafeHtmlDirective,
+    SafeHtml,
   },
   computed: {
     vulnerability() {

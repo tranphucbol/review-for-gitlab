@@ -6,7 +6,7 @@ import { ENVIRONMENTS } from '../constants.mjs';
 
 const browserWebviews = {
   vue: [],
-  vue2: ['gitlab_duo_chat'],
+  vue2: ['gitlab_duo_chat', 'security_finding'],
 };
 
 function typecheck(signal) {
