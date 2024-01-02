@@ -1,5 +1,5 @@
 <script>
-import { GlSafeHtmlDirective as SafeHtml } from '@gitlab/ui';
+import { GlSafeHtmlDirective as SafeHtml, GlLink } from '@gitlab/ui';
 import Row from './FindingRow.vue';
 
 export default {
@@ -12,6 +12,7 @@ export default {
   },
   components: {
     Row,
+    GlLink,
   },
   directives: {
     SafeHtml,
@@ -78,14 +79,13 @@ export default {
     <row label="Tool"> {{ reportType(finding.reportType) }}</row>
     <row label="Scanner"> {{ finding.scanner.name }}</row>
     <row v-if="file" label="Location">
-      <a
-        v-if="vulnerability.blobPath"
-        ref="fileLink"
-        :href="vulnerability.blobPath"
+      <gl-link
+        v-if="vulnerability.location.blobPath"
+        :href="vulnerability.location.blobPath"
         target="_blank"
       >
         {{ file }}
-      </a>
+      </gl-link>
       <template v-else> {{ file }}</template>
     </row>
     <row v-if="image" label="Image"> {{ image }}</row>
@@ -95,7 +95,10 @@ export default {
     <row v-if="vulnerability.identifiers.length" label="Identifiers">
       <ul>
         <li v-for="identifier in vulnerability.identifiers" :key="identifier.name">
-          {{ identifier.name }}
+          <gl-link v-if="identifier.url" :href="identifier.url">
+            {{ identifier.name }}
+          </gl-link>
+          <template v-else>{{ identifier.name }}</template>
         </li>
       </ul>
     </row>
