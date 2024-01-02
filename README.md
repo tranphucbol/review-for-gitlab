@@ -3,13 +3,13 @@
 This extension integrates GitLab into Visual Studio Code. After you [set up the extension](#setup), you can:
 
 - [**View GitLab issues and merge requests**](#issue-and-merge-request-details-and-comments-in-vs-code).
-  View issues, comments, merge requests, and changed files [in the VS Code sidebar](#sidebar---details),
+  View issues, comments, merge requests, and changed files [in the VS Code sidebar](#sidebar-details),
   or build a [custom search](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/custom-queries.md)
   to meet your needs.
 - [**Create and review merge requests**](#merge-request-reviews).
 - [**View security findings in your current branch**](#security-findings)
 - [**Validate your GitLab CI/CD configuration**](#validate-gitlab-cicd-configuration) locally with a [command](#commands).
-- [**Manage your pipelines**](#pipeline-actions). View your [pipeline status](#status-bar---details)
+- [**Manage your pipelines**](#pipeline-actions). View your [pipeline status](#status-bar-details)
   and open the related merge request. With [advanced pipeline actions](#pipeline-actions),
   you can create, retry, or cancel a pipeline.
 - [**View the job output**](#view-the-job-output). View the output of a running or finished job in an editor tab.
@@ -17,9 +17,7 @@ This extension integrates GitLab into Visual Studio Code. After you [set up the 
   snippets, and apply [snippet patches](#create-and-apply-snippet-patch).
 - [**Browse a GitLab repository directly**](#browse-a-repository-without-cloning)
   in Visual Studio Code without cloning it.
-- [**Auto-complete GitLab CI/CD variables**](#ci-variable-autocompletion) in your `.gitlab-ci.yml` pipeline file, and any file beginning with `.gitlab-ci` and ending with `.yml` or `.yaml`, like `.gitlab-ci.production.yml`.
-
-Supports [multiple GitLab instances](#multiple-gitlab-instances).
+- [**Auto-complete GitLab CI/CD variables**](#cicd-variable-autocompletion) in your `.gitlab-ci.yml` pipeline file, and any file beginning with `.gitlab-ci` and ending with `.yml` or `.yaml`, like `.gitlab-ci.production.yml`.
 
 If you face an issue, check out our [list of known issues](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/known-issues.md) and if it's not listed, please [report it](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/CONTRIBUTING.md#reporting-issues).
 
@@ -80,11 +78,11 @@ You can [disable the streaming function](docs/user/troubleshooting.md#disable-st
 
 ### Browse issues, review MRs
 
-See your issues, MRs (including changed files) and other [custom search results](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/custom-queries.md) on a dedicated panel in the VS Code sidebar. [Read more](#sidebar---details)
+See your issues, MRs (including changed files) and other [custom search results](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/custom-queries.md) on a dedicated panel in the VS Code sidebar. [Read more](#sidebar-details)
 
 ### Information about your branch - pipelines, MR, closing issue
 
-See pipeline status, open MR and closing issue links in the status bar. [Read more](#status-bar---details).
+See pipeline status, open MR and closing issue links in the status bar. [Read more](#status-bar-details).
 This pipeline status automatically updates so you don't need to open GitLab to see your pipeline status.
 
 Advanced pipeline actions allow you to view pipeline on GitLab, create a new pipeline, retry or cancel current pipeline. [Read more](#pipeline-actions).
@@ -117,7 +115,7 @@ You can use [Command Palette](https://code.visualstudio.com/docs/getstarted/user
 
 Commands this extension extends or integrates with:
 
-- `Git: Clone` - Search for and clone projects for every GitLab instance you set up. [Read more](#git-extension-integration), [Official Documentation](https://code.visualstudio.com/docs/editor/versioncontrol#_cloning-a-repository)
+- `Git: Clone` - Search for and clone projects for every GitLab instance you set up. [Read more](#clone-gitlab-projects), [Official Documentation](https://code.visualstudio.com/docs/editor/versioncontrol#_cloning-a-repository)
 - `Git: Add Remote...` - Add existing projects as remote from every GitLab instance you set up.
 
 ## Setup
@@ -144,7 +142,7 @@ The extension is ready to use. If your project has a pipeline for the last commi
 If you often delete your VS Code storage (such as in Gitpod containers) you can create environment variables before starting VS Code. If you set the token in an environment variable you don't have to set the personal access token every time you delete your VS Code storage.
 
 - `GITLAB_WORKFLOW_INSTANCE_URL`: GitLab instance URL (e.g. `https://gitlab.com`).
-- `GITLAB_WORKFLOW_TOKEN`: personal access token, which you created [in a previous step](#step-1-create-your-personal-access-token).
+- `GITLAB_WORKFLOW_TOKEN`: personal access token, which you created [during setup](#setup).
 
 The token configured in an environment variable is overridden if you configure a token for the same GitLab instance in the extension.
 
@@ -205,7 +203,7 @@ From the diff, you can:
 - Resolve and unresolve these discussions.
 - Delete and edit individual comments.
 
-### Sidebar - details
+### Sidebar: details
 
 Extension will add a GitLab Workflow panel to sidebar of VS Code. The dedicated panel will allow you to see the list of your issues and MRs (you can decide the exact queries by using the [custom queries](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/custom-queries.md)). Also you will be able to see pipeline, MR and issue links for your current branch.
 
@@ -236,7 +234,7 @@ One of the real power features of this extension is pipeline actions. This featu
 
 ![_pipeline_actions.gif](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/pipeline_actions.gif)
 
-### Status bar - details
+### Status bar: details
 
 If your current project is a GitLab project, the extension will do the following things:
 
@@ -339,7 +337,7 @@ Quickly find the CI/CD variable you are looking for with the CI/CD variable auto
 
 This extension integrates with the built-in Git Extension and allows you to search for and clone projects from GitLab (command `Git: Clone`).
 
-- You can search for projects on each GitLab instance for which you [added an access-token](#step-2-add-token-to-gitlab-workflow-extension).
+- You can search for projects on each GitLab instance for which you [added an access-token](#setup).
 - Only projects where you are a **member of** are displayed.
 - You can clone with SSH or HTTPS
 - With HTTPS, your access token is used to clone the repository, fetch commits, and push commits. Access tokens are used this way for all GitLab projects that are cloned manually with HTTPS, then opened in VS Code.
