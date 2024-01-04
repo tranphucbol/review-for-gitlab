@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import { BaseLanguageClient, TextDocumentPositionParams } from 'vscode-languageclient';
-import { GET_COMPLETION_INTENT_REQUEST } from '@gitlab-org/gitlab-lsp';
+import { CompletionIntentRequest, StreamingCompletionRequest } from '@gitlab-org/gitlab-lsp';
 import { ProvideInlineCompletionItemsSignature } from 'vscode-languageclient/lib/common/inlineCompletion';
 import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
 import { createFakePartial } from '../test_utils/create_fake_partial';
@@ -262,7 +262,7 @@ describe('LanguageClientMiddleware', () => {
           it('should make a call to detect intent', async () => {
             await callMiddleware({ next: nonStreamingCompletionHandler });
 
-            expect(client.sendRequest).toHaveBeenCalledWith(GET_COMPLETION_INTENT_REQUEST, {
+            expect(client.sendRequest).toHaveBeenCalledWith(CompletionIntentRequest, {
               documentUri: documentFilePath,
               position: p,
             });
@@ -288,7 +288,7 @@ describe('LanguageClientMiddleware', () => {
 
             expect(nonStreamingCompletionHandler).not.toHaveBeenCalled();
             expect(client.sendNotification).toHaveBeenCalledWith(
-              'streamingCompletionRequest',
+              StreamingCompletionRequest,
               expect.anything(),
             );
           });

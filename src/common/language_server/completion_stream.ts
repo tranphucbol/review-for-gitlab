@@ -6,7 +6,7 @@ import {
   Position,
   TextDocumentIdentifier,
 } from 'vscode-languageclient';
-import { STREAMING_COMPLETION_REQUEST_NOTIFICATION } from '@gitlab-org/gitlab-lsp';
+import { StreamingCompletionRequest } from '@gitlab-org/gitlab-lsp';
 import { createStreamIterator } from './create_stream_iterator';
 import { log } from '../log';
 
@@ -53,9 +53,7 @@ export class CompletionStream {
   async start() {
     log.debug(`Start of stream ${this.#id}`);
 
-    // TODO: use StreamingCompletionRequest (which contains the expected notification type)
-    // unfortunately the const doesn't get through from LS for some reason
-    await this.#client.sendNotification(STREAMING_COMPLETION_REQUEST_NOTIFICATION, {
+    await this.#client.sendNotification(StreamingCompletionRequest, {
       textDocument: this.#textDocument,
       position: this.#position,
       context: { triggerKind: InlineCompletionTriggerKind.Automatic },

@@ -1,8 +1,5 @@
 import { Disposable } from 'vscode';
-import {
-  CANCEL_STREAMING_COMPLETION_NOTIFICATION,
-  STREAMING_COMPLETION_RESPONSE_NOTIFICATION,
-} from '@gitlab-org/gitlab-lsp';
+import { StreamingCompletionResponse, CancelStreaming } from '@gitlab-org/gitlab-lsp';
 import { BaseLanguageClient, CancellationToken } from 'vscode-languageclient';
 import { log } from '../log';
 
@@ -51,36 +48,29 @@ export const createStreamIterator = (
   if (cancellationToken) {
     subscriptions.push(
       cancellationToken.onCancellationRequested(async () => {
-        // TODO use CancelStreaming as the notification type (it is type safe)
-        // ATM we can't do that because something is wrong with the LSP exporting types/constants
-        await client.sendNotification(CANCEL_STREAMING_COMPLETION_NOTIFICATION, { id: streamId });
+        await client.sendNotification(CancelStreaming, { id: streamId });
         onNext({ completion: lastCompletion, done: true, canceled: true });
       }),
     );
   }
 
   subscriptions.push(
-    client.onNotification(
-      // TODO use StreamingCompletionResponse as the notification type (it is type safe)
-      // ATM we can't do that because something is wrong with the LSP exporting types/constants
-      STREAMING_COMPLETION_RESPONSE_NOTIFICATION,
-      ({ id, completion, done }) => {
-        if (id !== streamId) {
-          return;
-        }
+    client.onNotification(StreamingCompletionResponse, ({ id, completion, done }) => {
+      if (id !== streamId) {
+        return;
+      }
 
-        let completionValue = completion || '';
+      let completionValue = completion || '';
 
-        if (!completionValue && done) {
-          completionValue = lastCompletion;
-        }
+      if (!completionValue && done) {
+        completionValue = lastCompletion;
+      }
 
-        onNext({
-          completion: completionValue,
-          done,
-        });
-      },
-    ),
+      onNext({
+        completion: completionValue,
+        done,
+      });
+    }),
   );
 
   return {
