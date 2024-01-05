@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 import { diffFile, mr, mrVersion } from '../test_utils/entities';
 import { CommentingRangeProvider } from './commenting_range_provider';
-import { ReviewParams, toReviewUri } from './review_uri';
+import { toReviewUri } from './review_uri';
 
 describe('CommentingRangeProvider', () => {
   let commentingRangeProvider: CommentingRangeProvider;
-  const commonUriParams: ReviewParams = {
+  const commonUriParams = {
     mrId: mr.id,
     projectId: mr.project_id,
     repositoryRoot: '/',
@@ -15,12 +15,14 @@ describe('CommentingRangeProvider', () => {
     ...commonUriParams,
     commit: mrVersion.base_commit_sha,
     path: diffFile.old_path,
+    exists: true,
   });
 
   const newFileUri = toReviewUri({
     ...commonUriParams,
     commit: mrVersion.head_commit_sha,
     path: diffFile.new_path,
+    exists: true,
   });
 
   beforeEach(() => {

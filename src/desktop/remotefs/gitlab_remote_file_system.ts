@@ -10,8 +10,6 @@ import { removeTrailingSlash } from '../utils/remove_trailing_slash';
 import { ReadOnlyFileSystem } from './readonly_file_system';
 import { getGitLabServiceForAccount } from '../gitlab/get_gitlab_service';
 
-const encoder = new TextEncoder();
-
 export function newGitLabService(instance: vscode.Uri): GitLabService {
   const instanceUrl = removeTrailingSlash(instance.toString());
   const account = accountService.getOneAccountForInstance(instanceUrl);
@@ -183,7 +181,7 @@ export class GitLabRemoteFileSystem extends ReadOnlyFileSystem {
     }
 
     // UTF-8 encode the file
-    return encoder.encode(file);
+    return Buffer.from(file);
   }
 
   /* eslint-disable class-methods-use-this */

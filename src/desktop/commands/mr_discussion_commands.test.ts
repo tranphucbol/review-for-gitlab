@@ -121,6 +121,7 @@ describe('MR discussion commands', () => {
       const createVsThread = (filePath: string, fileCommit: string, lineNumber: number) => {
         const uri = toReviewUri({
           path: filePath,
+          exists: true,
           commit: fileCommit,
           repositoryRoot: 'root',
           projectId: mr.project_id,

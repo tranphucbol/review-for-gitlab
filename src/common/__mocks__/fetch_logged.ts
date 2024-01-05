@@ -6,6 +6,9 @@ const DEFAULT_JSON_RESPONSE = {
 
 const fn = jest.fn().mockResolvedValue({
   ok: true,
+  async arrayBuffer() {
+    return Buffer.from(DEFAULT_FETCH_RESPONSE);
+  },
   async text() {
     return DEFAULT_FETCH_RESPONSE;
   },

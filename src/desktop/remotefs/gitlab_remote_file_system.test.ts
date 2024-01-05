@@ -9,8 +9,6 @@ import { GitLabRemoteFileSystem } from './gitlab_remote_file_system';
 jest.mock('../accounts/account_service');
 jest.mock('../gitlab/gitlab_service');
 
-const encoder = new TextEncoder();
-
 interface ProjectInfo {
   id?: number;
   path?: string;
@@ -276,7 +274,7 @@ describe('GitLabRemoteFileSystem', () => {
       projectInfo = testProjectWithFile;
 
       const r = await GitLabRemoteFileSystem.readFile(testProjectFooURI);
-      expect(r).toEqual(encoder.encode(testProjectWithFile.files.foo.content));
+      expect(r).toEqual(Buffer.from(testProjectWithFile.files.foo.content));
     });
 
     it('throws FileNotFound if no file or tree exists', async () => {

@@ -21,11 +21,10 @@ const {
   createJsonEndpoint,
   createQueryTextEndpoint,
 } = require('./test_infrastructure/mock_server');
-const { ApiContentProvider } = require('../../src/desktop/review/api_content_provider');
-const { PROGRAMMATIC_COMMANDS } = require('../../src/desktop/command_names');
 const { getRepositoryRoot } = require('./test_infrastructure/helpers');
 const { toReviewUri } = require('../../src/desktop/review/review_uri');
 const { gitlabProjectRepository } = require('../../src/desktop/gitlab/gitlab_project_repository');
+const { ReviewFileSystem } = require('../../src/desktop/review/review_file_system');
 
 describe('MR Review', () => {
   let server;
@@ -189,44 +188,39 @@ describe('MR Review', () => {
       assert.strictEqual(diffTitle, 'README1.md (!33824)');
     });
 
-    it('should not show diff for images', () => {
-      const item = getItem('/Screenshot.png');
-      assert.strictEqual(item.command.command, PROGRAMMATIC_COMMANDS.NO_IMAGE_REVIEW);
-    });
-
     describe('Api content provider', () => {
-      let apiContentProvider;
+      let fileSystem;
 
       before(() => {
-        apiContentProvider = new ApiContentProvider();
+        fileSystem = new ReviewFileSystem();
       });
 
       it('should fetch base content for a diff URI', async () => {
         const item = getItem('/src/test.js');
         const [baseUri] = getDiffArgs(item);
-        const content = await apiContentProvider.provideTextDocumentContent(baseUri);
-        assert.strictEqual(content, 'Old Version');
+        const content = await fileSystem.readFile(baseUri);
+        assert.strictEqual(content.toString(), 'Old Version');
       });
 
       it('should fetch head content for a diff URI', async () => {
         const item = getItem('/src/test.js');
         const [, headUri] = getDiffArgs(item);
-        const content = await apiContentProvider.provideTextDocumentContent(headUri);
-        assert.strictEqual(content, 'New Version');
+        const content = await fileSystem.readFile(headUri);
+        assert.strictEqual(content.toString(), 'New Version');
       });
 
       it('should show empty file when asked to fetch base content for added file', async () => {
         const item = getItem('/new_file.ts');
         const [baseUri] = getDiffArgs(item);
-        const content = await apiContentProvider.provideTextDocumentContent(baseUri);
-        assert.strictEqual(content, '');
+        const content = await fileSystem.readFile(baseUri);
+        assert.strictEqual(content.length, 0);
       });
 
       it('should show empty file when asked to fetch head content for deleted file', async () => {
         const item = getItem('/.deleted.yml');
         const [, headUri] = getDiffArgs(item);
-        const content = await apiContentProvider.provideTextDocumentContent(headUri);
-        assert.strictEqual(content, '');
+        const content = await fileSystem.readFile(headUri);
+        assert.strictEqual(content.length, 0);
       });
     });
 

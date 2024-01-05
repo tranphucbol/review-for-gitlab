@@ -94,7 +94,7 @@ describe('gitlab_service', () => {
 
         expect(fetch).toHaveBeenCalledWith(`${baseUrl}${encodedRef}`, expect.anything());
 
-        expect(result).toBe(DEFAULT_FETCH_RESPONSE);
+        expect(result.toString()).toBe(DEFAULT_FETCH_RESPONSE);
       });
 
       it.each`
@@ -109,7 +109,7 @@ describe('gitlab_service', () => {
         expect(fetch).toBeCalledTimes(1);
         expect((fetch as jest.Mock).mock.calls[0][0]).toBe(url);
 
-        expect(result).toBe(DEFAULT_FETCH_RESPONSE);
+        expect(result.toString()).toBe(DEFAULT_FETCH_RESPONSE);
       });
     });
 

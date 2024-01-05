@@ -14,7 +14,7 @@ import { issuableDataProvider } from './tree_view/issuable_data_provider';
 import { currentBranchDataProvider } from './tree_view/current_branch_data_provider';
 import { initializeLogging } from '../common/log';
 import { handleError } from '../common/errors/handle_error';
-import { GitContentProvider } from './review/git_content_provider';
+import { ReviewFileSystem } from './review/review_file_system';
 import { GqlSecurityFinding } from './gitlab/security_findings/api/get_security_finding_report';
 import { ProjectInRepository } from './gitlab/new_project';
 import {
@@ -179,8 +179,6 @@ const registerCommands = (context: vscode.ExtensionContext) => {
     [USER_COMMANDS.CANCEL_JOB]: cancelJob,
     [USER_COMMANDS.RETRY_FAILED_PIPELINE_JOBS]: retryPipeline,
     [USER_COMMANDS.CANCEL_PIPELINE]: cancelPipeline,
-    [PROGRAMMATIC_COMMANDS.NO_IMAGE_REVIEW]: () =>
-      vscode.window.showInformationMessage("GitLab MR review doesn't support images yet."),
   };
 
   Object.keys(commands).forEach(cmd => {
@@ -221,7 +219,11 @@ export const activate = async (context: vscode.ExtensionContext) => {
 
   const outputChannel = vscode.window.createOutputChannel('GitLab Workflow');
   initializeLogging(line => outputChannel.appendLine(line));
-  vscode.workspace.registerTextDocumentContentProvider(REVIEW_URI_SCHEME, new GitContentProvider());
+  vscode.workspace.registerFileSystemProvider(
+    REVIEW_URI_SCHEME,
+    new ReviewFileSystem(),
+    ReviewFileSystem.OPTIONS,
+  );
   vscode.workspace.registerTextDocumentContentProvider(
     MERGED_YAML_URI_SCHEME,
     new MergedYamlContentProvider(),
