@@ -60,10 +60,18 @@ export class SecurityFindingWebviewController implements RepositoryRootWebviewPr
     existingPanel?: SecurityFindingWebviewPanel,
   ): Promise<SecurityFindingWebviewPanel> {
     assert(this.#context);
-    const { title } = finding;
+
     const panel = existingPanel ?? this.#createEmptyPanel();
 
+    if (!finding) {
+      return panel;
+    }
+
+    const { title } = finding;
     panel.title = title;
+    panel.iconPath = vscode.Uri.file(
+      path.join(this.#context!.extensionPath, 'assets', 'images', 'dark', 'vulnerabilities.svg'),
+    );
 
     panel.webview.html = await prepareWebviewSource(
       panel.webview,
