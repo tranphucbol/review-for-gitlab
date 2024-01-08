@@ -23,9 +23,15 @@ If you face an issue, check out our [list of known issues](https://gitlab.com/gi
 
 ## Minimum supported version
 
+### Minimum supported GitLab Version
+
 This extension supports GitLab versions 16.1 and later. Even though most of the extension's features work with older versions, we currently don't actively support GitLab instances below version 16.1.
 
 To find your GitLab version, visit `/help` (like `https://gitlab.com/help`).
+
+### Minimum supported VS Code Version for Code Suggestions
+
+To use [Code Suggestions](#code-suggestions), VS Code 1.82.0 and later is required.
 
 ## Features
 
