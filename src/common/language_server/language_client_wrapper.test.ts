@@ -68,6 +68,7 @@ describe('LanguageClientWrapper', () => {
             },
             featureFlags: {
               codeSuggestionsClientDirectToGateway: false,
+              streamCodeGenerations: true,
             },
             suggestionsCache: undefined,
             logLevel: 'info',
@@ -182,6 +183,7 @@ describe('LanguageClientWrapper', () => {
       setFakeWorkspaceConfiguration({
         featureFlags: {
           codeSuggestionsClientDirectToGateway: true,
+          streamCodeGenerations: false,
           // Include somethingElse to show that it is not included
           somethingElse: false,
         },
@@ -196,6 +198,7 @@ describe('LanguageClientWrapper', () => {
           settings: expect.objectContaining({
             featureFlags: {
               codeSuggestionsClientDirectToGateway: true,
+              streamCodeGenerations: false,
             },
           }),
         },

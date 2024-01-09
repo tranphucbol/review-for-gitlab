@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import { BaseLanguageClient, TextDocumentPositionParams } from 'vscode-languageclient';
-import { CompletionIntentRequest, StreamingCompletionRequest } from '@gitlab-org/gitlab-lsp';
+import { START_STREAMING_COMMAND, StreamingCompletionRequest } from '@gitlab-org/gitlab-lsp';
 import { ProvideInlineCompletionItemsSignature } from 'vscode-languageclient/lib/common/inlineCompletion';
 import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
 import { createFakePartial } from '../test_utils/create_fake_partial';
@@ -34,7 +34,6 @@ describe('LanguageClientMiddleware', () => {
   });
 
   describe('provideInlineCompletionItem', () => {
-    const documentFilePath = 'file:///home/user/dev/test.md';
     const d = createFakePartial<vscode.TextDocument>({
       uri: vscode.Uri.parse('file:///home/user/dev/test.md'),
     });
@@ -118,11 +117,14 @@ describe('LanguageClientMiddleware', () => {
         });
 
         it('sets loading to false even if fetching suggestions throws an error', async () => {
-          const next = jest.fn().mockRejectedValue(new Error());
-
-          await expect(
-            middleware.provideInlineCompletionItems(d, p, ctx, cancellationTokenSource.token, next),
-          ).rejects.toThrow();
+          const next = jest.fn().mockRejectedValue('Failed to fetch');
+          await middleware.provideInlineCompletionItems(
+            d,
+            p,
+            ctx,
+            cancellationTokenSource.token,
+            next,
+          );
 
           expect(jest.mocked(stateManager.setLoading).mock.calls).toEqual([[true], [false]]);
         });
@@ -146,27 +148,13 @@ describe('LanguageClientMiddleware', () => {
           await expect(result).resolves.toEqual([]);
           expect(jest.mocked(stateManager.setLoading).mock.calls).toEqual([[true], [false]]);
         });
-
-        it('should not make a call to detect intent', async () => {
-          const mockItem = createFakePartial<vscode.InlineCompletionItem>({});
-          const next = jest.fn().mockResolvedValue([mockItem]);
-
-          await middleware.provideInlineCompletionItems(
-            d,
-            p,
-            ctx,
-            cancellationTokenSource.token,
-            next,
-          );
-
-          expect(client.sendRequest).not.toHaveBeenCalled();
-        });
       });
     });
 
     describe('when streaming is enabled', () => {
       let nextSpy: ProvideInlineCompletionItemsSignature;
       let middleware: LanguageClientMiddleware;
+      const streamId = 'code-suggestion-stream-LS-id';
 
       const callMiddleware = async ({
         times = 1,
@@ -185,7 +173,17 @@ describe('LanguageClientMiddleware', () => {
         );
 
       beforeEach(() => {
-        nextSpy = jest.fn().mockRejectedValue(new Error()); // we shouldn't be calling next for streaming
+        nextSpy = jest.fn().mockResolvedValue({
+          items: [
+            {
+              insertText: '',
+              command: {
+                command: START_STREAMING_COMMAND,
+                arguments: [streamId],
+              },
+            },
+          ],
+        });
 
         setFakeWorkspaceConfiguration({
           featureFlags: {
@@ -219,7 +217,6 @@ describe('LanguageClientMiddleware', () => {
               asTextDocumentPositionParams,
             },
             onNotification: jest.fn().mockImplementation(() => Promise.resolve()),
-            sendRequest: jest.fn(),
           });
 
           middleware.client = client;
@@ -250,81 +247,41 @@ describe('LanguageClientMiddleware', () => {
           });
         }
 
-        describe('Intent detection', () => {
-          const nonStreamingCompletionHandler = jest.fn().mockResolvedValue([]);
+        describe('streaming', () => {
+          it('starts with the request to the server', async () => {
+            await callMiddleware();
 
-          beforeEach(() => {
-            client.onNotification = invokeNotifications([
-              { id: 'code-suggestion-stream-uniqueId', completion: '', done: false },
-            ]);
-          });
-
-          it('should make a call to detect intent', async () => {
-            await callMiddleware({ next: nonStreamingCompletionHandler });
-
-            expect(client.sendRequest).toHaveBeenCalledWith(CompletionIntentRequest, {
-              documentUri: documentFilePath,
-              position: p,
-            });
-          });
-
-          it('should proceed to non-streaming completion when intent is not `generation`', async () => {
-            jest.mocked(client.sendRequest).mockResolvedValue({
-              intent: 'completion',
-            });
-
-            await callMiddleware({ next: nonStreamingCompletionHandler });
-
-            expect(nonStreamingCompletionHandler).toHaveBeenCalled();
-            expect(client.sendNotification).not.toHaveBeenCalled();
-          });
-
-          it('should proceed to streaming completion when intent is `generation`', async () => {
-            jest.mocked(client.sendRequest).mockResolvedValue({
-              intent: 'generation',
-            });
-
-            await callMiddleware({ next: nonStreamingCompletionHandler });
-
-            expect(nonStreamingCompletionHandler).not.toHaveBeenCalled();
             expect(client.sendNotification).toHaveBeenCalledWith(
-              StreamingCompletionRequest,
-              expect.anything(),
+              expect.objectContaining({
+                method: StreamingCompletionRequest.method,
+              }),
+              expect.objectContaining({
+                id: streamId,
+              }),
             );
           });
-        });
 
-        describe('generation', () => {
-          beforeEach(() => {
-            jest.mocked(client.sendRequest).mockResolvedValue({
-              intent: 'generation',
-            });
-          });
-          it('calls getStreamingCompletion on language client', async () => {
+          it('keeps receiving notifications until done', async () => {
             client.onNotification = invokeNotifications([
-              { id: 'code-suggestion-stream-uniqueId', completion: '', done: false },
-            ]);
-            const result = (await callMiddleware()) as vscode.InlineCompletionItem[];
-
-            expect(client.sendNotification).toHaveBeenCalledTimes(1);
-            expect(result[0].insertText).toEqual('');
-          });
-
-          it('getStreamingCompletion keeps receiving notifications until done', async () => {
-            client.onNotification = invokeNotifications([
-              { id: 'code-suggestion-stream-uniqueId', completion: 'test', done: false },
-              { id: 'code-suggestion-stream-uniqueId', completion: '', done: true },
+              { id: streamId, completion: 'test', done: false },
+              { id: streamId, completion: '', done: true },
             ]);
 
-            const result = (await callMiddleware()) as vscode.InlineCompletionItem[];
+            /* Here and further we need to make one additional call of the callMiddleware.
+            The first one will imitate the first request to the LS
+            that returns the response with the streaming command and starts the stream.
+            Next calls imitate streaming of the chunks
+            So there is always one additional call which detects and starts the stream
+            and the next ones that actually receive the stream */
+            const result = (await callMiddleware({ times: 2 })) as vscode.InlineCompletionItem[];
 
             expect(result[0].insertText).toEqual('test');
           });
 
-          it('if position does not change. Returns the existing response', async () => {
+          it('returns the existing response if position does not change', async () => {
             client.onNotification = invokeNotifications([
-              { id: 'code-suggestion-stream-uniqueId', completion: 'test 123', done: false },
-              { id: 'code-suggestion-stream-uniqueId', completion: '', done: true },
+              { id: streamId, completion: 'test 123', done: false },
+              { id: streamId, completion: '', done: true },
             ]);
 
             const result = (await callMiddleware({ times: 2 })) as vscode.InlineCompletionItem[];
@@ -332,60 +289,73 @@ describe('LanguageClientMiddleware', () => {
             expect(result[0].insertText).toEqual('test 123');
           });
 
-          it('if position does change. Returns the new stream', async () => {
+          it('returns the new stream if position does change', async () => {
             client.onNotification = invokeNotifications([
-              { id: 'code-suggestion-stream-uniqueId', completion: 'test', done: false },
-              { id: 'code-suggestion-stream-uniqueId', completion: '', done: true },
+              { id: streamId, completion: 'test', done: false },
+              { id: streamId, completion: '', done: true },
             ]);
 
             await callMiddleware({ times: 2 });
+
             const p2 = {
               line: 1,
               character: 0,
             } as vscode.Position;
 
             client.onNotification = invokeNotifications([
-              { id: 'code-suggestion-stream-uniqueId', completion: 'test2', done: false },
-              { id: 'code-suggestion-stream-uniqueId', completion: '', done: true },
+              { id: streamId, completion: 'test2', done: false },
+              { id: streamId, completion: '', done: true },
             ]);
+
             const result = (await callMiddleware({
+              times: 2,
               position: p2,
             })) as vscode.InlineCompletionItem[];
 
             expect(result[0].insertText).toEqual('test2');
           });
 
-          it('handles setLoading gracefully', async () => {
+          it('handles `setLoading` gracefully', async () => {
             client.onNotification = invokeNotifications([
-              { id: 'code-suggestion-stream-uniqueId', completion: 'test', done: false },
-              { id: 'code-suggestion-stream-uniqueId', completion: 'test 123', done: false },
-              { id: 'code-suggestion-stream-uniqueId', completion: 'test 123 abc', done: true },
+              { id: streamId, completion: 'test', done: false },
+              { id: streamId, completion: 'test 123', done: false },
+              { id: streamId, completion: 'test 123 abc', done: true },
             ]);
 
-            await callMiddleware({ times: 3 });
+            await callMiddleware({ times: 4 });
 
-            expect(jest.mocked(stateManager.setLoading).mock.calls).toEqual([[true], [false]]);
+            expect(jest.mocked(stateManager.setLoading).mock.calls).toEqual([
+              [true], // request to detect streaming started
+              [true], // stream started
+              [false], // request to detect streaming ended (finally called)
+              [false], // stream completed
+            ]);
           });
 
-          it('when canceled, handles setLoading gracefully', async () => {
+          it('when canceled, handles `setLoading` gracefully', async () => {
             client.onNotification = invokeNotifications([
-              { id: 'code-suggestion-stream-uniqueId', completion: 'test', done: false },
-              { id: 'code-suggestion-stream-uniqueId', completion: 'test 123', done: false },
+              { id: streamId, completion: 'test', done: false },
+              { id: streamId, completion: 'test 123', done: false },
             ]);
 
-            const result = callMiddleware();
+            const result = callMiddleware({ times: 2 });
 
             cancellationTokenSource.cancel();
 
             await result;
 
-            expect(jest.mocked(stateManager.setLoading).mock.calls).toEqual([[true], [false]]);
+            expect(jest.mocked(stateManager.setLoading).mock.calls).toEqual([
+              [true], // request to detect streaming started
+              [true], // stream started
+              [false], // request to detect streaming ended (finally called)
+              [false], // stream cancelled
+            ]);
           });
 
-          it('when positioned changed, handles loading stack gracefully', async () => {
+          it('when position changes, handles loading stack gracefully', async () => {
             client.onNotification = invokeNotifications([
-              { id: 'code-suggestion-stream-uniqueId', completion: 'test', done: false },
-              { id: 'code-suggestion-stream-uniqueId', completion: 'test 123', done: true },
+              { id: streamId, completion: 'test', done: false },
+              { id: streamId, completion: 'test 123', done: true },
             ]);
 
             const firstCancellation = new vscode.CancellationTokenSource();
@@ -394,19 +364,25 @@ describe('LanguageClientMiddleware', () => {
               character: 0,
             });
 
-            const firstCall = callMiddleware({
+            const firstStream = callMiddleware({
+              times: 2,
               position: firstPosition,
               cancellationToken: firstCancellation.token,
             });
 
             firstCancellation.cancel();
-            await Promise.all([firstCall, callMiddleware({ times: 2 })]);
+            const streamWithNewPosition = callMiddleware({ times: 3 });
+            await Promise.all([firstStream, streamWithNewPosition]);
 
             expect(jest.mocked(stateManager.setLoading).mock.calls).toEqual([
-              [true],
-              [true],
-              [false],
-              [false],
+              [true], // request to detect streaming started for firstStream
+              [true], // request to detect streaming started for streamWithNewPosition
+              [true], // started firstStream
+              [true], // started streamWithNewPosition
+              [false], // request to detect streaming ended for firstStream (finally called)
+              [false], // request to detect streaming ended for streamWithNewPosition (finally called)
+              [false], // firstStream cancelled
+              [false], // streamWithNewPosition completed
             ]);
           });
         });
