@@ -82,6 +82,7 @@ export class SecurityFindingWebviewController implements RepositoryRootWebviewPr
     await panel.webview.postMessage({
       type: 'findingDetails',
       finding: securityReportFinding,
+      instanceUrl: projectInRepository.account?.instanceUrl,
     });
 
     return panel;
