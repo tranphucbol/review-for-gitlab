@@ -269,7 +269,11 @@
   },
   {
     "name": "CI_MERGE_REQUEST_DESCRIPTION",
-    "description": "The description of the merge request."
+    "description": "The description of the merge request. If the description is more than 2700 characters long, only the first 2700 characters are stored in the variable."
+  },
+  {
+    "name": "CI_MERGE_REQUEST_DESCRIPTION_IS_TRUNCATED",
+    "description": "`true` if `CI_MERGE_REQUEST_DESCRIPTION` is truncated down to 2700 characters because the description of the merge request is too long."
   },
   {
     "name": "CI_MERGE_REQUEST_DIFF_BASE_SHA",
