@@ -1,10 +1,6 @@
 import vscode from 'vscode';
 import { BaseLanguageClient, Middleware } from 'vscode-languageclient';
-import {
-  Intent,
-  ICompletionIntentResponse,
-  GET_COMPLETION_INTENT_REQUEST,
-} from '@gitlab-org/gitlab-lsp';
+import { Intent, ICompletionIntentResponse, CompletionIntentRequest } from '@gitlab-org/gitlab-lsp';
 import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
 import { waitForCancellationToken } from '../utils/wait_for_cancellation_token';
 import { waitForMs } from '../utils/wait_for_ms';
@@ -253,7 +249,7 @@ export class LanguageClientMiddleware implements Middleware {
     let intentTypeResponse: ICompletionIntentResponse | undefined;
 
     try {
-      intentTypeResponse = await this.#client?.sendRequest(GET_COMPLETION_INTENT_REQUEST, {
+      intentTypeResponse = await this.#client?.sendRequest(CompletionIntentRequest, {
         documentUri: document.uri.toString(),
         position: serializePosition(position),
       });

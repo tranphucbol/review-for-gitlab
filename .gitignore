@@ -11,3 +11,6 @@ dist-browser/
 /reports/
 .idea/
 test_workspace/
+.yalc
+yalc.lock
+
