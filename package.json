@@ -300,7 +300,7 @@
     "dayjs": "^1.11.10",
     "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
-    "https-proxy-agent": "^5.0.1",
+    "https-proxy-agent": "^7.0.2",
     "isomorphic-ws": "^5.0.0",
     "lodash": "^4.17.21",
     "semver": "^7.5.4",
