@@ -1,6 +1,6 @@
 import * as https from 'https';
 import { GraphQLClient, gql, Variables, RequestDocument } from 'graphql-request';
-import createHttpProxyAgent from 'https-proxy-agent';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 import assert from 'assert';
 import fetch from '../../common/fetch_logged';
 import { FetchError } from '../errors/fetch_error';
@@ -255,7 +255,7 @@ export class GitLabService {
   private static getHttpAgent(instanceUrl: string) {
     const agentOptions = getHttpAgentOptions();
     if (agentOptions.proxy) {
-      return createHttpProxyAgent(agentOptions.proxy);
+      return new HttpsProxyAgent(agentOptions.proxy);
     }
     if (instanceUrl.startsWith('https://')) {
       return new https.Agent(agentOptions);
