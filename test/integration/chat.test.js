@@ -9,6 +9,9 @@ const {
   gitlabPlatformManagerDesktop,
 } = require('../../src/desktop/gitlab/gitlab_platform_desktop');
 const {
+  GitLabPlatformManagerForChat,
+} = require('../../src/common/chat/get_platform_manager_for_chat');
+const {
   newPromptResponse,
   newMessageResponse,
   noMessageResponse,
@@ -49,7 +52,8 @@ describe('GitLab Duo Chat', () => {
     sandbox.stub(vscode.workspace, 'fs').value(fs);
 
     server.resetHandlers();
-    controller = new GitLabChatController(gitlabPlatformManagerDesktop, contextMock);
+    const platformManagerForChat = new GitLabPlatformManagerForChat(gitlabPlatformManagerDesktop);
+    controller = new GitLabChatController(platformManagerForChat, contextMock);
     webviewMock = new WebviewMock(sandbox);
 
     await controller.resolveWebviewView(webviewMock.webview);

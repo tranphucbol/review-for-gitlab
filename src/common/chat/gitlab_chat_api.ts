@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request';
 import { GraphQLRequest } from '../platform/web_ide';
-import { GitLabPlatformManager } from '../platform/gitlab_platform';
+import { GitLabPlatformManagerForChat } from './get_platform_manager_for_chat';
 import { pullHandler } from './api/pulling';
 import { GitLabChatFileContext } from './gitlab_chat_file_context';
 import {
@@ -105,9 +105,9 @@ const successResponse = (response: AiMessageResponseType): SuccessMessage => ({
 type AiMessage = SuccessMessage | ErrorMessage;
 
 export class GitLabChatApi {
-  #manager: GitLabPlatformManager;
+  #manager: GitLabPlatformManagerForChat;
 
-  constructor(manager: GitLabPlatformManager) {
+  constructor(manager: GitLabPlatformManagerForChat) {
     this.#manager = manager;
   }
 
@@ -137,7 +137,7 @@ export class GitLabChatApi {
   }
 
   private async currentPlatform() {
-    const platform = await this.#manager.getForSaaSAccount();
+    const platform = await this.#manager.getGitLabPlatform();
     if (!platform) throw new Error('Platform is missing!');
 
     return platform;

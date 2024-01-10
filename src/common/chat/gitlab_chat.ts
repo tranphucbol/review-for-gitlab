@@ -11,11 +11,13 @@ import {
   newChatConversation,
 } from './commands/new_chat_conversation';
 import { GitLabPlatformManager } from '../platform/gitlab_platform';
+import { GitLabPlatformManagerForChat } from './get_platform_manager_for_chat';
 import { CHAT_SIDEBAR_VIEW_ID } from './gitlab_chat_view';
 import { COMMAND_REFACTOR_CODE, refactorCode } from './commands/refactorCode';
 
 export const activateChat = (context: vscode.ExtensionContext, manager: GitLabPlatformManager) => {
-  const controller = new GitLabChatController(manager, context);
+  const platformManagerForChat = new GitLabPlatformManagerForChat(manager);
+  const controller = new GitLabChatController(platformManagerForChat, context);
 
   // sidebar view
   context.subscriptions.push(
