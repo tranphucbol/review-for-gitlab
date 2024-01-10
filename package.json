@@ -52,7 +52,7 @@
           "type": "webview",
           "id": "gl.chatView",
           "name": "Experiment",
-          "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount"
+          "when": "config.gitlab.duoChat.enabled && !gitlab:noAccount"
         }
       ]
     },
@@ -103,23 +103,23 @@
       "commandPalette": [
         {
           "command": "gl.openChat",
-          "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount"
+          "when": "config.gitlab.duoChat.enabled && !gitlab:noAccount"
         },
         {
           "command": "gl.explainSelectedCode",
-          "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && editorHasSelection"
+          "when": "config.gitlab.duoChat.enabled && !gitlab:noAccount && editorHasSelection"
         },
         {
           "command": "gl.generateTests",
-          "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && editorHasSelection"
+          "when": "config.gitlab.duoChat.enabled && !gitlab:noAccount && editorHasSelection"
         },
         {
           "command": "gl.refactorCode",
-          "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && editorHasSelection"
+          "when": "config.gitlab.duoChat.enabled && !gitlab:noAccount && editorHasSelection"
         },
         {
           "command": "gl.newChatConversation",
-          "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount"
+          "when": "config.gitlab.duoChat.enabled && !gitlab:noAccount"
         }
       ],
       "editor/context": [
@@ -132,44 +132,44 @@
         {
           "command": "gl.explainSelectedCode",
           "group": "navigation",
-          "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && editorHasSelection"
+          "when": "config.gitlab.duoChat.enabled && !gitlab:noAccount && editorHasSelection"
         },
         {
           "command": "gl.generateTests",
           "group": "navigation",
-          "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && editorHasSelection"
+          "when": "config.gitlab.duoChat.enabled && !gitlab:noAccount && editorHasSelection"
         },
         {
           "command": "gl.refactorCode",
           "group": "navigation",
-          "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && editorHasSelection"
+          "when": "config.gitlab.duoChat.enabled && !gitlab:noAccount && editorHasSelection"
         }
       ]
     },
     "keybindings": [
       {
         "command": "gl.openChat",
-        "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount",
+        "when": "config.gitlab.duoChat.enabled && !gitlab:noAccount",
         "key": "alt+d"
       },
       {
         "command": "gl.explainSelectedCode",
-        "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && editorHasSelection",
+        "when": "config.gitlab.duoChat.enabled && !gitlab:noAccount && editorHasSelection",
         "key": "alt+e"
       },
       {
         "command": "gl.generateTests",
-        "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && editorHasSelection",
+        "when": "config.gitlab.duoChat.enabled && !gitlab:noAccount && editorHasSelection",
         "key": "alt+t"
       },
       {
         "command": "gl.refactorCode",
-        "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount && editorHasSelection",
+        "when": "config.gitlab.duoChat.enabled && !gitlab:noAccount && editorHasSelection",
         "key": "alt+r"
       },
       {
         "command": "gl.newChatConversation",
-        "when": "config.gitlab.duoChat.enabled && gitlab:hasSaaSAccount",
+        "when": "config.gitlab.duoChat.enabled && !gitlab:noAccount",
         "key": "alt+n"
       }
     ],

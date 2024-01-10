@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { GitLabChatRecord } from './gitlab_chat_record';
 import { GitLabChatView, ViewEmittedMessage } from './gitlab_chat_view';
 import { GitLabChatApi } from './gitlab_chat_api';
-import { GitLabPlatformManager } from '../platform/gitlab_platform';
+import { GitLabPlatformManagerForChat } from './get_platform_manager_for_chat';
 import { log } from '../log';
 import { submitFeedback } from './utils/submit_feedback';
 import { AiCompletionResponseMessageType } from '../api/graphql/ai_completion_response_channel';
@@ -15,7 +15,7 @@ export class GitLabChatController implements vscode.WebviewViewProvider {
 
   readonly #api: GitLabChatApi;
 
-  constructor(manager: GitLabPlatformManager, context: vscode.ExtensionContext) {
+  constructor(manager: GitLabPlatformManagerForChat, context: vscode.ExtensionContext) {
     this.chatHistory = [];
     this.#api = new GitLabChatApi(manager);
     this.#view = new GitLabChatView(context);

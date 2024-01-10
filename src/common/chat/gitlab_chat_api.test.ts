@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { GitLabPlatformManager } from '../platform/gitlab_platform';
+import { GitLabPlatformManagerForChat } from './get_platform_manager_for_chat';
 import { gitlabPlatformForAccount } from '../test_utils/entities';
 import { GitLabChatApi, AI_ACTIONS, AI_MESSAGES_QUERY } from './gitlab_chat_api';
 import { API_PULLING } from './api/pulling';
@@ -40,7 +40,7 @@ describe('GitLabChatApi', () => {
   const createManager = (
     queryContent = mockedQueryResponse,
     mutationContent = mockedMutationResponse,
-  ): GitLabPlatformManager => {
+  ): GitLabPlatformManagerForChat => {
     makeApiRequest = jest.fn(async <T>(params: any): Promise<T> => {
       let response;
       if (params?.query === AI_ACTIONS.chat) {
@@ -51,14 +51,11 @@ describe('GitLabChatApi', () => {
       return response;
     });
 
-    return createFakePartial<GitLabPlatformManager>({
-      getForActiveProject: jest.fn(),
-      getForActiveAccount: jest.fn(),
-      getForSaaSAccount: jest.fn(async () => ({
+    return createFakePartial<GitLabPlatformManagerForChat>({
+      getGitLabPlatform: jest.fn(async () => ({
         ...gitlabPlatformForAccount,
         fetchFromApi: makeApiRequest,
       })),
-      getForAllAccounts: jest.fn(),
     });
   };
 

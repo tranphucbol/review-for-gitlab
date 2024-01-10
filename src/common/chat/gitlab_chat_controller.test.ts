@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { GitLabChatController } from './gitlab_chat_controller';
-import { GitLabPlatformManager } from '../platform/gitlab_platform';
+import { GitLabPlatformManagerForChat } from './get_platform_manager_for_chat';
 import { GitLabChatRecord } from './gitlab_chat_record';
 import { submitFeedback } from './utils/submit_feedback';
 
@@ -32,7 +32,7 @@ jest.mock('./gitlab_chat_view', () => ({
 }));
 
 describe('GitLabChatController', () => {
-  let platformManager: GitLabPlatformManager;
+  let platformManager: GitLabPlatformManagerForChat;
   let controller: GitLabChatController;
 
   beforeEach(() => {
