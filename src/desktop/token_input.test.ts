@@ -78,7 +78,7 @@ describe('token input', () => {
 
     it('handles Unauthorized error', async () => {
       // simulate API failing with Unauthorized
-      mockResponses(Promise.reject(new FetchError('', { status: 401 } as Response)), {
+      mockResponses(Promise.reject(new FetchError({ status: 401 } as Response, '')), {
         scopes: ['api', 'read_user'],
       });
 
@@ -86,7 +86,7 @@ describe('token input', () => {
     });
     it('handles fetch error', async () => {
       // simulate API returning error response
-      mockResponses(Promise.reject(new FetchError('', { status: 404 } as Response)), {
+      mockResponses(Promise.reject(new FetchError({ status: 404 } as Response, '')), {
         scopes: ['api', 'read_user'],
       });
 

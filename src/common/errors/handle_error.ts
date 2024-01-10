@@ -7,6 +7,7 @@ export const handleError = (e: Error): void => {
   log.error(e);
   if (isUiError(e)) {
     e.showUi().catch(log.error);
+    return;
   }
   const showErrorMessage = async () => {
     const choice = await vscode.window.showErrorMessage(e.message, 'Show Logs');

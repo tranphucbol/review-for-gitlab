@@ -29,6 +29,9 @@ module.exports = {
     this.supportThemeIcons = supportThemeIcons;
   },
   Uri,
+  authentication: {
+    getSession: jest.fn(),
+  },
   comments: {
     createCommentController: jest.fn(),
   },

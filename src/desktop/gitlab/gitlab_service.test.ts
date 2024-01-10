@@ -9,7 +9,6 @@ import { asMock } from '../test_utils/as_mock';
 import { externalStatus, mr, securityReportFinding } from '../test_utils/entities';
 import { getExtensionConfiguration } from '../../common/utils/extension_configuration';
 import { getHttpAgentOptions } from './http/get_http_agent_options';
-import { HelpError } from '../errors/help_error';
 import { testCredentials } from '../test_utils/test_credentials';
 import { getProject } from '../../common/gitlab/api/get_project';
 import { gqlProject, project } from '../../common/test_utils/entities';
@@ -18,6 +17,8 @@ import { UnsupportedVersionError } from '../errors/unsupported_version_error';
 import { createFakeFetchFromApi } from '../../common/test_utils/create_fake_fetch_from_api';
 import { currentUserRequest } from '../../common/gitlab/api/get_current_user';
 import { connectToCable } from '../../common/gitlab/api/action_cable';
+import { FetchError } from '../errors/fetch_error';
+import { createFakePartial } from '../../common/test_utils/create_fake_partial';
 
 jest.mock('graphql-request');
 jest.mock('../accounts/account_service');
@@ -510,15 +511,17 @@ describe('gitlab_service', () => {
       );
     });
 
-    it('throws a HelpError if the token is expired', async () => {
+    it('throws a FetchError when API request fails', async () => {
       const url = '/project';
-      asMock(fetch).mockResolvedValue({
-        ok: false,
-        url: 'https://example.com/api/v4/project',
-        status: 401,
-        text: async () => `{ "error": "invalid_token" }`,
-      });
-      await expect(service.fetch(url)).rejects.toThrowError(HelpError);
+      jest.mocked(fetch).mockResolvedValue(
+        createFakePartial<Response>({
+          ok: false,
+          url: 'https://example.com/api/v4/project',
+          status: 500,
+          text: async () => '',
+        }),
+      );
+      await expect(service.fetch(url)).rejects.toBeInstanceOf(FetchError);
     });
   });
 
@@ -545,13 +548,15 @@ describe('gitlab_service', () => {
 
     it('throws a HelpError if the token is expired', async () => {
       const url = '/project';
-      asMock(fetch).mockResolvedValue({
-        ok: false,
-        url: 'https://example.com/api/v4/project',
-        status: 401,
-        text: async () => `{ "error": "invalid_token" }`,
-      });
-      await expect(service.fetchAllPages(url)).rejects.toThrowError(HelpError);
+      jest.mocked(fetch).mockResolvedValue(
+        createFakePartial<Response>({
+          ok: false,
+          url: 'https://example.com/api/v4/project',
+          status: 500,
+          text: async () => '',
+        }),
+      );
+      await expect(service.fetchAllPages(url)).rejects.toBeInstanceOf(FetchError);
     });
   });
 
@@ -569,11 +574,7 @@ describe('gitlab_service', () => {
       asMock(fetch).mockResolvedValue({
         ok: false,
         status: 400,
-        json: async () => ({
-          error: 'invalid_grant',
-          error_description:
-            'The provided authorization grant is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client.',
-        }),
+        text: async () => `{ "error": "invalid_grant" }`,
       });
 
       const result = GitLabService.exchangeToken({
@@ -582,16 +583,19 @@ describe('gitlab_service', () => {
         refreshToken: 'abc',
       });
 
-      await expect(result).rejects.toThrowError(
-        /Refreshing OAuth token has failed: already refreshed/,
-      );
+      await expect(result).rejects.toThrow();
+      await result.catch((e: FetchError) => {
+        expect(e).toBeInstanceOf(FetchError);
+        expect(e.status).toBe(400);
+        expect(e.isInvalidToken()).toBe(true);
+      });
     });
 
     it('fails with generic error when the request fails', async () => {
       asMock(fetch).mockResolvedValue({
         ok: false,
         status: 400,
-        json: async () => ({ reason: 'error' }),
+        text: async () => `{ "reason": "error" }`,
       });
 
       const result = GitLabService.exchangeToken({
@@ -600,7 +604,12 @@ describe('gitlab_service', () => {
         refreshToken: 'abc',
       });
 
-      await expect(result).rejects.toThrowError(/Refreshing OAuth token has failed: 400/);
+      await expect(result).rejects.toThrow();
+      await result.catch((e: FetchError) => {
+        expect(e).toBeInstanceOf(FetchError);
+        expect(e.status).toBe(400);
+        expect(e.isInvalidToken()).toBe(false);
+      });
     });
   });
 

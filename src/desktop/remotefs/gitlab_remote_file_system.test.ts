@@ -33,7 +33,7 @@ function newFetchError(url: string | undefined, status: number, text: string, bo
     response.json = () => Promise.reject(new Error('no content'));
   }
 
-  return new FetchError(text, response as Response);
+  return new FetchError(response as Response, text);
 }
 
 function newTreeEntry({

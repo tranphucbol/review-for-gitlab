@@ -42,13 +42,23 @@ describe('handleError', () => {
     expect(executeCommand).toBeCalledWith(COMMAND_SHOW_OUTPUT);
   });
 
-  it('shows UI error', async () => {
-    const error = new Error('test');
-    const showUiMock = jest.fn().mockResolvedValueOnce(undefined);
-    const testError: UiError = { ...error, showUi: showUiMock };
+  describe('when handling an UI Error', () => {
+    let showUiMock: jest.Func;
 
-    handleError(testError);
+    beforeEach(() => {
+      const error = new Error('test');
+      showUiMock = jest.fn().mockResolvedValueOnce(undefined);
+      const testError: UiError = { ...error, showUi: showUiMock };
 
-    expect(showUiMock).toHaveBeenCalled();
+      handleError(testError);
+    });
+
+    it('shows UI error', async () => {
+      expect(showUiMock).toHaveBeenCalled();
+    });
+
+    it('does not show the generic error UI', async () => {
+      expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
+    });
   });
 });

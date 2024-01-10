@@ -8,7 +8,7 @@ export class RefreshingGitLabService extends GitLabService {
   #tokenExchangeService: TokenExchangeService;
 
   constructor(account: Account, tes = tokenExchangeService) {
-    super({ instanceUrl: account.instanceUrl, token: account.token });
+    super(account);
     this.#accountId = account.id;
     this.#tokenExchangeService = tes;
   }
