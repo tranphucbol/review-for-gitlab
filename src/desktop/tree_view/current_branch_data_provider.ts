@@ -3,7 +3,7 @@ import { ErrorItem } from './items/error_item';
 import { ItemModel } from './items/item_model';
 import { MrItemModel } from './items/mr_item_model';
 import { IssueItem } from './items/issue_item';
-import { PipelineItemModel } from './items/pipeline_item_model';
+import { PipelineRootItemModel } from './items/pipeline_root_item_model';
 import { isEnabled, FeatureFlag } from '../../common/feature_flags';
 
 import {
@@ -30,7 +30,7 @@ export class CurrentBranchDataProvider
 
   private state: TreeState = { type: 'invalid' };
 
-  private pipelineItem?: PipelineItemModel;
+  private pipelineItem?: PipelineRootItemModel;
 
   private mrState?: { mr: RestMr; item: MrItemModel };
 
@@ -43,11 +43,11 @@ export class CurrentBranchDataProvider
     if (!state.pipeline) {
       return new vscode.TreeItem('No pipeline found');
     }
-    this.pipelineItem = new PipelineItemModel(
+    this.pipelineItem = new PipelineRootItemModel(
       state.projectInRepository,
       state.pipeline,
       state.jobs,
-      state.type === 'tag',
+      state.type === 'tag' ? 'Tag Pipeline' : 'Pipeline',
     );
     return this.pipelineItem;
   }

@@ -9,6 +9,7 @@ import { hasDownloadableArtifacts } from '../../utils/has_downloadable_artifacts
 import { JobProvider } from './job_provider';
 import { PipelineProvider } from './pipeline_provider';
 import { ProjectInRepository, ProjectInRepositoryProvider } from '../../gitlab/new_project';
+import { openInBrowserCommand } from '../../utils/open_in_browser_command';
 
 dayjs.extend(relativeTime);
 /** removes duplicates based on === equality. Can be replaced with lodash. */
@@ -40,27 +41,43 @@ export class PipelineItemModel
 
   jobs: RestJob[];
 
-  #isTag: boolean;
+  name: string;
 
   constructor(
     projectInRepository: ProjectInRepository,
     pipeline: RestPipeline,
     jobs: RestJob[],
-    isTag: boolean,
+    name: string = 'Pipeline',
   ) {
     super();
     this.projectInRepository = projectInRepository;
     this.pipeline = pipeline;
     this.jobs = jobs;
-    this.#isTag = isTag;
+    this.name = name;
   }
 
   getTreeItem(): vscode.TreeItem {
     const timeAgo = dayjs(this.pipeline.updated_at).fromNow();
-    const label = `${this.#isTag ? 'Tag ' : ''}Pipeline #${this.pipeline.id}`;
-    const item = new vscode.TreeItem(label, vscode.TreeItemCollapsibleState.Expanded);
+    const label = `${this.name} #${this.pipeline.id}`;
+    const item = new vscode.TreeItem(
+      label,
+      this.jobs.length
+        ? vscode.TreeItemCollapsibleState.Expanded
+        : vscode.TreeItemCollapsibleState.None,
+    );
     const statusMetadata = getPipelineMetadata(this.pipeline);
     item.tooltip = `${label} · ${statusMetadata.name} · ${timeAgo}`;
+
+    if (this.pipeline.source === 'pipeline') {
+      item.tooltip += '\nMulti-project';
+    } else if (this.pipeline.source === 'parent_pipeline') {
+      item.tooltip += '\nChild pipeline';
+    }
+
+    if (!this.jobs.length) {
+      item.command = openInBrowserCommand(this.pipeline.web_url);
+    }
+
     item.description = statusMetadata.name;
     item.iconPath = statusMetadata.icon;
     item.contextValue = getPipelineItemContextValue(this.jobs);
@@ -74,6 +91,10 @@ export class PipelineItemModel
       name: stageName,
       jobs: jobsAsc.filter(j => j.stage === stageName),
     }));
-    return stagesWithJobs.map(sj => new StageItemModel(this.projectInRepository, sj.name, sj.jobs));
+
+    const children: ItemModel[] = stagesWithJobs.map(
+      sj => new StageItemModel(this.projectInRepository, sj.name, sj.jobs),
+    );
+    return children;
   }
 }

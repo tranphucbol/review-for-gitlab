@@ -53,16 +53,12 @@ const getJobs = async (
   if (!pipeline) return [];
   try {
     const projectId = projectInRepository.project.restId;
-    const pipelinePromise = getGitLabService(projectInRepository).getJobsForPipeline(
-      pipeline.id,
-      projectId,
-    );
-    const statusPromise = getGitLabService(projectInRepository).getExternalStatusForCommit(
-      pipeline.sha,
-      pipeline.ref,
-      projectId,
-    );
-    return [...(await pipelinePromise), ...(await statusPromise)];
+    const service = getGitLabService(projectInRepository);
+
+    const pipelinePromise = service.getJobsForPipeline(pipeline.id, projectId);
+    const bridgesPromise = service.getTriggerJobsForPipeline(pipeline.id, projectId);
+    const statusPromise = service.getExternalStatusForCommit(pipeline.sha, pipeline.ref, projectId);
+    return [...(await pipelinePromise), ...(await bridgesPromise), ...(await statusPromise)];
   } catch (e) {
     log.error(new UserFriendlyError('Failed to fetch jobs for pipeline.', e));
     return [];

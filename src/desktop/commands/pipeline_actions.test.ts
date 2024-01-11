@@ -8,7 +8,7 @@ import { cancelPipeline, retryPipeline } from './pipeline_actions';
 jest.mock('../gitlab/get_gitlab_service');
 
 describe('retryOrCancelPipeline', () => {
-  const item = new PipelineItemModel(projectInRepository, pipeline, [job], false);
+  const item = new PipelineItemModel(projectInRepository, pipeline, [job]);
   const gitLabService: Partial<GitLabService> = {
     cancelOrRetryPipeline: jest.fn(),
   };
