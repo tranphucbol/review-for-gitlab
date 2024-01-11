@@ -23,6 +23,7 @@ This process is recorded in a YouTube video: [GitLab Workflow VS Code Extension 
 
 Perform the following steps to release a new version of the extension.
 
+1. Fetch all the remote tags before making a new release. Run the command `git fetch --tags`.
 1. (Optional.) Do a quick test of the extension in your local development. At this stage, you
    are only verifying there is no complete failure of the extension.
 
@@ -38,7 +39,7 @@ Perform the following steps to release a new version of the extension.
 1. Update the package version in `npm version <type>`. This automatically generates a changelog entry. Specify the `type` as `minor` or `patch`.
 1. Run the command `git push origin main` and `git push origin v3.65.0` (assuming you created version `3.65.0`).
 1. Trigger the **Publish** steps (`publish_marketplace` and `publish_open_vsx`) on the **tag** pipeline that you created by pushing the new tag. There will be two pipelines for the same commit, a `main` branch pipeline and a [tag pipeline](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/pipelines?scope=tags&page=1). Use the tag pipeline.
-1. When the extension updates in your VS Code, check that the extension works. Repeat smoke test from Step 1.
+1. When the extension updates in your VS Code, check that the extension works. Repeat smoke test from Step 2.
 1. Add a message to our `#f_vscode_extension` Slack channel (replace `3.0.0` with the released version):
 
    ```plaintext
