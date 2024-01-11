@@ -1,3 +1,64 @@
+# [3.98.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.85.0...v3.98.0) (2024-01-11)
+
+
+### Bug Fixes
+
+* add npm install for commit-lint ([9aa45a6](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/9aa45a68788bd32f40f755d80d9eef3918426180))
+* Code suggestion gutter icons in Web IDE ([e1dd6ad](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/e1dd6adfa0bb29065f76d0642b10cea8d9048c34))
+* **code suggestions:** increase size of status icon ([9a37631](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/9a3763162ebb0b2fc14ddda54cd3b238c5051626))
+* **code suggestions:** un-fill loading and error status icon ([5a78020](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/5a7802083526856d80cf96a552af83b12d7e3136))
+* **cs-stream:** Clean loading icon flicker ([e3d45bb](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/e3d45bba6358f233c497dc9d5345a44fa62fd88f))
+* Do not enable LSP in Web IDE ([97cc301](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/97cc301754af0d3b52f4e1c6fbfe7fbe23895fa6))
+* Do not request suggestions when deleting or adding spaces ([d56d71f](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/d56d71f3c683bc91ad86071c0bc93952b30ba8fe))
+* enable suggestions cache by default ([8d7865f](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/8d7865f4b17e2347642e85d2452baa6814d1d808))
+* End LS request when canceled ([ce78d2c](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/ce78d2c425063016d8a8a51384ba76dd78743b40))
+* Fix broken link fragments in README ([502dbbd](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/502dbbdf36f0a61f7867da6588e28737fb048653))
+* Fix gutter icon persisting across tabs ([553ff7e](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/553ff7e726b583c30e3e7e027f7483bca626ce82))
+* Fix language server browser build path ([f3cfd39](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/f3cfd39af82f5d67bc3cf536368582bf003a68ef))
+* Only catch unchanged_document in intellisense context ([ca24ae7](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/ca24ae72e7081ada2105c8eda7b98a1c45301c67))
+* **status icon:** Handle parallel completion requests ([6a84948](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/6a84948caac290948a824bf76c6c18728b2d7fdf))
+* unblock build with path and fs fixes ([738161d](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/738161d70b5538450869cd504a3e14f294d472e4))
+* update min VS Code version to 1.82.0 to support Language Server ([e98d557](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/e98d5574312975e119800b110f86840862fd0897))
+* upgraded @gitlab/ui package to 71.6.0 ([2b3ce81](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/2b3ce817dc898cdfb040e1144b5152e6ee520298))
+
+
+### Features
+
+* Add "codeSuggestionsClientDirectToGateway" feature flag ([7a6e048](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/7a6e048fa9aa59b2b74279ec7983feac08579e07))
+* add Duo Chat toggle setting ([32e46bb](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/32e46bbea369296710650013e8e35f113f15ec0f))
+* add passing suggestions cache config flag ([f9ba575](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/f9ba5750ba28e2d37f986c48372fc0fac38d7708))
+* add refactor command to Duo Chat ([3c87525](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/3c875251f4e340fb38a5c1dee132a133cd9ddb6e))
+* add vulnerability identifiers & solution ([f384024](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/f38402496af690b95e39311d0f9e1f8a04aacd26))
+* add vulnerabiltiy location to webview ([5db715a](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/5db715a300e1e6fda1c90bddddd54461c2061ffe))
+* Bump version of LSP to v3.20.0 ([cbe85a2](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/cbe85a2a6e687919e2a5ba41f702d477c25d53db))
+* **chat:** enable Duo Chat for SM instances ([0e4e04b](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/0e4e04bf9603876cf86970f8b313ad04782114ba))
+* Code suggestions gutter icon status ([24373b4](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/24373b42eaaef7783bacb168b8d97f78b79ae3cd))
+* **code_suggestions:** Added LSP based streaming ([56b2cc8](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/56b2cc8b0a654317b68614b8b85a8f6986fac44f))
+* Decide whether to stream data based on the intent ([140cb27](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/140cb27feb3c431353c1f69e970565f86aa9d0c8))
+* Display comment thread state using VS Code API ([12775bb](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/12775bb9f4292a31ca6607e916ba09990437aa4d))
+* enable streaming for the chat ([5e5432c](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/5e5432cfcfa85713a47ee8a453dd2b25a5a42be0))
+* enable suggestion streaming by default ([65a968a](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/65a968aa1ca422d65a7ff1b288a400163c3b8bba))
+* enabled slash-commands for DuoChat ([3dc0d9d](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/3dc0d9d648f12dc6dd424adda6a719a9d2d686c1))
+* Ensure HTTP agent settings are used in VSCode with keepalives ([af38e25](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/af38e25b48bbb8e7b64406225f6aa870641514e5))
+* Language Server listens on account changes and updates token ([5b2aea3](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/5b2aea31164105490c271fa60af5482114569ed6))
+* language server suggestions react to api errors ([0fdd611](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/0fdd611ce9e64f0e363466049f5f52e8e2ef7617))
+* make location blob path linkable ([ca7d389](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/ca7d3894e928349211e6b289eef4132de742d060))
+* migrate chat commands to slash commands ([82bdfb8](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/82bdfb854ee6b5f6ebaeaabff19c51d21cc55f40))
+* open securty finding in sideview ([4279470](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/4279470e39fbe3e4aec984ae296f94cca2dad5c0))
+* render links in security findings webview ([f064166](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/f064166f07b7bbdb7b4eaec9f984dda905f710b3))
+* render markdown for security findings ([c0749b8](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/c0749b8ee3a960540da5585b83b4f804a8da9838))
+* **security:** add more security finding details ([025bc54](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/025bc54479540cfbd2773a9e7f1b917ef12016f8))
+* show loading state for LS suggestions ([80651b2](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/80651b2ca88809a9966e4f7992f205a112e193e9))
+* Specify project path in LSP workspace settings ([7aad253](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/7aad253a3e9249c480d9dddc03089f6ba8c4a803))
+* suggestions status manager handles missing account ([1a35c74](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/1a35c7499a160b411e3bbaf50f4a4167467de023))
+* Support log level configuration ([6288dbd](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/6288dbdc983ec029f50622be9c8c911178d72cd8))
+* Support using web ide in the language server ([bda65ec](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/bda65ec3b4bd2a30133be4120bfb23e23c30984e))
+* Update label for code suggestions flag ([cf849e3](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/cf849e31598c12eb9e3725e0b961a27a84ee2400))
+* Use Keep-Alive connection to connect to server (part 1) ([2138233](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/21382337e9de767ee2705903b1f1b12c99682f86))
+* use LS Code Suggestions by default ([e7ee390](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/e7ee3906e2abe88722c8f1a42c33114c0395bce4))
+
+
+
 # [3.97.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.96.1...v3.97.0) (2023-12-26)
 
 
