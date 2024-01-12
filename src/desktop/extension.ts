@@ -264,7 +264,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
     'GitLab.com Authentication',
     new GitLabAuthenticationProvider(),
   );
-  await extensionState.init(accountService);
+
   registerSidebarTreeDataProviders();
   registerRepositoryRootProvider(
     issuableController,
@@ -274,6 +274,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   await migrateCredentials(context, accountService).catch(e => handleError(e));
 
   const dependencyContainer = createDependencyContainer();
+  await extensionState.init(accountService, dependencyContainer.gitLabPlatformManager);
 
   if (featureFlags.isEnabled(featureFlags.FeatureFlag.LanguageServer)) {
     await registerLanguageServer(

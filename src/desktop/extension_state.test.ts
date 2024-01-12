@@ -3,16 +3,23 @@ import { ExtensionState } from './extension_state';
 import { accountService } from './accounts/account_service';
 import { gitExtensionWrapper } from './git/git_extension_wrapper';
 import { Account } from '../common/platform/gitlab_account';
+import { GitLabPlatformManager } from '../common/platform/gitlab_platform';
 import { createOAuthAccount, createTokenAccount } from './test_utils/entities';
+import { createFakePartial } from '../common/test_utils/create_fake_partial';
+import { getChatSupport } from '../common/chat/api/get_chat_support';
+
+jest.mock('../common/chat/api/get_chat_support');
 
 describe('extension_state', () => {
   let extensionState: ExtensionState;
   let mockedAccounts: Account[];
   let mockedRepositories: any[];
+  let manager: GitLabPlatformManager;
 
   beforeEach(() => {
     mockedAccounts = [];
     mockedRepositories = [];
+    manager = createFakePartial<GitLabPlatformManager>({});
     accountService.getAllAccounts = () => mockedAccounts;
     jest
       .spyOn(gitExtensionWrapper, 'gitRepositories', 'get')
@@ -33,7 +40,7 @@ describe('extension_state', () => {
   `('$scenario', async ({ accounts, repositories, validState, noToken, openRepositoryCount }) => {
     mockedAccounts = accounts;
     mockedRepositories = repositories;
-    await extensionState.init(accountService);
+    await extensionState.init(accountService, manager);
 
     const { executeCommand } = vscode.commands;
     expect(executeCommand).toHaveBeenCalledWith('setContext', 'gitlab:validState', validState);
@@ -45,10 +52,36 @@ describe('extension_state', () => {
     );
   });
 
+  describe('gitlab:chatAvailable', () => {
+    it.each([
+      [false, false],
+      [true, true],
+    ])('is %s when getChatSupport() returns %s', async hasChatSupport => {
+      jest.mocked(getChatSupport).mockResolvedValue(hasChatSupport);
+
+      await extensionState.init(accountService, manager);
+
+      expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
+        'setContext',
+        'gitlab:chatAvailable',
+        hasChatSupport,
+      );
+    });
+    it('is false if there is no manager passed', async () => {
+      await extensionState.init(accountService);
+
+      expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
+        'setContext',
+        'gitlab:chatAvailable',
+        false,
+      );
+    });
+  });
+
   it('sets gitlab:hasSaaSAccount to false if there is no SaaS account', async () => {
     mockedAccounts = [createTokenAccount('https://my_standalone_instance')];
 
-    await extensionState.init(accountService);
+    await extensionState.init(accountService, manager);
 
     expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
       'setContext',
@@ -60,7 +93,7 @@ describe('extension_state', () => {
   it('sets gitlab:hasSaaSAccount to true if there is a SaaS account', async () => {
     mockedAccounts = [createOAuthAccount()];
 
-    await extensionState.init(accountService);
+    await extensionState.init(accountService, manager);
 
     expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
       'setContext',
@@ -70,7 +103,7 @@ describe('extension_state', () => {
   });
 
   it('fires event when valid state changes', async () => {
-    await extensionState.init(accountService);
+    await extensionState.init(accountService, manager);
     const listener = jest.fn();
     extensionState.onDidChangeValid(listener);
     // setting tokens and repositories makes extension state valid
