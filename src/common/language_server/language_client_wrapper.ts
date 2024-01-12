@@ -79,6 +79,7 @@ export class LanguageClientWrapper {
         [FeatureFlag.CodeSuggestionsClientDirectToGateway]: isEnabled(
           FeatureFlag.CodeSuggestionsClientDirectToGateway,
         ),
+        [FeatureFlag.StreamCodeGenerations]: isEnabled(FeatureFlag.StreamCodeGenerations),
       },
       suggestionsCache: getAiAssistedCodeSuggestionsConfiguration().suggestionsCache,
       logLevel: getExtensionConfiguration().debug ? 'debug' : 'info',

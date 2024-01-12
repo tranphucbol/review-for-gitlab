@@ -1,5 +1,4 @@
 import vscode from 'vscode';
-import { uniqueId } from 'lodash';
 import {
   BaseLanguageClient,
   InlineCompletionTriggerKind,
@@ -33,8 +32,9 @@ export class CompletionStream {
     client: BaseLanguageClient,
     document: vscode.TextDocument,
     position: vscode.Position,
+    streamId: string,
   ) {
-    this.#id = uniqueId('code-suggestion-stream-');
+    this.#id = streamId;
     this.#client = client;
     const protocolDocument = this.#client.code2ProtocolConverter.asTextDocumentPositionParams(
       document,

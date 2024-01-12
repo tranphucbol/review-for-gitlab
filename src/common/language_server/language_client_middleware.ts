@@ -1,15 +1,14 @@
 import vscode from 'vscode';
 import { BaseLanguageClient, Middleware } from 'vscode-languageclient';
-import { Intent, ICompletionIntentResponse, CompletionIntentRequest } from '@gitlab-org/gitlab-lsp';
+import { START_STREAMING_COMMAND } from '@gitlab-org/gitlab-lsp';
 import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
 import { waitForCancellationToken } from '../utils/wait_for_cancellation_token';
 import { waitForMs } from '../utils/wait_for_ms';
 import { log } from '../log';
 import { COMMAND_CODE_SUGGESTION_STREAM_ACCEPTED } from '../code_suggestions/commands/code_suggestion_stream_accepted';
 import { CompletionStream, getStreamContextId } from './completion_stream';
-import { FeatureFlag, isEnabled } from '../feature_flags';
-import { CONFIG_NAMESPACE } from '../constants';
-import { serializeInlineCompletionContext, serializePosition } from './serialization_utils';
+import { serializeInlineCompletionContext } from './serialization_utils';
+import { isInlineCompletionList } from '../utils/code_suggestions';
 
 // We need to wait just a bit after cancellation, otherwise the loading icon flickers while someone types
 const CANCELLATION_DELAY = 150;
@@ -19,22 +18,12 @@ export class LanguageClientMiddleware implements Middleware {
 
   #subscriptions: vscode.Disposable[] = [];
 
-  #hasStreamingEnabled: boolean | undefined;
-
   #client?: BaseLanguageClient;
 
   #activeStreams: Record<string, CompletionStream> = {};
 
   constructor(stateManager: CodeSuggestionsStateManager) {
     this.#stateManager = stateManager;
-    this.#hasStreamingEnabled = isEnabled(FeatureFlag.StreamCodeGenerations);
-    this.#subscriptions.push(
-      vscode.workspace.onDidChangeConfiguration(e => {
-        if (e.affectsConfiguration(CONFIG_NAMESPACE)) {
-          this.#hasStreamingEnabled = isEnabled(FeatureFlag.StreamCodeGenerations);
-        }
-      }),
-    );
   }
 
   dispose() {
@@ -45,7 +34,7 @@ export class LanguageClientMiddleware implements Middleware {
     this.#client = client;
   }
 
-  // we disable standard completion form LS and only use inline completion
+  // we disable standard completion from LS and only use inline completion
   // eslint-disable-next-line class-methods-use-this
   provideCompletionItem = () => [];
 
@@ -65,82 +54,82 @@ export class LanguageClientMiddleware implements Middleware {
       return [];
     }
 
-    const shouldStream = await this.#shouldStream(document, position);
-
-    if (!shouldStream) {
-      if (this.#hasStreamingEnabled) {
-        this.#cancelAllStreams();
-      }
-
-      return this.#provideDefaultInlineCompletionItems(document, position, context, token, next);
+    const activeStream = this.#getStreamAt(document, position);
+    if (activeStream) {
+      return this.#provideStreamingInlineCompletionItems(document, position, token, activeStream);
     }
 
     try {
-      return await this.#provideStreamingInlineCompletionItems(document, position, token);
-    } catch (e) {
-      log.error(e);
-      return [];
-    }
-  }
+      this.#stateManager.setLoading(true);
+      this.#cancelAllStreams();
 
-  async #provideDefaultInlineCompletionItems(
-    document: vscode.TextDocument,
-    position: vscode.Position,
-    context: vscode.InlineCompletionContext,
-    token: vscode.CancellationToken,
-    next: (
-      document: vscode.TextDocument,
-      position: vscode.Position,
-      context: vscode.InlineCompletionContext,
-      token: vscode.CancellationToken,
-    ) => vscode.ProviderResult<vscode.InlineCompletionItem[] | vscode.InlineCompletionList>,
-  ) {
-    this.#stateManager.setLoading(true);
+      // Short circuit after both cancellation and time have passed
+      const shortCircuit = waitForCancellationToken(token)
+        .then(() => waitForMs(CANCELLATION_DELAY))
+        .then(() => []);
 
-    // Short circuit after both cancellation and time have passed
-    const shortCircuit = waitForCancellationToken(token)
-      .then(() => waitForMs(CANCELLATION_DELAY))
-      .then(() => []);
-
-    try {
-      return await Promise.race([
+      const response = await Promise.race([
         shortCircuit,
         next(document, position, serializeInlineCompletionContext(context), token),
       ]);
+
+      if (isInlineCompletionList(response)) {
+        const command = response.items?.[0]?.command?.command;
+        if (command === START_STREAMING_COMMAND) {
+          const streamId = response.items?.[0]?.command?.arguments?.[0];
+
+          await this.#startStreaming(document, position, streamId);
+          return [];
+        }
+      }
+
+      return response;
+    } catch (e) {
+      log.error(e);
+      return [];
     } finally {
       this.#stateManager.setLoading(false);
     }
+  }
+
+  async #startStreaming(
+    document: vscode.TextDocument,
+    position: vscode.Position,
+    streamId: string,
+  ) {
+    if (!this.#client) {
+      log.error(
+        'Invoking LanguageServer client without initializing the inline completion middleware',
+      );
+      return;
+    }
+
+    const stream = new CompletionStream(this.#client, document, position, streamId);
+
+    try {
+      this.#stateManager.setLoadingResource(stream, true);
+      await stream.start();
+    } catch (e) {
+      this.#stateManager.setLoadingResource(stream, false);
+      throw e;
+    }
+
+    this.#saveStreamAt(document, position, stream);
+
+    LanguageClientMiddleware.forceTriggerInlineCompletion().catch(e => log.error(e));
   }
 
   async #provideStreamingInlineCompletionItems(
     document: vscode.TextDocument,
     position: vscode.Position,
     token: vscode.CancellationToken,
+    stream: CompletionStream,
   ): Promise<vscode.InlineCompletionItem[] | vscode.InlineCompletionList | undefined> {
     if (!this.#client) {
       log.error(
         'Invoking LanguageServer client without initializing the inline completion middleware',
       );
       return [];
-    }
-
-    let stream = this.#getStreamAt(document, position);
-
-    if (!stream) {
-      stream = new CompletionStream(this.#client, document, position);
-
-      // Add new loading state __before__ canceling old streams so that icon doesn't flicker
-      this.#stateManager.setLoadingResource(stream, true);
-      this.#cancelAllStreams();
-
-      try {
-        await stream.start();
-      } catch (e) {
-        this.#stateManager.setLoadingResource(stream, false);
-        throw e;
-      }
-
-      this.#saveStreamAt(document, position, stream);
     }
 
     if (token.isCancellationRequested) {
@@ -200,7 +189,6 @@ export class LanguageClientMiddleware implements Middleware {
     const value = document.getText(replaceRange);
 
     await editor.edit(edit => edit.replace(replaceRange, value));
-    await vscode.commands.executeCommand('editor.action.inlineSuggest.trigger');
   }
 
   #getStreamAt(
@@ -228,36 +216,5 @@ export class LanguageClientMiddleware implements Middleware {
       this.#stateManager.setLoadingResource(oldStream, false);
       delete this.#activeStreams[contextId];
     });
-  }
-
-  async #shouldStream(document: vscode.TextDocument, position: vscode.Position): Promise<boolean> {
-    if (!this.#hasStreamingEnabled) {
-      return false;
-    }
-    if (this.#getStreamAt(document, position)) {
-      return true;
-    }
-
-    const intent = await this.#getIntent(document, position);
-    return intent === 'generation';
-  }
-
-  async #getIntent(
-    document: vscode.TextDocument,
-    position: vscode.Position,
-  ): Promise<Intent | undefined> {
-    let intentTypeResponse: ICompletionIntentResponse | undefined;
-
-    try {
-      intentTypeResponse = await this.#client?.sendRequest(CompletionIntentRequest, {
-        documentUri: document.uri.toString(),
-        position: serializePosition(position),
-      });
-    } catch (error) {
-      log.warn(`Failed to detect completion intent`, error);
-    }
-
-    log.debug(`INTENT: ${intentTypeResponse?.intent}`);
-    return intentTypeResponse?.intent;
   }
 }
