@@ -69,6 +69,7 @@ export class LanguageClientWrapper {
       log.warn('There is no GitLab account available with access to suggestions');
       return;
     }
+    const extensionConfiguration = getExtensionConfiguration();
     const settings: IConfig = {
       baseUrl: platform.account.instanceUrl,
       token: platform.account.token,
@@ -82,8 +83,9 @@ export class LanguageClientWrapper {
         [FeatureFlag.StreamCodeGenerations]: isEnabled(FeatureFlag.StreamCodeGenerations),
       },
       suggestionsCache: getAiAssistedCodeSuggestionsConfiguration().suggestionsCache,
-      logLevel: getExtensionConfiguration().debug ? 'debug' : 'info',
+      logLevel: extensionConfiguration.debug ? 'debug' : 'info',
       projectPath: platform.project?.namespaceWithPath ?? '',
+      ignoreCertificateErrors: extensionConfiguration.ignoreCertificateErrors,
     };
 
     log.info(`Configuring Language Server - baseUrl: ${platform.account.instanceUrl}`);

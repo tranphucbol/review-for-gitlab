@@ -14,6 +14,7 @@ describe('feature_flags/index', () => {
     jest.mocked(getExtensionConfiguration).mockReturnValue({
       debug: false,
       featureFlags,
+      ignoreCertificateErrors: false,
       customQueries: [],
     });
   };

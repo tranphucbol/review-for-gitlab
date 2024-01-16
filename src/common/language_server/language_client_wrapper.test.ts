@@ -72,6 +72,7 @@ describe('LanguageClientWrapper', () => {
             },
             suggestionsCache: undefined,
             logLevel: 'info',
+            ignoreCertificateErrors: false,
           },
         },
       );
@@ -203,6 +204,27 @@ describe('LanguageClientWrapper', () => {
           }),
         },
       );
+    });
+
+    describe.each`
+    configured | expected
+    ${{ ignoreCertificateErrors: false }} | ${{ ignoreCertificateErrors: false }}
+    ${{ ignoreCertificateErrors: null }} | ${{ ignoreCertificateErrors: false }}
+    ${{ ignoreCertificateErrors: true }} | ${{ ignoreCertificateErrors: true }}
+    ${{ ignoreCertificateErrors: undefined }} | ${{ ignoreCertificateErrors: false }}
+    `('$expected when workspace included $configured', ({ configured, expected }) => {
+      it('should send a configuration changed notification', async () => {
+        setFakeWorkspaceConfiguration(configured);
+
+        await subject.syncConfig();
+
+        expect(client.sendNotification).toHaveBeenCalledWith(
+          DidChangeConfigurationNotification.type,
+          {
+            settings: expect.objectContaining(expected),
+          },
+        );
+      });
     });
   });
 });
