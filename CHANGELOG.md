@@ -1,3 +1,18 @@
+# [3.99.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.98.0...v3.99.0) (2024-01-16)
+
+
+### Bug Fixes
+
+* Clean code style ([76a9dc0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/76a9dc00d63df8c76253c42a271b7084411557b2))
+* Specify ignoreCertificateErrors option for the language server ([ad4a077](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/ad4a077573e0e7e7d0e713041efc35124a506989))
+
+
+### Features
+
+* Move streaming decision to the LS ([99a1a0f](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/99a1a0fa92bbfc03954ee6594a42d2bbc692a938))
+
+
+
 # [3.98.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.85.0...v3.98.0) (2024-01-11)
 
 
