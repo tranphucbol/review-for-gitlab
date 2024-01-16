@@ -3,8 +3,12 @@ import { GitLabPlatformManagerForChat } from './get_platform_manager_for_chat';
 import { account, gitlabPlatformForAccount } from '../test_utils/entities';
 import { Account } from '../platform/gitlab_account';
 import { createFakePartial } from '../test_utils/create_fake_partial';
+import { getChatSupport, ChatSupportResponseInterface } from './api/get_chat_support';
 
 jest.mock('../utils/extension_configuration');
+jest.mock('./api/get_chat_support', () => ({
+  getChatSupport: jest.fn(),
+}));
 
 describe('GitLabPlatformManagerForChat', () => {
   let platformManagerForChat: GitLabPlatformManagerForChat;
@@ -60,20 +64,56 @@ describe('GitLabPlatformManagerForChat', () => {
         .mockResolvedValueOnce([customGitlabPlatformForAccount]);
     });
 
-    it('returns gitlab platform for that account', async () => {
+    it('returns undefined if the platform for the account does not have chat enabled', async () => {
+      jest.mocked(getChatSupport).mockResolvedValue({ hasSupportForChat: false });
+      expect(await platformManagerForChat.getGitLabPlatform()).toBeUndefined();
+    });
+
+    it('returns gitlab platform for that account if chat is available for the platform', async () => {
+      jest
+        .mocked(getChatSupport)
+        .mockResolvedValue({ hasSupportForChat: true, platform: customGitlabPlatformForAccount });
       expect(await platformManagerForChat.getGitLabPlatform()).toBe(customGitlabPlatformForAccount);
     });
   });
 
   describe('when multiple gitlab accounts are available', () => {
+    const firstPlatformWithChatEnabled: ChatSupportResponseInterface = {
+      hasSupportForChat: true,
+      platform: firstGitlabPlatformForAccount,
+    };
+    const secondPlatformWithChatEnabled: ChatSupportResponseInterface = {
+      hasSupportForChat: true,
+      platform: secondGitLabPlatformForAccount,
+    };
+    const platformWithoutChatEnabled: ChatSupportResponseInterface = { hasSupportForChat: false };
+
     beforeEach(() => {
       jest
         .mocked(gitlabPlatformManager.getForAllAccounts)
         .mockResolvedValueOnce([firstGitlabPlatformForAccount, secondGitLabPlatformForAccount]);
     });
 
-    it('returns gitlab platform for the first linked account', async () => {
-      expect(await platformManagerForChat.getGitLabPlatform()).toBe(firstGitlabPlatformForAccount);
+    it.each`
+      desc                | firstResolve                    | secondResolve                    | expectedPlatform
+      ${'the first has'}  | ${firstPlatformWithChatEnabled} | ${platformWithoutChatEnabled}    | ${firstGitlabPlatformForAccount}
+      ${'the second has'} | ${platformWithoutChatEnabled}   | ${secondPlatformWithChatEnabled} | ${secondGitLabPlatformForAccount}
+      ${'several have'}   | ${firstPlatformWithChatEnabled} | ${secondPlatformWithChatEnabled} | ${firstGitlabPlatformForAccount}
+    `(
+      'returns the correct gitlab platform when $desc the chat enabled',
+      async ({ firstResolve, secondResolve, expectedPlatform }) => {
+        jest
+          .mocked(getChatSupport)
+          .mockResolvedValue(platformWithoutChatEnabled)
+          .mockResolvedValueOnce(firstResolve)
+          .mockResolvedValueOnce(secondResolve);
+        expect(await platformManagerForChat.getGitLabPlatform()).toBe(expectedPlatform);
+      },
+    );
+
+    it('correctly returns undefined if none of the platforms have chat enabled', async () => {
+      jest.mocked(getChatSupport).mockResolvedValue(platformWithoutChatEnabled);
+      expect(await platformManagerForChat.getGitLabPlatform()).toBe(undefined);
     });
   });
 });

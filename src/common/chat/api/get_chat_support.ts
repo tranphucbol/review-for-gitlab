@@ -1,7 +1,6 @@
 import { gql } from 'graphql-request';
 import { GraphQLRequest } from '../../platform/web_ide';
-import { GitLabPlatformManager } from '../../platform/gitlab_platform';
-import { GitLabPlatformManagerForChat } from '../get_platform_manager_for_chat';
+import { GitLabPlatformForAccount } from '../../platform/gitlab_platform';
 import { log } from '../../log';
 
 const queryGetChatAvailability = gql`
@@ -12,29 +11,43 @@ const queryGetChatAvailability = gql`
   }
 `;
 
+export interface ChatSupportResponseInterface {
+  hasSupportForChat: boolean;
+  platform?: GitLabPlatformForAccount;
+}
+
 export type ChatAvailableResponseType = {
   currentUser: {
     duoChatAvailable: boolean;
   };
 };
 
-export async function getChatSupport(manager: GitLabPlatformManager): Promise<boolean> {
-  let user;
-  const platformManagerForChat = new GitLabPlatformManagerForChat(manager);
+export async function getChatSupport(
+  platform?: GitLabPlatformForAccount | undefined,
+): Promise<ChatSupportResponseInterface> {
   const request: GraphQLRequest<ChatAvailableResponseType> = {
     type: 'graphql',
     query: queryGetChatAvailability,
     variables: {},
   };
-  const platform = await platformManagerForChat.getGitLabPlatform();
+  const noSupportResponse: ChatSupportResponseInterface = { hasSupportForChat: false };
+
   if (!platform) {
-    return false;
+    return noSupportResponse;
   }
   try {
-    user = await platform.fetchFromApi(request);
-    return user.currentUser.duoChatAvailable;
+    const {
+      currentUser: { duoChatAvailable },
+    } = await platform.fetchFromApi(request);
+    if (duoChatAvailable) {
+      return {
+        hasSupportForChat: duoChatAvailable,
+        platform,
+      };
+    }
+    return noSupportResponse;
   } catch (e) {
     log.error(e);
-    return false;
+    return noSupportResponse;
   }
 }

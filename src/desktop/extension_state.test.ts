@@ -6,9 +6,16 @@ import { Account } from '../common/platform/gitlab_account';
 import { GitLabPlatformManager } from '../common/platform/gitlab_platform';
 import { createTokenAccount } from './test_utils/entities';
 import { createFakePartial } from '../common/test_utils/create_fake_partial';
-import { getChatSupport } from '../common/chat/api/get_chat_support';
 
-jest.mock('../common/chat/api/get_chat_support');
+jest.mock('../common/chat/utils/chat_availability_utils');
+
+const platformManagerForChatMock = {
+  getGitLabPlatform: jest.fn(),
+};
+
+jest.mock('../common/chat/get_platform_manager_for_chat', () => ({
+  GitLabPlatformManagerForChat: jest.fn().mockImplementation(() => platformManagerForChatMock),
+}));
 
 describe('extension_state', () => {
   let extensionState: ExtensionState;
@@ -28,7 +35,7 @@ describe('extension_state', () => {
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
   });
 
   it.each`
@@ -50,32 +57,6 @@ describe('extension_state', () => {
       'gitlab:openRepositoryCount',
       openRepositoryCount,
     );
-  });
-
-  describe('gitlab:chatAvailable', () => {
-    it.each([
-      [false, false],
-      [true, true],
-    ])('is %s when getChatSupport() returns %s', async hasChatSupport => {
-      jest.mocked(getChatSupport).mockResolvedValue(hasChatSupport);
-
-      await extensionState.init(accountService, manager);
-
-      expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
-        'setContext',
-        'gitlab:chatAvailable',
-        hasChatSupport,
-      );
-    });
-    it('is false if there is no manager passed', async () => {
-      await extensionState.init(accountService);
-
-      expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
-        'setContext',
-        'gitlab:chatAvailable',
-        false,
-      );
-    });
   });
 
   it('fires event when valid state changes', async () => {

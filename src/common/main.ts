@@ -26,5 +26,5 @@ export const activateCommon = async (
     context.subscriptions.push(vscode.commands.registerCommand(cmdName, cmd));
   });
 
-  activateChat(context, container.gitLabPlatformManager);
+  await activateChat(context, container.gitLabPlatformManager);
 };

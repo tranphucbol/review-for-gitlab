@@ -5,6 +5,12 @@ const newPromptResponse = {
   },
 };
 
+const duoChatAvailableResponse = {
+  currentUser: {
+    duoChatAvailable: true,
+  },
+};
+
 const noMessageResponse = {
   aiMessages: {
     nodes: [],
@@ -36,4 +42,5 @@ module.exports = {
   newPromptResponse,
   newMessageResponse,
   noMessageResponse,
+  duoChatAvailableResponse,
 };
