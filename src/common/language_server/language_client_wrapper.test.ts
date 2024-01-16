@@ -207,11 +207,11 @@ describe('LanguageClientWrapper', () => {
     });
 
     describe.each`
-    configured | expected
-    ${{ ignoreCertificateErrors: false }} | ${{ ignoreCertificateErrors: false }}
-    ${{ ignoreCertificateErrors: null }} | ${{ ignoreCertificateErrors: false }}
-    ${{ ignoreCertificateErrors: true }} | ${{ ignoreCertificateErrors: true }}
-    ${{ ignoreCertificateErrors: undefined }} | ${{ ignoreCertificateErrors: false }}
+      configured                                | expected
+      ${{ ignoreCertificateErrors: false }}     | ${{ ignoreCertificateErrors: false }}
+      ${{ ignoreCertificateErrors: null }}      | ${{ ignoreCertificateErrors: false }}
+      ${{ ignoreCertificateErrors: true }}      | ${{ ignoreCertificateErrors: true }}
+      ${{ ignoreCertificateErrors: undefined }} | ${{ ignoreCertificateErrors: false }}
     `('$expected when workspace included $configured', ({ configured, expected }) => {
       it('should send a configuration changed notification', async () => {
         setFakeWorkspaceConfiguration(configured);
