@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 import assert from 'assert';
 import { AccountService } from './accounts/account_service';
 import { gitExtensionWrapper } from './git/git_extension_wrapper';
+import { GitLabPlatformManager } from '../common/platform/gitlab_platform';
+import { getChatSupport } from '../common/chat/api/get_chat_support';
 
 const openRepositoryCount = (): number => gitExtensionWrapper.gitRepositories.length;
 export class ExtensionState {
@@ -11,10 +13,13 @@ export class ExtensionState {
 
   accountService?: AccountService;
 
+  manager?: GitLabPlatformManager;
+
   private lastValid = false;
 
-  async init(accountService: AccountService): Promise<void> {
+  async init(accountService: AccountService, manager?: GitLabPlatformManager): Promise<void> {
     this.accountService = accountService;
+    this.manager = manager;
     this.lastValid = this.isValid();
     accountService.onDidChange(this.updateExtensionStatus, this);
     gitExtensionWrapper.onRepositoryCountChanged(this.updateExtensionStatus, this);
@@ -47,6 +52,10 @@ export class ExtensionState {
       'gitlab:openRepositoryCount',
       openRepositoryCount(),
     );
+
+    const duoChatAvailable: boolean = this.manager ? await getChatSupport(this.manager) : false;
+    await vscode.commands.executeCommand('setContext', 'gitlab:chatAvailable', duoChatAvailable);
+
     await vscode.commands.executeCommand('setContext', 'gitlab:validState', this.isValid());
     if (this.lastValid !== this.isValid()) {
       this.lastValid = this.isValid();

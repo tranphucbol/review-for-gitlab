@@ -4,6 +4,7 @@ import { activateCommon } from '../common/main';
 import * as featureFlags from '../common/feature_flags';
 import { registerLanguageServer } from '../common/language_server/register_language_server';
 import { CodeSuggestions } from '../common/code_suggestions/code_suggestions';
+import { getChatSupport } from '../common/chat/api/get_chat_support';
 import { browserLanguageClientFactory } from './language_server/browser_language_client_factory';
 import { createDependencyContainer } from './dependency_container_browser';
 
@@ -15,6 +16,9 @@ export const activate = async (context: vscode.ExtensionContext) => {
   // browser always has account linked and repo opened.
   await vscode.commands.executeCommand('setContext', 'gitlab:noAccount', false);
   await vscode.commands.executeCommand('setContext', 'gitlab:validState', true);
+
+  const duoChatAvailable: boolean = await getChatSupport(dependencyContainer.gitLabPlatformManager);
+  await vscode.commands.executeCommand('setContext', 'gitlab:chatAvailable', duoChatAvailable);
 
   const platform = await dependencyContainer.gitLabPlatformManager.getForSaaSAccount();
 
