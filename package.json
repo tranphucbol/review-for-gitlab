@@ -294,7 +294,7 @@
   },
   "dependencies": {
     "@anycable/core": "^0.7.12",
-    "@gitlab-org/gitlab-lsp": "^3.31.0",
+    "@gitlab-org/gitlab-lsp": "^3.32.0",
     "@snowplow/tracker-core": "3.20.0",
     "cross-fetch": "^4.0.0",
     "dayjs": "^1.11.10",

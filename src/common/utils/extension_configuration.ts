@@ -13,6 +13,7 @@ export const AI_ASSISTED_CODE_SUGGESTIONS_CONFIG = 'gitlab.aiAssistedCodeSuggest
 export interface ExtensionConfiguration {
   pipelineGitRemoteName?: string;
   debug: boolean;
+  ignoreCertificateErrors: boolean;
   featureFlags: Partial<Record<FeatureFlag, boolean>>;
   customQueries: CustomQuery[];
 }
@@ -33,6 +34,7 @@ export function getExtensionConfiguration(): ExtensionConfiguration {
     pipelineGitRemoteName: turnNullToUndefined(workspaceConfig?.pipelineGitRemoteName),
     featureFlags: workspaceConfig?.featureFlags ?? {},
     debug: workspaceConfig?.debug || false,
+    ignoreCertificateErrors: workspaceConfig?.ignoreCertificateErrors || false,
     customQueries: workspaceConfig?.customQueries || [],
   };
 }
