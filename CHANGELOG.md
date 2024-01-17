@@ -1,3 +1,12 @@
+# [3.100.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.99.0...v3.100.0) (2024-01-17)
+
+
+### Features
+
+* **chat:** show chat only when it can be used by user ([d5cd1f0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/d5cd1f07b7ed715b09faab86438df80a7ca729b4))
+
+
+
 # [3.99.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.98.0...v3.99.0) (2024-01-16)
 
 
