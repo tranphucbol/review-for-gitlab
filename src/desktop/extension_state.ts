@@ -31,22 +31,12 @@ export class ExtensionState {
     return this.accountService.getAllAccounts().length > 0;
   }
 
-  private hasSaaSAccount(): boolean {
-    assert(this.accountService, 'ExtensionState has not been initialized.');
-    return this.accountService.getSaaSAccount() !== undefined;
-  }
-
   isValid(): boolean {
     return this.hasAnyAccounts() && openRepositoryCount() > 0;
   }
 
   async updateExtensionStatus(): Promise<void> {
     await vscode.commands.executeCommand('setContext', 'gitlab:noAccount', !this.hasAnyAccounts());
-    await vscode.commands.executeCommand(
-      'setContext',
-      'gitlab:hasSaaSAccount',
-      this.hasSaaSAccount(),
-    );
     await vscode.commands.executeCommand(
       'setContext',
       'gitlab:openRepositoryCount',
