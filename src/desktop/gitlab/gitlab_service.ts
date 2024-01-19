@@ -41,15 +41,9 @@ import {
   GqlContentSnippet,
 } from './graphql/get_snippet_content';
 import { UnsupportedVersionError } from '../errors/unsupported_version_error';
-import {
-  OAUTH_CLIENT_ID,
-  OAUTH_REDIRECT_URI,
-  README_SECTIONS,
-  REQUIRED_VERSIONS,
-} from '../constants';
+import { OAUTH_CLIENT_ID, OAUTH_REDIRECT_URI, REQUIRED_VERSIONS } from '../constants';
 import { makeMarkdownLinksAbsolute } from '../utils/make_markdown_links_absolute';
 import { makeHtmlLinksAbsolute } from '../utils/make_html_links_absolute';
-import { HelpError } from '../errors/help_error';
 import { Credentials } from '../../common/platform/gitlab_account';
 import { newCreateNoteMutation, oldCreateNoteMutation } from './graphql/create_note';
 import { createQueryString, QueryValue } from '../utils/create_query_string';
@@ -159,29 +153,10 @@ const getIssuableGqlId = (issuable: RestIssuable) =>
   `gid://gitlab/${isMr(issuable) ? 'MergeRequest' : 'Issue'}/${issuable.id}`;
 const getMrGqlId = (id: number) => `gid://gitlab/MergeRequest/${id}`;
 
-// FIXME: specify correct type
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const safelyParseJson = (text: string): any | undefined => {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return undefined;
-  }
-};
-
 const handleFetchError = async (response: Response, resourceName: string) => {
   if (!response.ok) {
     const body = await response.text().catch(() => undefined);
-    // Check if the response is a GitLab invalid token error.
-    if (response.status === 401 && body && safelyParseJson(body)?.error === 'invalid_token') {
-      const { hostname } = new URL(response.url);
-      throw new HelpError(
-        `Failed to access a remote repository on ${hostname} due to an expired or revoked access token. You must create a new token.`,
-        { section: README_SECTIONS.SETUP },
-        response.status,
-      );
-    }
-    throw new FetchError(`Fetching ${resourceName} from ${response.url} failed`, response, body);
+    throw new FetchError(response, resourceName, body);
   }
 };
 
@@ -1021,17 +996,7 @@ export class GitLabService {
       },
       body: [...commonParams, ...grantTypeParams].join('&'),
     });
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      if (errorResponse.error === 'invalid_grant') {
-        throw new Error(
-          'Refreshing OAuth token has failed: already refreshed. ' +
-            'The token might have been refreshed in another window. ' +
-            'You can retry the operation. If this error persists, remove and re-add your GitLab account.',
-        );
-      }
-      throw new Error(`Refreshing OAuth token has failed: ${response.status} - ${errorResponse}`);
-    }
+    await handleFetchError(response, 'refresh token');
     const result = await response.json();
     assert(result.access_token, 'Refresh token response is missing access token.');
     assert(result.refresh_token, 'Refresh token response is missing refresh token.');

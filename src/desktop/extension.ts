@@ -99,6 +99,7 @@ import { registerLanguageServer } from '../common/language_server/register_langu
 import { CodeSuggestions } from '../common/code_suggestions/code_suggestions';
 import { desktopLanguageClientFactory } from './language_server/desktop_language_client_factory';
 import { createDependencyContainer } from './dependency_container_desktop';
+import { validateAccounts } from './commands/validate_accounts';
 
 const registerSidebarTreeDataProviders = () => {
   vscode.window.registerTreeDataProvider('issuesAndMrs', issuableDataProvider);
@@ -114,6 +115,7 @@ const registerCommands = (context: vscode.ExtensionContext) => {
     [USER_COMMANDS.AUTHENTICATE]: authenticate,
     [USER_COMMANDS.ADD_ACCOUNT]: tokenInput.addAccount,
     [USER_COMMANDS.REMOVE_ACCOUNT]: tokenInput.removeAccount,
+    [USER_COMMANDS.VALIDATE_ACCOUNTS]: validateAccounts,
     [USER_COMMANDS.OPEN_ACTIVE_FILE]: runWithValidProjectFile(openers.openActiveFile),
     [USER_COMMANDS.COPY_LINK_TO_ACTIVE_FILE]: runWithValidProjectFile(openers.copyLinkToActiveFile),
     [USER_COMMANDS.OPEN_CURRENT_MERGE_REQUEST]: runWithValidProject(
@@ -293,6 +295,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   // we don't want to hold the extension startup by waiting on VS Code and GitLab API
   doNotAwait(
     Promise.all([
+      vscode.commands.executeCommand(USER_COMMANDS.VALIDATE_ACCOUNTS, true),
       setupVersionCheck(context),
       setSidebarViewState(SidebarViewState.ListView),
       gitExtensionWrapper.init(),
