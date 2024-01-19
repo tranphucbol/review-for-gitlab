@@ -43,6 +43,7 @@ const uriForDiscussion = (
   return toReviewUri({
     path: pathFromPosition(position),
     commit: commitFromPosition(position),
+    exists: true,
     repositoryRoot: rootFsPath,
     projectId: mr.project_id,
     mrId: mr.id,

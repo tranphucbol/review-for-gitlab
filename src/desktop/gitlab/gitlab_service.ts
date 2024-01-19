@@ -443,7 +443,11 @@ export class GitLabService {
     return this.fetch(lastVersionPath, {}, 'MR diff');
   }
 
-  async getFileContent(path: string, ref: string, projectId: number | string): Promise<string> {
+  async getFileContent(
+    path: string,
+    ref: string,
+    projectId: number | string,
+  ): Promise<ArrayBuffer> {
     const encodedPath = encodeURIComponent(removeLeadingSlash(path));
     const encodedRef = encodeURIComponent(ref);
     const encodedProject = encodeURIComponent(projectId);
@@ -451,7 +455,7 @@ export class GitLabService {
     const fileUrl = `${instanceUrl}/api/v4/projects/${encodedProject}/repository/files/${encodedPath}/raw?ref=${encodedRef}`;
     const fileResult = await this.crossFetch(fileUrl);
     await handleFetchError(fileResult, 'file');
-    return fileResult.text();
+    return fileResult.arrayBuffer();
   }
 
   async getFile(

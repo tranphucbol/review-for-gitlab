@@ -1,4 +1,3 @@
-import { PROGRAMMATIC_COMMANDS } from '../../command_names';
 import {
   ADDED,
   CHANGE_TYPE_QUERY_KEY,
@@ -13,16 +12,6 @@ import { ChangedFileItem } from './changed_file_item';
 
 describe('ChangedFileItem', () => {
   describe('image file', () => {
-    it.each(['.jpg', '.jpeg', '.png', '.gif', '.webp', '.tiff', '.bmp', '.avif', '.apng'])(
-      'should not show diff for %s',
-      extension => {
-        const changedImageFile = { ...diffFile, new_path: `file${extension}` };
-        const item = new ChangedFileItem(mr, mrVersion, changedImageFile, '/repo', () => false);
-
-        expect(item.command?.command).toBe(PROGRAMMATIC_COMMANDS.NO_IMAGE_REVIEW);
-      },
-    );
-
     it.each`
       file                                                                          | changeType
       ${{ ...diffFile, new_file: true, deleted_file: false, renamed_file: false }}  | ${ADDED}
@@ -59,6 +48,7 @@ describe('ChangedFileItem', () => {
       expect(item.baseFileUri).toEqual(
         toReviewUri({
           path: diffFile.old_path,
+          exists: true,
           commit: mrVersion.base_commit_sha,
           repositoryRoot: '/repository/fsPath',
           projectId: mr.project_id,
@@ -68,6 +58,7 @@ describe('ChangedFileItem', () => {
       expect(item.headFileUri).toEqual(
         toReviewUri({
           path: diffFile.new_path,
+          exists: true,
           commit: mrVersion.head_commit_sha,
           repositoryRoot: '/repository/fsPath',
           projectId: mr.project_id,

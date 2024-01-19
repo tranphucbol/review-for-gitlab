@@ -4,6 +4,7 @@ describe('review_uri.ts', () => {
   const reviewUriParams = {
     commit: 'abcdef',
     path: '/review',
+    exists: true,
     projectId: 1234,
     mrId: 2345,
     repositoryRoot: 'path/to/workspace',
@@ -14,7 +15,7 @@ describe('review_uri.ts', () => {
       const result = toReviewUri(reviewUriParams);
 
       expect(result.toString()).toEqual(
-        'gl-review:///review?{"commit":"abcdef","mrId":2345,"projectId":1234,"repositoryRoot":"path/to/workspace"}',
+        'gl-review:///review?{"commit":"abcdef","exists":"1","mrId":2345,"projectId":1234,"repositoryRoot":"path/to/workspace"}',
       );
     });
   });
@@ -29,7 +30,7 @@ describe('review_uri.ts', () => {
 
   describe('isEmptyFileUri', () => {
     it('returns true for empty file', () => {
-      const uri = toReviewUri({ ...reviewUriParams, commit: undefined, path: undefined });
+      const uri = toReviewUri({ ...reviewUriParams, exists: false });
       expect(isEmptyFileUri(uri)).toBe(true);
     });
 

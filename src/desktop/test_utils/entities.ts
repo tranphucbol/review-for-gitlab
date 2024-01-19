@@ -119,6 +119,7 @@ export const reviewUriParams: ReviewUriParams = {
   projectId: mr.project_id,
   repositoryRoot: '/',
   path: 'new_path.js',
+  exists: true,
   commit: mr.sha,
 };
 
