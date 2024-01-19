@@ -3,10 +3,12 @@ import { GitLabChatController } from './gitlab_chat_controller';
 import { GitLabPlatformManagerForChat } from './get_platform_manager_for_chat';
 import { GitLabChatRecord } from './gitlab_chat_record';
 import { submitFeedback } from './utils/submit_feedback';
+import { SPECIAL_MESSAGES } from './constants';
 
 const apiMock = {
   processNewUserPrompt: jest.fn(),
   pullAiMessage: jest.fn(),
+  cleanChat: jest.fn(),
   subscribeToUpdates: jest.fn(),
 };
 
@@ -25,6 +27,7 @@ const viewMock = {
   onViewMessage: jest.fn(),
   onDidBecomeVisible: jest.fn(),
   resolveWebviewView: jest.fn(),
+  cleanChat: jest.fn(),
 };
 
 jest.mock('./gitlab_chat_view', () => ({
@@ -209,7 +212,7 @@ describe('GitLabChatController', () => {
 
     describe('with newChatConversation command', () => {
       beforeEach(() => {
-        record = new GitLabChatRecord({ role: 'user', content: '/reset' });
+        record = new GitLabChatRecord({ role: 'user', content: SPECIAL_MESSAGES.RESET });
       });
 
       it('sends only new user record and doesnt wait for response', async () => {
@@ -217,13 +220,17 @@ describe('GitLabChatController', () => {
 
         expect(viewMock.addRecord).toHaveBeenNthCalledWith(
           1,
-          expect.objectContaining({ content: '/reset', state: 'ready', role: 'user' }),
+          expect.objectContaining({
+            content: SPECIAL_MESSAGES.RESET,
+            state: 'ready',
+            role: 'user',
+          }),
         );
         expect(viewMock.addRecord).toHaveBeenCalledTimes(1);
 
         expect(controller.chatHistory[0]).toEqual(
           expect.objectContaining({
-            content: '/reset',
+            content: SPECIAL_MESSAGES.RESET,
             state: 'ready',
             role: 'user',
             type: 'newConversation',
@@ -235,7 +242,7 @@ describe('GitLabChatController', () => {
   });
 
   describe('viewMessageHandler', () => {
-    describe('supports trackFeedback events', () => {
+    describe('trackFeedback', () => {
       it('calls submitFeedback when data is present', async () => {
         await controller.viewMessageHandler({
           eventType: 'trackFeedback',
@@ -257,7 +264,7 @@ describe('GitLabChatController', () => {
       });
     });
 
-    describe('supports newPrompt events', () => {
+    describe('newPrompt', () => {
       it('processes new record', async () => {
         controller.processNewUserRecord = jest.fn();
 
@@ -273,6 +280,64 @@ describe('GitLabChatController', () => {
             content: 'hello',
           }),
         );
+      });
+    });
+
+    describe('cleanChat', () => {
+      beforeEach(() => {
+        apiMock.cleanChat.mockResolvedValue({
+          aiAction: {
+            errors: [],
+            requestId: 'uniqueId',
+          },
+        });
+      });
+
+      it('triggers `cleanChat` on the API', async () => {
+        expect(apiMock.cleanChat).not.toHaveBeenCalled();
+        await controller.viewMessageHandler({
+          eventType: 'cleanChat',
+        });
+
+        expect(apiMock.cleanChat).toHaveBeenCalled();
+      });
+
+      it('triggers `cleanChat` on the view', async () => {
+        expect(viewMock.cleanChat).not.toHaveBeenCalled();
+        await controller.viewMessageHandler({
+          eventType: 'cleanChat',
+        });
+
+        expect(viewMock.cleanChat).toHaveBeenCalled();
+      });
+
+      it('handles errors in response by showing VSCode error message', async () => {
+        expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
+
+        apiMock.cleanChat.mockResolvedValue({
+          aiAction: {
+            errors: ['foo', 'bar'],
+            requestId: 'uniqueId',
+          },
+        });
+
+        await controller.viewMessageHandler({
+          eventType: 'cleanChat',
+        });
+
+        expect(vscode.window.showErrorMessage).toHaveBeenCalledWith('foo, bar');
+      });
+
+      it('handles non-recoverable errors failing the response', async () => {
+        expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
+
+        apiMock.cleanChat.mockRejectedValue(new Error('test problem'));
+
+        await controller.viewMessageHandler({
+          eventType: 'cleanChat',
+        });
+
+        expect(vscode.window.showErrorMessage).toHaveBeenCalledWith('Error: test problem');
       });
     });
   });

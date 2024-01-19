@@ -15,7 +15,15 @@ interface RecordCommand {
   record: GitLabChatRecord;
 }
 
-export type ViewCommand = FocusCommand | RecordCommand;
+interface CleanChatCommand {
+  eventType: 'cleanChat';
+}
+
+export type ViewCommand = FocusCommand | RecordCommand | CleanChatCommand;
+
+interface CleanChatMessage {
+  eventType: 'cleanChat';
+}
 
 interface NewPromptMessage {
   eventType: 'newPrompt';
@@ -32,7 +40,7 @@ interface FeedbackMessage {
   };
 }
 
-export type ViewEmittedMessage = NewPromptMessage | FeedbackMessage;
+export type ViewEmittedMessage = NewPromptMessage | FeedbackMessage | CleanChatMessage;
 
 export class GitLabChatView {
   #context: vscode.ExtensionContext;
@@ -89,6 +97,10 @@ export class GitLabChatView {
     }
 
     await this.focusInput();
+  }
+
+  async cleanChat() {
+    await this.sendChatViewCommand({ eventType: 'cleanChat' });
   }
 
   async addRecord(record: GitLabChatRecord) {

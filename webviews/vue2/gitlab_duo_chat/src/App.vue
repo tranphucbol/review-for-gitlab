@@ -1,5 +1,6 @@
 <script>
 import { GlDuoChat } from '@gitlab/ui';
+import { SPECIAL_MESSAGES } from './constants';
 
 const vscode = acquireVsCodeApi();
 const i18n = {
@@ -62,6 +63,10 @@ export default {
       const message = event.data;
 
       switch (message.eventType) {
+        case 'cleanChat': {
+          this.chatMessages = [];
+          break;
+        }
         case 'focus': {
           break;
         }
@@ -100,8 +105,10 @@ export default {
       }
     },
     onSendChatPrompt(question) {
+      const eventType = question === SPECIAL_MESSAGES.CLEAN ? 'cleanChat' : 'newPrompt';
+
       window.vsCodeApi.postMessage({
-        eventType: 'newPrompt',
+        eventType,
         record: {
           content: question,
         },

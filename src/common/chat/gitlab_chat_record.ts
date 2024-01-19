@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { buildCurrentContext, GitLabChatRecordContext } from './gitlab_chat_record_context';
+import { SPECIAL_MESSAGES } from './constants';
 
 type ChatRecordRole = 'user' | 'assistant' | 'system';
 type ChatRecordState = 'pending' | 'ready';
@@ -91,7 +92,7 @@ export class GitLabChatRecord {
   }
 
   private detectType(): ChatRecordType {
-    if (this.content === '/reset') {
+    if (this.content === SPECIAL_MESSAGES.RESET) {
       return 'newConversation';
     }
 
