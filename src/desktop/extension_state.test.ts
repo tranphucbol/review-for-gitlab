@@ -4,7 +4,7 @@ import { accountService } from './accounts/account_service';
 import { gitExtensionWrapper } from './git/git_extension_wrapper';
 import { Account } from '../common/platform/gitlab_account';
 import { GitLabPlatformManager } from '../common/platform/gitlab_platform';
-import { createOAuthAccount, createTokenAccount } from './test_utils/entities';
+import { createTokenAccount } from './test_utils/entities';
 import { createFakePartial } from '../common/test_utils/create_fake_partial';
 import { getChatSupport } from '../common/chat/api/get_chat_support';
 
@@ -76,30 +76,6 @@ describe('extension_state', () => {
         false,
       );
     });
-  });
-
-  it('sets gitlab:hasSaaSAccount to false if there is no SaaS account', async () => {
-    mockedAccounts = [createTokenAccount('https://my_standalone_instance')];
-
-    await extensionState.init(accountService, manager);
-
-    expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
-      'setContext',
-      'gitlab:hasSaaSAccount',
-      false,
-    );
-  });
-
-  it('sets gitlab:hasSaaSAccount to true if there is a SaaS account', async () => {
-    mockedAccounts = [createOAuthAccount()];
-
-    await extensionState.init(accountService, manager);
-
-    expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
-      'setContext',
-      'gitlab:hasSaaSAccount',
-      true,
-    );
   });
 
   it('fires event when valid state changes', async () => {

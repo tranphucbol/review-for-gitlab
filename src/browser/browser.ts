@@ -20,14 +20,6 @@ export const activate = async (context: vscode.ExtensionContext) => {
   const duoChatAvailable: boolean = await getChatSupport(dependencyContainer.gitLabPlatformManager);
   await vscode.commands.executeCommand('setContext', 'gitlab:chatAvailable', duoChatAvailable);
 
-  const platform = await dependencyContainer.gitLabPlatformManager.getForSaaSAccount();
-
-  await vscode.commands.executeCommand(
-    'setContext',
-    'gitlab:hasSaaSAccount',
-    platform !== undefined,
-  );
-
   await activateCommon(context, dependencyContainer, outputChannel);
 
   if (featureFlags.isEnabled(featureFlags.FeatureFlag.LanguageServerWebIDE)) {
