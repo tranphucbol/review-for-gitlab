@@ -1,6 +1,6 @@
 import vscode from 'vscode';
 import { BaseLanguageClient, TextDocumentPositionParams } from 'vscode-languageclient';
-import { START_STREAMING_COMMAND, StreamingCompletionRequest } from '@gitlab-org/gitlab-lsp';
+import { START_STREAMING_COMMAND } from '@gitlab-org/gitlab-lsp';
 import { ProvideInlineCompletionItemsSignature } from 'vscode-languageclient/lib/common/inlineCompletion';
 import { CodeSuggestionsStateManager } from '../code_suggestions/code_suggestions_state_manager';
 import { createFakePartial } from '../test_utils/create_fake_partial';
@@ -248,19 +248,6 @@ describe('LanguageClientMiddleware', () => {
         }
 
         describe('streaming', () => {
-          it('starts with the request to the server', async () => {
-            await callMiddleware();
-
-            expect(client.sendNotification).toHaveBeenCalledWith(
-              expect.objectContaining({
-                method: StreamingCompletionRequest.method,
-              }),
-              expect.objectContaining({
-                id: streamId,
-              }),
-            );
-          });
-
           it('keeps receiving notifications until done', async () => {
             client.onNotification = invokeNotifications([
               { id: streamId, completion: 'test', done: false },

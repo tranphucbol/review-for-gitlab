@@ -78,7 +78,7 @@ export class LanguageClientMiddleware implements Middleware {
         if (command === START_STREAMING_COMMAND) {
           const streamId = response.items?.[0]?.command?.arguments?.[0];
 
-          await this.#startStreaming(document, position, streamId);
+          await this.#listenToIncomingStream(document, position, streamId);
           return [];
         }
       }
@@ -92,7 +92,7 @@ export class LanguageClientMiddleware implements Middleware {
     }
   }
 
-  async #startStreaming(
+  async #listenToIncomingStream(
     document: vscode.TextDocument,
     position: vscode.Position,
     streamId: string,
@@ -108,7 +108,6 @@ export class LanguageClientMiddleware implements Middleware {
 
     try {
       this.#stateManager.setLoadingResource(stream, true);
-      await stream.start();
     } catch (e) {
       this.#stateManager.setLoadingResource(stream, false);
       throw e;
