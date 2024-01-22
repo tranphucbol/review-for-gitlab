@@ -1,3 +1,4 @@
+import { VS_COMMANDS } from '../../command_names';
 import {
   ADDED,
   CHANGE_TYPE_QUERY_KEY,
@@ -12,6 +13,49 @@ import { ChangedFileItem } from './changed_file_item';
 
 describe('ChangedFileItem', () => {
   describe('image file', () => {
+    const extensions = ['.jpg', '.png', '.mp3', '.webm'];
+
+    it.each(extensions)('should show diff for changed %s file', extension => {
+      const changedImageFile = { ...diffFile, new_path: `file${extension}` };
+      const item = new ChangedFileItem(mr, mrVersion, changedImageFile, '/repo', () => false);
+
+      expect(item.command?.command).toBe(VS_COMMANDS.DIFF);
+    });
+
+    it.each(extensions)('should not show diff for new %s file', extension => {
+      const path = `newfile${extension}`;
+      const changedImageFile = {
+        ...diffFile,
+        renamed_file: false,
+        new_file: true,
+        old_path: `invalid${extension}`,
+        new_path: path,
+      };
+      const item = new ChangedFileItem(mr, mrVersion, changedImageFile, '/repo', () => false);
+
+      expect(item.command?.command).toBe(VS_COMMANDS.OPEN);
+
+      const [url] = item.command?.arguments ?? [];
+      expect(url.path).toBe(path);
+    });
+
+    it.each(extensions)('should not show diff for deleted %s file', extension => {
+      const path = `deleted${extension}`;
+      const changedImageFile = {
+        ...diffFile,
+        renamed_file: false,
+        deleted_file: true,
+        old_path: path,
+        new_path: `invalid${extension}`,
+      };
+      const item = new ChangedFileItem(mr, mrVersion, changedImageFile, '/repo', () => false);
+
+      expect(item.command?.command).toBe(VS_COMMANDS.OPEN);
+
+      const [url] = item.command?.arguments ?? [];
+      expect(url.path).toBe(path);
+    });
+
     it.each`
       file                                                                          | changeType
       ${{ ...diffFile, new_file: true, deleted_file: false, renamed_file: false }}  | ${ADDED}
@@ -49,6 +93,7 @@ describe('ChangedFileItem', () => {
         toReviewUri({
           path: diffFile.old_path,
           exists: true,
+          change: 'renamed',
           commit: mrVersion.base_commit_sha,
           repositoryRoot: '/repository/fsPath',
           projectId: mr.project_id,
@@ -59,6 +104,7 @@ describe('ChangedFileItem', () => {
         toReviewUri({
           path: diffFile.new_path,
           exists: true,
+          change: 'renamed',
           commit: mrVersion.head_commit_sha,
           repositoryRoot: '/repository/fsPath',
           projectId: mr.project_id,

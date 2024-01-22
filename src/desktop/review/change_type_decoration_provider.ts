@@ -1,5 +1,13 @@
 import * as vscode from 'vscode';
-import { ADDED, DELETED, RENAMED, MODIFIED, CHANGE_TYPE_QUERY_KEY } from '../constants';
+import {
+  ADDED,
+  DELETED,
+  RENAMED,
+  MODIFIED,
+  CHANGE_TYPE_QUERY_KEY,
+  REVIEW_URI_SCHEME,
+} from '../constants';
+import { fromReviewUri } from './review_uri';
 
 export const decorations: Record<string, vscode.FileDecoration | undefined> = {
   [ADDED]: {
@@ -21,6 +29,14 @@ export const decorations: Record<string, vscode.FileDecoration | undefined> = {
 
 export const changeTypeDecorationProvider: vscode.FileDecorationProvider = {
   provideFileDecoration: uri => {
+    if (uri.scheme === REVIEW_URI_SCHEME) {
+      const params = fromReviewUri(uri);
+      const changeType = params.change;
+      if (changeType) {
+        return decorations[changeType];
+      }
+      return decorations[DELETED];
+    }
     if (uri.scheme === 'file') {
       const params = new URLSearchParams(uri.query);
       const changeType = params.get(CHANGE_TYPE_QUERY_KEY);

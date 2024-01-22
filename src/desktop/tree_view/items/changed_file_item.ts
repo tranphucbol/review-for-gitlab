@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { posix as path } from 'path';
-import { toReviewUri } from '../../review/review_uri';
+import { isEmptyFileUri, toReviewUri } from '../../review/review_uri';
 import { VS_COMMANDS } from '../../command_names';
 import {
   ADDED,
@@ -21,6 +21,28 @@ const getChangeType = (file: RestDiffFile): ChangeType => {
   return MODIFIED;
 };
 
+// All extensions supported by VS Code's built-in Media Previewer.
+// https://github.com/microsoft/vscode/blob/ba38f8a5eeb81c05dbdade3e1657e233d770f717/extensions/media-preview/package.json
+const mediaExtensions = [
+  '.jpg',
+  '.jpe',
+  '.jpeg',
+  '.png',
+  '.bmp',
+  '.gif',
+  '.ico',
+  '.webp',
+  '.avif',
+  '.mp3',
+  '.wav',
+  '.ogg',
+  '.oga',
+  '.mp4',
+  '.webm',
+];
+const looksLikeMedia = (filePath: string) =>
+  mediaExtensions.includes(path.extname(filePath).toLowerCase());
+
 const getBaseAndHeadUri = (
   mr: RestMr,
   mrVersion: RestMrVersion,
@@ -29,6 +51,7 @@ const getBaseAndHeadUri = (
 ) => {
   const commonParams = {
     repositoryRoot: repositoryPath,
+    change: getChangeType(file),
     projectId: mr.project_id,
     mrId: mr.id,
   };
@@ -69,20 +92,31 @@ export class ChangedFileItem extends vscode.TreeItem {
     const uris = getBaseAndHeadUri(mr, mrVersion, file, repositoryPath);
     this.headFileUri = uris.headFileUri;
     this.baseFileUri = uris.baseFileUri;
+    const headIsEmpty = isEmptyFileUri(uris.headFileUri);
+    const baseIsEmpty = isEmptyFileUri(uris.baseFileUri);
     const hasComments = hasComment(this.baseFileUri) || hasComment(this.headFileUri);
     const query = new URLSearchParams([
       [CHANGE_TYPE_QUERY_KEY, getChangeType(file)],
       [HAS_COMMENTS_QUERY_KEY, String(hasComments)],
     ]).toString();
     this.resourceUri = this.resourceUri?.with({ query });
-    this.command = {
-      title: 'Show changes',
-      command: VS_COMMANDS.DIFF,
-      arguments: [
-        this.baseFileUri,
-        this.headFileUri,
-        `${path.basename(file.new_path)} (!${mr.iid})`,
-      ],
-    };
+
+    if (looksLikeMedia(uris.headFileUri.path) && (headIsEmpty || baseIsEmpty)) {
+      this.command = {
+        title: 'Show changes',
+        command: VS_COMMANDS.OPEN,
+        arguments: [headIsEmpty ? this.baseFileUri : this.headFileUri],
+      };
+    } else {
+      this.command = {
+        title: 'Show changes',
+        command: VS_COMMANDS.DIFF,
+        arguments: [
+          this.baseFileUri,
+          this.headFileUri,
+          `${path.basename(file.new_path)} (!${mr.iid})`,
+        ],
+      };
+    }
   }
 }
