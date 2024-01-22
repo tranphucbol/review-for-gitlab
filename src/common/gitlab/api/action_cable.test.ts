@@ -1,6 +1,7 @@
 import WebSocket from 'ws';
 import { createCable } from '@anycable/core';
 import { connectToCable } from './action_cable';
+import { log } from '../../log';
 
 const cableMock = {
   connect: jest.fn(),
@@ -8,6 +9,12 @@ const cableMock = {
 
 jest.mock('@anycable/core', () => ({
   createCable: jest.fn().mockImplementation(() => cableMock),
+}));
+
+jest.mock('../../log', () => ({
+  log: {
+    error: jest.fn(),
+  },
 }));
 
 describe('connectToCable', () => {
@@ -37,5 +44,15 @@ describe('connectToCable', () => {
       websocketImplementation: WebSocket,
       websocketOptions: additionalOptions,
     });
+  });
+
+  it('logs error is connection to cable fails', async () => {
+    const err = new Error('Foo Bar');
+    cableMock.connect = jest.fn(() => {
+      throw err;
+    });
+
+    await connectToCable('http://foo.bar:3000');
+    expect(log.error).toHaveBeenCalledWith(err);
   });
 });
