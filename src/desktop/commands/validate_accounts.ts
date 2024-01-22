@@ -70,9 +70,12 @@ export const validateAccounts = async (showOnlyErrors = false) => {
   }
 
   if (accounts.length === 0) {
-    await vscode.window.showInformationMessage(
-      'There are no GitLab accounts set up. [Authenticate to GitLab.com](command:gl.authenticate) or [Add GitLab Account](command:gl.addAccount)',
+    const command = await vscode.window.showInformationMessage(
+      'There are no GitLab accounts set up.',
+      { title: 'Authenticate to GitLab.com', command: 'gl.authenticate' },
+      { title: 'Add GitLab Account', command: 'gl.addAccount' },
     );
+    command && (await vscode.commands.executeCommand(command.command));
     return;
   }
 

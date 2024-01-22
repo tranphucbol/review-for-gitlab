@@ -21,12 +21,23 @@ describe('validateAccounts', () => {
     accountService.removeAccount = jest.fn();
   });
 
-  it('shows message when there are no accounts', async () => {
+  it('shows message with authentication buttons when there are no accounts', async () => {
     mockedAccounts = [];
     await validateAccounts();
     expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
-      'There are no GitLab accounts set up. [Authenticate to GitLab.com](command:gl.authenticate) or [Add GitLab Account](command:gl.addAccount)',
+      'There are no GitLab accounts set up.',
+      { title: 'Authenticate to GitLab.com', command: 'gl.authenticate' },
+      { title: 'Add GitLab Account', command: 'gl.addAccount' },
     );
+  });
+
+  it('executes a command from the no account message', async () => {
+    mockedAccounts = [];
+    jest
+      .mocked(vscode.window.showInformationMessage as jest.Func)
+      .mockResolvedValue({ title: 'Authenticate to GitLab.com', command: 'gl.authenticate' });
+    await validateAccounts();
+    expect(vscode.commands.executeCommand).toHaveBeenCalledWith('gl.authenticate');
   });
 
   describe('with invalid account', () => {
