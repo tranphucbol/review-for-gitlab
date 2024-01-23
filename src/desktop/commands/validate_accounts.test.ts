@@ -25,7 +25,7 @@ describe('validateAccounts', () => {
     mockedAccounts = [];
     await validateAccounts();
     expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
-      'There are no GitLab accounts set up.',
+      'No GitLab accounts are set up.',
       { title: 'Authenticate to GitLab.com', command: 'gl.authenticate' },
       { title: 'Add GitLab Account', command: 'gl.addAccount' },
     );
@@ -80,7 +80,7 @@ describe('validateAccounts', () => {
         it('shows invalid token error and offers to delete or ignore account', async () => {
           await validateAccounts();
           expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
-            expect.stringMatching('expired or revoked token'),
+            expect.stringMatching('expired or been revoked'),
             'Delete Account',
             'Ignore Error',
           );
@@ -117,7 +117,7 @@ describe('validateAccounts', () => {
         it('shows invalid token error and offers to re-authenticate or ignore error for OAuth account', async () => {
           await validateAccounts();
           expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
-            expect.stringMatching('expired or revoked token'),
+            expect.stringMatching('expired or been revoked'),
             'Re-authenticate',
             'Ignore Error',
           );

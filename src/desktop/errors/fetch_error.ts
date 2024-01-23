@@ -26,7 +26,7 @@ export class FetchError extends Error implements DetailedError {
       message = `Request for ${resourceName} failed because the token is expired or revoked.`;
     }
     if (isInvalidRefresh(response, body)) {
-      message = `Request to refresh token failed it's revoked or already refreshed`;
+      message = `Request to refresh token failed, because it's revoked or already refreshed.`;
     }
     super(message);
     this.response = response;
