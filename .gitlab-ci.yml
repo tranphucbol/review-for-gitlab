@@ -65,8 +65,9 @@ lint_commit:
     - cd scripts/commit-lint && npm ci
     - node lint.js
   rules:
-    - if: '$CI_MERGE_REQUEST_IID && $CI_PROJECT_VISIBILITY == "public"' # lint.js script makes an API call without authentication
+    - if: '$CI_MERGE_REQUEST_IID'
       when: always
+
 
 check-ci-variables:
   stage: test
