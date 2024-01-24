@@ -1,5 +1,14 @@
 ## Description
 
+<!---
+This MR needs to produce conventional commit(s) in the main branch.
+Ensure one of the following:
+- the MR title is a conventional commit message and the MR is set to squash
+- the MR is not set to squash and all MR commits have valid conventional commit messages
+
+Docs: https://gitlab.com/gitlab-org/gitlab-vscode-extension/blob/main/docs/developer/commits.md?plain=0#commit-conventions
+-->
+
 <!--- Describe your changes in detail -->
 
 ## Related Issues
@@ -16,7 +25,7 @@ Resolves #[issue_number]
 <!--- Include details of your testing environment, and the tests you ran to -->
 <!--- see how your change affects other areas of the code, etc. -->
 
-## Screenshots (if appropriate):
+## Screenshots (if appropriate)
 
 ### Types of changes
 
