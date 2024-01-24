@@ -1,5 +1,0 @@
----
-pre-push:
-  commands:
-    lint-commits:
-      run: node scripts/commit-lint/lint.js

@@ -49,12 +49,6 @@ async function isConventional(message) {
   );
 }
 
-async function lintLocal() {
-  console.log('INFO: Linting in local mode...');
-  const commits = await read({ from: 'origin/main', to: 'HEAD' });
-  return Promise.all(commits.map(isConventional));
-}
-
 async function lintMr() {
   console.log('INFO: Linting in CI mode...');
   const commits = await getCommitsInMr();
@@ -76,14 +70,11 @@ async function lintMr() {
 }
 
 async function run() {
-  let results;
   if (!CI) {
-    console.log('INFO: CI environment variable not detected.');
-    results = await lintLocal();
-  } else {
-    console.log('INFO: CI variable detected.');
-    results = await lintMr();
+    console.error('This script can only run in GitLab CI.');
+    process.exit(1);
   }
+  const results = await lintMr();
 
   console.error(format({ results }, { helpUrl: urlSemanticRelease }));
 
