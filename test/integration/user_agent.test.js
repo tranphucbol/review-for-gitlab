@@ -1,6 +1,6 @@
 const vscode = require('vscode');
 const { setupServer } = require('msw/node');
-const { graphql } = require('msw');
+const { graphql, HttpResponse } = require('msw');
 const assert = require('assert');
 const { GITLAB_URL } = require('./test_infrastructure/constants');
 const { GitLabService } = require('../../src/desktop/gitlab/gitlab_service');
@@ -23,9 +23,9 @@ describe('User-Agent header', () => {
 
   before(async () => {
     server = setupServer(
-      graphql.query('GetSnippets', (req, res, ctx) => {
-        capturedRequest = req;
-        return res(ctx.data(snippetsResponse));
+      graphql.query('GetSnippets', ({ request }) => {
+        capturedRequest = request;
+        return HttpResponse.json({ data: snippetsResponse });
       }),
     );
     server.listen();

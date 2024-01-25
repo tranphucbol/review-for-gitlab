@@ -1,7 +1,7 @@
 const sinon = require('sinon');
 const assert = require('assert');
 const vscode = require('vscode');
-const { rest } = require('msw');
+const { http, HttpResponse } = require('msw');
 const { EOL } = require('os');
 const validCiLintResponse = require('./fixtures/rest/ci_lint_valid.json');
 const invalidCiLintResponse = require('./fixtures/rest/ci_lint_invalid.json');
@@ -25,14 +25,15 @@ describe('CI Lint commands', async () => {
 
   before(async () => {
     server = getServer([
-      rest.post(`${API_URL_PREFIX}/projects/278964/ci/lint`, (req, res, ctx) => {
-        switch (req.body.content) {
+      http.post(`${API_URL_PREFIX}/projects/278964/ci/lint`, async ({ request }) => {
+        const body = await request.json();
+        switch (body.content) {
           case VALID_CI_CONFIG:
-            return res(ctx.status(200), ctx.json(validCiLintResponse));
+            return HttpResponse.json(validCiLintResponse, { status: 200 });
           case INVALID_CI_CONFIG:
-            return res(ctx.status(200), ctx.json(invalidCiLintResponse));
+            return HttpResponse.json(invalidCiLintResponse, { status: 200 });
           default:
-            return res(ctx.status(500), ctx.text('No response for the config'));
+            return HttpResponse.text('No response for the config', { status: 500 });
         }
       }),
     ]);

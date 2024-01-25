@@ -1,7 +1,7 @@
 const assert = require('assert');
 const sinon = require('sinon');
 const vscode = require('vscode');
-const { graphql } = require('msw');
+const { graphql, HttpResponse } = require('msw');
 
 const { IssuableDataProvider } = require('../../src/desktop/tree_view/issuable_data_provider');
 const { MrItemModel } = require('../../src/desktop/tree_view/items/mr_item_model');
@@ -43,29 +43,25 @@ describe('MR Review', () => {
         '?ref=1f0fa02de1f6b913d674a8be10899fb8540237a9': 'Old Version',
         '?ref=b6d6f6fd17b52b8cf4e961218c572805e9aa7463': 'New Version',
       }),
-      graphql.query('GetMrDiscussions', (req, res, ctx) => {
-        if (
-          req.variables.namespaceWithPath === 'gitlab-org/gitlab' &&
-          req.variables.iid === '33824'
-        )
-          return res(ctx.data(projectWithMrDiscussions));
-        return res(ctx.data({ project: null }));
+      graphql.query('GetMrDiscussions', ({ variables }) => {
+        if (variables.namespaceWithPath === 'gitlab-org/gitlab' && variables.iid === '33824')
+          return HttpResponse.json({ data: projectWithMrDiscussions });
+        return HttpResponse.json({ data: { project: null } });
       }),
-      graphql.query('GetMrPermissions', (req, res, ctx) => {
-        if (
-          req.variables.namespaceWithPath === 'gitlab-org/gitlab' &&
-          req.variables.iid === '33824'
-        )
-          return res(ctx.data(mrPermissionsResponse));
-        return res(ctx.data({ project: null }));
+      graphql.query('GetMrPermissions', ({ variables }) => {
+        if (variables.namespaceWithPath === 'gitlab-org/gitlab' && variables.iid === '33824')
+          return HttpResponse.json({ data: mrPermissionsResponse });
+        return HttpResponse.json({ data: { project: null } });
       }),
-      graphql.mutation('CreateDiffNote', (req, res, ctx) => {
+      graphql.mutation('CreateDiffNote', ({ variables }) => {
         if (
-          req.variables.issuableId === `gid://gitlab/MergeRequest/${openMergeRequestResponse.id}` &&
-          req.variables.body === 'new comment'
+          variables.issuableId === `gid://gitlab/MergeRequest/${openMergeRequestResponse.id}` &&
+          variables.body === 'new comment'
         )
-          return res(ctx.data({ createDiffNote: { note: { discussion: discussionOnDiff } } }));
-        return res(ctx.status(500));
+          return HttpResponse.json({
+            data: { createDiffNote: { note: { discussion: discussionOnDiff } } },
+          });
+        return new HttpResponse(null, { status: 500 });
       }),
     ]);
   });

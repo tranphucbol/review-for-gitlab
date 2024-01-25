@@ -1,6 +1,6 @@
 const assert = require('assert');
 const sinon = require('sinon');
-const { graphql } = require('msw');
+const { graphql, HttpResponse } = require('msw');
 const { issuableController } = require('../../src/desktop/issuable_controller');
 const openIssueResponse = require('./fixtures/rest/open_issue.json');
 const { projectWithIssueDiscussions, note2 } = require('./fixtures/graphql/discussions');
@@ -16,23 +16,23 @@ describe('GitLab Issuable webview', () => {
 
   before(async () => {
     server = getServer([
-      graphql.query('GetIssueDiscussions', (req, res, ctx) => {
-        if (req.variables.namespaceWithPath === 'gitlab-org/gitlab')
-          return res(ctx.data(projectWithIssueDiscussions));
-        return res(ctx.data({ project: null }));
+      graphql.query('GetIssueDiscussions', ({ variables }) => {
+        if (variables.namespaceWithPath === 'gitlab-org/gitlab')
+          return HttpResponse.json({ data: projectWithIssueDiscussions });
+        return HttpResponse.json({ data: { project: null } });
       }),
-      graphql.mutation('CreateNote', (req, res, ctx) => {
-        const { issuableId, body } = req.variables;
+      graphql.mutation('CreateNote', ({ variables }) => {
+        const { issuableId, body } = variables;
         if (issuableId === 'gid://gitlab/Issue/35284557' && body === 'Hello')
-          return res(
-            ctx.data({
+          return HttpResponse.json({
+            data: {
               createNote: {
                 errors: [],
                 note: note2,
               },
-            }),
-          );
-        return res(ctx.status(500));
+            },
+          });
+        return new HttpResponse(null, { status: 500 });
       }),
       createJsonEndpoint(
         `/projects/${openIssueResponse.project_id}/issues/${openIssueResponse.iid}/resource_label_events`,

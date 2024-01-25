@@ -1,15 +1,15 @@
 const { setupServer } = require('msw/node');
-const { rest, graphql } = require('msw');
+const { http, graphql, HttpResponse } = require('msw');
 const { API_URL_PREFIX } = require('./constants');
 const projectResponse = require('../fixtures/graphql/project.json');
 const versionResponse = require('../fixtures/rest/version.json');
 const userResponse = require('../fixtures/rest/user.json');
 
 const createJsonEndpoint = (path, response) =>
-  rest.get(`${API_URL_PREFIX}${path}`, (req, res, ctx) => res(ctx.status(200), ctx.json(response)));
+  http.get(`${API_URL_PREFIX}${path}`, () => HttpResponse.json(response, { status: 200 }));
 
 const createJsonPostEndpoint = (path, response, apiUrlPrefix = API_URL_PREFIX) =>
-  rest.post(`${apiUrlPrefix}${path}`, (req, res, ctx) => res(ctx.status(200), ctx.json(response)));
+  http.post(`${apiUrlPrefix}${path}`, () => HttpResponse.json(response, { status: 200 }));
 
 const sortRequestQuery = search =>
   search
@@ -19,50 +19,48 @@ const sortRequestQuery = search =>
     .join('&');
 
 const createQueryJsonEndpoint = (path, queryResponseMap) =>
-  rest.get(`${API_URL_PREFIX}${path}`, (req, res, ctx) => {
+  http.get(`${API_URL_PREFIX}${path}`, ({ request }) => {
     const sortedQueryResponseMap = Object.keys(queryResponseMap).reduce((acc, key) => {
       const parsedKey = new URLSearchParams(sortRequestQuery(key)).toString();
       return { ...acc, [parsedKey]: queryResponseMap[key] };
     }, {});
 
-    const response = sortedQueryResponseMap[sortRequestQuery(req.url.search)];
+    const response = sortedQueryResponseMap[sortRequestQuery(new URL(request.url).search)];
 
     if (!response) {
-      console.warn(`API call ${req.url.toString()} doesn't have a query handler.`);
-      return res(ctx.status(404));
+      console.warn(`API call ${request.url} doesn't have a query handler.`);
+      return new HttpResponse(null, { status: 404 });
     }
-    return res(ctx.status(200), ctx.json(response));
+    return HttpResponse.json(response, { status: 200 });
   });
 
 const createTextEndpoint = (path, response) =>
-  rest.get(`${API_URL_PREFIX}${path}`, (req, res, ctx) => res(ctx.status(200), ctx.text(response)));
+  http.get(`${API_URL_PREFIX}${path}`, () => HttpResponse.text(response, { status: 200 }));
 
 const createQueryTextEndpoint = (path, queryResponseMap) =>
-  rest.get(`${API_URL_PREFIX}${path}`, (req, res, ctx) => {
-    const response = queryResponseMap[req.url.search];
+  http.get(`${API_URL_PREFIX}${path}`, ({ request }) => {
+    const response = queryResponseMap[new URL(request.url).search];
     if (!response) {
-      console.warn(`API call ${req.url.toString()} doesn't have a query handler.`);
-      return res(ctx.status(404));
+      console.warn(`API call ${request.url} doesn't have a query handler.`);
+      return new HttpResponse(null, { status: 404 });
     }
-    return res(ctx.status(200), ctx.text(response));
+    return HttpResponse.text(response, { status: 200 });
   });
 
 const createPostEndpoint = (path, response) =>
-  rest.post(`${API_URL_PREFIX}${path}`, (req, res, ctx) =>
-    res(ctx.status(201), ctx.json(response)),
-  );
+  http.post(`${API_URL_PREFIX}${path}`, () => HttpResponse.json(response, { status: 201 }));
 
-const notFoundByDefault = rest.get(/.*/, (req, res, ctx) => {
-  console.warn(`API call ${req.url.toString()} doesn't have a query handler.`);
-  res(ctx.status(404));
+const notFoundByDefault = http.get(/.*/, ({ request }) => {
+  console.warn(`API call ${request.url} doesn't have a query handler.`);
+  return new HttpResponse(null, { status: 404 });
 });
 
 const getServer = (handlers = []) => {
   const server = setupServer(
-    graphql.query('GetProject', (req, res, ctx) => {
-      if (req.variables.namespaceWithPath === 'gitlab-org/gitlab')
-        return res(ctx.data(projectResponse));
-      return res(ctx.data({ project: null }));
+    graphql.query('GetProject', ({ variables }) => {
+      if (variables.namespaceWithPath === 'gitlab-org/gitlab')
+        return HttpResponse.json({ data: projectResponse }, { status: 200 });
+      return HttpResponse.json({ data: { project: null } }, { status: 200 });
     }),
     createJsonEndpoint('/version', versionResponse),
     createJsonEndpoint('/user', userResponse),
