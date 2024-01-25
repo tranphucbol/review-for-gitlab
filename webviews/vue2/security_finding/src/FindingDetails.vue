@@ -83,7 +83,7 @@ export default {
       <p v-if="vulnerability.descriptionHtml" v-safe-html="vulnerability.descriptionHtml"></p>
       <p v-else>{{ vulnerability.description }}</p>
     </row>
-    <row label="Severity"> {{ finding.severity }}</row>
+    <row label="Severity" class="capitalize"> {{ finding.severity.toLowerCase() }}</row>
     <row label="Tool"> {{ reportType(finding.reportType) }}</row>
     <row label="Scanner"> {{ finding.scanner.name }}</row>
     <row v-if="file" label="Location">
@@ -118,5 +118,8 @@ body {
 h2,
 h3 {
   color: #eee;
+}
+.capitalize {
+  text-transform: capitalize;
 }
 </style>
