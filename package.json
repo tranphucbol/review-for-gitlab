@@ -261,7 +261,7 @@
     "@types/sinon": "^10.0.20",
     "@types/source-map-support": "^0.5.10",
     "@types/temp": "^0.9.4",
-    "@types/uuid": "^9.0.7",
+    "@types/uuid": "^9.0.8",
     "@types/vscode": "^1.82.0",
     "@types/ws": "^8.5.10",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
