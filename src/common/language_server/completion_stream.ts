@@ -1,11 +1,5 @@
 import vscode from 'vscode';
-import {
-  BaseLanguageClient,
-  InlineCompletionTriggerKind,
-  Position,
-  TextDocumentIdentifier,
-} from 'vscode-languageclient';
-import { StreamingCompletionRequest } from '@gitlab-org/gitlab-lsp';
+import { BaseLanguageClient } from 'vscode-languageclient';
 import { createStreamIterator } from './create_stream_iterator';
 import { log } from '../log';
 
@@ -22,10 +16,6 @@ export class CompletionStream {
 
   #cancellationTokenSource: vscode.CancellationTokenSource;
 
-  #textDocument: TextDocumentIdentifier;
-
-  #position: Position;
-
   #iterator: IteratorType;
 
   constructor(
@@ -36,29 +26,13 @@ export class CompletionStream {
   ) {
     this.#id = streamId;
     this.#client = client;
-    const protocolDocument = this.#client.code2ProtocolConverter.asTextDocumentPositionParams(
-      document,
-      position,
-    );
-    this.#textDocument = protocolDocument.textDocument;
-    this.#position = protocolDocument.position;
     this.#cancellationTokenSource = new vscode.CancellationTokenSource();
     this.#iterator = createStreamIterator(
       this.#client,
       this.#id,
       this.#cancellationTokenSource.token,
     );
-  }
-
-  async start() {
-    log.debug(`Start of stream ${this.#id}`);
-
-    await this.#client.sendNotification(StreamingCompletionRequest, {
-      textDocument: this.#textDocument,
-      position: this.#position,
-      context: { triggerKind: InlineCompletionTriggerKind.Automatic },
-      id: this.#id,
-    });
+    log.debug(`Listening to stream ${this.#id}`);
   }
 
   get iterator() {
