@@ -72,7 +72,7 @@ and configured, if not, do that first! If already done, proceed ahead.
   - Don't have GitLab account? [Create one](https://gitlab.com/users/sign_up)! It is free and it is awesome!
 - Visit your forked project (usually URL is `https://gitlab.com/<your user name>/gitlab-vscode-extension`).
 - Set up pull mirroring to keep your fork up to date.
-  - [How do I mirror repositories?](https://docs.gitlab.com/ee/user/project/repository/mirror/)
+  - [How do I mirror repositories?](https://docs.gitlab.com/ee/user/project/repository/mirror/pull.html#configure-pull-mirroring)
   - Use `https://gitlab.com/gitlab-org/gitlab-vscode-extension.git` as the **Git repository URL**.
   - Mirroring the main repository is important to avoid false negatives of the commit linting, which is caused by an outdated `main` branch in forks. [#288](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/288) tracks the progress to resolve that bug.
 - Go to your project overview and copy the SSH or HTTPS URL to clone the project into your system.
