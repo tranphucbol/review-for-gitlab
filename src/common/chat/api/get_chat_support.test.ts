@@ -1,35 +1,24 @@
-import { GitLabPlatformManager } from '../../platform/gitlab_platform';
-import { GitLabPlatformManagerForChat } from '../get_platform_manager_for_chat';
 import { gitlabPlatformForAccount } from '../../test_utils/entities';
-import { createFakePartial } from '../../test_utils/create_fake_partial';
 import { log } from '../../log';
-import { getChatSupport, ChatAvailableResponseType } from './get_chat_support';
-
-jest.mock('../get_platform_manager_for_chat');
+import {
+  getChatSupport,
+  ChatAvailableResponseType,
+  ChatSupportResponseInterface,
+} from './get_chat_support';
 
 describe('getChatSupport', () => {
-  let manager: GitLabPlatformManager;
-  let platformManagerForChat: GitLabPlatformManagerForChat;
   const mockApiResponse = (duoChatAvailable: boolean = true) => {
     const apiResponse: ChatAvailableResponseType = {
       currentUser: {
         duoChatAvailable,
       },
     };
-    jest.mocked(platformManagerForChat.getGitLabPlatform).mockResolvedValue({
-      ...gitlabPlatformForAccount,
-      fetchFromApi: jest.fn().mockResolvedValue(apiResponse),
-    });
+    gitlabPlatformForAccount.fetchFromApi = jest.fn().mockResolvedValue(apiResponse);
   };
 
+  const platformWithoutChatEnabled: ChatSupportResponseInterface = { hasSupportForChat: false };
+
   beforeEach(() => {
-    manager = createFakePartial<GitLabPlatformManager>({
-      getForAllAccounts: jest.fn(),
-    });
-    platformManagerForChat = createFakePartial<GitLabPlatformManagerForChat>({
-      getGitLabPlatform: jest.fn(),
-    });
-    jest.mocked(GitLabPlatformManagerForChat).mockImplementation(() => platformManagerForChat);
     jest.spyOn(log, 'error');
   });
 
@@ -37,33 +26,37 @@ describe('getChatSupport', () => {
     jest.clearAllMocks();
   });
 
-  it('returns false if there is no platform', async () => {
-    jest.mocked(platformManagerForChat.getGitLabPlatform).mockResolvedValue(undefined);
-    const result = await getChatSupport(manager);
-    expect(result).toBe(false);
+  it(`returns ${JSON.stringify(platformWithoutChatEnabled)} if there is no platform`, async () => {
+    const result1 = await getChatSupport();
+    expect(result1).toEqual(platformWithoutChatEnabled);
+    const result2 = await getChatSupport(undefined);
+    expect(result2).toEqual(platformWithoutChatEnabled);
   });
 
-  it('returns false and logs if fetching `duoChatAvailable` fails', async () => {
-    jest.mocked(platformManagerForChat.getGitLabPlatform).mockResolvedValue({
+  it(`returns ${JSON.stringify(
+    platformWithoutChatEnabled,
+  )} and logs if fetching 'duoChatAvailable' fails`, async () => {
+    const result = await getChatSupport({
       ...gitlabPlatformForAccount,
       fetchFromApi: jest.fn().mockRejectedValueOnce('foo'),
     });
-    const result = await getChatSupport(manager);
-    expect(result).toBe(false);
+    expect(result).toEqual(platformWithoutChatEnabled);
     expect(log.error).toHaveBeenCalledWith('foo');
   });
 
-  it('returns false and does not log if the user does not have chat support', async () => {
+  it(`returns ${JSON.stringify(
+    platformWithoutChatEnabled,
+  )} and does not log if the user does not have chat support`, async () => {
     mockApiResponse(false);
-    const result = await getChatSupport(manager);
-    expect(result).toBe(false);
+    const result = await getChatSupport(gitlabPlatformForAccount);
+    expect(result).toEqual(platformWithoutChatEnabled);
     expect(log.error).not.toHaveBeenCalled();
   });
 
-  it('returns true if the user has chat support', async () => {
+  it('returns gitlab platform if it has chat support', async () => {
     mockApiResponse();
-    const result = await getChatSupport(manager);
-    expect(result).toBe(true);
+    const result = await getChatSupport(gitlabPlatformForAccount);
+    expect(result).toEqual({ hasSupportForChat: true, platform: gitlabPlatformForAccount });
     expect(log.error).not.toHaveBeenCalled();
   });
 });

@@ -15,6 +15,7 @@ const {
   newPromptResponse,
   newMessageResponse,
   noMessageResponse,
+  duoChatAvailableResponse,
 } = require('./fixtures/graphql/chat');
 const { WebviewMock } = require('./test_infrastructure/webview_mock');
 
@@ -35,6 +36,7 @@ describe('GitLab Duo Chat', () => {
     server = getServer([
       graphql.query('getAiMessages', (req, res, ctx) => res(ctx.data(newMessageResponse(req)))),
       graphql.mutation('chat', (req, res, ctx) => res(ctx.data(newPromptResponse))),
+      graphql.query('duoChatAvailable', (req, res, ctx) => res(ctx.data(duoChatAvailableResponse))),
     ]);
   });
 

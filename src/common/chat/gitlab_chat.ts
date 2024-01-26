@@ -14,10 +14,22 @@ import { GitLabPlatformManager } from '../platform/gitlab_platform';
 import { GitLabPlatformManagerForChat } from './get_platform_manager_for_chat';
 import { CHAT_SIDEBAR_VIEW_ID } from './gitlab_chat_view';
 import { COMMAND_REFACTOR_CODE, refactorCode } from './commands/refactorCode';
+import { isDuoChatAvailable } from './utils/chat_availability_utils';
 
-export const activateChat = (context: vscode.ExtensionContext, manager: GitLabPlatformManager) => {
+export const activateChat = async (
+  context: vscode.ExtensionContext,
+  manager: GitLabPlatformManager,
+) => {
   const platformManagerForChat = new GitLabPlatformManagerForChat(manager);
   const controller = new GitLabChatController(platformManagerForChat, context);
+
+  manager.onAccountChange(async () => {
+    await vscode.commands.executeCommand(
+      'setContext',
+      'gitlab:chatAvailable',
+      await isDuoChatAvailable(manager),
+    );
+  });
 
   // sidebar view
   context.subscriptions.push(
