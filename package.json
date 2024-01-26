@@ -266,7 +266,7 @@
     "@types/ws": "^8.5.10",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
-    "@vscode/test-web": "^0.0.50",
+    "@vscode/test-web": "^0.0.51",
     "conventional-changelog-cli": "^4.1.0",
     "esbuild": "^0.19.12",
     "eslint": "^8.53.0",
