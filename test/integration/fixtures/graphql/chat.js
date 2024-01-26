@@ -17,10 +17,10 @@ const noMessageResponse = {
   },
 };
 
-const newMessageResponse = (req, extras = {}) => {
+const newMessageResponse = (variables, extras = {}) => {
   const overrides = {
-    role: req.variables.roles[0],
-    requestId: req.variables.requestId,
+    role: variables.roles[0],
+    requestId: variables.requestId,
     ...extras,
   };
 

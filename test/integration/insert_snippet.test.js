@@ -2,7 +2,7 @@ const assert = require('assert');
 const sinon = require('sinon');
 const vscode = require('vscode');
 const simpleGit = require('simple-git');
-const { graphql } = require('msw');
+const { graphql, HttpResponse } = require('msw');
 const {
   snippetsResponse,
   snippetWithOneBlobResponse,
@@ -26,17 +26,17 @@ describe('Insert snippet', async () => {
 
   before(async () => {
     server = getServer([
-      graphql.query('GetSnippetContent', (req, res, ctx) => {
-        if (req.variables.snippetId === 'gid://gitlab/ProjectSnippet/111')
-          return res(ctx.data(snippetWithOneBlobResponse));
-        if (req.variables.snippetId === 'gid://gitlab/ProjectSnippet/222')
-          return res(ctx.data(snippetWithTwoBlobsResponse));
-        return res(ctx.data({ project: null }));
+      graphql.query('GetSnippetContent', ({ variables }) => {
+        if (variables.snippetId === 'gid://gitlab/ProjectSnippet/111')
+          return HttpResponse.json({ data: snippetWithOneBlobResponse });
+        if (variables.snippetId === 'gid://gitlab/ProjectSnippet/222')
+          return HttpResponse.json({ data: snippetWithTwoBlobsResponse });
+        return HttpResponse.json({ data: { project: null } });
       }),
-      graphql.query('GetSnippets', (req, res, ctx) => {
-        if (req.variables.namespaceWithPath === 'gitlab-org/gitlab')
-          return res(ctx.data(snippetsResponse));
-        return res(ctx.data({ project: null }));
+      graphql.query('GetSnippets', ({ variables }) => {
+        if (variables.namespaceWithPath === 'gitlab-org/gitlab')
+          return HttpResponse.json({ data: snippetsResponse });
+        return HttpResponse.json({ data: { project: null } });
       }),
     ]);
   });

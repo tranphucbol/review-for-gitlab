@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { graphql } = require('msw');
+const { graphql, HttpResponse } = require('msw');
 const projectsResponse = require('./fixtures/graphql/projects_with_repository_info.json');
 const { getServer } = require('./test_infrastructure/mock_server');
 const {
@@ -31,11 +31,11 @@ describe('GitLab Remote Source provider', () => {
 
   before(async () => {
     server = getServer([
-      graphql.query('GetProjectsWithRepositoryInfo', (req, res, ctx) => {
-        if (req.variables.search === 'GitLab') return res(ctx.data(projectsResponse));
-        if (req.variables.search === 'nonexistent')
-          return res(ctx.data({ projects: { nodes: [] } }));
-        return res(ctx.data(projectsResponse));
+      graphql.query('GetProjectsWithRepositoryInfo', ({ variables }) => {
+        if (variables.search === 'GitLab') return HttpResponse.json({ data: projectsResponse });
+        if (variables.search === 'nonexistent')
+          return HttpResponse.json({ data: { projects: { nodes: [] } } });
+        return HttpResponse.json({ data: projectsResponse });
       }),
     ]);
   });

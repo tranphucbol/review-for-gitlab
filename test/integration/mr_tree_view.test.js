@@ -1,7 +1,7 @@
 const assert = require('assert');
 const path = require('path').posix;
 const vscode = require('vscode');
-const { graphql } = require('msw');
+const { graphql, HttpResponse } = require('msw');
 
 const { getServer, createJsonEndpoint } = require('./test_infrastructure/mock_server');
 
@@ -64,15 +64,15 @@ describe('MR in tree view', () => {
   const getHandlers = versionResponse => [
     createJsonEndpoint('/projects/278964/merge_requests/33824/versions', versionsResponse),
     createJsonEndpoint('/projects/278964/merge_requests/33824/versions/127919672', versionResponse),
-    graphql.query('GetMrPermissions', (req, res, ctx) => {
-      if (req.variables.namespaceWithPath === 'gitlab-org/gitlab' && req.variables.iid === '33824')
-        return res(ctx.data(mrPermissionsResponse));
-      return res(ctx.data({ project: null }));
+    graphql.query('GetMrPermissions', ({ variables }) => {
+      if (variables.namespaceWithPath === 'gitlab-org/gitlab' && variables.iid === '33824')
+        return HttpResponse.json({ data: mrPermissionsResponse });
+      return HttpResponse.json({ data: { project: null } });
     }),
-    graphql.query('GetMrDiscussions', (req, res, ctx) => {
-      if (req.variables.namespaceWithPath === 'gitlab-org/gitlab' && req.variables.iid === '33824')
-        return res(ctx.data(projectWithMrDiscussions));
-      return res(ctx.data({ project: null }));
+    graphql.query('GetMrDiscussions', ({ variables }) => {
+      if (variables.namespaceWithPath === 'gitlab-org/gitlab' && variables.iid === '33824')
+        return HttpResponse.json({ data: projectWithMrDiscussions });
+      return HttpResponse.json({ data: { project: null } });
     }),
   ];
 

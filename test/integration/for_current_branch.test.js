@@ -1,6 +1,6 @@
 const assert = require('assert');
 const dayjs = require('dayjs');
-const { graphql } = require('msw');
+const { graphql, HttpResponse } = require('msw');
 const {
   CurrentBranchDataProvider,
 } = require('../../src/desktop/tree_view/current_branch_data_provider');
@@ -45,8 +45,8 @@ describe('GitLab tree view for current branch', () => {
   );
   const issueEndpoint = createJsonEndpoint('/projects/278964/issues/219925', openIssueResponse);
 
-  const getMRSecurityReportQuery = graphql.query('getMRSecurityReport', (req, res, ctx) =>
-    res(ctx.data(securtyFindingsResponse)),
+  const getMRSecurityReportQuery = graphql.query('getMRSecurityReport', () =>
+    HttpResponse.json({ data: securtyFindingsResponse }),
   );
 
   beforeEach(() => {

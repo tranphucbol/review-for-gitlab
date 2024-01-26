@@ -1,7 +1,7 @@
 const vscode = require('vscode');
 const assert = require('assert');
 const sinon = require('sinon');
-const { graphql } = require('msw');
+const { graphql, HttpResponse } = require('msw');
 // const proxyquire = require('proxyquire');
 const { GitLabChatController } = require('../../src/common/chat/gitlab_chat_controller');
 const { GitLabChatRecord } = require('../../src/common/chat/gitlab_chat_record');
@@ -34,9 +34,13 @@ describe('GitLab Duo Chat', () => {
 
   before(async () => {
     server = getServer([
-      graphql.query('getAiMessages', (req, res, ctx) => res(ctx.data(newMessageResponse(req)))),
-      graphql.mutation('chat', (req, res, ctx) => res(ctx.data(newPromptResponse))),
-      graphql.query('duoChatAvailable', (req, res, ctx) => res(ctx.data(duoChatAvailableResponse))),
+      graphql.query('getAiMessages', ({ variables }) =>
+        HttpResponse.json({ data: newMessageResponse(variables) }),
+      ),
+      graphql.mutation('chat', () => HttpResponse.json({ data: newPromptResponse })),
+      graphql.query('duoChatAvailable', () =>
+        HttpResponse.json({ data: duoChatAvailableResponse }),
+      ),
     ]);
   });
 
@@ -104,7 +108,7 @@ describe('GitLab Duo Chat', () => {
   describe('with no response available after all pulling attempts', () => {
     beforeEach(() => {
       server.use(
-        graphql.query('getAiMessages', (req, res, ctx) => res(ctx.data(noMessageResponse))),
+        graphql.query('getAiMessages', () => HttpResponse.json({ data: noMessageResponse })),
       );
     });
 
