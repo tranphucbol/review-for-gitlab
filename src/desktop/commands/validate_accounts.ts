@@ -28,7 +28,7 @@ const validateAccount = async (
         return { account, status: 'ignored' };
       }
       const isOAuth = account.type === 'oauth';
-      const message = `Account for instance ${account.instanceUrl} and username ${account.username} has expired or revoked token.`;
+      const message = `The token for username ${account.username} on instance ${account.instanceUrl} has expired or been revoked.`;
       const choice = await vscode.window.showErrorMessage(
         message,
         isOAuth ? DELETE_AND_AUTH : DELETE_ACCOUNT,
@@ -71,7 +71,7 @@ export const validateAccounts = async (showOnlyErrors = false) => {
 
   if (accounts.length === 0) {
     const command = await vscode.window.showInformationMessage(
-      'There are no GitLab accounts set up.',
+      'No GitLab accounts are set up.',
       { title: 'Authenticate to GitLab.com', command: 'gl.authenticate' },
       { title: 'Add GitLab Account', command: 'gl.addAccount' },
     );
