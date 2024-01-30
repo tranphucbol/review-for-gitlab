@@ -158,7 +158,7 @@ export const createOAuthAccount = (
   instanceUrl,
   token,
   type: 'oauth',
-  scopes: ['read_user', 'api'],
+  scopes: ['api'],
   refreshToken: 'def',
   expiresAtTimestampInSeconds: Math.floor(new Date().getTime() / 1000) + 1000, // valid token
 });

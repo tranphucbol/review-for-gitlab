@@ -11,7 +11,7 @@ export const getUserForCredentialsOrFail = async (credentials: Credentials): Pro
   try {
     const tokenInfo = await gitlabService.fetchFromApi(personalAccessTokenDetailsRequest);
 
-    const REQUIRED_SCOPES = ['api', 'read_user'];
+    const REQUIRED_SCOPES = ['api'];
 
     const firstMissingScope = REQUIRED_SCOPES.find(scope => !tokenInfo.scopes.includes(scope));
     if (firstMissingScope) {
