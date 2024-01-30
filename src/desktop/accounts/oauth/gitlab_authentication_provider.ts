@@ -57,7 +57,7 @@ const createLoginUrl = (
   const redirectUri = OAUTH_REDIRECT_URI;
   const codeVerifier = generateSecret();
   const codeChallenge = generateCodeChallengeFromVerifier(codeVerifier);
-  const scopes = (scopesParam ?? ['api', 'read_user']).join(' ');
+  const scopes = (scopesParam ?? ['api']).join(' ');
   const clientId = OAUTH_CLIENT_ID;
   return {
     url: createAuthUrl({ clientId, redirectUri, state, scopes, codeChallenge }),

@@ -40,7 +40,7 @@ describe('token input', () => {
     });
     it('adds account', async () => {
       // simulate API returning user for the instance url and token
-      mockResponses(user, { scopes: ['api', 'read_user'] });
+      mockResponses(user, { scopes: ['api'] });
 
       await addAccount();
 
@@ -63,7 +63,7 @@ describe('token input', () => {
         options.password ? 'token' : 'https://gitlab.com/',
       );
       // simulate API returning user for the instance url and token
-      mockResponses(user, { scopes: ['api', 'read_user'] });
+      mockResponses(user, { scopes: ['api'] });
 
       await addAccount();
 
@@ -79,7 +79,7 @@ describe('token input', () => {
     it('handles Unauthorized error', async () => {
       // simulate API failing with Unauthorized
       mockResponses(Promise.reject(new FetchError({ status: 401 } as Response, '')), {
-        scopes: ['api', 'read_user'],
+        scopes: ['api'],
       });
 
       await expect(addAccount()).rejects.toThrowError(/.*Unauthorized.*/);
@@ -87,7 +87,7 @@ describe('token input', () => {
     it('handles fetch error', async () => {
       // simulate API returning error response
       mockResponses(Promise.reject(new FetchError({ status: 404 } as Response, '')), {
-        scopes: ['api', 'read_user'],
+        scopes: ['api'],
       });
 
       await expect(addAccount()).rejects.toThrowError(/.*Request failed.*/);

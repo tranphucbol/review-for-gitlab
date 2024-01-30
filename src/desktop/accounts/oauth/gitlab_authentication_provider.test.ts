@@ -26,7 +26,7 @@ const fakeOAuthService = (urlString: string): string => {
   );
   assert.strictEqual(params.get('redirect_uri'), 'vscode://gitlab.gitlab-workflow/authentication');
   assert.strictEqual(params.get('response_type'), 'code');
-  assert.strictEqual(params.get('scope'), 'read_user api');
+  assert.strictEqual(params.get('scope'), 'api');
   assert.strictEqual(params.get('code_challenge_method'), 'S256');
   assert(params.get('state'));
   assert(params.get('code_challenge'));
@@ -69,7 +69,7 @@ describe('GitLabAuthenticationProvider', () => {
         tokenExchangeService,
       );
 
-      const sessions = await provider.getSessions(['read_user', 'api']);
+      const sessions = await provider.getSessions(['api']);
 
       expect(sessions).toHaveLength(1);
       expect(sessions[0].accessToken).toBe(createOAuthAccount().token);
@@ -90,11 +90,11 @@ describe('GitLabAuthenticationProvider', () => {
         tokenExchangeService,
       );
 
-      const session = await provider.createSession(['read_user', 'api']);
+      const session = await provider.createSession(['api']);
 
       expect(session.account.id).toEqual('https://gitlab.com|123');
       expect(session.accessToken).toEqual('test_token');
-      expect(session.scopes).toEqual(['read_user', 'api']);
+      expect(session.scopes).toEqual(['api']);
       expect(accountService.getAllAccounts()).toHaveLength(1);
       expect(vscode.window.withProgress).toHaveBeenCalledWith(
         {
@@ -116,7 +116,7 @@ describe('GitLabAuthenticationProvider', () => {
     it('cancels OAuth login after 60s', async () => {
       const provider = new GitLabAuthenticationProvider(accountService, uriHandler);
 
-      const result = provider.createSession(['read_user', 'api']);
+      const result = provider.createSession(['api']);
 
       // When combining setTimeout with promises, we need to run jest.runAllTimers() asynchronously.
       // https://stackoverflow.com/a/51132058/606571
