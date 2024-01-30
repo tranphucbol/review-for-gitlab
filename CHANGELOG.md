@@ -11,11 +11,14 @@
 ### Features
 
 * Add support for image diff in Merge Requests ([6cdb5e1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/6cdb5e1eb7fcd78131b7e92a7814a52880bd8e79))
+  * Implemented by [Lennard Sprong](https://gitlab.com/X_Sheep) with [MR !1319](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/1319) 👍
 * **chat:** accept platform as a param for 'getChatSupport' ([d55f308](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/d55f3083d2a64ec5d52051ad1e554dec1622e512))
 * **chat:** process `/clean` slash command ([402c43e](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/402c43ee17e11fc608c4962891d753d9c9b55d00))
 * detect revoked token and offer re-authentication ([ea76c39](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/ea76c3919ec078a510302291425d6575611f41e4))
 * Display trigger jobs in sidebar ([b1765f2](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/b1765f28afe5a177159676bb03efa548ca3c0d21))
+  * Implemented by [Lennard Sprong](https://gitlab.com/X_Sheep) with [MR !1336](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/1336) 👍
 * Don't use Diff when comparing empty media file ([8e300e5](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/8e300e5478e9c8ed8d744b9e623dbc8e2dbab21c))
+  * Implemented by [Lennard Sprong](https://gitlab.com/X_Sheep) with [MR !1355](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/1355) 👍
 
 
 
