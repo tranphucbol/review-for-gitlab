@@ -50,6 +50,7 @@ describe('CurrentBranchRefrehser', () => {
         getMrClosingIssues: () => [{ iid: 123 }],
         getSingleProjectIssue: () => issue,
         getJobsForPipeline: () => [job],
+        getTriggerJobsForPipeline: () => [],
         getExternalStatusForCommit: () => [externalStatus],
         fetchFromApi: () => [pipeline],
       });

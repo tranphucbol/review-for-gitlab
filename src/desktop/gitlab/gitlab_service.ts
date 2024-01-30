@@ -911,6 +911,15 @@ export class GitLabService {
     );
   }
 
+  async getTriggerJobsForPipeline(pipelineId: number, projectId: number): Promise<RestJob[]> {
+    const pages: RestJob[] = await this.fetchAllPages(
+      `/projects/${projectId}/pipelines/${pipelineId}/bridges`,
+      {},
+      'trigger jobs for pipeline',
+    );
+    return pages;
+  }
+
   async getExternalStatusForCommit(
     sha: string,
     ref: string | null,

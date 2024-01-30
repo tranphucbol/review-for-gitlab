@@ -13,6 +13,10 @@ import { hasTraceAvailable } from '../../utils/has_trace_available';
 
 dayjs.extend(relativeTime);
 
+function isBridgeJob(job: RestJob): job is RestBridge | RestPendingBridge {
+  return 'downstream_pipeline' in job;
+}
+
 const getJobItemContextValue = (job: RestJob) => {
   if (job.stage === 'external') {
     return '';
@@ -20,16 +24,20 @@ const getJobItemContextValue = (job: RestJob) => {
 
   const contextValue: string[] = [];
 
-  const { contextAction } = getJobMetadata(job);
-  contextValue.push(`${contextAction ?? 'inactive'}-job`);
-  if (hasDownloadableArtifacts([job])) {
-    contextValue.push('with-artifacts');
+  if (!isBridgeJob(job)) {
+    const { contextAction } = getJobMetadata(job);
+    contextValue.push(`${contextAction ?? 'inactive'}-job`);
+
+    if (hasDownloadableArtifacts([job])) {
+      contextValue.push('with-artifacts');
+    }
+    if (hasTraceAvailable(job)) {
+      contextValue.push('with-trace');
+    } else {
+      contextValue.push('pending-job');
+    }
   }
-  if (hasTraceAvailable(job)) {
-    contextValue.push('with-trace');
-  } else {
-    contextValue.push('pending-job');
-  }
+
   if (job.web_url) {
     contextValue.push('with-url');
   }
@@ -59,6 +67,7 @@ export class JobItemModel extends ItemModel implements JobProvider {
     item.iconPath = jobStatusMetadata.icon;
     item.tooltip = `${job.name} · ${jobStatusMetadata.name} · ${dayjs(displayTime).fromNow()}`;
     if (job.description) item.tooltip += `\n${job.description}`;
+    if (isBridgeJob(job)) item.tooltip += `\nTrigger Job`;
     item.description = jobStatusMetadata.name;
     item.contextValue = getJobItemContextValue(job);
 

@@ -19,7 +19,6 @@ describe('PipelineItemModel', () => {
           updated_at: fourYearsAgo.toString(),
         },
         [{ ...job, artifacts: [artifact] }],
-        false,
       ).getTreeItem();
     });
 
@@ -27,7 +26,7 @@ describe('PipelineItemModel', () => {
       expect(item.label).toBe('Pipeline #123');
     });
 
-    it('prepends "Tag " for tag pipelines', () => {
+    it('supports custom names', () => {
       item = new PipelineItemModel(
         projectInRepository,
         {
@@ -35,10 +34,10 @@ describe('PipelineItemModel', () => {
           status: 'success',
         },
         [],
-        true,
+        'Custom name',
       ).getTreeItem();
 
-      expect(item.label).toMatch(/^Tag Pipeline/);
+      expect(item.label).toMatch(/^Custom name/);
     });
 
     it('has tooltip', () => {
@@ -59,12 +58,9 @@ describe('PipelineItemModel', () => {
     });
 
     it('has no contextValue if no downloadable artifacts exist', () => {
-      const itemWithoutContextValue = new PipelineItemModel(
-        projectInRepository,
-        pipeline,
-        [{ ...job, artifacts: [{ ...artifact, file_type: 'trace' }] }],
-        false,
-      ).getTreeItem();
+      const itemWithoutContextValue = new PipelineItemModel(projectInRepository, pipeline, [
+        { ...job, artifacts: [{ ...artifact, file_type: 'trace' }] },
+      ]).getTreeItem();
       expect(itemWithoutContextValue.contextValue).not.toMatch(/with-artifacts/);
     });
 
@@ -73,22 +69,17 @@ describe('PipelineItemModel', () => {
     });
 
     it('has a contextValue if cancellable jobs exist', () => {
-      const itemWithCancellable = new PipelineItemModel(
-        projectInRepository,
-        pipeline,
-        [{ ...job, status: 'running' }],
-        false,
-      ).getTreeItem();
+      const itemWithCancellable = new PipelineItemModel(projectInRepository, pipeline, [
+        { ...job, status: 'running' },
+      ]).getTreeItem();
       expect(itemWithCancellable.contextValue).toMatch(/cancellable-pipeline/);
     });
 
     it('has a contextValue if cancellable and retryable jobs exist', () => {
-      const itemWithJobs = new PipelineItemModel(
-        projectInRepository,
-        pipeline,
-        [job, { ...job, status: 'running' }],
-        false,
-      ).getTreeItem();
+      const itemWithJobs = new PipelineItemModel(projectInRepository, pipeline, [
+        job,
+        { ...job, status: 'running' },
+      ]).getTreeItem();
       expect(itemWithJobs.contextValue).toMatch(/retryable-pipeline/);
       expect(itemWithJobs.contextValue).toMatch(/cancellable-pipeline/);
     });
@@ -102,7 +93,7 @@ describe('PipelineItemModel', () => {
     const jobs = [unitTestJob, integrationTestJob, packageJob];
 
     beforeEach(() => {
-      pipelineItem = new PipelineItemModel(projectInRepository, pipeline, jobs, false);
+      pipelineItem = new PipelineItemModel(projectInRepository, pipeline, jobs);
     });
 
     it('exposes jobs', () => {
@@ -123,7 +114,7 @@ describe('PipelineItemModel', () => {
         { ...packageJob, id: 1 },
       ];
 
-      pipelineItem = new PipelineItemModel(projectInRepository, pipeline, jobsWithIds, false);
+      pipelineItem = new PipelineItemModel(projectInRepository, pipeline, jobsWithIds);
       const children = await pipelineItem.getChildren();
       const labels = children.map(ch => ch.getTreeItem()).map(i => i.label);
 

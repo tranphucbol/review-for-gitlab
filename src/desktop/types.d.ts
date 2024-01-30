@@ -75,12 +75,14 @@ interface RestPipeline {
   iid: number;
   ref: string | null;
   sha: string;
+  source?: string;
   /**
    * The project_id is only present in GitLab version 13.10 and later.
    * https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/553#note_882220438
    */
   project_id?: number;
   web_url: string;
+  name?: string;
 }
 
 interface RestArtifact {
@@ -113,6 +115,14 @@ interface RestJob {
   // Used by Commit Status
   target_url?: string;
   description?: string;
+}
+
+interface RestBridge extends RestJob {
+  downstream_pipeline: RestPipeline;
+}
+
+interface RestPendingBridge extends RestJob {
+  downstream_pipeline: null;
 }
 
 // Incomplete reference of the GitLab user model
