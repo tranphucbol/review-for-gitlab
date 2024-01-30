@@ -1,3 +1,24 @@
+# [3.101.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.100.0...v3.101.0) (2024-01-30)
+
+
+### Bug Fixes
+
+* **chat:** catch streaming error in webide to not crash chat ([572c7f0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/572c7f0204ca253a5c9558eba537fafa186ebf59))
+* **chat:** leading assignment of gitlab:chatAvailable in browser ([5972f54](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/5972f54834ec58f73965fd190ddd212542e329ef))
+* **chat:** removed unnecessary dependencies ([bdba804](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/bdba804a4dc26de1649276051d1ddc5cf15187fe))
+
+
+### Features
+
+* Add support for image diff in Merge Requests ([6cdb5e1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/6cdb5e1eb7fcd78131b7e92a7814a52880bd8e79))
+* **chat:** accept platform as a param for 'getChatSupport' ([d55f308](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/d55f3083d2a64ec5d52051ad1e554dec1622e512))
+* **chat:** process `/clean` slash command ([402c43e](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/402c43ee17e11fc608c4962891d753d9c9b55d00))
+* detect revoked token and offer re-authentication ([ea76c39](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/ea76c3919ec078a510302291425d6575611f41e4))
+* Display trigger jobs in sidebar ([b1765f2](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/b1765f28afe5a177159676bb03efa548ca3c0d21))
+* Don't use Diff when comparing empty media file ([8e300e5](https://gitlab.com/gitlab-org/gitlab-vscode-extension/commit/8e300e5478e9c8ed8d744b9e623dbc8e2dbab21c))
+
+
+
 # [3.100.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.99.0...v3.100.0) (2024-01-17)
 
 

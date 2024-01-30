@@ -2,7 +2,7 @@
   "name": "gitlab-workflow",
   "displayName": "GitLab Workflow",
   "description": "Official GitLab-maintained extension for Visual Studio Code.",
-  "version": "3.100.0",
+  "version": "3.101.0",
   "publisher": "GitLab",
   "license": "MIT",
   "repository": {
