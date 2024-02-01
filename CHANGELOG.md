@@ -1,3 +1,7 @@
+## [3.101.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.101.0...v3.101.1) (2024-02-01)
+
+
+
 # [3.101.0](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.100.0...v3.101.0) (2024-01-30)
 
 
