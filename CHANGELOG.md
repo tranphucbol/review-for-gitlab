@@ -1,3 +1,14 @@
+## [3.101.2](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.101.1...v3.101.2) (2026-09-13)
+
+Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
+GitLab instances older than 15.5.
+
+### Bug Fixes
+
+* allow adding accounts on GitLab instances older than 15.5 ([9d40afd](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/9d40afd6e9de189767f517480bca811ac52e7833))
+
+
+
 ## [3.101.1](https://gitlab.com/gitlab-org/gitlab-vscode-extension/compare/v3.101.0...v3.101.1) (2024-02-01)
 
 
