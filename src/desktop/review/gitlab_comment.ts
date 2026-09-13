@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { SYNCED_COMMENT_CONTEXT } from '../constants';
 import { GqlTextDiffNote } from '../gitlab/graphql/shared';
+import { makeMarkdownLinksAbsolute } from '../utils/make_markdown_links_absolute';
 // FIXME: Remove this cyclic dependency
 import { GitLabCommentThread } from './gitlab_comment_thread'; // eslint-disable-line import/no-cycle
 
@@ -19,6 +20,26 @@ const renderSuggestions = (body: string, noteUrl: string): string =>
         '\n+ ',
       )}\n\`\`\`\n\n*[open suggestion on the web](${noteUrl})*\n\n---\n\n`,
   );
+
+/**
+ * Note URLs look like `https://gitlab.com/group/project/-/merge_requests/7#note_123`,
+ * the part before `/-/` is the project URL that we need to resolve `/uploads/` links.
+ */
+const getProjectWebUrl = (noteUrl: string | undefined): string | undefined => {
+  const [projectWebUrl] = noteUrl?.split('/-/') ?? [];
+  return projectWebUrl && projectWebUrl !== noteUrl ? projectWebUrl : undefined;
+};
+
+/**
+ * Notes that we fetch from the API get their `/uploads/` links prefixed with the project URL
+ * in the `GitLabService`. Notes that the user just created or edited contain the raw markdown
+ * that the user submitted, and VS Code can't render relative links (the images would be broken
+ * until the user reloads the window).
+ */
+const renderUploadLinks = (body: string, noteUrl: string): string => {
+  const projectWebUrl = getProjectWebUrl(noteUrl);
+  return projectWebUrl ? makeMarkdownLinksAbsolute(body, projectWebUrl) : body;
+};
 
 export class GitLabComment implements vscode.Comment {
   readonly gqlNote: GqlTextDiffNote;
@@ -60,8 +81,9 @@ export class GitLabComment implements vscode.Comment {
   }
 
   renderBody(): GitLabComment {
+    const { body, url } = this.gqlNote;
     return this.copyWith({
-      body: new vscode.MarkdownString(renderSuggestions(this.gqlNote.body, this.gqlNote.url)),
+      body: new vscode.MarkdownString(renderUploadLinks(renderSuggestions(body, url), url)),
     });
   }
 

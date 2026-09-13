@@ -36,6 +36,7 @@ import {
   cancelFailedComment,
   retryFailedComment,
 } from './commands/mr_discussion_commands';
+import { registerCommentAttachmentProviders } from './review/comment_attachment_provider';
 import { hasCommentsDecorationProvider } from './review/has_comments_decoration_provider';
 import { changeTypeDecorationProvider } from './review/change_type_decoration_provider';
 import { checkoutMrBranch } from './commands/checkout_mr_branch';
@@ -242,6 +243,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
     GitLabRemoteFileSystem.OPTIONS,
   );
   registerCommands(context);
+  registerCommentAttachmentProviders(context);
   issuableController.init(context);
   await accountService.init(context).catch(e => {
     handleError(e);

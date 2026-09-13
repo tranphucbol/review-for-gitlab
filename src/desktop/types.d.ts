@@ -32,6 +32,17 @@ interface RestMr extends RestIssuable {
   source_branch: string;
 }
 
+/** Response of https://docs.gitlab.com/ee/api/projects.html#upload-a-file */
+interface RestUpload {
+  alt: string;
+  /** project-relative URL of the upload, e.g. "/uploads/hash/image.png" */
+  url: string;
+  /** instance-relative URL of the upload, only returned by GitLab 15.10 and later */
+  full_path?: string;
+  /** markdown that references the upload, e.g. "![image](/uploads/hash/image.png)" */
+  markdown: string;
+}
+
 interface RestMrVersion {
   id: number;
   head_commit_sha: string;

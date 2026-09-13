@@ -158,6 +158,7 @@ export class MrItemModel extends ItemModel {
     const commentController = commentControllerProvider.borrowCommentController(
       this.mr.references.full,
       this.mr.title,
+      { mr: this.mr, projectInRepository: this.projectInRepository },
       userCanComment ? new CommentingRangeProvider(this.mr, mrVersion) : undefined,
     );
     this.setDisposableChildren([commentController]);

@@ -51,6 +51,7 @@ import { ApiRequest, fetchFromApi } from '../../common/platform/web_ide';
 import { GqlSecurityReportFinding } from './graphql/get_security_finding';
 import { currentUserRequest } from '../../common/gitlab/api/get_current_user';
 import { connectToCable } from '../../common/gitlab/api/action_cable';
+import { createMultipartFormBody } from './create_multipart_form_body';
 
 interface CreateNoteResult {
   createNote: {
@@ -170,6 +171,14 @@ export interface ValidationResponse {
   valid?: boolean;
   merged_yaml?: string;
   errors: string[];
+}
+
+export interface UploadedFile {
+  /** file name including the extension, e.g. `image.png` */
+  name: string;
+  /** MIME type of the file, e.g. `image/png` */
+  contentType: string;
+  content: Uint8Array;
 }
 
 // This has to be type, because interface isn't compatible with Record<string,unknown> https://github.com/microsoft/TypeScript/issues/15300#issuecomment-332366024
@@ -480,7 +489,7 @@ export class GitLabService {
       note: GqlGenericNote<T>,
     ) => GqlGenericNote<T> = note => ({
       ...note,
-      body: makeMarkdownLinksAbsolute(note.body, namespaceWithPath, instanceUrl),
+      body: makeMarkdownLinksAbsolute(note.body, `${instanceUrl}/${namespaceWithPath}`),
       bodyHtml: makeHtmlLinksAbsolute(note.bodyHtml, instanceUrl),
       author: {
         ...note.author,
@@ -719,6 +728,32 @@ export class GitLabService {
     data: CreateSnippetOptions,
   ): Promise<{ web_url: string }> {
     return this.postFetch(`/projects/${project.restId}/snippets`, 'create snippet', data);
+  }
+
+  /**
+   * Uploads a file to the project. The returned `markdown` can be used in any
+   * comment or description that belongs to the same project.
+   *
+   * https://docs.gitlab.com/ee/api/projects.html#upload-a-file
+   */
+  async uploadFile(projectRestId: number, file: UploadedFile): Promise<RestUpload> {
+    const { instanceUrl } = await this.getCredentials();
+    const url = `${instanceUrl}/api/v4/projects/${projectRestId}/uploads`;
+    const { contentType, body } = createMultipartFormBody({
+      fieldName: 'file',
+      fileName: file.name,
+      contentType: file.contentType,
+      content: file.content,
+    });
+
+    const response = await this.crossFetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': contentType },
+      // node-fetch accepts a Buffer body, the DOM types used by cross-fetch don't know about it
+      body: body as unknown as BodyInit,
+    });
+    await handleFetchError(response, 'file upload');
+    return response.json() as Promise<RestUpload>;
   }
 
   async validateVersion(featureName: string, requiredVersion: string) {

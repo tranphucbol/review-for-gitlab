@@ -62,6 +62,7 @@ module.exports = {
   },
   languages: {
     registerInlineCompletionItemProvider: jest.fn().mockReturnValue({ dispose: jest.fn() }),
+    registerDocumentDropEditProvider: jest.fn().mockReturnValue({ dispose: jest.fn() }),
   },
   workspace: {
     openTextDocument: jest.fn(),
@@ -132,6 +133,10 @@ module.exports = {
   ThemeColor: jest.fn(color => color),
   ProgressLocation: {
     Notification: 'Notification',
+    Window: 'Window',
+  },
+  DocumentDropEdit: function DocumentDropEdit(insertText) {
+    this.insertText = insertText;
   },
   FoldingRange: function FoldingRange(start, end, kind) {
     return { start, end, kind };

@@ -31,6 +31,48 @@ describe('GitLabComment', () => {
     });
   });
 
+  describe('uploaded attachments', () => {
+    const relativeImage = '![image](/uploads/1234hash/image.png)';
+    const absoluteImage =
+      '![image](https://gitlab.com/viktomas/test-project/uploads/1234hash/image.png)';
+
+    it('renders relative upload links as absolute URLs', () => {
+      createGitLabComment({ ...(noteOnDiff as GqlTextDiffNote), body: relativeImage });
+
+      expect(comment.getBodyAsText()).toBe(absoluteImage);
+    });
+
+    it('renders upload links of a comment that the user just submitted', () => {
+      createGitLabComment({ ...(noteOnDiff as GqlTextDiffNote), body: 'old body' });
+      comment = comment.setOriginalBody();
+      comment.body = relativeImage;
+
+      expect(comment.markBodyAsSubmitted().getBodyAsText()).toBe(absoluteImage);
+    });
+
+    it('keeps already absolute upload links unchanged', () => {
+      createGitLabComment({ ...(noteOnDiff as GqlTextDiffNote), body: absoluteImage });
+
+      expect(comment.getBodyAsText()).toBe(absoluteImage);
+    });
+
+    it('keeps the body unchanged when the project URL cannot be determined', () => {
+      createGitLabComment({
+        ...(noteOnDiff as GqlTextDiffNote),
+        body: relativeImage,
+        url: 'https://gitlab.com/',
+      });
+
+      expect(comment.getBodyAsText()).toBe(relativeImage);
+    });
+
+    it('keeps the original body relative when the user edits the comment', () => {
+      createGitLabComment({ ...(noteOnDiff as GqlTextDiffNote), body: relativeImage });
+
+      expect(comment.setOriginalBody().body).toBe(relativeImage);
+    });
+  });
+
   describe('suggestion in the comment', () => {
     const suggestion = `
 \`\`\`suggestion:-1+0
