@@ -1,0 +1,4 @@
+# Keep working plans local; version only this policy and the template.
+*
+!.gitignore
+!TEMPLATE.md
