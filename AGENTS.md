@@ -119,8 +119,14 @@ Extension** from `.vscode/launch.json`; its pre-launch task is the desktop
 watcher.
 
 CI runs `lint` and `test-unit` in parallel, then `package`, which keeps the
-`.vsix` as an artifact for a year. That artifact is how the fork is installed:
-nothing is published to a marketplace.
+`.vsix` and its checksum as an artifact for a year. A `vX.Y.Z` tag adds
+`publish`: the `.vsix` goes to this project's generic package registry and a
+GitLab Release links it. Nothing is published to a marketplace.
+
+```sh
+node scripts/release.mjs patch --dry-run   # or minor, major, prerelease --pre beta, X.Y.Z
+node scripts/release.mjs patch             # changelog, commit, tag, push after a prompt
+```
 
 ## Rules
 
@@ -180,7 +186,8 @@ nothing is published to a marketplace.
 
 - **A fork release says it is one.** `npm version` bumps `package.json` and
   writes the `CHANGELOG.md` entry, but it takes its links from `repository` in
-  `package.json`, which still points at gitlab.com. Edit the entry: say it is a
-  fork release, and point the compare and commit links at the fork's own project.
-  Tag `vX.Y.Z` on the default branch; the pipeline builds the `.vsix` from the
-  tag.
+  `package.json`, which still points at gitlab.com. `scripts/release.mjs`
+  points them at the fork's own project, repeats the "Fork release" paragraph,
+  and tags `vX.Y.Z` on the default branch; the tag pipeline publishes the
+  `.vsix` and needs the masked `CI_GIT_TOKEN` variable.
+  [005](docs/decisions/005_a-release-tag-publishes-the-vsix-as-a-generic-package.md)
