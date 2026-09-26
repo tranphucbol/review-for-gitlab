@@ -1,3 +1,16 @@
+## [3.101.3-beta.0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.101.2...v3.101.3-beta.0) (2026-09-26)
+
+Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
+GitLab instances older than 15.5.
+
+
+### Features
+
+* add GitLab comment image uploads ([99763b4](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/99763b4d90e58f10bcfccc775df0ebcc86a6c401))
+* **review:** borrow code navigation from identical local file ([0f762a9](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/0f762a99af2141f767691048bc851c8aed182790))
+
+
+
 ## [3.101.2](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.101.1...v3.101.2) (2026-09-13)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
