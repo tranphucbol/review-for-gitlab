@@ -37,6 +37,7 @@ import {
   retryFailedComment,
 } from './commands/mr_discussion_commands';
 import { registerCommentAttachmentProviders } from './review/comment_attachment_provider';
+import { registerReviewLanguageFeatures } from './review/review_language_features';
 import { hasCommentsDecorationProvider } from './review/has_comments_decoration_provider';
 import { changeTypeDecorationProvider } from './review/change_type_decoration_provider';
 import { checkoutMrBranch } from './commands/checkout_mr_branch';
@@ -244,6 +245,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   );
   registerCommands(context);
   registerCommentAttachmentProviders(context);
+  registerReviewLanguageFeatures(context);
   issuableController.init(context);
   await accountService.init(context).catch(e => {
     handleError(e);

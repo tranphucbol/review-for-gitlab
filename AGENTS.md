@@ -30,8 +30,9 @@ from `src/desktop/` or `src/browser/` and calls no Node.js or browser API;
   project repository, and `createMultipartFormBody()`, the hand-built upload
   body
 - `src/desktop/review/` — merge request review: the comment controllers, the
-  comments and threads, and the paste/drop provider that uploads images typed
-  into a comment box
+  comments and threads, the paste/drop provider that uploads images typed
+  into a comment box, and the providers that lend a diff the local file's
+  code navigation
 - `src/desktop/tree_view/` — the sidebar of issues and merge requests
 - `src/desktop/ci/`, `src/desktop/commands/`, `src/desktop/remotefs/` — pipeline
   views, command-palette commands, the `gitlab-remote://` file system
@@ -54,6 +55,8 @@ from `src/desktop/` or `src/browser/` and calls no Node.js or browser API;
 - `docs/decisions/` — the fork's append-only architectural rationale. Start at
   its [README](docs/decisions/README.md)
 - `docs/plans/` — working plans. Local by default; only the template is tracked
+- `.agents/skills/local-testing/` — how to test the extension, from unit tests
+  to real VS Code against the real GitLab, and how to build a beta
 
 ## Documents
 
