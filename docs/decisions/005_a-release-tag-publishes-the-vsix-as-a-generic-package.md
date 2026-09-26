@@ -36,6 +36,8 @@ The decision is constrained by:
 | `upload()` against a local mock registry: fresh, retried, changed bytes, unreachable       | Uploads; accepts the identical file; fails; fails                                       | A retried job is safe, and a package is never silently replaced |
 | `scripts/release.mjs` in a sandbox clone pushing to a local bare repository                | Writes the fork entry, commits `chore(release): X`, pushes `main` and the annotated tag | The helper does the whole AGENTS.md release rule                |
 | The same helper on a dirty tree, another branch, `main` behind origin, a version not newer | Refuses each before changing anything                                                   | A release is always cut from the pushed tip of `main`           |
+| `GET /projects/:id/releases/:tag` on 13.12 for a tag with no release                       | 403, not 404                                                                            | `publish` looks for the tag in the release list instead         |
+| Scratch tag pipeline on the real instance, then the `publish` job retried                  | Both files uploaded, Release created, download matched its checksum; retry changed none | The whole tag path works here; deleted afterwards               |
 
 ## Decision
 
