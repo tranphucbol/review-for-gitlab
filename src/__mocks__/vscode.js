@@ -63,6 +63,11 @@ module.exports = {
   languages: {
     registerInlineCompletionItemProvider: jest.fn().mockReturnValue({ dispose: jest.fn() }),
     registerDocumentDropEditProvider: jest.fn().mockReturnValue({ dispose: jest.fn() }),
+    registerDefinitionProvider: jest.fn().mockReturnValue({ dispose: jest.fn() }),
+    registerTypeDefinitionProvider: jest.fn().mockReturnValue({ dispose: jest.fn() }),
+    registerImplementationProvider: jest.fn().mockReturnValue({ dispose: jest.fn() }),
+    registerReferenceProvider: jest.fn().mockReturnValue({ dispose: jest.fn() }),
+    registerHoverProvider: jest.fn().mockReturnValue({ dispose: jest.fn() }),
   },
   workspace: {
     openTextDocument: jest.fn(),
@@ -134,6 +139,14 @@ module.exports = {
   ProgressLocation: {
     Notification: 'Notification',
     Window: 'Window',
+  },
+  Location: function Location(uri, range) {
+    this.uri = uri;
+    this.range = range;
+  },
+  Hover: function Hover(contents, range) {
+    this.contents = Array.isArray(contents) ? contents : [contents];
+    this.range = range;
   },
   DocumentDropEdit: function DocumentDropEdit(insertText) {
     this.insertText = insertText;
