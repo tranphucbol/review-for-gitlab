@@ -196,22 +196,26 @@ publish:
         fs.writeFileSync("release.json", JSON.stringify(body));
       '
     - |
-      RELEASE_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/${CI_COMMIT_TAG}"
-      RELEASE_STATUS=$(curl --silent --show-error --retry 3 --retry-connrefused \
-        --output /dev/null --write-out '%{http_code}' \
-        --header "PRIVATE-TOKEN: ${CI_GIT_TOKEN}" "$RELEASE_URL")
-      if [ "$RELEASE_STATUS" = "200" ]; then
+      # GitLab 13.12 answers 403, not 404, for a release that does not exist,
+      # so look the tag up in the list instead.
+      RELEASES_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases"
+      curl --fail --silent --show-error --retry 3 --retry-connrefused \
+        --output releases.json \
+        --header "PRIVATE-TOKEN: ${CI_GIT_TOKEN}" "${RELEASES_URL}?per_page=100"
+      if node -e '
+        var releases = require("./releases.json");
+        process.exit(releases.some(function (release) {
+          return release.tag_name === process.env.CI_COMMIT_TAG;
+        }) ? 0 : 1);
+      '; then
         echo "Release ${CI_COMMIT_TAG} already exists; not creating it again"
-      elif [ "$RELEASE_STATUS" = "404" ]; then
+      else
         echo "Creating release ${CI_COMMIT_TAG}"
         curl --fail --silent --show-error --retry 3 --retry-connrefused \
           --request POST \
           --header "PRIVATE-TOKEN: ${CI_GIT_TOKEN}" \
           --header "Content-Type: application/json" \
           --data @release.json \
-          "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases" > /dev/null
-      else
-        echo "ERROR: release lookup returned HTTP ${RELEASE_STATUS}"
-        exit 1
+          "$RELEASES_URL" > /dev/null
       fi
     - 'echo "Done: ${CI_PROJECT_URL}/-/releases/${CI_COMMIT_TAG}"'
