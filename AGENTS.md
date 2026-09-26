@@ -2,7 +2,7 @@
 
 A fork of GitLab Workflow, the GitLab extension for VS Code (TypeScript, built
 with esbuild, tested with Jest). Upstream is
-`gitlab.com/gitlab-org/gitlab-vscode-extension` (`origin`); this fork lives at
+`gitlab.com/gitlab-org/gitlab-vscode-extension` (`upstream`); this fork lives at
 `gitlab.com/tranphucbol/vscode-jetbrain-gitlab` (`origin`).
 
 The fork exists for one reason: the GitLab it talks to is **13.12**, and
