@@ -1,11 +1,11 @@
 import assert from 'assert';
 import * as vscode from 'vscode';
 import { FAILED_COMMENT_CONTEXT } from '../constants';
-import { getNewLineForOldUnchangedLine } from '../git/diff_line_count';
 import { getGitLabService } from '../gitlab/get_gitlab_service';
 import { gitlabProjectRepository } from '../gitlab/gitlab_project_repository';
 import { mrCache } from '../gitlab/mr_cache';
 import { GitLabComment } from '../review/gitlab_comment';
+import { buildDiffPosition } from '../review/diff_position';
 import { GitLabCommentThread } from '../review/gitlab_comment_thread';
 import { fromReviewUri } from '../review/review_uri';
 import { findFileInDiffs } from '../utils/find_file_in_diffs';
@@ -29,26 +29,11 @@ const createNewComment = async (
       'Error: Creating comment failed. The merge request diff for this file is too large. ' +
         'Please see https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/578',
     );
-  const positionFragment = isOld
-    ? {
-        oldLine: getLineNumber(thread),
-        // we let user comment on any line on the old version of the diff
-        // this means some of the lines might be unchanged
-        // till https://gitlab.com/gitlab-org/gitlab/-/issues/325161 gets fixed, we need to compute
-        // the new line index for unchanged line.
-        newLine: getNewLineForOldUnchangedLine(mrVersion, path!, getLineNumber(thread)),
-      }
-    : { newLine: getLineNumber(thread) };
-  const discussion = await getGitLabService(projectInRepository).createDiffNote(mrId, text, {
-    baseSha: mrVersion.base_commit_sha,
-    headSha: mrVersion.head_commit_sha,
-    startSha: mrVersion.start_commit_sha,
-    paths: {
-      oldPath: diff.old_path,
-      newPath: diff.new_path,
-    },
-    ...positionFragment,
-  });
+  const discussion = await getGitLabService(projectInRepository).createDiffNote(
+    mrId,
+    text,
+    buildDiffPosition(mrVersion, diff, isOld ? 'old' : 'new', getLineNumber(thread)),
+  );
 
   return new GitLabCommentThread(thread, discussion, getGitLabService(projectInRepository), mr);
 };

@@ -1,0 +1,166 @@
+/*
+  The message contract between the side-by-side diff panel and its webview
+  (webviews/vue/mr_diff). Every message carries a `command`. A message with a
+  `requestId` is answered with exactly one `result` message.
+*/
+
+export type DiffSide = 'old' | 'new';
+
+export interface DiffFileModel {
+  oldPath: string;
+  newPath: string;
+  oldText: string;
+  newText: string;
+  oldExists: boolean;
+  newExists: boolean;
+  /** GitLab's unified diff for the file; empty when `collapsed` */
+  diff: string;
+  /** GitLab returned no diff (too large), the webview aligns the lines itself */
+  collapsed: boolean;
+  /** head lines that GitLab accepts a new diff comment on */
+  commentableNewLines: number[];
+}
+
+export interface DiffNoteModel {
+  id: string;
+  authorName: string;
+  authorUsername: string;
+  avatarUrl: string;
+  createdAt: string;
+  body: string;
+  bodyHtml: string;
+  canEdit: boolean;
+  canDelete: boolean;
+}
+
+export interface DiffDiscussionModel {
+  /** the GraphQL reply ID, used for replies and resolving */
+  id: string;
+  side: DiffSide;
+  line: number;
+  resolvable: boolean;
+  resolved: boolean;
+  canResolve: boolean;
+  canReply: boolean;
+  notes: DiffNoteModel[];
+}
+
+export type LocalApplicability = 'base' | 'head' | 'none';
+
+export interface BlockRange {
+  blockId: number;
+  /** 0-based index of the first base line */
+  oldStart: number;
+  oldCount: number;
+  /** 0-based index of the first head line */
+  newStart: number;
+  newCount: number;
+}
+
+/** A place in a pane, 1-based like Monaco. */
+export interface CodePosition {
+  side: DiffSide;
+  line: number;
+  column: number;
+  /** the same line on the other side, when the line is unchanged */
+  otherLine?: number;
+}
+
+/** 1-based, end column exclusive */
+export interface CodeRange {
+  startLine: number;
+  startColumn: number;
+  endLine: number;
+  endColumn: number;
+}
+
+/**
+ * A code navigation target: in the file under review, on the `side` the local file equals,
+ * or in another file, by `uri`. `preview` is that file's text, for Monaco's Ctrl+hover and references previews.
+ */
+export type CodeLocation =
+  | { side: DiffSide; range: CodeRange }
+  | { uri: string; range: CodeRange; preview?: string };
+
+export interface CodeHover {
+  /** markdown */
+  contents: string[];
+  range?: CodeRange;
+}
+
+/** A Monaco theme rule: `foreground` is `rrggbb`, `fontStyle` like TextMate's (`italic bold`). */
+export interface TokenRule {
+  token: string;
+  foreground?: string;
+  fontStyle?: string;
+}
+
+/**
+ * The `editor.*` settings, as VS Code stores them, so the panes draw text like the editors do.
+ * Empty `fontFamily` and zero `fontSize` mean the webview keeps its own; zero `lineHeight`
+ * means "derived from the font size", as in VS Code.
+ */
+export interface EditorFont {
+  fontFamily: string;
+  fontSize: number;
+  fontWeight: string;
+  lineHeight: number;
+  letterSpacing: number;
+  fontLigatures: boolean | string;
+  tabSize: number;
+}
+
+export type ToWebviewMessage =
+  /** `aligned`: fillers keep both sides row-aligned; the user's last choice */
+  | { command: 'init'; file: DiffFileModel; aligned: boolean }
+  /** the editor font settings, sent before `init` and after they change */
+  | { command: 'editorFont'; font: EditorFont }
+  /** the syntax colours of the active VS Code theme, sent before `init` and after a theme change */
+  | { command: 'tokenTheme'; rules: TokenRule[] }
+  | {
+      command: 'discussions';
+      discussions: DiffDiscussionModel[];
+      canComment: boolean;
+      unsupported?: boolean;
+      error?: string;
+    }
+  /**
+   * Which arrows the gutter shows: `base` (→, copy head lines into the local file),
+   * `head` (←, put base lines back) or none, with the reason. With `enabled` false the user
+   * has not turned the buttons on, and the view shows nothing about the local file.
+   */
+  | {
+      command: 'localState';
+      enabled: boolean;
+      applicable: LocalApplicability;
+      reason?: string;
+      appliedBlockIds: number[];
+    }
+  | {
+      command: 'result';
+      requestId: number;
+      error?: string;
+      markdown?: string;
+      locations?: CodeLocation[];
+      hover?: CodeHover;
+    }
+  | { command: 'error'; message: string };
+
+export type FromWebviewMessage =
+  | { command: 'appReady' }
+  | { command: 'openNative' }
+  | { command: 'refresh' }
+  | { command: 'setAligned'; aligned: boolean }
+  | { command: 'createThread'; requestId: number; side: DiffSide; line: number; body: string }
+  | { command: 'reply'; requestId: number; discussionId: string; body: string }
+  | { command: 'editNote'; requestId: number; noteId: string; body: string; originalBody: string }
+  | { command: 'deleteNote'; requestId: number; noteId: string }
+  | { command: 'setResolved'; requestId: number; discussionId: string; resolved: boolean }
+  | { command: 'uploadImage'; requestId: number; name: string; contentType: string; base64: string }
+  | ({ command: 'applyHunk'; requestId: number; direction: 'apply' | 'revert' } & BlockRange)
+  /** code navigation, answered by the language extensions for the local file */
+  | ({ command: 'definitions'; requestId: number } & CodePosition)
+  | ({ command: 'references'; requestId: number } & CodePosition)
+  | ({ command: 'hover'; requestId: number } & CodePosition)
+  /** opens a `uri` location from a `definitions` or `references` answer in a VS Code editor */
+  | { command: 'openLocation'; uri: string; line: number; column: number };

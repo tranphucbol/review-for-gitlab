@@ -1,0 +1,82 @@
+import {
+  discussionOnDiff,
+  noteOnDiff,
+  singleNote,
+  systemNote,
+} from '../../../../test/integration/fixtures/graphql/discussions.js';
+import { GqlDiscussion, GqlTextDiffDiscussion } from '../../gitlab/graphql/get_discussions';
+import { diffFile, mrVersion } from '../../test_utils/entities';
+import { toDiffDiscussions } from './diff_discussions';
+
+describe('toDiffDiscussions', () => {
+  const { oldPath, newPath, diffRefs } = noteOnDiff.position;
+  const file: RestDiffFile = { ...diffFile, old_path: oldPath, new_path: newPath };
+  const version: RestMrVersion = {
+    ...mrVersion,
+    base_commit_sha: diffRefs.baseSha,
+    head_commit_sha: diffRefs.headSha,
+    diffs: [file],
+  };
+
+  const textDiscussion = discussionOnDiff as GqlTextDiffDiscussion;
+  const withPosition = (position: Record<string, unknown>): GqlDiscussion =>
+    ({
+      ...textDiscussion,
+      notes: {
+        nodes: [{ ...noteOnDiff, position: { ...noteOnDiff.position, ...position } }],
+      },
+    }) as GqlDiscussion;
+
+  it('places a discussion on an old line on the base side', () => {
+    const [discussion] = toDiffDiscussions([textDiscussion], version, file);
+
+    expect(discussion).toEqual({
+      id: discussionOnDiff.replyId,
+      side: 'old',
+      line: 48,
+      resolvable: discussionOnDiff.resolvable,
+      resolved: discussionOnDiff.resolved,
+      canResolve: true,
+      canReply: true,
+      notes: [
+        {
+          id: noteOnDiff.id,
+          authorName: 'Tomas Vik',
+          authorUsername: 'viktomas',
+          avatarUrl: noteOnDiff.author.avatarUrl,
+          createdAt: noteOnDiff.createdAt,
+          body: noteOnDiff.body,
+          bodyHtml: noteOnDiff.bodyHtml,
+          canEdit: true,
+          canDelete: true,
+        },
+      ],
+    });
+  });
+
+  it('places a discussion on a new line on the head side', () => {
+    const discussions = toDiffDiscussions(
+      [withPosition({ oldLine: null, newLine: 7 })],
+      version,
+      file,
+    );
+
+    expect(discussions.map(d => [d.side, d.line])).toEqual([['new', 7]]);
+  });
+
+  it.each`
+    description                        | position
+    ${'an old line of another file'}   | ${{ oldPath: 'other.vue' }}
+    ${'an old line of another base'}   | ${{ diffRefs: { ...diffRefs, baseSha: 'previous' } }}
+    ${'a new line of another file'}    | ${{ oldLine: null, newLine: 7, newPath: 'other.vue' }}
+    ${'a new line of another version'} | ${{ oldLine: null, newLine: 7, diffRefs: { ...diffRefs, headSha: 'previous' } }}
+  `('skips a discussion on $description', ({ position }) => {
+    expect(toDiffDiscussions([withPosition(position)], version, file)).toEqual([]);
+  });
+
+  it('skips discussions that are not on a text diff', () => {
+    expect(toDiffDiscussions([singleNote, systemNote] as GqlDiscussion[], version, file)).toEqual(
+      [],
+    );
+  });
+});

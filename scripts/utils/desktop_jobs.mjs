@@ -7,7 +7,7 @@ import { prepareWebviews, generateAssets, writePackageJson, commonJobs } from '.
 import { ENVIRONMENTS } from '../constants.mjs';
 
 const desktopWebviews = {
-  vue: ['issuable'],
+  vue: ['issuable', 'mr_diff'],
   vue2: ['gitlab_duo_chat', 'security_finding'],
 };
 

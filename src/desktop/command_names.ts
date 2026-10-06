@@ -42,6 +42,7 @@ export const USER_COMMANDS = {
   CREATE_SNIPPET_PATCH: 'gl.createSnippetPatch',
   APPLY_SNIPPET_PATCH: 'gl.applySnippetPatch',
   OPEN_MR_FILE: 'gl.openMrFile',
+  OPEN_MR_FILE_SIDE_BY_SIDE: 'gl.openMrFileSideBySide',
   OPEN_REPOSITORY: 'gl.openRepository',
   SELECT_PROJECT_FOR_REPOSITORY: 'gl.selectProjectForRepository',
   SELECT_PROJECT: 'gl.selectProject',

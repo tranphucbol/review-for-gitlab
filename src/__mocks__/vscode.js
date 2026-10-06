@@ -36,6 +36,8 @@ module.exports = {
     createCommentController: jest.fn(),
   },
   window: {
+    activeColorTheme: { kind: 2 },
+    onDidChangeActiveColorTheme: jest.fn().mockReturnValue({ dispose: jest.fn() }),
     showInformationMessage: jest.fn(),
     showWarningMessage: jest.fn(),
     showErrorMessage: jest.fn(),
@@ -77,12 +79,15 @@ module.exports = {
     onDidChangeTextDocument: jest.fn(),
     onDidCloseTextDocument: jest.fn(),
     createFileSystemWatcher: jest.fn(),
+    applyEdit: jest.fn(),
+    textDocuments: [],
     fs: {
       readFile: jest.fn(),
       writeFile: jest.fn(),
     },
   },
   extensions: {
+    all: [],
     getExtension: jest.fn(),
   },
   env: {
@@ -157,6 +162,15 @@ module.exports = {
   FoldingRangeKind: {
     Region: 3,
   },
+  RelativePattern: function RelativePattern(base, pattern) {
+    this.base = base;
+    this.pattern = pattern;
+  },
+  WorkspaceEdit: function WorkspaceEdit() {
+    this.replace = jest.fn();
+  },
+  EndOfLine: { LF: 1, CRLF: 2 },
+  ColorThemeKind: { Light: 1, Dark: 2, HighContrast: 3, HighContrastLight: 4 },
   FileType,
   FileSystemError,
   ViewColumn: {
