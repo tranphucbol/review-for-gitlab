@@ -57,7 +57,7 @@ const contentTypeForUri = (uri: vscode.Uri): string | undefined =>
   CONTENT_TYPE_FOR_EXTENSION[path.posix.extname(uri.path).toLowerCase()];
 
 /** A file that we are going to upload to GitLab. */
-interface Attachment {
+export interface Attachment {
   name: string;
   contentType: string;
   read: () => Promise<Uint8Array>;
@@ -133,7 +133,7 @@ const getAttachments = async (dataTransfer: vscode.DataTransfer): Promise<Attach
   return files.length > 0 ? files : attachmentsFromUriList(dataTransfer);
 };
 
-const uploadAttachments = async (
+export const uploadAttachments = async (
   { mr, projectInRepository }: MrCommentContext,
   attachments: Attachment[],
 ): Promise<string> => {

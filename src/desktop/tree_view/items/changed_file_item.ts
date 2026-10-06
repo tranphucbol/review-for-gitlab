@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import { posix as path } from 'path';
 import { isEmptyFileUri, toReviewUri } from '../../review/review_uri';
-import { VS_COMMANDS } from '../../command_names';
+import { USER_COMMANDS, VS_COMMANDS } from '../../command_names';
+import { getMergeRequestDiffViewer } from '../../review/side_by_side/merge_request_diff_viewer';
 import {
   ADDED,
   DELETED,
@@ -43,7 +44,7 @@ const mediaExtensions = [
 const looksLikeMedia = (filePath: string) =>
   mediaExtensions.includes(path.extname(filePath).toLowerCase());
 
-const getBaseAndHeadUri = (
+export const getBaseAndHeadUri = (
   mr: RestMr,
   mrVersion: RestMrVersion,
   file: RestDiffFile,
@@ -106,6 +107,12 @@ export class ChangedFileItem extends vscode.TreeItem {
         title: 'Show changes',
         command: VS_COMMANDS.OPEN,
         arguments: [headIsEmpty ? this.baseFileUri : this.headFileUri],
+      };
+    } else if (getMergeRequestDiffViewer() === 'sideBySide') {
+      this.command = {
+        title: 'Show changes',
+        command: USER_COMMANDS.OPEN_MR_FILE_SIDE_BY_SIDE,
+        arguments: [this],
       };
     } else {
       this.command = {

@@ -15,6 +15,7 @@ export const DISMISSED_CODE_SUGGESTIONS_PROMO = 'DISMISSED_CODE_SUGGESTIONS_PROM
 export const WEBVIEW_WORKFLOW = 'glWorkflow';
 export const WEBVIEW_PENDING_JOB = 'gitlab.waitForPendingJob';
 export const WEBVIEW_SECURITY_FINDING = 'gitlab.viewSecurityFinding';
+export const WEBVIEW_MR_DIFF = 'gitlab.mergeRequestDiff';
 
 /** Configuration namespace with boolean flag that tells us if we should start Language Server in debugging mode. */
 export const CONFIG_LS_DEBUG = 'gitlab.ls.debug';

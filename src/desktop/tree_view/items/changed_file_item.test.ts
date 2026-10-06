@@ -1,4 +1,5 @@
-import { VS_COMMANDS } from '../../command_names';
+import * as vscode from 'vscode';
+import { USER_COMMANDS, VS_COMMANDS } from '../../command_names';
 import {
   ADDED,
   CHANGE_TYPE_QUERY_KEY,
@@ -83,6 +84,42 @@ describe('ChangedFileItem', () => {
     it('indicates there are no comments', () => {
       areThereChanges = false;
       expect(createItem().resourceUri?.query).toMatch(`${HAS_COMMENTS_QUERY_KEY}=false`);
+    });
+  });
+
+  describe('diff viewer setting', () => {
+    const useViewer = (viewer?: string) =>
+      jest.mocked(vscode.workspace.getConfiguration).mockReturnValue({
+        viewer,
+      } as unknown as vscode.WorkspaceConfiguration);
+
+    afterEach(() => {
+      jest
+        .mocked(vscode.workspace.getConfiguration)
+        .mockReturnValue({} as vscode.WorkspaceConfiguration);
+    });
+
+    it('opens the native diff by default', () => {
+      useViewer(undefined);
+      const item = new ChangedFileItem(mr, mrVersion, diffFile, '/repo', () => false);
+
+      expect(item.command?.command).toBe(VS_COMMANDS.DIFF);
+    });
+
+    it('opens the side-by-side view when the setting asks for it', () => {
+      useViewer('sideBySide');
+      const item = new ChangedFileItem(mr, mrVersion, diffFile, '/repo', () => false);
+
+      expect(item.command?.command).toBe(USER_COMMANDS.OPEN_MR_FILE_SIDE_BY_SIDE);
+      expect(item.command?.arguments).toEqual([item]);
+    });
+
+    it('keeps opening a new image file, which has no diff', () => {
+      useViewer('sideBySide');
+      const image = { ...diffFile, renamed_file: false, new_file: true, new_path: 'new.png' };
+      const item = new ChangedFileItem(mr, mrVersion, image, '/repo', () => false);
+
+      expect(item.command?.command).toBe(VS_COMMANDS.OPEN);
     });
   });
 

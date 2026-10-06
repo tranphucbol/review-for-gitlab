@@ -75,6 +75,13 @@ Each of these cost real time once. Symptom first, then the fix.
   the pid `launch.sh` printed.
 - **A toast covers the bottom right of 1.139** ("install recommended
   extensions"). Dismiss it before clicking there.
+- **The references peek starts normally, then goes blank.** Its embedded
+  editor inherits `automaticLayout` from its parent. At fractional window
+  zoom, that observer can repeatedly shrink the preview to 5×5px. Keep it
+  disabled and resize only the main panes with `DiffView`'s observer. Run
+  `scripts/side_by_side_peek.js` with `playwright-cli run-code --filename=...`
+  on a merge request's `Example.java`; it waits before checking
+  the preview, tests both Align modes, resizes the panes and follows a reference.
 - **`test_workspace (no GitLab project)` in the GitLab sidebar.** The
   repository root contains layer 2's `test_workspace/` git repository. Ignore
   it.

@@ -155,6 +155,12 @@
         "icon": "$(go-to-file)"
       },
       {
+        "command": "gl.openMrFileSideBySide",
+        "title": "Open in Side-by-Side View",
+        "category": "GitLab",
+        "icon": "$(split-horizontal)"
+      },
+      {
         "command": "gl.resolveThread",
         "title": "Resolve Thread",
         "category": "GitLab",
@@ -404,6 +410,10 @@
           "when": "false"
         },
         {
+          "command": "gl.openMrFileSideBySide",
+          "when": "false"
+        },
+        {
           "command": "gl.showIssuesAssignedToMe",
           "when": "gitlab:validState"
         },
@@ -532,6 +542,10 @@
           "group": "inline"
         },
         {
+          "command": "gl.openMrFileSideBySide",
+          "when": "viewItem == changed-file-item"
+        },
+        {
           "command": "gl.checkoutMrBranch",
           "when": "view =~ /issuesAndMrs/ && viewItem =~ /mr-item-from-same-project/"
         },
@@ -655,6 +669,11 @@
           "group": "navigation@-99"
         },
         {
+          "command": "gl.openMrFileSideBySide",
+          "when": "resourceScheme == 'gl-review' && resourceFilename != '' && isInDiffEditor",
+          "group": "navigation@-98"
+        },
+        {
           "command": "gl.showMergedCIConfig",
           "when": "gitlab:validState && resourceScheme != 'gl-merged-ci-yaml' && resourceFilename == '.gitlab-ci.yml'",
           "group": "navigation@-99"
@@ -754,6 +773,21 @@
           "type": "boolean",
           "default": false,
           "description": "Show notification in VS Code when the pipeline status changes"
+        },
+        "gitlab.mergeRequestDiff.viewer": {
+          "type": "string",
+          "enum": ["native", "sideBySide"],
+          "enumDescriptions": [
+            "VS Code's diff editor, with comments through the VS Code comments API",
+            "A side-by-side webview with connector ribbons and inline discussions"
+          ],
+          "default": "native",
+          "description": "Which view opens when you select a changed file of a merge request in the sidebar"
+        },
+        "gitlab.mergeRequestDiff.showLocalChangeButtons": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show buttons in the side-by-side merge request view that copy a change into your local file, or revert it there, as an unsaved edit"
         },
         "gitlab.ls.debug": {
           "type": "boolean",

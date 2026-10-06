@@ -33,6 +33,9 @@ from `src/desktop/` or `src/browser/` and calls no Node.js or browser API;
   comments and threads, the paste/drop provider that uploads images typed
   into a comment box, and the providers that lend a diff the local file's
   code navigation
+- `src/desktop/review/side_by_side/` — the opt-in side-by-side diff: the panel
+  controller, the panel that serves its webview, `messages.ts` (the whole
+  host–webview contract), and the local hunk applier
 - `src/desktop/tree_view/` — the sidebar of issues and merge requests
 - `src/desktop/ci/`, `src/desktop/commands/`, `src/desktop/remotefs/` — pipeline
   views, command-palette commands, the `gitlab-remote://` file system
@@ -44,8 +47,9 @@ from `src/desktop/` or `src/browser/` and calls no Node.js or browser API;
 - `src/browser/` — the WebIDE build's platform implementation
 - `src/__mocks__/vscode.js` — the `vscode` module every unit test imports
 - `webviews/vue/` (Vue 3) and `webviews/vue2/` (Vue 2) — independent npm
-  packages for the issuable view and Duo Chat; they share nothing with the
-  extension or with each other
+  packages for the issuable view, the side-by-side diff (`vue/mr_diff/`, Monaco
+  panes over a plain TypeScript diff model) and Duo Chat; they share nothing
+  with the extension or with each other
 - `test/integration/` — integration tests, run inside a downloaded VS Code
 - `scripts/` — the esbuild builds, packaging and workspace helpers behind the
   npm scripts
@@ -174,6 +178,16 @@ node scripts/release.mjs patch             # changelog, commit, tag, push after 
   `node-fetch@2`, which does not understand the global `FormData`.
   `createMultipartFormBody()` is the one place that writes a boundary.
   [003](docs/decisions/003_pasted-images-upload-to-the-merge-request-project.md)
+
+- **The side-by-side diff is opt-in and leaves the native review alone.**
+  `gitlab.mergeRequestDiff.viewer` defaults to `native`; the webview gets no
+  tokens, does every write through `GitLabService` on the host, and shares
+  `buildDiffPosition()` and `uploadAttachments()` with the native review rather
+  than copying them. A local file is changed only when
+  `gitlab.mergeRequestDiff.showLocalChangeButtons` is on, and only by an
+  unsaved `WorkspaceEdit` after its content is checked.
+  [006](docs/decisions/006_side-by-side-diff-is-an-opt-in-webview.md),
+  [007](docs/decisions/007_local-change-buttons-are-off-until-turned-on.md)
 
 - **Stay close to upstream.** Prefer the smallest change in upstream's file
   over a parallel copy of it, keep upstream's naming and structure, and keep
