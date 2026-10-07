@@ -38,7 +38,7 @@ export interface LineHover {
 
 export interface ViewState {
   layout: DiffLayout;
-  /** of the head pane */
+  /** of the primary pane: the head, or the only side of an added or deleted file */
   scrollTop: number;
   scrollTops: Record<DiffSide, number>;
   viewportHeight: number;
@@ -64,6 +64,11 @@ interface DiffViewOptions {
   onCommentRequest: (side: DiffSide, line: number) => void;
   paths: Record<DiffSide, string>;
   navigation?: CodeNavigation;
+  /**
+   * The only side of an added or deleted file. The other pane is hidden, so this one
+   * drives scrolling on its own and needs no fillers.
+   */
+  soloSide?: DiffSide;
 }
 
 const COMMENT_SHORTCUT_HINT =
@@ -93,6 +98,10 @@ export class DiffView {
 
   #align: boolean;
 
+  #solo: boolean;
+
+  #primary: DiffSide;
+
   #syncingScroll = false;
 
   #relayoutScheduled = false;
@@ -106,7 +115,9 @@ export class DiffView {
   constructor(containers: Record<DiffSide, HTMLElement>, options: DiffViewOptions) {
     this.#options = options;
     this.#blocks = options.blocks;
-    this.#align = options.align;
+    this.#solo = options.soloSide !== undefined;
+    this.#primary = options.soloSide ?? 'new';
+    this.#align = options.align && !this.#solo;
     applyVsCodeTheme();
     // distinct URIs, so that code navigation can tell the panes apart
     const modelUri = (side: DiffSide) =>
@@ -208,7 +219,7 @@ export class DiffView {
 
   /** Scrolls the other pane to the place that the `side` pane shows. */
   #followScroll(side: DiffSide) {
-    if (this.#syncingScroll) return;
+    if (this.#syncingScroll || this.#solo) return;
     const other: DiffSide = side === 'old' ? 'new' : 'old';
     const offset = this.editors[side].getScrollTop() - PADDING_TOP;
     this.#syncingScroll = true;
@@ -224,7 +235,7 @@ export class DiffView {
 
   /** Turns the hatched fillers that keep both panes row-aligned on or off. */
   setAligned(align: boolean) {
-    if (align === this.#align) return;
+    if (this.#solo || align === this.#align) return;
     this.#align = align;
     this.refreshDecorations();
     this.relayout();
@@ -239,7 +250,7 @@ export class DiffView {
   }
 
   scrollBy(deltaY: number) {
-    const editor = this.editors.new;
+    const editor = this.editors[this.#primary];
     editor.setScrollTop(editor.getScrollTop() + deltaY);
   }
 
@@ -247,8 +258,9 @@ export class DiffView {
   revealBlock(blockId: number) {
     const connector = this.#layout.connectors.find(c => c.blockId === blockId);
     if (!connector) return;
-    const viewport = this.editors.new.getLayoutInfo().height;
-    this.editors.new.setScrollTop(Math.max(0, connector.new.top + PADDING_TOP - viewport / 3));
+    const primary = this.editors[this.#primary];
+    const viewport = primary.getLayoutInfo().height;
+    primary.setScrollTop(Math.max(0, connector[this.#primary].top + PADDING_TOP - viewport / 3));
     const block = this.#blocks.find(b => b.id === blockId)!;
     const side: DiffSide = block.newCount > 0 ? 'new' : 'old';
     const line = side === 'new' ? block.newStart + 1 : Math.max(block.oldStart, 1);
@@ -485,11 +497,14 @@ export class DiffView {
   }
 
   #emitViewState() {
-    const editor = this.editors.new;
+    const editor = this.editors[this.#primary];
     this.#options.onViewStateChange({
       layout: this.#layout,
       scrollTop: editor.getScrollTop(),
-      scrollTops: { old: this.editors.old.getScrollTop(), new: editor.getScrollTop() },
+      scrollTops: {
+        old: this.editors.old.getScrollTop(),
+        new: this.editors.new.getScrollTop(),
+      },
       viewportHeight: editor.getLayoutInfo().height,
       paddingTop: PADDING_TOP,
     });

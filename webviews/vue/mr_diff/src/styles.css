@@ -170,6 +170,11 @@ body {
   grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
 }
 
+.gl-diff-layout-single .gl-diff-header,
+.gl-diff-layout-single .gl-diff-body {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .gl-diff-header {
   border-bottom: 1px solid var(--vscode-panel-border, transparent);
 }

@@ -1,16 +1,22 @@
 <template>
-  <div class="gl-diff-layout">
-    <div class="gl-diff-header">
+  <div class="gl-diff-layout" :class="{ 'gl-diff-layout-single': soloSide }">
+    <div v-if="soloSide" class="gl-diff-header">
+      <div class="gl-diff-header-path" :title="soloPath">
+        <bdi>{{ soloLabel }}</bdi>
+      </div>
+    </div>
+    <div v-else class="gl-diff-header">
       <div class="gl-diff-header-path" :title="file.oldPath">
-        <bdi>{{ oldLabel }}</bdi>
+        <bdi>{{ file.oldPath }}</bdi>
       </div>
       <div></div>
       <div class="gl-diff-header-path" :title="file.newPath">
-        <bdi>{{ newLabel }}</bdi>
+        <bdi>{{ file.newPath }}</bdi>
       </div>
     </div>
     <div class="gl-diff-body" @mouseleave="hover = null">
       <code-pane
+        v-show="soloSide !== 'new'"
         ref="oldPane"
         side="old"
         :comment-line="commentLine('old')"
@@ -18,6 +24,7 @@
         @add-comment="line => $emit('add-comment', { side: 'old', line })"
       />
       <connector-gutter
+        v-if="!soloSide"
         :connectors="visibleConnectors"
         :width="gutterWidth"
         :height="viewportHeight"
@@ -26,6 +33,7 @@
         <slot name="gutter" :connectors="visibleConnectors"></slot>
       </connector-gutter>
       <code-pane
+        v-show="soloSide !== 'old'"
         ref="newPane"
         side="new"
         :comment-line="commentLine('new')"
@@ -97,6 +105,11 @@ export default {
       type: Boolean,
       default: true,
     },
+    /** The only side of an added (`new`) or deleted (`old`) file, shown as one pane. */
+    soloSide: {
+      type: String,
+      default: null,
+    },
   },
   emits: ['add-comment', 'comment-refused', 'failed'],
   data() {
@@ -108,11 +121,11 @@ export default {
     };
   },
   computed: {
-    oldLabel() {
-      return this.file.oldExists ? this.file.oldPath : `${this.file.oldPath} (added)`;
+    soloPath() {
+      return this.soloSide === 'old' ? this.file.oldPath : this.file.newPath;
     },
-    newLabel() {
-      return this.file.newExists ? this.file.newPath : `${this.file.newPath} (deleted)`;
+    soloLabel() {
+      return `${this.soloPath} (${this.soloSide === 'old' ? 'deleted' : 'added'})`;
     },
     viewportHeight() {
       return this.viewState?.viewportHeight ?? 0;
@@ -173,6 +186,7 @@ export default {
           },
           paths: { old: this.file.oldPath, new: this.file.newPath },
           navigation: hostCodeNavigation,
+          soloSide: this.soloSide ?? undefined,
         },
       );
     } catch (e) {
@@ -219,7 +233,7 @@ export default {
       if (!this.diffView || !this.viewState || this.blocks.length === 0) return;
       const { layout, scrollTop, viewportHeight, paddingTop } = this.viewState;
       const anchor = scrollTop + viewportHeight / 3 - paddingTop;
-      const tops = layout.connectors.map(c => c.new.top);
+      const tops = layout.connectors.map(c => c[this.soloSide ?? 'new'].top);
       const index =
         direction > 0
           ? tops.findIndex(top => top > anchor + 1)

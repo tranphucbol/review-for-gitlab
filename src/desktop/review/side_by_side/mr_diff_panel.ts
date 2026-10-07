@@ -193,14 +193,19 @@ export class MrDiffPanel {
       return;
     }
     const uri = this.#localUri();
-    if (!uri) {
+    const { file } = this.#target;
+    if (!uri || file.new_file) {
+      let reason = 'The file is outside the local repository.';
+      if (file.deleted_file) {
+        reason = 'The merge request deletes this file, so there is no local file to change.';
+      } else if (file.new_file) {
+        reason = 'The merge request adds this file, so the view shows it alone, without arrows.';
+      }
       await this.#post({
         command: 'localState',
         enabled: true,
         applicable: 'none',
-        reason: this.#target.file.deleted_file
-          ? 'The merge request deletes this file, so there is no local file to change.'
-          : 'The file is outside the local repository.',
+        reason,
         appliedBlockIds: [],
       });
       return;
@@ -255,7 +260,7 @@ export class MrDiffPanel {
     }
     const uri = this.#localUri();
     const applier = await this.#localApplier();
-    if (!uri || !applier) {
+    if (!uri || !applier || this.#target.file.new_file) {
       throw new UserFriendlyError(
         'The view cannot change the local file.',
         new Error(`No local file for ${this.#target.file.new_path}`),

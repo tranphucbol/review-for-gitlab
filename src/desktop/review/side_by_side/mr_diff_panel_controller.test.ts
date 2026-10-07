@@ -464,6 +464,27 @@ describe('MrDiffPanelController', () => {
       ]);
     });
 
+    it('offers nothing for a file the merge request adds', async () => {
+      await controller.open({ ...target, file: { ...diffFile, new_file: true } });
+      await sendToHost({ command: 'appReady' });
+
+      expect(localStates()).toEqual([
+        expect.objectContaining({ applicable: 'none', reason: expect.stringContaining('adds') }),
+      ]);
+    });
+
+    it('refuses to change the local copy of a file the merge request adds', async () => {
+      await controller.open({ ...target, file: { ...diffFile, new_file: true } });
+      await sendToHost({ command: 'applyHunk', requestId: 6, direction: 'revert', ...block });
+
+      expect(vscode.workspace.applyEdit).not.toHaveBeenCalled();
+      expect(postedMessages()).toContainEqual({
+        command: 'result',
+        requestId: 6,
+        error: expect.stringContaining('cannot change the local file'),
+      });
+    });
+
     it('applies a block as an unsaved edit, then reports it applied before answering', async () => {
       await controller.open(target);
       await sendToHost({ command: 'applyHunk', requestId: 5, direction: 'apply', ...block });

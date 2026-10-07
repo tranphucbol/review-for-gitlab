@@ -41,6 +41,7 @@
         <span class="gl-diff-icon gl-diff-icon-arrow-down" aria-hidden="true"></span>
       </button>
       <button
+        v-if="!soloSide"
         type="button"
         class="gl-diff-button gl-diff-icon-button"
         :aria-pressed="String(aligned)"
@@ -114,6 +115,7 @@
       :threads="threads"
       :can-comment-on="canCommentOn"
       :aligned="aligned"
+      :solo-side="soloSide"
       :block-states="blockStates"
       @add-comment="addDraft"
       @comment-refused="explainRefusedComment"
@@ -229,6 +231,13 @@ export default {
         return 'The local file is the head of the merge request. ← reverts a change in it.';
       }
       return this.localState.reason ?? 'The view does not change the local file.';
+    },
+    /** An added or deleted file has one side, shown as a single pane. */
+    soloSide() {
+      if (!this.file) return null;
+      if (!this.file.oldExists) return 'new';
+      if (!this.file.newExists) return 'old';
+      return null;
     },
     summary() {
       if (!this.file) return '';
