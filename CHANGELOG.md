@@ -1,3 +1,15 @@
+# [3.103.0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.102.0...v3.103.0) (2026-10-07)
+
+Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
+GitLab instances older than 15.5.
+
+
+### Features
+
+* show an added or deleted file as one pane in the side-by-side diff ([b51d674](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/b51d6748c4c952f5343067dfa2646e6307c56088))
+
+
+
 # [3.102.0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.101.3-beta.0...v3.102.0) (2026-10-06)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
