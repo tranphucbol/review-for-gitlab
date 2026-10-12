@@ -36,6 +36,7 @@ export const USER_COMMANDS = {
   SUBMIT_COMMENT_EDIT: 'gl.submitCommentEdit',
   CREATE_COMMENT: 'gl.createComment',
   CHECKOUT_MR_BRANCH: 'gl.checkoutMrBranch',
+  UPDATE_MR_BRANCH: 'gl.updateMrBranch',
   OPEN_IN_GITLAB: 'gl.openInGitLab',
   COPY_LINK_TO_CLIPBOARD: 'gl.copyLinkToClipboard',
   CLONE_WIKI: 'gl.cloneWiki',

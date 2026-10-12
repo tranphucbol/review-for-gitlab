@@ -214,6 +214,10 @@
         "title": "Check out Merge Request Branch"
       },
       {
+        "command": "gl.updateMrBranch",
+        "title": "Fetch and Update Merge Request Branch"
+      },
+      {
         "command": "gl.openInGitLab",
         "title": "Open in GitLab"
       },
@@ -359,6 +363,10 @@
         },
         {
           "command": "gl.checkoutMrBranch",
+          "when": "false"
+        },
+        {
+          "command": "gl.updateMrBranch",
           "when": "false"
         },
         {
@@ -547,6 +555,10 @@
         },
         {
           "command": "gl.checkoutMrBranch",
+          "when": "view =~ /issuesAndMrs/ && viewItem =~ /mr-item-from-same-project/"
+        },
+        {
+          "command": "gl.updateMrBranch",
           "when": "view =~ /issuesAndMrs/ && viewItem =~ /mr-item-from-same-project/"
         },
         {
