@@ -508,13 +508,93 @@ body {
 
 .gl-diff-note-body pre,
 .gl-diff-note-body code {
-  font-family: var(--vscode-editor-font-family);
+  font-family: var(--vscode-editor-font-family, monospace);
+  font-size: var(--vscode-editor-font-size);
   background: var(--vscode-textCodeBlock-background);
 }
 
+.gl-diff-note-body code {
+  padding: 1px 3px;
+  border-radius: 3px;
+}
+
 .gl-diff-note-body pre {
-  padding: 4px;
+  margin: 6px 0;
+  padding: 6px 8px;
+  border-radius: 3px;
   overflow-x: auto;
+  color: var(--vscode-editor-foreground);
+  line-height: 1.4;
+}
+
+.gl-diff-note-body pre code {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.gl-diff-note-body table {
+  display: block;
+  max-width: 100%;
+  margin: 6px 0;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+
+.gl-diff-note-body th,
+.gl-diff-note-body td {
+  padding: 4px 10px;
+  border: 1px solid var(--vscode-editorWidget-border, var(--vscode-panel-border, transparent));
+  text-align: start;
+  vertical-align: top;
+}
+
+.gl-diff-note-body th {
+  font-weight: 600;
+  background: var(
+    --vscode-keybindingTable-headerBackground,
+    var(--vscode-textCodeBlock-background)
+  );
+}
+
+.gl-diff-note-body tbody tr:nth-child(even) {
+  background: var(--vscode-keybindingTable-rowsBackground, transparent);
+}
+
+.gl-diff-note-body details {
+  margin: 6px 0;
+}
+
+.gl-diff-note-body summary {
+  cursor: pointer;
+}
+
+.gl-diff-note-body blockquote {
+  margin: 6px 0;
+  padding: 0 8px;
+  border-left: 3px solid var(--vscode-textBlockQuote-border, var(--vscode-panel-border));
+  background: var(--vscode-textBlockQuote-background, transparent);
+}
+
+.gl-diff-note-body ul,
+.gl-diff-note-body ol {
+  margin: 4px 0;
+  padding-left: 20px;
+}
+
+.gl-diff-note-body h1,
+.gl-diff-note-body h2,
+.gl-diff-note-body h3,
+.gl-diff-note-body h4,
+.gl-diff-note-body h5,
+.gl-diff-note-body h6 {
+  margin: 8px 0 4px;
+  font-size: 1.1em;
+}
+
+.gl-diff-note-body hr {
+  border: 0;
+  border-top: 1px solid var(--vscode-editorWidget-border, var(--vscode-panel-border, transparent));
 }
 
 .gl-diff-note-body a {

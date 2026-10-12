@@ -67,6 +67,27 @@ export const languageForPath = (path: string): string => {
   return language && known ? language : 'plaintext';
 };
 
+const CODE_BLOCK_LANGUAGES: Record<string, string> = { golang: 'go', console: 'shell' };
+
+/**
+ * The registered language for a code block's language name (`java`, `ts`, `bash`, `golang`),
+ * matched on Monaco's ids, aliases and extensions. Undefined for plain text and anything unknown.
+ */
+export const languageForName = (name: string): string | undefined => {
+  const wanted = name.trim().toLowerCase();
+  if (!wanted) return undefined;
+  const mapped = CODE_BLOCK_LANGUAGES[wanted] ?? EXTENSION_LANGUAGES[wanted] ?? wanted;
+  const match = monaco.languages
+    .getLanguages()
+    .find(
+      l =>
+        l.id === mapped ||
+        l.aliases?.some(alias => alias.toLowerCase() === mapped) ||
+        l.extensions?.includes(`.${mapped}`),
+    );
+  return match && match.id !== 'plaintext' ? match.id : undefined;
+};
+
 export const cssVariable = (name: string, fallback = ''): string =>
   getComputedStyle(document.body).getPropertyValue(name).trim() || fallback;
 
@@ -129,6 +150,14 @@ const baseTheme = (): monaco.editor.BuiltinTheme => {
   return 'vs-dark';
 };
 
+const themeListeners = new Set<() => void>();
+
+/** Calls the listener each time the theme is (re)applied, until the returned function is called. */
+export const onThemeApplied = (listener: () => void): (() => void) => {
+  themeListeners.add(listener);
+  return () => themeListeners.delete(listener);
+};
+
 /**
  * Builds a Monaco theme from the workbench colours the webview receives as CSS variables and
  * the syntax colours the host sends. Tokens without a colour from the theme keep Monaco's
@@ -147,6 +176,7 @@ export const applyVsCodeTheme = () => {
     colors,
   });
   monaco.editor.setTheme(THEME_NAME);
+  themeListeners.forEach(listener => listener());
 };
 
 /**

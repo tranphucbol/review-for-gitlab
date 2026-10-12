@@ -146,6 +146,18 @@ export default {
       return `${first?.authorName ?? 'Comment'}${replies}`;
     },
   },
+  async mounted() {
+    // the diff panes have loaded Monaco by the time a discussion shows
+    const { watchCodeBlocks } = await import('../view/code_blocks.ts');
+    if (!this.unmounted) this.codeBlocks = watchCodeBlocks(this.$el);
+  },
+  updated() {
+    this.codeBlocks?.update();
+  },
+  beforeUnmount() {
+    this.unmounted = true;
+    this.codeBlocks?.stop();
+  },
   methods: {
     when(note) {
       const date = new Date(note.createdAt);
