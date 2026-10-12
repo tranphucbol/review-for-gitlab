@@ -1,6 +1,22 @@
 <template>
-  <form class="gl-diff-comment-box" @submit.prevent="submit">
+  <form class="gl-diff-comment-box" @submit.prevent="submit" @keydown="onKeyDown">
+    <div class="gl-diff-comment-tabs" role="tablist" :aria-label="`${label} mode`">
+      <button
+        v-for="tab in tabs"
+        :key="tab.mode"
+        type="button"
+        role="tab"
+        class="gl-diff-comment-tab"
+        :class="{ 'gl-diff-comment-tab-active': mode === tab.mode }"
+        :aria-selected="String(mode === tab.mode)"
+        :title="tab.title"
+        @click="setMode(tab.mode)"
+      >
+        {{ tab.text }}
+      </button>
+    </div>
     <textarea
+      v-show="mode === 'write'"
       ref="textarea"
       v-model="body"
       class="gl-diff-textarea"
@@ -8,11 +24,24 @@
       :aria-label="label"
       :placeholder="placeholder"
       :readonly="busy"
-      @keydown="onKeyDown"
       @paste="onPaste"
       @dragover.prevent
       @drop.prevent="onDrop"
     ></textarea>
+    <div
+      v-if="mode === 'preview'"
+      ref="preview"
+      class="gl-diff-comment-preview"
+      tabindex="0"
+      role="tabpanel"
+      :aria-label="`${label} preview`"
+      :aria-busy="String(preview.loading)"
+    >
+      <p v-if="preview.loading" class="gl-diff-card-hint">Loading preview…</p>
+      <p v-else-if="preview.error" class="gl-diff-card-error" role="alert">{{ preview.error }}</p>
+      <p v-else-if="!preview.html" class="gl-diff-card-hint">Nothing to preview.</p>
+      <div v-else v-safe-html="preview.html" class="gl-diff-note-body"></div>
+    </div>
     <p v-if="error" class="gl-diff-card-error" role="alert">{{ error }}</p>
     <div class="gl-diff-card-actions">
       <button
@@ -32,9 +61,15 @@
 </template>
 
 <script>
+import { SafeHtmlDirective } from '../../../issuable/src/directives/safe_html/safe_html';
 import { request } from '../vscode_bridge';
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+
+const TABS = [
+  { mode: 'write', text: 'Write', title: 'Edit the comment' },
+  { mode: 'preview', text: 'Preview', title: 'Show the comment as GitLab renders it' },
+];
 
 const readAsBase64 = file =>
   new Promise((resolve, reject) => {
@@ -48,6 +83,7 @@ const imagesOf = files => [...(files ?? [])].filter(file => file.type.startsWith
 
 export default {
   name: 'CommentBox',
+  directives: { SafeHtml: SafeHtmlDirective },
   props: {
     initialBody: {
       type: String,
@@ -78,9 +114,14 @@ export default {
       busy: false,
       uploads: 0,
       error: null,
+      mode: 'write',
+      /** the last rendering, kept while `body` is unchanged */
+      preview: { body: null, html: '', loading: false, error: null },
+      previewRequest: 0,
     };
   },
   computed: {
+    tabs: () => TABS,
     canSubmit() {
       return !this.busy && this.uploads === 0 && this.body.trim().length > 0;
     },
@@ -89,6 +130,12 @@ export default {
     },
     modifierKey() {
       return navigator.platform.startsWith('Mac') ? 'Cmd' : 'Ctrl';
+    },
+  },
+  watch: {
+    body() {
+      // an upload that finishes while the preview shows changes the body
+      if (this.mode === 'preview') this.renderPreview();
     },
   },
   mounted() {
@@ -100,7 +147,48 @@ export default {
     };
     focus(10);
   },
+  updated() {
+    this.highlightPreview();
+  },
+  beforeUnmount() {
+    this.unmounted = true;
+    this.codeBlocks?.stop();
+  },
   methods: {
+    setMode(mode) {
+      this.mode = mode;
+      if (mode === 'preview') this.renderPreview();
+      else this.$nextTick(() => this.$refs.textarea?.focus({ preventScroll: true }));
+    },
+    async renderPreview() {
+      const { body } = this;
+      if (this.preview.body === body && !this.preview.error) return;
+      this.previewRequest += 1;
+      const current = this.previewRequest;
+      if (!body.trim()) {
+        this.preview = { body, html: '', loading: false, error: null };
+        return;
+      }
+      this.preview = { body, html: '', loading: true, error: null };
+      let next;
+      try {
+        const { html } = await request('previewMarkdown', { body });
+        next = { body, html: html ?? '', loading: false, error: null };
+      } catch (e) {
+        next = { body, html: '', loading: false, error: e.message };
+      }
+      if (current === this.previewRequest) this.preview = next;
+    },
+    async highlightPreview() {
+      if (!this.preview.html || this.mode !== 'preview') return;
+      if (this.codeBlocks) {
+        this.codeBlocks.update();
+        return;
+      }
+      // the diff panes have loaded Monaco by the time a comment box shows
+      const { watchCodeBlocks } = await import('../view/code_blocks.ts');
+      if (!this.unmounted && !this.codeBlocks) this.codeBlocks = watchCodeBlocks(this.$el);
+    },
     async submit() {
       if (!this.canSubmit) return;
       this.busy = true;

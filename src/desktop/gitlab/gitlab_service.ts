@@ -714,7 +714,7 @@ export class GitLabService {
     return this.postFetch(`/projects/${project.restId}/ci/lint`, 'CI validation', { content });
   }
 
-  async renderMarkdown(markdown: string, project: GitLabProject) {
+  async renderMarkdown(markdown: string, project: Pick<GitLabProject, 'namespaceWithPath'>) {
     const responseBody = await this.postFetch<{ html: string }>('/markdown', 'rendered markdown', {
       text: markdown,
       project: project.namespaceWithPath,

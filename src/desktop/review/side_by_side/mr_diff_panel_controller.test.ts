@@ -369,6 +369,37 @@ describe('MrDiffPanelController', () => {
     });
   });
 
+  describe('markdown preview', () => {
+    it('renders the draft in the merge request project with absolute links', async () => {
+      gitlabService.renderMarkdown = jest
+        .fn()
+        .mockResolvedValue('<p><a href="/gitlab-org/gitlab/uploads/x/a.png">a</a></p>');
+      await controller.open(target);
+      await sendToHost({ command: 'previewMarkdown', requestId: 5, body: '**hi**' });
+
+      expect(gitlabService.renderMarkdown).toHaveBeenCalledWith('**hi**', {
+        namespaceWithPath: 'gitlab-org/gitlab',
+      });
+      expect(postedMessages()).toEqual([
+        {
+          command: 'result',
+          requestId: 5,
+          html: `<p><a href="${projectInRepository.account.instanceUrl}/gitlab-org/gitlab/uploads/x/a.png">a</a></p>`,
+        },
+      ]);
+    });
+
+    it('answers a failed rendering with an error', async () => {
+      gitlabService.renderMarkdown = jest.fn().mockRejectedValue(new Error('500'));
+      await controller.open(target);
+      await sendToHost({ command: 'previewMarkdown', requestId: 6, body: 'hi' });
+
+      expect(postedMessages()).toEqual([
+        { command: 'result', requestId: 6, error: "GitLab couldn't render the preview." },
+      ]);
+    });
+  });
+
   describe('local file arrows', () => {
     const block = { blockId: 0, oldStart: 0, oldCount: 1, newStart: 0, newCount: 1 };
     let localText: string;

@@ -12,6 +12,7 @@ import { ProjectInRepository } from '../../gitlab/new_project';
 import { UnsupportedVersionError } from '../../errors/unsupported_version_error';
 import { UserFriendlyError } from '../../errors/user_friendly_error';
 import { getBaseAndHeadUri } from '../../tree_view/items/changed_file_item';
+import { makeHtmlLinksAbsolute } from '../../utils/make_html_links_absolute';
 import { uploadAttachments } from '../comment_attachment_provider';
 import { buildDiffPosition } from '../diff_position';
 import { loadTokenRules } from './color_theme_tokens';
@@ -36,6 +37,9 @@ export interface MrDiffTarget {
   file: RestDiffFile;
   repositoryRoot: string;
 }
+
+/** what a successful `result` carries besides its `requestId` */
+type ResultContent = Pick<Extract<ToWebviewMessage, { command: 'result' }>, 'markdown' | 'html'>;
 
 interface NavigationAnswer {
   locations?: CodeLocation[];
@@ -383,13 +387,13 @@ export class MrDiffPanel {
    */
   async #respond(
     requestId: number,
-    action: () => Promise<string | void>,
+    action: () => Promise<ResultContent | void>,
     refreshDiscussions = true,
   ): Promise<void> {
     try {
-      const markdown = await action();
+      const content = await action();
       if (refreshDiscussions) await this.refreshDiscussions();
-      await this.#post({ command: 'result', requestId, ...(markdown ? { markdown } : {}) });
+      await this.#post({ command: 'result', requestId, ...content });
     } catch (e) {
       log.error('A side-by-side diff request failed.', e as Error);
       await this.#post({ command: 'result', requestId, error: toErrorMessage(e) });
@@ -409,6 +413,20 @@ export class MrDiffPanel {
       body,
       buildDiffPosition(mrVersion, file, side, line),
     );
+  }
+
+  /** The comment is saved in the merge request's project, so its references resolve there. */
+  async #previewMarkdown(body: string): Promise<string> {
+    const { mr } = this.#target;
+    const namespaceWithPath = mr.references.full.split(/[#!]/)[0];
+    try {
+      const html = await getGitLabService(this.#projectInRepository).renderMarkdown(body, {
+        namespaceWithPath,
+      });
+      return makeHtmlLinksAbsolute(html ?? '', this.#projectInRepository.account.instanceUrl);
+    } catch (e) {
+      throw new UserFriendlyError("GitLab couldn't render the preview.", e as Error);
+    }
   }
 
   async #uploadImage(name: string, contentType: string, base64: string): Promise<string> {
@@ -479,7 +497,16 @@ export class MrDiffPanel {
       case 'uploadImage':
         await this.#respond(
           message.requestId,
-          () => this.#uploadImage(message.name, message.contentType, message.base64),
+          async () => ({
+            markdown: await this.#uploadImage(message.name, message.contentType, message.base64),
+          }),
+          false,
+        );
+        break;
+      case 'previewMarkdown':
+        await this.#respond(
+          message.requestId,
+          async () => ({ html: await this.#previewMarkdown(message.body) }),
           false,
         );
         break;

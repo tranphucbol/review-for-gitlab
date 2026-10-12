@@ -635,9 +635,54 @@ body {
   resize: vertical;
 }
 
-.gl-diff-textarea:focus {
+.gl-diff-textarea:focus,
+.gl-diff-comment-preview:focus {
   outline: 1px solid var(--vscode-focusBorder);
   outline-offset: -1px;
+}
+
+.gl-diff-comment-tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid
+    var(--vscode-editorWidget-border, var(--vscode-panel-border, transparent));
+}
+
+.gl-diff-comment-tab {
+  margin-bottom: -1px;
+  padding: 2px 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--vscode-descriptionForeground);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.gl-diff-comment-tab:hover {
+  color: var(--vscode-foreground);
+}
+
+.gl-diff-comment-tab:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: -1px;
+}
+
+.gl-diff-comment-tab-active {
+  border-bottom-color: var(--vscode-focusBorder);
+  color: var(--vscode-foreground);
+}
+
+.gl-diff-comment-preview {
+  box-sizing: border-box;
+  min-height: 54px;
+  padding: 4px 6px;
+  border: 1px solid var(--vscode-input-border, transparent);
+  border-radius: 2px;
+}
+
+.gl-diff-comment-preview > p {
+  margin: 0;
 }
 
 /* High contrast themes draw edges instead of relying on background shades. */

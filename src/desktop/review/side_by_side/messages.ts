@@ -141,6 +141,8 @@ export type ToWebviewMessage =
       requestId: number;
       error?: string;
       markdown?: string;
+      /** the answer to `previewMarkdown`: the body as GitLab renders it */
+      html?: string;
       locations?: CodeLocation[];
       hover?: CodeHover;
     }
@@ -157,6 +159,8 @@ export type FromWebviewMessage =
   | { command: 'deleteNote'; requestId: number; noteId: string }
   | { command: 'setResolved'; requestId: number; discussionId: string; resolved: boolean }
   | { command: 'uploadImage'; requestId: number; name: string; contentType: string; base64: string }
+  /** renders a draft in the merge request's project, as GitLab will show the saved comment */
+  | { command: 'previewMarkdown'; requestId: number; body: string }
   | ({ command: 'applyHunk'; requestId: number; direction: 'apply' | 'revert' } & BlockRange)
   /** code navigation, answered by the language extensions for the local file */
   | ({ command: 'definitions'; requestId: number } & CodePosition)
