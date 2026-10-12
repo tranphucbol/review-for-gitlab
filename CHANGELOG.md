@@ -1,3 +1,15 @@
+# [3.105.0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.104.0...v3.105.0) (2026-10-12)
+
+Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
+GitLab instances older than 15.5.
+
+
+### Features
+
+* preview side-by-side diff comments as gitlab renders them ([3cd4ede](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/3cd4ede8ace79bb7a5628cc8c8096a37ca4675c2))
+
+
+
 # [3.104.0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.103.0...v3.104.0) (2026-10-12)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
