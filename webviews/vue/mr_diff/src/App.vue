@@ -58,8 +58,8 @@
       <button
         type="button"
         class="gl-diff-button gl-diff-icon-button"
-        title="Refresh discussions"
-        aria-label="Refresh discussions"
+        title="Refresh: load the latest version of the merge request and its discussions"
+        aria-label="Refresh"
         @click="refresh"
       >
         <span class="gl-diff-icon gl-diff-icon-refresh" aria-hidden="true"></span>

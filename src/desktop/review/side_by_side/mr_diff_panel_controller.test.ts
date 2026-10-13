@@ -56,6 +56,7 @@ describe('MrDiffPanelController', () => {
     jest.mocked(gitlabProjectRepository.getProjectOrFail).mockReturnValue(projectInRepository);
     gitlabService = createFakePartial<GitLabService>({
       getFileContent: jest.fn().mockResolvedValue(new TextEncoder().encode('remote head').buffer),
+      getMrDiff: jest.fn().mockResolvedValue(mrVersion),
       getDiscussions: jest.fn().mockResolvedValue([]),
       canUserCommentOnMr: jest.fn().mockResolvedValue(true),
       createDiffNote: jest.fn().mockResolvedValue({}),
@@ -180,6 +181,85 @@ describe('MrDiffPanelController', () => {
     await sendToHost({ command: 'appReady' });
 
     expect(postedMessages()[0]).toMatchObject({ command: 'init', aligned: false });
+  });
+
+  describe('a newer version of the merge request', () => {
+    const newerVersion = {
+      ...mrVersion,
+      id: mrVersion.id + 1,
+      head_commit_sha: 'newer-head',
+      diffs: [{ ...diffFile, diff: '@@ -1,1 +1,1 @@\n-a\n+b\n' }],
+    };
+    const inits = () => postedMessages().filter(m => m.command === 'init');
+    const commandsAfterLastInit = () => {
+      const commands = postedMessages().map(m => m.command);
+      return commands.slice(commands.lastIndexOf('init') + 1).sort();
+    };
+
+    beforeEach(() => {
+      jest
+        .mocked(gitlabService.getFileContent)
+        .mockImplementation(
+          async (_, ref) =>
+            new TextEncoder().encode(ref === 'newer-head' ? 'newer head' : 'remote head').buffer,
+        );
+    });
+
+    it('shows the newer version when the open file is opened again', async () => {
+      const first = await controller.open(target);
+      await sendToHost({ command: 'appReady' });
+      const second = await controller.open({
+        ...target,
+        mrVersion: newerVersion,
+        file: newerVersion.diffs[0],
+      });
+
+      expect(second).toBe(first);
+      expect(vscode.window.createWebviewPanel).toHaveBeenCalledTimes(1);
+      expect(inits().map(m => m.file.newText)).toEqual(['remote head', 'newer head']);
+      expect(commandsAfterLastInit()).toEqual(['discussions', 'localState']);
+    });
+
+    it('sends nothing new when the file is opened again at the same version', async () => {
+      await controller.open(target);
+      await sendToHost({ command: 'appReady' });
+      jest.mocked(panel.webview.postMessage).mockClear();
+      await controller.open(target);
+
+      expect(postedMessages()).toEqual([]);
+    });
+
+    it('loads the newer version on refresh', async () => {
+      jest.mocked(gitlabService.getMrDiff).mockResolvedValue(newerVersion);
+      await controller.open(target);
+      await sendToHost({ command: 'refresh' });
+
+      expect(inits()).toEqual([
+        expect.objectContaining({ file: expect.objectContaining({ newText: 'newer head' }) }),
+      ]);
+      expect(gitlabService.getFileContent).toHaveBeenCalledWith(
+        'new_file.js',
+        'newer-head',
+        mr.project_id,
+      );
+      expect(commandsAfterLastInit()).toEqual(['discussions', 'localState']);
+    });
+
+    it('keeps the shown version on refresh when the newer one no longer changes the file', async () => {
+      jest.mocked(gitlabService.getMrDiff).mockResolvedValue({ ...newerVersion, diffs: [] });
+      await controller.open(target);
+      await sendToHost({ command: 'refresh' });
+
+      expect(postedMessages().map(m => m.command)).toEqual(['discussions']);
+    });
+
+    it('still refreshes the discussions when the newer version cannot be fetched', async () => {
+      jest.mocked(gitlabService.getMrDiff).mockRejectedValue(new Error('500'));
+      await controller.open(target);
+      await sendToHost({ command: 'refresh' });
+
+      expect(postedMessages().map(m => m.command)).toEqual(['discussions']);
+    });
   });
 
   it('marks a file GitLab did not diff as collapsed', async () => {

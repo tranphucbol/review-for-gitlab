@@ -8,6 +8,7 @@ import { getAddedLinesForFile } from '../../git/diff_line_count';
 import { getFileContent } from '../../git/get_file_content';
 import { getGitLabService } from '../../gitlab/get_gitlab_service';
 import { gitlabProjectRepository } from '../../gitlab/gitlab_project_repository';
+import { mrCache } from '../../gitlab/mr_cache';
 import { ProjectInRepository } from '../../gitlab/new_project';
 import { UnsupportedVersionError } from '../../errors/unsupported_version_error';
 import { UserFriendlyError } from '../../errors/user_friendly_error';
@@ -47,6 +48,11 @@ interface NavigationAnswer {
 }
 
 const decode = (content: Uint8Array) => new TextDecoder().decode(content);
+
+const isSameVersion = (a: RestMrVersion, b: RestMrVersion): boolean =>
+  a.head_commit_sha === b.head_commit_sha &&
+  a.base_commit_sha === b.base_commit_sha &&
+  a.start_commit_sha === b.start_commit_sha;
 
 /** global state key: whether the panes are row-aligned with hatched fillers */
 export const ALIGNED_KEY = 'gitlab.mergeRequestDiff.aligned';
@@ -90,7 +96,7 @@ export class MrDiffPanel {
 
   readonly repositoryRoot: string;
 
-  readonly #target: MrDiffTarget;
+  #target: MrDiffTarget;
 
   readonly #projectInRepository: ProjectInRepository;
 
@@ -133,6 +139,46 @@ export class MrDiffPanel {
   dispose(): void {
     if (this.#localStateTimer) clearTimeout(this.#localStateTimer);
     this.#disposables.forEach(d => d.dispose());
+  }
+
+  /**
+   * Shows the file at another version of the merge request, after new commits were pushed. The
+   * webview starts over with the new file, as it does when VS Code reloads it.
+   */
+  async showVersion(target: MrDiffTarget): Promise<void> {
+    if (isSameVersion(this.#target.mrVersion, target.mrVersion)) return;
+    this.#target = target;
+    this.#applier = undefined;
+    this.#codeNavigation = undefined;
+    this.#file = this.#loadFile();
+    this.#file.catch(e => log.error('Failed to load the file for the side-by-side diff.', e));
+    await this.#sendFile();
+    await Promise.all([this.refreshLocalState(), this.refreshDiscussions()]);
+  }
+
+  /** The file in the latest version of the merge request, if that is not the version shown. */
+  async #newerTarget(): Promise<MrDiffTarget | undefined> {
+    const { mr, file } = this.#target;
+    const { mrVersion } = await mrCache.reloadMr(mr, this.#projectInRepository);
+    if (isSameVersion(this.#target.mrVersion, mrVersion)) return undefined;
+    const latestFile = mrVersion.diffs.find(d => d.new_path === file.new_path);
+    if (!latestFile) {
+      log.info(`The latest version of !${mr.iid} no longer changes ${file.new_path}.`);
+      return undefined;
+    }
+    return { ...this.#target, mrVersion, file: latestFile };
+  }
+
+  /** Shows the latest version of the merge request, or refreshes the discussions if it is shown. */
+  async #refresh(): Promise<void> {
+    let newer: MrDiffTarget | undefined;
+    try {
+      newer = await this.#newerTarget();
+    } catch (e) {
+      log.error("Couldn't check the merge request for a newer version.", e as Error);
+    }
+    if (newer) await this.showVersion(newer);
+    else await this.refreshDiscussions();
   }
 
   /** The working-tree file the arrows change, if the merge request keeps one inside the repository. */
@@ -463,7 +509,7 @@ export class MrDiffPanel {
         await Promise.all([this.refreshLocalState(), this.refreshDiscussions()]);
         break;
       case 'refresh':
-        await this.refreshDiscussions();
+        await this.#refresh();
         break;
       case 'setAligned':
         await this.#preferences.update(ALIGNED_KEY, message.aligned);

@@ -25,6 +25,8 @@ export class MrDiffPanelController implements RepositoryRootWebviewProvider {
     const existing = this.#panels.get(key);
     if (existing) {
       existing.panel.reveal();
+      // the sidebar may know a newer version of the merge request than the open view
+      await existing.showVersion(target);
       return existing.panel;
     }
     const panel = vscode.window.createWebviewPanel(
