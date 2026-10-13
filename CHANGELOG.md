@@ -1,3 +1,15 @@
+## [3.105.1](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.105.0...v3.105.1) (2026-10-13)
+
+Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
+GitLab instances older than 15.5.
+
+
+### Bug Fixes
+
+* show the latest merge request version in the side-by-side diff ([61cb3ae](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/61cb3ae7fb8cf5be33520a7405f5651dcfa11b61))
+
+
+
 # [3.105.0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.104.0...v3.105.0) (2026-10-12)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
