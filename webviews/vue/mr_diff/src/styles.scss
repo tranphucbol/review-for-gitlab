@@ -125,6 +125,54 @@ body {
   content: '\eb37';
 }
 
+.gl-diff-icon-arrow-left::before {
+  content: '\ea9b';
+}
+
+.gl-diff-icon-arrow-right::before {
+  content: '\ea9c';
+}
+
+.gl-diff-icon-chevron-down::before {
+  content: '\eab4';
+}
+
+.gl-diff-icon-chevron-right::before {
+  content: '\eab6';
+}
+
+.gl-diff-icon-close::before {
+  content: '\ea76';
+}
+
+.gl-diff-icon-comment::before {
+  content: '\ea6b';
+}
+
+.gl-diff-icon-comment-discussion::before {
+  content: '\eac7';
+}
+
+.gl-diff-icon-pass::before {
+  content: '\eba4';
+}
+
+.gl-diff-icon-small {
+  font-size: 14px;
+  line-height: 14px;
+}
+
+/* the same box as the Overview's comment error: the host's message, the draft kept */
+.gl-diff-alert {
+  margin: var(--gl-space-1) 0;
+  padding: 4px 8px;
+  border: var(--gl-stroke) solid var(--gl-error-border);
+  border-radius: var(--gl-radius-small);
+  color: var(--gl-text);
+  background-color: var(--gl-error-bg);
+  font-size: var(--gl-font-size-small);
+}
+
 .gl-diff-banner {
   display: flex;
   align-items: center;
@@ -151,9 +199,8 @@ body {
   padding: var(--gl-space-4);
 }
 
-.gl-diff-error p {
+.gl-diff-error .gl-diff-alert {
   margin: 0 0 var(--gl-space-2);
-  color: var(--gl-text-error);
 }
 
 :focus-visible {
@@ -372,6 +419,9 @@ body {
   color: var(--gl-button-fg);
   background: var(--gl-button-bg);
   font: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: var(--gl-button-font-size);
   line-height: 16px;
   cursor: pointer;
@@ -447,38 +497,36 @@ body {
 }
 
 .gl-diff-card-toggle {
+  display: flex;
   flex: 1;
+  align-items: center;
+  gap: var(--gl-space-1);
   min-width: 0;
   padding: 0;
   border: 0;
-  overflow: hidden;
   color: inherit;
   background: transparent;
   font: inherit;
   font-weight: 600;
   text-align: left;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   cursor: pointer;
 }
 
-.gl-diff-card-badge {
-  padding: 0 6px;
-  border-radius: var(--gl-radius-circle);
-  color: var(--gl-badge-fg);
-  background: var(--gl-badge-bg);
-  font-size: var(--gl-font-size-small);
-  line-height: 16px;
+.gl-diff-card-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* a folded resolved thread steps back, as in the Overview */
+.gl-diff-card-resolved .gl-diff-card-title {
+  color: var(--gl-text-muted);
 }
 
 .gl-diff-note {
   margin-top: 6px;
   padding-top: 6px;
   border-top: var(--gl-stroke) solid var(--gl-border-subtle);
-}
-
-.gl-diff-avatar {
-  border-radius: var(--gl-radius-circle);
 }
 
 .gl-diff-note-meta,
@@ -493,111 +541,33 @@ body {
 }
 
 .gl-diff-note-body {
-  overflow-wrap: anywhere;
-
-  p {
-    margin: 4px 0;
-  }
-
-  img {
-    max-width: 100%;
-  }
-
-  pre,
-  code {
-    font-family: var(--gl-editor-font-family);
-    font-size: var(--gl-editor-font-size);
-    background: var(--gl-code-bg);
-  }
-
-  code {
-    padding: 1px 3px;
-    border-radius: var(--gl-radius-small);
-  }
-
-  pre {
-    margin: 6px 0;
-    padding: 6px var(--gl-space-2);
-    border-radius: var(--gl-radius-medium);
-    overflow-x: auto;
-    line-height: 1.4;
-  }
-
-  pre code {
-    padding: 0;
-    border-radius: 0;
-    background: transparent;
-  }
-
-  table {
-    display: block;
-    max-width: 100%;
-    margin: 6px 0;
-    overflow-x: auto;
-    border-collapse: collapse;
-  }
-
-  th,
-  td {
-    padding: var(--gl-space-1) 10px;
-    border: var(--gl-stroke) solid var(--gl-border);
-    text-align: start;
-    vertical-align: top;
-  }
-
-  th {
-    font-weight: 600;
-    background: var(--gl-surface-sunken);
-  }
-
-  details {
-    margin: 6px 0;
-  }
-
-  summary {
-    cursor: pointer;
-  }
-
-  blockquote {
-    margin: 6px 0;
-    padding: 0 var(--gl-space-2);
-    border-left: 3px solid var(--gl-quote-border);
-    background: var(--gl-quote-bg);
-  }
-
-  ul,
-  ol {
-    margin: 4px 0;
-    padding-left: 20px;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    margin: var(--gl-space-2) 0 var(--gl-space-1);
-    font-size: 1.1em;
-  }
-
-  hr {
-    border: 0;
-    border-top: var(--gl-stroke) solid var(--gl-border-subtle);
-  }
-
-  a {
-    color: var(--gl-link);
-  }
+  margin-top: var(--gl-space-1);
 }
 
 .gl-diff-confirm {
   margin: var(--gl-space-1) 0;
 }
 
-.gl-diff-card-error {
-  margin: var(--gl-space-1) 0;
-  color: var(--gl-text-error);
+/* the Overview's reply button: a toolbar-style link with a codicon */
+.gl-diff-link-button {
+  @include mixins.toolbar-button;
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gl-space-1);
+  padding: 2px 6px;
+  color: var(--gl-link);
+  font: inherit;
+
+  &:hover {
+    color: var(--gl-link-active);
+  }
+}
+
+.gl-diff-comment-hint {
+  margin-left: auto;
+  color: var(--gl-text-muted);
+  font-size: var(--gl-font-size-small);
 }
 
 .gl-diff-comment-box {

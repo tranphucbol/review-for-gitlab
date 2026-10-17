@@ -1,8 +1,8 @@
 <script>
+import UserAvatar from '@shared/components/UserAvatar.vue';
+import TimeAgo from '@shared/components/TimeAgo.vue';
 import NoteBody from './NoteBody.vue';
-import UserAvatar from './UserAvatar.vue';
 import CodiconIcon from './CodiconIcon.vue';
-import Date from './Date.vue';
 import { getSystemNoteIcon } from '../utils/system_note_icon';
 
 export default {
@@ -16,7 +16,7 @@ export default {
     NoteBody,
     UserAvatar,
     CodiconIcon,
-    Date,
+    TimeAgo,
   },
   computed: {
     author() {
@@ -55,7 +55,7 @@ export default {
       />
       <span v-if="multiLine" class="timeline-event__text">{{ firstLine }}</span>
       <note-body v-else :note="noteable" class="timeline-event__text" />
-      <date :date="noteable.createdAt" class="timeline-event__date" />
+      <time-ago :date="noteable.createdAt" class="timeline-event__date" />
     </div>
     <note-body v-if="multiLine" :note="noteable" class="timeline-event__detail" />
   </li>

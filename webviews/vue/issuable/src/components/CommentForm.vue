@@ -1,4 +1,6 @@
 <script>
+import { submitShortcut } from '@shared/utils/keyboard';
+
 export default {
   props: {
     replyId: {
@@ -16,7 +18,7 @@ export default {
   },
   computed: {
     buttonTitle() {
-      return this.isSaving ? 'Saving...' : 'Comment';
+      return this.isSaving ? 'Saving…' : 'Comment';
     },
     canSubmit() {
       return !this.isSaving && this.note.length > 0;
@@ -25,8 +27,7 @@ export default {
       return Boolean(this.replyId);
     },
     submitHint() {
-      const platform = window.navigator.userAgentData?.platform || window.navigator.platform || '';
-      return /mac/i.test(platform) ? '⌘+Enter to comment' : 'Ctrl+Enter to comment';
+      return `${submitShortcut()} to comment`;
     },
   },
   methods: {
@@ -72,7 +73,7 @@ export default {
     <textarea
       v-model="note"
       @keydown="handleKeydown"
-      placeholder="Write a comment..."
+      placeholder="Write a comment…"
       aria-label="Comment"
       :aria-invalid="isFailed ? 'true' : undefined"
       :class="{ 'is-invalid': isFailed }"

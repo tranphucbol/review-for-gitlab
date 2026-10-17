@@ -37,7 +37,7 @@ describe('CommentForm', () => {
       });
 
       it('indicates the message is being sent', () => {
-        expect(getSubmitButton(wrapper).text()).toBe('Saving...');
+        expect(getSubmitButton(wrapper).text()).toBe('Saving…');
       });
 
       it('handles success', async () => {

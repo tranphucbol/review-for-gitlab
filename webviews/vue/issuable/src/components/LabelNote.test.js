@@ -21,7 +21,7 @@ describe('LabelNote', () => {
         },
         global: {
           stubs: {
-            date: true,
+            TimeAgo: true,
           },
         },
         directives: {
@@ -56,7 +56,7 @@ describe('LabelNote', () => {
         },
         global: {
           stubs: {
-            date: true,
+            TimeAgo: true,
           },
         },
         directives: {

@@ -3,64 +3,75 @@
     <div class="gl-diff-comment-tabs" role="tablist" :aria-label="`${label} mode`">
       <button
         v-for="tab in tabs"
+        :id="`${uid}-${tab.mode}-tab`"
         :key="tab.mode"
+        :ref="`${tab.mode}Tab`"
         type="button"
         role="tab"
         class="gl-diff-comment-tab"
         :class="{ 'gl-diff-comment-tab-active': mode === tab.mode }"
         :aria-selected="String(mode === tab.mode)"
+        :aria-controls="`${uid}-${tab.mode}-panel`"
+        :tabindex="mode === tab.mode ? 0 : -1"
         :title="tab.title"
         @click="setMode(tab.mode)"
+        @keydown.left.prevent="switchTab"
+        @keydown.right.prevent="switchTab"
       >
         {{ tab.text }}
       </button>
     </div>
-    <textarea
+    <div
       v-show="mode === 'write'"
-      ref="textarea"
-      v-model="body"
-      class="gl-diff-textarea"
-      rows="3"
-      :aria-label="label"
-      :placeholder="placeholder"
-      :readonly="busy"
-      @paste="onPaste"
-      @dragover.prevent
-      @drop.prevent="onDrop"
-    ></textarea>
+      :id="`${uid}-write-panel`"
+      role="tabpanel"
+      :aria-labelledby="`${uid}-write-tab`"
+    >
+      <textarea
+        ref="textarea"
+        v-model="body"
+        class="gl-diff-textarea"
+        rows="3"
+        :aria-label="label"
+        :aria-invalid="error ? 'true' : undefined"
+        :placeholder="placeholder"
+        :readonly="busy"
+        @paste="onPaste"
+        @dragover.prevent
+        @drop.prevent="onDrop"
+      ></textarea>
+    </div>
     <div
       v-if="mode === 'preview'"
+      :id="`${uid}-preview-panel`"
       ref="preview"
       class="gl-diff-comment-preview"
       tabindex="0"
       role="tabpanel"
-      :aria-label="`${label} preview`"
+      :aria-labelledby="`${uid}-preview-tab`"
       :aria-busy="String(preview.loading)"
     >
-      <p v-if="preview.loading" class="gl-diff-card-hint">Loading preview…</p>
-      <p v-else-if="preview.error" class="gl-diff-card-error" role="alert">{{ preview.error }}</p>
+      <p v-if="preview.loading" class="gl-diff-card-hint" role="status">Loading preview…</p>
+      <p v-else-if="preview.error" class="gl-diff-alert" role="alert">{{ preview.error }}</p>
       <p v-else-if="!preview.html" class="gl-diff-card-hint">Nothing to preview.</p>
-      <div v-else v-safe-html="preview.html" class="gl-diff-note-body"></div>
+      <div v-else v-safe-html="preview.html" class="gl-diff-note-body gl-markdown"></div>
     </div>
-    <p v-if="error" class="gl-diff-card-error" role="alert">{{ error }}</p>
+    <p v-if="error" class="gl-diff-alert" role="alert">{{ error }}</p>
     <div class="gl-diff-card-actions">
-      <button
-        type="submit"
-        class="gl-diff-button gl-diff-button-primary"
-        :disabled="!canSubmit"
-        :title="`${submitText} (${modifierKey}+Enter)`"
-      >
+      <button type="submit" class="gl-diff-button gl-diff-button-primary" :disabled="!canSubmit">
         {{ submitText }}
       </button>
       <button type="button" class="gl-diff-button gl-diff-button-text" @click="$emit('cancel')">
         Cancel
       </button>
       <span v-if="uploads > 0" class="gl-diff-card-hint" role="status">Uploading image…</span>
+      <span class="gl-diff-comment-hint">{{ hint }}</span>
     </div>
   </form>
 </template>
 
 <script>
+import { submitShortcut } from '@shared/utils/keyboard';
 import { SafeHtmlDirective } from '../../../issuable/src/directives/safe_html/safe_html';
 import { request } from '../vscode_bridge';
 
@@ -70,6 +81,8 @@ const TABS = [
   { mode: 'write', text: 'Write', title: 'Edit the comment' },
   { mode: 'preview', text: 'Preview', title: 'Show the comment as GitLab renders it' },
 ];
+
+let nextId = 0;
 
 const readAsBase64 = file =>
   new Promise((resolve, reject) => {
@@ -109,7 +122,9 @@ export default {
   },
   emits: ['cancel', 'sent'],
   data() {
+    nextId += 1;
     return {
+      uid: `gl-diff-comment-${nextId}`,
       body: this.initialBody,
       busy: false,
       uploads: 0,
@@ -128,8 +143,8 @@ export default {
     submitText() {
       return this.error && !this.busy ? 'Retry' : this.submitLabel;
     },
-    modifierKey() {
-      return navigator.platform.startsWith('Mac') ? 'Cmd' : 'Ctrl';
+    hint() {
+      return `${submitShortcut()} to ${this.submitLabel.toLowerCase()}`;
     },
   },
   watch: {
@@ -155,10 +170,20 @@ export default {
     this.codeBlocks?.stop();
   },
   methods: {
-    setMode(mode) {
+    switchTab() {
+      const next = this.mode === 'write' ? 'preview' : 'write';
+      this.setMode(next, false);
+      this.$nextTick(() => {
+        const tab = this.$refs[`${next}Tab`];
+        (Array.isArray(tab) ? tab[0] : tab)?.focus();
+      });
+    },
+    setMode(mode, focusTextarea = true) {
       this.mode = mode;
       if (mode === 'preview') this.renderPreview();
-      else this.$nextTick(() => this.$refs.textarea?.focus({ preventScroll: true }));
+      else if (focusTextarea) {
+        this.$nextTick(() => this.$refs.textarea?.focus({ preventScroll: true }));
+      }
     },
     async renderPreview() {
       const { body } = this;

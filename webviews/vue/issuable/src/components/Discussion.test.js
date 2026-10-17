@@ -26,7 +26,7 @@ describe('Discussion', () => {
         },
         global: {
           stubs: {
-            date: true,
+            TimeAgo: true,
           },
         },
       });
@@ -76,7 +76,7 @@ describe('Discussion', () => {
   });
 
   const mountDiscussion = noteable =>
-    mount(Discussion, { props: { noteable }, global: { stubs: { date: true } } });
+    mount(Discussion, { props: { noteable }, global: { stubs: { TimeAgo: true } } });
 
   describe('thread header', () => {
     it('shows the file chip of a diff thread', () => {

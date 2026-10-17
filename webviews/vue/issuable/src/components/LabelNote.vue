@@ -1,6 +1,6 @@
 <script>
-import UserAvatar from './UserAvatar.vue';
-import Date from './Date.vue';
+import UserAvatar from '@shared/components/UserAvatar.vue';
+import TimeAgo from '@shared/components/TimeAgo.vue';
 import CodiconIcon from './CodiconIcon.vue';
 import LabelChip from './LabelChip.vue';
 
@@ -13,7 +13,7 @@ export default {
   },
   components: {
     UserAvatar,
-    Date,
+    TimeAgo,
     CodiconIcon,
     LabelChip,
   },
@@ -49,7 +49,7 @@ export default {
         </span>
         <span class="label-divider">label</span>
       </span>
-      <date :date="noteable.created_at" class="timeline-event__date" />
+      <time-ago :date="noteable.created_at" class="timeline-event__date" />
     </div>
   </li>
 </template>

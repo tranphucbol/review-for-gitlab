@@ -1,6 +1,6 @@
 <script>
-import UserAvatar from './UserAvatar.vue';
-import Date from './Date.vue';
+import UserAvatar from '@shared/components/UserAvatar.vue';
+import TimeAgo from '@shared/components/TimeAgo.vue';
 import CodiconIcon from './CodiconIcon.vue';
 import { SafeHtmlDirective } from '../directives/safe_html/safe_html';
 
@@ -22,7 +22,7 @@ export default {
   },
   components: {
     UserAvatar,
-    Date,
+    TimeAgo,
     CodiconIcon,
   },
   computed: {
@@ -63,7 +63,7 @@ export default {
     <div class="note-header">
       <user-avatar :user="author" :size="avatarSize" class="note-header__author" />
       <span class="note-header__separator">·</span>
-      <date :date="noteable.createdAt" class="note-header__date" />
+      <time-ago :date="noteable.createdAt" class="note-header__date" />
       <slot name="header" />
       <a
         v-if="noteable.url"

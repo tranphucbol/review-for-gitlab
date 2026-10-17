@@ -22,7 +22,7 @@ describe('Note', () => {
         },
         global: {
           stubs: {
-            date: true,
+            TimeAgo: true,
           },
           directives: {
             tooltip: tooltipDirective,

@@ -53,7 +53,7 @@ describe('IssuableDiscussions', () => {
     const mountDiscussions = discussions =>
       mount(IssuableDiscussions, {
         props: { discussions },
-        global: { stubs: { date: true }, directives: { tooltip: () => {} } },
+        global: { stubs: { TimeAgo: true }, directives: { tooltip: () => {} } },
       });
 
     it('says so when there is nothing to show', () => {

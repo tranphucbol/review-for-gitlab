@@ -99,8 +99,8 @@
       This GitLab version does not report merge request discussions to the extension, so they are
       not shown here.
     </div>
-    <div v-if="fatalError" class="gl-diff-error" role="alert">
-      <p>{{ fatalError }}</p>
+    <div v-if="fatalError" class="gl-diff-error">
+      <p class="gl-diff-alert" role="alert">{{ fatalError }}</p>
       <button type="button" class="gl-diff-button gl-diff-button-text" @click="openNative">
         Open native diff
       </button>
@@ -156,7 +156,7 @@
         </div>
       </template>
     </component>
-    <div v-else class="gl-diff-loading">Loading…</div>
+    <div v-else class="gl-diff-loading" role="status" aria-busy="true">Loading…</div>
   </div>
 </template>
 
@@ -228,10 +228,10 @@ export default {
     },
     localStateTitle() {
       if (this.localState.applicable === 'base') {
-        return 'The local file is the base of the merge request. → copies a change into it.';
+        return 'The local file is the base of the merge request. The arrow beside a change copies it into the file.';
       }
       if (this.localState.applicable === 'head') {
-        return 'The local file is the head of the merge request. ← reverts a change in it.';
+        return 'The local file is the head of the merge request. The arrow beside a change reverts it in the file.';
       }
       return this.localState.reason ?? 'The view does not change the local file.';
     },

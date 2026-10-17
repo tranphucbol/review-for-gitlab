@@ -1,7 +1,7 @@
 <script>
+import UserAvatar from '@shared/components/UserAvatar.vue';
 import CodiconIcon from './CodiconIcon.vue';
 import LabelChip from './LabelChip.vue';
-import UserAvatar from './UserAvatar.vue';
 
 const PIPELINE_STATUSES = {
   success: { icon: 'pass', text: 'Passed' },

@@ -8,7 +8,11 @@
       :aria-label="arrowTitle"
       @click="$emit('apply')"
     >
-      {{ direction === 'apply' ? '→' : '←' }}
+      <span
+        class="gl-diff-icon"
+        :class="direction === 'apply' ? 'gl-diff-icon-arrow-right' : 'gl-diff-icon-arrow-left'"
+        aria-hidden="true"
+      ></span>
     </button>
     <button
       type="button"
@@ -18,7 +22,7 @@
       aria-label="Hide the buttons for this change"
       @click="$emit('dismiss')"
     >
-      ×
+      <span class="gl-diff-icon gl-diff-icon-small gl-diff-icon-close" aria-hidden="true"></span>
     </button>
   </div>
 </template>
