@@ -1,0 +1,685 @@
+// The side-by-side diff. Every colour, corner and size comes from a `--gl-*`
+// token in shared/styles/tokens.scss; nothing here reads `--vscode-*`.
+@use '@shared/styles/mixins';
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  color: var(--gl-text);
+  background: var(--gl-surface);
+  font-family: var(--gl-font-family);
+  font-size: var(--gl-font-size);
+}
+
+.gl-diff-app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* toolbar, banners and states */
+
+.gl-diff-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--gl-space-1);
+  padding: var(--gl-space-1) var(--gl-space-2);
+  border-bottom: var(--gl-stroke) solid var(--gl-border-subtle);
+}
+
+.gl-diff-summary {
+  flex: 1;
+  color: var(--gl-text-muted);
+}
+
+.gl-diff-local-state {
+  color: var(--gl-text-muted);
+  white-space: nowrap;
+}
+
+.gl-diff-button {
+  font: inherit;
+}
+
+.gl-diff-button-text {
+  @include mixins.text-button(secondary);
+}
+
+.gl-diff-button-primary {
+  @include mixins.text-button(primary);
+}
+
+.gl-diff-button-danger {
+  @include mixins.text-button(primary);
+
+  color: var(--gl-danger-fg);
+  background-color: var(--gl-danger-bg);
+
+  &:hover:not(:disabled) {
+    background-color: var(--gl-danger-bg);
+  }
+}
+
+/* icon buttons follow VS Code's action bar: a 16px codicon in a 22px box */
+.gl-diff-icon-button {
+  @include mixins.toolbar-button;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0;
+  border: var(--gl-stroke) solid transparent;
+  color: var(--gl-text);
+
+  &:hover:not(:disabled) {
+    background-color: var(--gl-toolbar-hover);
+  }
+
+  &:hover:disabled {
+    background: transparent;
+  }
+
+  &[aria-pressed='true'] {
+    border-color: var(--gl-toggle-active-border);
+    color: var(--gl-toggle-active-fg);
+    background-color: var(--gl-toggle-active-bg);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+}
+
+.gl-diff-icon {
+  font-family: codicon;
+  font-size: 16px;
+  font-style: normal;
+  line-height: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.gl-diff-icon-arrow-up::before {
+  content: '\eaa1';
+}
+
+.gl-diff-icon-arrow-down::before {
+  content: '\ea9a';
+}
+
+.gl-diff-icon-align::before {
+  content: '\eb84';
+}
+
+.gl-diff-icon-refresh::before {
+  content: '\eb37';
+}
+
+.gl-diff-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--gl-space-2);
+  padding: var(--gl-space-1) var(--gl-space-2);
+  border-bottom: var(--gl-stroke) solid var(--gl-border-subtle);
+  background: var(--gl-surface-raised);
+}
+
+.gl-diff-banner-warning {
+  border-left: 3px solid var(--gl-warning-border);
+}
+
+.gl-diff-banner-error {
+  border-left: 3px solid var(--gl-error-border);
+}
+
+.gl-diff-banner .gl-diff-banner-text {
+  flex: 1;
+}
+
+.gl-diff-error,
+.gl-diff-loading {
+  padding: var(--gl-space-4);
+}
+
+.gl-diff-error p {
+  margin: 0 0 var(--gl-space-2);
+  color: var(--gl-text-error);
+}
+
+:focus-visible {
+  @include mixins.focus-ring;
+}
+
+/* layout */
+
+.gl-diff-layout {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.gl-diff-header,
+.gl-diff-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
+}
+
+.gl-diff-layout-single .gl-diff-header,
+.gl-diff-layout-single .gl-diff-body {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.gl-diff-header {
+  border-bottom: var(--gl-stroke) solid var(--gl-border-subtle);
+}
+
+.gl-diff-header-path {
+  overflow: hidden;
+  padding: 2px var(--gl-space-2);
+  color: var(--gl-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl;
+  text-align: left;
+}
+
+.gl-diff-body {
+  flex: 1;
+  min-height: 0;
+}
+
+.gl-diff-pane {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.gl-diff-editor {
+  position: absolute;
+  inset: 0;
+}
+
+.gl-diff-add-comment {
+  position: absolute;
+  z-index: 10;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: var(--gl-stroke) solid var(--gl-button-border);
+  border-radius: var(--gl-radius-small);
+  color: var(--gl-button-fg);
+  background: var(--gl-button-bg);
+  font: inherit;
+  line-height: 16px;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--gl-button-hover-bg);
+  }
+
+  &:focus-visible {
+    outline: var(--gl-stroke) solid var(--gl-focus);
+    outline-offset: 2px;
+  }
+}
+
+/* changes */
+
+.gl-diff-line-removed {
+  background: var(--gl-diff-removed-line-bg);
+}
+
+.gl-diff-line-inserted {
+  background: var(--gl-diff-inserted-line-bg);
+}
+
+/* the whole margin, line numbers included */
+.gl-diff-gutter-removed {
+  background: var(--gl-diff-removed-gutter-bg);
+}
+
+.gl-diff-gutter-inserted {
+  background: var(--gl-diff-inserted-gutter-bg);
+}
+
+.gl-diff-word-removed {
+  background: var(--gl-diff-removed-word-bg);
+}
+
+.gl-diff-word-inserted {
+  background: var(--gl-diff-inserted-word-bg);
+}
+
+.gl-diff-filler {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 4px,
+    var(--gl-diff-diagonal-fill) 4px,
+    var(--gl-diff-diagonal-fill) 5px
+  );
+}
+
+.gl-diff-filler-empty {
+  box-sizing: border-box;
+}
+
+.gl-diff-filler-old.gl-diff-filler-empty {
+  border-top: 2px solid var(--gl-diff-removed-word-bg);
+}
+
+.gl-diff-filler-new.gl-diff-filler-empty {
+  border-top: 2px solid var(--gl-diff-inserted-word-bg);
+}
+
+/* without alignment, the line next to where the other side's lines would be */
+
+.gl-diff-insertion-after-old {
+  box-shadow: inset 0 -2px 0 var(--gl-diff-removed-word-bg);
+}
+
+.gl-diff-insertion-before-old {
+  box-shadow: inset 0 2px 0 var(--gl-diff-removed-word-bg);
+}
+
+.gl-diff-insertion-after-new {
+  box-shadow: inset 0 -2px 0 var(--gl-diff-inserted-word-bg);
+}
+
+.gl-diff-insertion-before-new {
+  box-shadow: inset 0 2px 0 var(--gl-diff-inserted-word-bg);
+}
+
+/* connector gutter */
+
+.gl-diff-gutter {
+  position: relative;
+  overflow: hidden;
+  border-right: var(--gl-stroke) solid var(--gl-border-subtle);
+  border-left: var(--gl-stroke) solid var(--gl-border-subtle);
+}
+
+.gl-diff-gutter-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+}
+
+.gl-diff-connector-deleted {
+  fill: var(--gl-diff-removed-line-bg);
+}
+
+.gl-diff-connector-inserted {
+  fill: var(--gl-diff-inserted-line-bg);
+}
+
+.gl-diff-connector-modified {
+  fill: url(#gl-diff-modified-fill);
+}
+
+.gl-diff-stop-removed {
+  stop-color: var(--gl-diff-removed-line-bg);
+}
+
+.gl-diff-stop-inserted {
+  stop-color: var(--gl-diff-inserted-line-bg);
+}
+
+.gl-diff-connector-applied {
+  fill: transparent;
+  stroke: var(--gl-text-muted);
+  stroke-dasharray: 3 2;
+  stroke-width: 1;
+}
+
+.gl-diff-connector-dismissed {
+  opacity: 0.35;
+}
+
+/* hunk arrows */
+
+.gl-diff-hunk-actions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding-top: 1px;
+}
+
+.gl-diff-hunk-button {
+  width: 22px;
+  height: 18px;
+  padding: 0;
+  border: var(--gl-stroke) solid var(--gl-button-border);
+  border-radius: var(--gl-radius-small);
+  color: var(--gl-button-fg);
+  background: var(--gl-button-bg);
+  font: inherit;
+  font-size: var(--gl-button-font-size);
+  line-height: 16px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--gl-button-hover-bg);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: var(--gl-stroke) solid var(--gl-focus);
+    outline-offset: 2px;
+  }
+}
+
+.gl-diff-hunk-dismiss {
+  width: 16px;
+  height: 14px;
+  border-color: transparent;
+  line-height: 12px;
+  color: var(--gl-text-muted);
+  background: transparent;
+
+  &:hover:not(:disabled) {
+    color: var(--gl-text);
+    background: var(--gl-toolbar-hover);
+  }
+}
+
+/* discussions */
+
+.gl-diff-thread-zone {
+  z-index: 5;
+}
+
+.gl-diff-thread-zone-content {
+  box-sizing: border-box;
+  padding: var(--gl-space-1) var(--gl-space-2) var(--gl-space-1) var(--gl-space-1);
+}
+
+.gl-diff-thread-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gl-space-1);
+  font-family: var(--gl-font-family);
+  font-size: var(--gl-font-size);
+  line-height: 1.4;
+  white-space: normal;
+}
+
+.gl-diff-card {
+  padding: 6px var(--gl-space-2);
+  border: var(--gl-stroke) solid var(--gl-border);
+  border-radius: var(--gl-radius-medium);
+  color: var(--gl-text);
+  background: var(--gl-surface-raised);
+  cursor: auto;
+  user-select: text;
+}
+
+.gl-diff-card-header,
+.gl-diff-note-header,
+.gl-diff-card-actions,
+.gl-diff-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.gl-diff-card-toggle {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.gl-diff-card-badge {
+  padding: 0 6px;
+  border-radius: var(--gl-radius-circle);
+  color: var(--gl-badge-fg);
+  background: var(--gl-badge-bg);
+  font-size: var(--gl-font-size-small);
+  line-height: 16px;
+}
+
+.gl-diff-note {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: var(--gl-stroke) solid var(--gl-border-subtle);
+}
+
+.gl-diff-avatar {
+  border-radius: var(--gl-radius-circle);
+}
+
+.gl-diff-note-meta,
+.gl-diff-card-hint {
+  color: var(--gl-text-muted);
+}
+
+.gl-diff-note-actions {
+  display: flex;
+  gap: var(--gl-space-1);
+  margin-left: auto;
+}
+
+.gl-diff-note-body {
+  overflow-wrap: anywhere;
+
+  p {
+    margin: 4px 0;
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  pre,
+  code {
+    font-family: var(--gl-editor-font-family);
+    font-size: var(--gl-editor-font-size);
+    background: var(--gl-code-bg);
+  }
+
+  code {
+    padding: 1px 3px;
+    border-radius: var(--gl-radius-small);
+  }
+
+  pre {
+    margin: 6px 0;
+    padding: 6px var(--gl-space-2);
+    border-radius: var(--gl-radius-medium);
+    overflow-x: auto;
+    line-height: 1.4;
+  }
+
+  pre code {
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  table {
+    display: block;
+    max-width: 100%;
+    margin: 6px 0;
+    overflow-x: auto;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding: var(--gl-space-1) 10px;
+    border: var(--gl-stroke) solid var(--gl-border);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  th {
+    font-weight: 600;
+    background: var(--gl-surface-sunken);
+  }
+
+  details {
+    margin: 6px 0;
+  }
+
+  summary {
+    cursor: pointer;
+  }
+
+  blockquote {
+    margin: 6px 0;
+    padding: 0 var(--gl-space-2);
+    border-left: 3px solid var(--gl-quote-border);
+    background: var(--gl-quote-bg);
+  }
+
+  ul,
+  ol {
+    margin: 4px 0;
+    padding-left: 20px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: var(--gl-space-2) 0 var(--gl-space-1);
+    font-size: 1.1em;
+  }
+
+  hr {
+    border: 0;
+    border-top: var(--gl-stroke) solid var(--gl-border-subtle);
+  }
+
+  a {
+    color: var(--gl-link);
+  }
+}
+
+.gl-diff-confirm {
+  margin: var(--gl-space-1) 0;
+}
+
+.gl-diff-card-error {
+  margin: var(--gl-space-1) 0;
+  color: var(--gl-text-error);
+}
+
+.gl-diff-comment-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gl-space-1);
+  margin-top: 6px;
+}
+
+.gl-diff-textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 54px;
+  padding: 4px 6px;
+  border: var(--gl-stroke) solid var(--gl-input-border);
+  border-radius: var(--gl-radius-small);
+  color: var(--gl-input-fg);
+  background: var(--gl-input-bg);
+  font: inherit;
+  resize: vertical;
+
+  &::placeholder {
+    color: var(--gl-input-placeholder);
+  }
+}
+
+.gl-diff-textarea:focus,
+.gl-diff-comment-preview:focus {
+  @include mixins.focus-ring;
+}
+
+.gl-diff-comment-tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: var(--gl-stroke) solid var(--gl-border-subtle);
+}
+
+.gl-diff-comment-tab {
+  margin-bottom: -1px;
+  padding: 2px 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--gl-text-muted);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--gl-text);
+  }
+
+  &:focus-visible {
+    @include mixins.focus-ring;
+  }
+}
+
+.gl-diff-comment-tab-active {
+  border-bottom-color: var(--gl-focus);
+  color: var(--gl-text);
+}
+
+.gl-diff-comment-preview {
+  box-sizing: border-box;
+  min-height: 54px;
+  padding: 4px 6px;
+  border: var(--gl-stroke) solid var(--gl-input-border);
+  border-radius: var(--gl-radius-small);
+
+  > p {
+    margin: 0;
+  }
+}
+
+/* High contrast themes draw edges instead of relying on background shades. */
+body.vscode-high-contrast,
+body.vscode-high-contrast-light {
+  .gl-diff-icon-button {
+    border-color: var(--gl-border);
+  }
+
+  .gl-diff-connector {
+    stroke: var(--gl-border);
+    stroke-width: 1px;
+  }
+}

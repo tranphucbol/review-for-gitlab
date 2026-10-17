@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import App from './App.vue';
-import './styles.css';
+import '@shared/styles/tokens.scss';
+import './styles.scss';
 
 Vue.config.productionTip = false;
 
