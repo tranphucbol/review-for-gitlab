@@ -715,6 +715,11 @@
           "group": "navigation@-99"
         },
         {
+          "command": "gl.mergeRequestActions",
+          "when": "activeWebviewPanelId == 'glWorkflow' && gitlab:mergeRequestOverviewActive",
+          "group": "navigation@-99"
+        },
+        {
           "command": "gl.showMergedCIConfig",
           "when": "gitlab:validState && resourceScheme != 'gl-merged-ci-yaml' && resourceFilename == '.gitlab-ci.yml'",
           "group": "navigation@-99"

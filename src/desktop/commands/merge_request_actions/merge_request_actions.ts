@@ -9,6 +9,7 @@ import { getTrackingBranchName } from '../../git/get_tracking_branch_name';
 import { DetachedHeadError } from '../../errors/detached_head_error';
 import { fromReviewUri } from '../../review/review_uri';
 import { mrDiffPanelController } from '../../review/side_by_side/mr_diff_panel_controller';
+import { issuableController } from '../../issuable_controller';
 import { issuableDataProvider } from '../../tree_view/issuable_data_provider';
 import { currentBranchRefresher } from '../../current_branch_refresher';
 import { getActiveProjectOrSelectOne } from '../run_with_valid_project';
@@ -57,10 +58,13 @@ const resolveTarget = async (arg: unknown): Promise<MrActionTarget | undefined> 
     return targetFromReviewUri(arg);
   }
   // VS Code passes no argument from a webview's title bar
-  const sideBySide = mrDiffPanelController.activeTarget();
-  if (sideBySide) {
-    const projectInRepository = gitlabProjectRepository.getProjectOrFail(sideBySide.repositoryRoot);
-    return { mr: sideBySide.mr, projectInRepository };
+  const webviewTarget =
+    mrDiffPanelController.activeTarget() ?? issuableController.activeMergeRequest();
+  if (webviewTarget) {
+    const projectInRepository = gitlabProjectRepository.getProjectOrFail(
+      webviewTarget.repositoryRoot,
+    );
+    return { mr: webviewTarget.mr, projectInRepository };
   }
   return targetFromCurrentBranch();
 };
@@ -117,7 +121,7 @@ const pickAction = async ({ detail, approvals }: MrState): Promise<MrAction | un
 const refreshViews = async (mr: RestMr) => {
   issuableDataProvider.refresh();
   mrDiffPanelController.refreshPanelsFor(mr);
-  await currentBranchRefresher.refresh();
+  await Promise.all([issuableController.refreshMergeRequest(mr), currentBranchRefresher.refresh()]);
 };
 
 const showActions = async (target: MrActionTarget): Promise<void> => {
@@ -134,7 +138,7 @@ const showActions = async (target: MrActionTarget): Promise<void> => {
 /**
  * `gl.mergeRequestActions`: shows what the user can do with a merge request and does it.
  * Takes a sidebar merge request item, a review (`gl-review`) URI, or nothing — then it uses
- * the merge request of the active side-by-side diff, or else of the current branch.
+ * the merge request of the active side-by-side diff or Overview, or else of the current branch.
  */
 export const mergeRequestActions = async (arg?: unknown): Promise<void> => {
   const target = await resolveTarget(arg);

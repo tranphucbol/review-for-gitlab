@@ -9,6 +9,7 @@ import { issuableDataProvider } from '../../tree_view/issuable_data_provider';
 import { currentBranchRefresher } from '../../current_branch_refresher';
 import { toReviewUri } from '../../review/review_uri';
 import { mrDiffPanelController } from '../../review/side_by_side/mr_diff_panel_controller';
+import { issuableController } from '../../issuable_controller';
 import { createFakePartial } from '../../../common/test_utils/create_fake_partial';
 import { asMock } from '../../test_utils/as_mock';
 import { diffFile, mr, mrVersion } from '../../test_utils/entities';
@@ -23,6 +24,7 @@ jest.mock('../../git/get_tracking_branch_name');
 jest.mock('../../tree_view/issuable_data_provider');
 jest.mock('../../current_branch_refresher');
 jest.mock('../../review/side_by_side/mr_diff_panel_controller');
+jest.mock('../../issuable_controller');
 jest.mock('../run_with_valid_project');
 jest.mock('./run_action');
 
@@ -54,6 +56,7 @@ describe('mergeRequestActions', () => {
     asMock(getGitLabService).mockReturnValue(service);
     asMock(runAction).mockResolvedValue(true);
     asMock(mrDiffPanelController.activeTarget).mockReturnValue(undefined);
+    asMock(issuableController.activeMergeRequest).mockReturnValue(undefined);
   });
 
   describe('resolving the merge request', () => {
@@ -95,6 +98,20 @@ describe('mergeRequestActions', () => {
           mr,
           mrVersion,
           file: diffFile,
+          repositoryRoot: '/repo',
+        });
+
+        await mergeRequestActions();
+
+        expect(gitlabProjectRepository.getProjectOrFail).toHaveBeenCalledWith('/repo');
+        expect(service.fetchFromApi).not.toHaveBeenCalled();
+        expect(service.getMrDetail).toHaveBeenCalledWith(mr);
+      });
+
+      it('uses the merge request of the active Overview', async () => {
+        asMock(gitlabProjectRepository.getProjectOrFail).mockReturnValue(projectInRepository);
+        asMock(issuableController.activeMergeRequest).mockReturnValue({
+          mr,
           repositoryRoot: '/repo',
         });
 
@@ -162,6 +179,7 @@ describe('mergeRequestActions', () => {
     expect(issuableDataProvider.refresh).toHaveBeenCalled();
     expect(currentBranchRefresher.refresh).toHaveBeenCalled();
     expect(mrDiffPanelController.refreshPanelsFor).toHaveBeenCalledWith(mr);
+    expect(issuableController.refreshMergeRequest).toHaveBeenCalledWith(mr);
   });
 
   it('does not refresh when the action changed nothing', async () => {

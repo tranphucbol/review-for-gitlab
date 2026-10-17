@@ -16,6 +16,19 @@ import { prepareWebviewSource } from '../common/utils/webviews/prepare_webview_s
 
 export type IssuableWebviewPanel = vscode.WebviewPanel & {
   repositoryRoot?: string;
+  issuable?: RestIssuable;
+};
+
+/** True while the active Overview shows a merge request; it shows the merge request actions button. */
+export const MR_OVERVIEW_ACTIVE_CONTEXT = 'gitlab:mergeRequestOverviewActive';
+
+const updateOverviewContext = async (panel: IssuableWebviewPanel) => {
+  if (!panel.active || !panel.issuable) return;
+  await vscode.commands.executeCommand(
+    'setContext',
+    MR_OVERVIEW_ACTIVE_CONTEXT,
+    isMr(panel.issuable),
+  );
 };
 
 async function initPanelIfActive(
@@ -145,10 +158,17 @@ class IssuableController implements RepositoryRootWebviewProvider {
     panel.webview.html = await prepareWebviewSource(panel.webview, this.context, 'issuable');
     panel.iconPath = this.getIconPathForIssuable(issuable);
     panel.repositoryRoot = repositoryRoot;
+    panel.issuable = issuable;
 
+    await updateOverviewContext(panel);
     await initPanelIfActive(panel, issuable, getGitLabService(projectInRepository));
     panel.onDidChangeViewState(async () => {
-      await initPanelIfActive(panel, issuable, getGitLabService(projectInRepository));
+      await updateOverviewContext(panel);
+      await initPanelIfActive(
+        panel,
+        panel.issuable ?? issuable,
+        getGitLabService(projectInRepository),
+      );
     });
 
     panel.webview.onDidReceiveMessage(
@@ -165,6 +185,41 @@ class IssuableController implements RepositoryRootWebviewProvider {
   get repositoryRootForActiveTab(): string | undefined {
     const panel = Object.values(this.openedPanels).find(p => p?.active);
     return panel?.repositoryRoot;
+  }
+
+  /** The merge request in the active Overview, if the active Overview shows one. */
+  activeMergeRequest(): { mr: RestMr; repositoryRoot: string } | undefined {
+    const panel = Object.values(this.openedPanels).find(p => p?.active);
+    if (!panel?.issuable || !panel.repositoryRoot || !isMr(panel.issuable)) return undefined;
+    return { mr: panel.issuable, repositoryRoot: panel.repositoryRoot };
+  }
+
+  /** Reloads every Overview of `mr` after it changed, so it does not show a stale state. */
+  async refreshMergeRequest(mr: RestMr): Promise<void> {
+    const panels = Object.values(this.openedPanels).filter((p): p is IssuableWebviewPanel =>
+      Boolean(p?.issuable && isMr(p.issuable) && p.issuable.id === mr.id && p.repositoryRoot),
+    );
+    await Promise.all(
+      panels.map(async panel => {
+        try {
+          const projectInRepository = gitlabProjectRepository.getProjectOrFail(
+            panel.repositoryRoot!,
+          );
+          const service = getGitLabService(projectInRepository);
+          const fresh = await service.getMrDetail(mr);
+          // eslint-disable-next-line no-param-reassign
+          panel.issuable = fresh;
+          // the webview is already initialized: it sent `appReady` once, when it loaded
+          await panel.webview.postMessage({
+            type: 'issuableFetch',
+            issuable: fresh,
+            discussions: await service.getDiscussionsAndLabelEvents(fresh),
+          });
+        } catch (e) {
+          handleError(e);
+        }
+      }),
+    );
   }
 }
 
