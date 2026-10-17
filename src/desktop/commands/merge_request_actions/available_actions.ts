@@ -1,3 +1,5 @@
+import { JiraLinkConfig, findJiraKeysFor } from '../../jira/jira_keys';
+
 export type MrActionId =
   | 'approve'
   | 'unapprove'
@@ -11,7 +13,8 @@ export type MrActionId =
   | 'editReviewers'
   | 'editAssignees'
   | 'editLabels'
-  | 'refresh';
+  | 'refresh'
+  | 'openJiraIssue';
 
 export interface MrAction {
   id: MrActionId;
@@ -19,7 +22,27 @@ export interface MrAction {
   icon: string;
   /** set when the action is listed but can't run; the reason says why */
   unavailableReason?: string;
+  /** the issue `openJiraIssue` opens */
+  jiraKey?: string;
 }
+
+const MAX_JIRA_ACTIONS = 5;
+
+/** One `Open PC-12 in Jira` action per key in the source branch, title and description. */
+export const jiraActions = (
+  detail: RestMrDetail,
+  config: JiraLinkConfig | undefined,
+): MrAction[] =>
+  config
+    ? findJiraKeysFor(config, { mr: detail })
+        .slice(0, MAX_JIRA_ACTIONS)
+        .map(({ key }) => ({
+          id: 'openJiraIssue',
+          label: `Open ${key} in Jira`,
+          icon: 'link-external',
+          jiraKey: key,
+        }))
+    : [];
 
 export const STILL_CHECKING_REASON =
   'GitLab is still checking whether this can be merged — try again in a moment';

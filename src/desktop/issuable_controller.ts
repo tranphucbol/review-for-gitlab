@@ -9,6 +9,7 @@ import { GitLabService } from './gitlab/gitlab_service';
 import { gitlabProjectRepository } from './gitlab/gitlab_project_repository';
 import { ProjectInRepository } from './gitlab/new_project';
 import { getGitLabService } from './gitlab/get_gitlab_service';
+import { getJiraLinkConfig } from './jira/jira_keys';
 import { WEBVIEW_WORKFLOW } from './constants';
 import { RepositoryRootWebviewProvider } from './commands/run_with_valid_project';
 import { waitForWebview } from '../common/utils/webviews/wait_for_webview';
@@ -21,6 +22,10 @@ export type IssuableWebviewPanel = vscode.WebviewPanel & {
 
 /** True while the active Overview shows a merge request; it shows the merge request actions button. */
 export const MR_OVERVIEW_ACTIVE_CONTEXT = 'gitlab:mergeRequestOverviewActive';
+
+// fork-only: Jira links, see docs/decisions/009
+const postJiraLinks = (panel: vscode.WebviewPanel) =>
+  panel.webview.postMessage({ type: 'jiraLinks', config: getJiraLinkConfig() ?? null });
 
 const updateOverviewContext = async (panel: IssuableWebviewPanel) => {
   if (!panel.active || !panel.issuable) return;
@@ -48,6 +53,7 @@ async function initPanelIfActive(
     });
 
   await waitPromise;
+  await postJiraLinks(panel);
   await panel.webview.postMessage({
     type: 'issuableFetch',
     issuable,
@@ -192,6 +198,14 @@ class IssuableController implements RepositoryRootWebviewProvider {
     const panel = Object.values(this.openedPanels).find(p => p?.active);
     if (!panel?.issuable || !panel.repositoryRoot || !isMr(panel.issuable)) return undefined;
     return { mr: panel.issuable, repositoryRoot: panel.repositoryRoot };
+  }
+
+  /** Relinks Jira keys in every open Overview after the `gitlab.jira` settings change. */
+  async refreshJiraLinks(): Promise<void> {
+    const panels = Object.values(this.openedPanels).filter((p): p is IssuableWebviewPanel =>
+      Boolean(p),
+    );
+    await Promise.all(panels.map(postJiraLinks));
   }
 
   /** Reloads every Overview of `mr` after it changed, so it does not show a stale state. */

@@ -73,6 +73,48 @@ describe('GitLabComment', () => {
     });
   });
 
+  describe('Jira keys', () => {
+    const body = 'Fixes PC-12, not `PC-13`';
+    const linked = 'Fixes [PC-12](https://jira.example/browse/PC-12), not `PC-13`';
+
+    const setJiraUrl = (url: string) =>
+      jest
+        .mocked(vscode.workspace.getConfiguration)
+        .mockReturnValue({ url } as unknown as vscode.WorkspaceConfiguration);
+
+    afterEach(() => {
+      jest
+        .mocked(vscode.workspace.getConfiguration)
+        .mockReturnValue({} as vscode.WorkspaceConfiguration);
+    });
+
+    it('links Jira keys when gitlab.jira.url is set', () => {
+      setJiraUrl('https://jira.example/');
+      createGitLabComment({ ...(noteOnDiff as GqlTextDiffNote), body });
+
+      expect(comment.getBodyAsText()).toBe(linked);
+    });
+
+    it('leaves the body alone when gitlab.jira.url is empty', () => {
+      setJiraUrl('');
+      createGitLabComment({ ...(noteOnDiff as GqlTextDiffNote), body });
+
+      expect(comment.getBodyAsText()).toBe(body);
+    });
+
+    it('edits and submits the raw body, without the generated links', () => {
+      setJiraUrl('https://jira.example/');
+      createGitLabComment({ ...(noteOnDiff as GqlTextDiffNote), body });
+
+      const editing = comment.setOriginalBody();
+      expect(editing.body).toBe(body);
+
+      const submitted = editing.markBodyAsSubmitted();
+      expect(submitted.gqlNote.body).toBe(body);
+      expect(submitted.getBodyAsText()).toBe(linked);
+    });
+  });
+
   describe('suggestion in the comment', () => {
     const suggestion = `
 \`\`\`suggestion:-1+0

@@ -47,6 +47,63 @@ describe('issuableController', () => {
     issuableController.openedPanels = {};
   });
 
+  describe('Jira links', () => {
+    const postedTypes = () =>
+      jest.mocked(panels[0].webview.postMessage).mock.calls.map(([message]) => message.type);
+
+    afterEach(() => {
+      jest
+        .mocked(vscode.workspace.getConfiguration)
+        .mockReturnValue({} as vscode.WorkspaceConfiguration);
+    });
+
+    it('sends the Jira link settings before the issuable', async () => {
+      jest
+        .mocked(vscode.workspace.getConfiguration)
+        .mockReturnValue(
+          createFakePartial<vscode.WorkspaceConfiguration>({ url: 'https://jira.example' }),
+        );
+
+      await issuableController.open(mr, '/repo');
+
+      expect(postedTypes()).toEqual(['jiraLinks', 'issuableFetch']);
+      expect(panels[0].webview.postMessage).toHaveBeenCalledWith({
+        type: 'jiraLinks',
+        config: { issueUrlPrefix: 'https://jira.example/browse/', pattern: expect.any(String) },
+      });
+    });
+
+    it('sends null when Jira links are off', async () => {
+      await issuableController.open(issue, '/repo');
+
+      expect(panels[0].webview.postMessage).toHaveBeenCalledWith({
+        type: 'jiraLinks',
+        config: null,
+      });
+    });
+
+    it('sends the new settings to every open Overview when they change', async () => {
+      await issuableController.open(mr, '/repo');
+      await issuableController.open(issue, '/repo');
+      jest
+        .mocked(vscode.workspace.getConfiguration)
+        .mockReturnValue(
+          createFakePartial<vscode.WorkspaceConfiguration>({ url: 'https://jira.example' }),
+        );
+      panels.forEach(p => jest.mocked(p.webview.postMessage).mockClear());
+
+      await issuableController.refreshJiraLinks();
+
+      expect(panels).toHaveLength(2);
+      panels.forEach(p =>
+        expect(p.webview.postMessage).toHaveBeenCalledWith({
+          type: 'jiraLinks',
+          config: { issueUrlPrefix: 'https://jira.example/browse/', pattern: expect.any(String) },
+        }),
+      );
+    });
+  });
+
   describe('for the merge request actions', () => {
     it('marks an active merge request Overview so it shows the actions button', async () => {
       await issuableController.open(mr, '/repo');

@@ -2,6 +2,7 @@
 import IssuableDetails from './components/IssuableDetails.vue';
 import IssuableDiscussions from './components/IssuableDiscussions.vue';
 import CommentForm from './components/CommentForm.vue';
+import { setJiraLinkConfig } from './utils/jira_links';
 
 const vscode = acquireVsCodeApi();
 
@@ -24,6 +25,7 @@ export default {
     this.isLoading = true;
 
     window.addEventListener('message', event => {
+      if (event.data.type === 'jiraLinks') setJiraLinkConfig(event.data.config);
       if (event.data.type === 'issuableFetch') {
         this.issuable = event.data.issuable;
         this.discussions = event.data.discussions;

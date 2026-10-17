@@ -20,6 +20,11 @@ import {
 } from '../current_branch_refresher';
 import { onSidebarViewStateChange } from './sidebar_view_state';
 import { DetachedHeadError } from '../errors/detached_head_error';
+import { USER_COMMANDS } from '../command_names';
+import { getTrackingBranchName } from '../git/get_tracking_branch_name';
+import { findJiraKeysFor, getJiraLinkConfig } from '../jira/jira_keys';
+
+const MAX_JIRA_ITEMS = 3;
 
 export class CurrentBranchDataProvider
   implements vscode.TreeDataProvider<ItemModel | vscode.TreeItem>
@@ -85,6 +90,28 @@ export class CurrentBranchDataProvider
     return item;
   }
 
+  // fork-only: Jira issues named by the branch and its merge request
+  static async createJiraItems(state: BranchState): Promise<vscode.TreeItem[]> {
+    const config = getJiraLinkConfig();
+    if (!config) return [];
+    const branch =
+      state.mr?.source_branch ??
+      (await getTrackingBranchName(state.projectInRepository.pointer.repository.rawRepository));
+    return findJiraKeysFor(config, { branch, mr: state.mr })
+      .slice(0, MAX_JIRA_ITEMS)
+      .map(({ key, source }) => {
+        const item = new vscode.TreeItem(`Jira: ${key}`);
+        item.iconPath = new vscode.ThemeIcon('link-external');
+        item.tooltip = `Open ${key} in Jira (from ${source})`;
+        item.command = {
+          command: USER_COMMANDS.OPEN_JIRA_ISSUE,
+          title: 'Open Jira Issue',
+          arguments: [key],
+        };
+        return item;
+      });
+  }
+
   static createClosingIssueItems(rootFsPath: string, issues: RestIssuable[]) {
     if (issues.length === 0) return [new vscode.TreeItem('No closing issue found')];
     return issues.map(issue => new IssueItem(issue, rootFsPath));
@@ -111,6 +138,7 @@ export class CurrentBranchDataProvider
     if (this.state.type === 'branch') {
       const mrItem = this.createMrItem(this.state);
       const pipelineItem = this.createPipelineItem(this.state);
+      const jiraItems = await CurrentBranchDataProvider.createJiraItems(this.state);
       const closingIssuesItems = CurrentBranchDataProvider.createClosingIssueItems(
         this.state.projectInRepository.pointer.repository.rootFsPath,
         this.state.issues,
@@ -120,10 +148,10 @@ export class CurrentBranchDataProvider
         const securityFindingsItem = CurrentBranchDataProvider.createSecurityFindingsItem(
           this.state,
         );
-        return [pipelineItem, mrItem, ...closingIssuesItems, securityFindingsItem];
+        return [pipelineItem, mrItem, ...jiraItems, ...closingIssuesItems, securityFindingsItem];
       }
 
-      return [pipelineItem, mrItem, ...closingIssuesItems];
+      return [pipelineItem, mrItem, ...jiraItems, ...closingIssuesItems];
     }
     if (this.state.type === 'tag') {
       this.disposeMrItem();

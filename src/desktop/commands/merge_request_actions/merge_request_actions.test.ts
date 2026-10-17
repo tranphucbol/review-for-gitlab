@@ -16,6 +16,7 @@ import { diffFile, mr, mrVersion } from '../../test_utils/entities';
 import { getActiveProjectOrSelectOne } from '../run_with_valid_project';
 import { mergeRequestActions } from './merge_request_actions';
 import { runAction } from './run_action';
+import { openJiraIssue } from '../../jira/open_jira_issue';
 import { createApprovals, createMrDetail } from './test_entities';
 
 jest.mock('../../gitlab/get_gitlab_service');
@@ -27,6 +28,7 @@ jest.mock('../../review/side_by_side/mr_diff_panel_controller');
 jest.mock('../../issuable_controller');
 jest.mock('../run_with_valid_project');
 jest.mock('./run_action');
+jest.mock('../../jira/open_jira_issue');
 
 describe('mergeRequestActions', () => {
   let service: GitLabService;
@@ -218,6 +220,50 @@ describe('mergeRequestActions', () => {
     expect(service.getMrDetail).toHaveBeenCalledTimes(2);
     expect(vscode.window.showQuickPick).toHaveBeenCalledTimes(2);
     expect(runAction).not.toHaveBeenCalled();
+  });
+
+  describe('Jira issues', () => {
+    const mockJiraUrl = (url?: string) =>
+      jest
+        .mocked(vscode.workspace.getConfiguration)
+        .mockReturnValue({ url } as unknown as vscode.WorkspaceConfiguration);
+
+    beforeEach(() => {
+      mockJiraUrl('https://jira.example.com');
+      asMock(service.getMrDetail).mockResolvedValue(
+        createMrDetail({ title: 'PC-12: Add retries', source_branch: 'feature/PE-3-retries' }),
+      );
+    });
+
+    afterEach(() => mockJiraUrl(undefined));
+
+    it('offers one action per Jira key after the merge request actions', async () => {
+      await mergeRequestActions(item);
+
+      expect(pickedLabels().slice(-3)).toEqual([
+        '$(close) Close merge request',
+        '$(link-external) Open PE-3 in Jira',
+        '$(link-external) Open PC-12 in Jira',
+      ]);
+    });
+
+    it('opens the picked issue without running a merge request action', async () => {
+      pick('Open PC-12 in Jira');
+
+      await mergeRequestActions(item);
+
+      expect(openJiraIssue).toHaveBeenCalledWith('PC-12');
+      expect(runAction).not.toHaveBeenCalled();
+      expect(issuableDataProvider.refresh).not.toHaveBeenCalled();
+    });
+
+    it('offers no Jira action when Jira links are off', async () => {
+      mockJiraUrl(undefined);
+
+      await mergeRequestActions(item);
+
+      expect(pickedLabels().some(label => label.includes('Jira'))).toBe(false);
+    });
   });
 
   it('says there is nothing to do on a merged merge request', async () => {

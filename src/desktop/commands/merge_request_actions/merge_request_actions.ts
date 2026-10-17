@@ -13,7 +13,9 @@ import { issuableController } from '../../issuable_controller';
 import { issuableDataProvider } from '../../tree_view/issuable_data_provider';
 import { currentBranchRefresher } from '../../current_branch_refresher';
 import { getActiveProjectOrSelectOne } from '../run_with_valid_project';
-import { availableActions, describeMr, MrAction } from './available_actions';
+import { getJiraLinkConfig } from '../../jira/jira_keys';
+import { openJiraIssue } from '../../jira/open_jira_issue';
+import { availableActions, describeMr, jiraActions, MrAction } from './available_actions';
 import { MrActionTarget, MrState, runAction } from './run_action';
 
 interface ActionItem extends vscode.QuickPickItem {
@@ -103,7 +105,10 @@ export const toQuickPickItems = (actions: MrAction[]): ActionItem[] => {
 };
 
 const pickAction = async ({ detail, approvals }: MrState): Promise<MrAction | undefined> => {
-  const actions = availableActions(detail, approvals);
+  const actions = [
+    ...availableActions(detail, approvals),
+    ...jiraActions(detail, getJiraLinkConfig()),
+  ];
   if (!actions.length) {
     await vscode.window.showInformationMessage(
       `!${detail.iid} is ${detail.state}; there is nothing to do on it.`,
@@ -130,6 +135,10 @@ const showActions = async (target: MrActionTarget): Promise<void> => {
   if (!action) return;
   if (action.id === 'refresh') {
     await showActions(target);
+    return;
+  }
+  if (action.id === 'openJiraIssue') {
+    await openJiraIssue(action.jiraKey);
     return;
   }
   if (await runAction(action.id, target, state)) await refreshViews(target.mr);

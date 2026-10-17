@@ -2,10 +2,12 @@ import {
   availableActions,
   describeMr,
   isDraft,
+  jiraActions,
   mergeBlocker,
   MrActionId,
   STILL_CHECKING_REASON,
 } from './available_actions';
+import { buildJiraLinkConfig } from '../../jira/jira_keys';
 import { createApprovals, createMrDetail } from './test_entities';
 
 const ids = (detail: RestMrDetail, approvals = createApprovals()) =>
@@ -188,5 +190,31 @@ describe('describeMr', () => {
     expect(
       describeMr(createMrDetail({ state: 'merged', head_pipeline: null }), createApprovals()),
     ).toBe('!42 Add retries — merged · not approved');
+  });
+});
+
+describe('jiraActions', () => {
+  const config = buildJiraLinkConfig({ url: 'https://jira.example.com/' });
+
+  it('opens each key of the merge request, at most five', () => {
+    const detail = createMrDetail({
+      title: 'PC-1 PC-2 PC-3',
+      description: 'PC-4 PC-5 PC-6',
+      source_branch: 'main',
+    });
+
+    const actions = jiraActions(detail, config);
+
+    expect(actions.map(a => a.jiraKey)).toEqual(['PC-1', 'PC-2', 'PC-3', 'PC-4', 'PC-5']);
+    expect(actions[0]).toEqual({
+      id: 'openJiraIssue',
+      label: 'Open PC-1 in Jira',
+      icon: 'link-external',
+      jiraKey: 'PC-1',
+    });
+  });
+
+  it('is empty when Jira links are off', () => {
+    expect(jiraActions(createMrDetail({ title: 'PC-1' }), undefined)).toEqual([]);
   });
 });

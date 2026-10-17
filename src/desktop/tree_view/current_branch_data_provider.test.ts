@@ -1,4 +1,6 @@
+import * as vscode from 'vscode';
 import { Disposable } from 'vscode';
+import { getTrackingBranchName } from '../git/get_tracking_branch_name';
 import { BranchState, TagState } from '../current_branch_refresher';
 import {
   mr,
@@ -19,6 +21,7 @@ jest.mock('./items/mr_item_model');
 jest.mock('./items/pipeline_item_model');
 jest.mock('../../common/utils/extension_configuration');
 jest.mock('../../common/feature_flags');
+jest.mock('../git/get_tracking_branch_name');
 
 const isItemModel = (object: any): object is ItemModel => typeof object.dispose === 'function';
 const branchState: BranchState = {
@@ -170,6 +173,61 @@ describe('CurrentBranchDataProvider', () => {
         const [, , , securityItem] = await currentBranchProvider.getChildren(undefined);
         expect((securityItem as ItemModel).getTreeItem().label).toBe('Security scanning');
       });
+    });
+  });
+
+  describe('Jira items', () => {
+    const mockJiraUrl = (url?: string) =>
+      jest
+        .mocked(vscode.workspace.getConfiguration)
+        .mockReturnValue({ url } as unknown as vscode.WorkspaceConfiguration);
+    const labels = (items: (ItemModel | vscode.TreeItem)[]) =>
+      items.map(i => (i instanceof vscode.TreeItem ? i.label : undefined));
+
+    beforeEach(() => mockJiraUrl('https://jira.example.com'));
+    afterEach(() => mockJiraUrl(undefined));
+
+    it('lists up to three keys of the branch and merge request after the merge request', async () => {
+      currentBranchProvider.refresh({
+        ...branchState,
+        mr: { ...mr, source_branch: 'feature/PC-1-x', title: 'PC-2 PC-3 PC-4' },
+      });
+
+      const children = await currentBranchProvider.getChildren(undefined);
+
+      expect(labels(children).slice(2, 6)).toEqual([
+        'Jira: PC-1',
+        'Jira: PC-2',
+        'Jira: PC-3',
+        '#1000 · Issuable Title',
+      ]);
+      const item = children[2] as vscode.TreeItem;
+      expect(item.command).toEqual({
+        command: 'gl.openJiraIssue',
+        title: 'Open Jira Issue',
+        arguments: ['PC-1'],
+      });
+    });
+
+    it('reads the branch name when there is no merge request', async () => {
+      asMock(getTrackingBranchName).mockResolvedValue('PE-7-fix');
+      currentBranchProvider.refresh({ ...branchState, mr: undefined });
+
+      const children = await currentBranchProvider.getChildren(undefined);
+
+      expect(labels(children)).toContain('Jira: PE-7');
+    });
+
+    it('lists nothing when Jira links are off', async () => {
+      mockJiraUrl(undefined);
+      currentBranchProvider.refresh({
+        ...branchState,
+        mr: { ...mr, source_branch: 'feature/PC-1-x' },
+      });
+
+      const children = await currentBranchProvider.getChildren(undefined);
+
+      expect(labels(children).some(l => String(l).startsWith('Jira:'))).toBe(false);
     });
   });
 
