@@ -69,8 +69,8 @@ export default {
         v-if="noteable.url"
         :href="noteable.url"
         class="gl-icon-button note-header__open js-open-note"
-        title="Open on GitLab"
-        aria-label="Open on GitLab"
+        title="Open in GitLab"
+        aria-label="Open in GitLab"
       >
         <codicon-icon name="link-external" />
       </a>

@@ -206,7 +206,7 @@ const showError = (figure, error) => {
     message.className = `${FIGURE_CLASS}__error`;
     figure.appendChild(message);
   }
-  message.textContent = `Diagram could not be rendered: ${firstLine}`;
+  message.textContent = `The diagram couldn't be rendered: ${firstLine}`;
   figure.setAttribute('data-state', 'error');
 };
 

@@ -1,3 +1,5 @@
+@use 'mixins';
+
 // Rendered markdown in the description and every note, both the local
 // markdown-it rendering and the instance's. Modelled on VS Code's Markdown preview.
 .gl-markdown {
@@ -214,5 +216,21 @@
     line-height: 16px;
     background-color: var(--gl-badge-bg);
     color: var(--gl-badge-fg);
+  }
+}
+
+// A Jira key linked outside a markdown body, such as in the Overview's title.
+.gl-jira-link {
+  color: var(--gl-link);
+  text-decoration: none;
+
+  &:hover,
+  &:active {
+    color: var(--gl-link-active);
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    @include mixins.focus-ring;
   }
 }

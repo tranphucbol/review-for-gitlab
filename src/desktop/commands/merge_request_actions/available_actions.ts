@@ -68,7 +68,7 @@ export const mergeBlocker = (detail: RestMrDetail): string | undefined => {
   if (detail.has_conflicts) return 'It has conflicts — resolve them in GitLab';
   if (!detail.blocking_discussions_resolved) return 'Unresolved threads must be resolved';
   if (isStillChecking(detail)) return STILL_CHECKING_REASON;
-  if (detail.merge_status !== 'can_be_merged') return 'GitLab reports it cannot be merged';
+  if (detail.merge_status !== 'can_be_merged') return "GitLab reports it can't be merged";
   return undefined;
 };
 
@@ -143,7 +143,7 @@ export const availableActions = (detail: RestMrDetail, approvals: RestMrApproval
 
 const MERGE_STATUS_TEXT: Record<string, string> = {
   can_be_merged: 'can be merged',
-  cannot_be_merged: 'cannot be merged',
+  cannot_be_merged: "can't be merged",
 };
 
 const PIPELINE_STATUS_TEXT: Record<string, string> = {

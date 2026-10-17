@@ -189,7 +189,7 @@ const merge = async (
       }
       if (status === 406) {
         const choice = await vscode.window.showWarningMessage(
-          `${ref(detail)} has conflicts or cannot be merged. Resolve them in GitLab.`,
+          `${ref(detail)} has conflicts or can't be merged. Resolve them in GitLab.`,
           OPEN_IN_GITLAB,
         );
         if (choice === OPEN_IN_GITLAB) await openUrl(detail.web_url);

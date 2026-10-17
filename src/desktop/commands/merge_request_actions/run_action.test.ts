@@ -215,7 +215,7 @@ describe('runAction', () => {
       await expect(runAction('merge', target, state)).resolves.toBe(true);
 
       expect(vscode.window.showWarningMessage).toHaveBeenCalledWith(
-        '!42 has conflicts or cannot be merged. Resolve them in GitLab.',
+        "!42 has conflicts or can't be merged. Resolve them in GitLab.",
         OPEN_IN_GITLAB,
       );
       expect(openUrl).toHaveBeenCalledWith(state.detail.web_url);

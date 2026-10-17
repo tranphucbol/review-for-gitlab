@@ -80,7 +80,7 @@ describe('availableActions', () => {
       ${'unresolved threads'} | ${{ blocking_discussions_resolved: false }}                  | ${'Unresolved threads must be resolved'}
       ${'unchecked'}          | ${{ merge_status: 'unchecked' }}                             | ${STILL_CHECKING_REASON}
       ${'checking'}           | ${{ merge_status: 'checking' }}                              | ${STILL_CHECKING_REASON}
-      ${'cannot be merged'}   | ${{ merge_status: 'cannot_be_merged' }}                      | ${'GitLab reports it cannot be merged'}
+      ${"can't be merged"}    | ${{ merge_status: 'cannot_be_merged' }}                      | ${"GitLab reports it can't be merged"}
     `('is unavailable when $case', ({ overrides, reason }) => {
       expect(unavailable(createMrDetail(overrides)).merge).toBe(reason);
     });

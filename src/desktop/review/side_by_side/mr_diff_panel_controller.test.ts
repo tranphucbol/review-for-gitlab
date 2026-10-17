@@ -838,7 +838,7 @@ describe('MrDiffPanelController', () => {
       expect(postedMessages()).toContainEqual({
         command: 'result',
         requestId: 6,
-        error: expect.stringContaining('cannot change the local file'),
+        error: expect.stringContaining("can't change the local file"),
       });
     });
 

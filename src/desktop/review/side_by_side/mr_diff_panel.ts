@@ -361,7 +361,7 @@ export class MrDiffPanel {
     const applier = await this.#localApplier();
     if (!uri || !applier || this.#target.file.new_file) {
       throw new UserFriendlyError(
-        'The view cannot change the local file.',
+        "The view can't change the local file.",
         new Error(`No local file for ${this.#target.file.new_path}`),
       );
     }
@@ -544,7 +544,7 @@ export class MrDiffPanel {
     const { mr, mrVersion, file } = this.#target;
     if (file.diff === '') {
       throw new UserFriendlyError(
-        'GitLab did not return a diff for this file because it is too large, so it does not accept new comments on it.',
+        "GitLab didn't return a diff for this file because it is too large, so it doesn't accept new comments on it.",
         new Error(`Empty diff for ${file.new_path}`),
       );
     }

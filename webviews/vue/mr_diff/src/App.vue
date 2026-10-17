@@ -74,7 +74,7 @@
       </button>
     </div>
     <div v-if="file && file.collapsed" class="gl-diff-banner" role="status">
-      GitLab did not return a diff for this file because it is too large. The changes below are
+      GitLab didn't return a diff for this file because it is too large. The changes below are
       computed locally, and new comments are disabled.
     </div>
     <div v-if="notice" class="gl-diff-banner" role="status">
@@ -338,7 +338,7 @@ export default {
       if (this.file?.collapsed) {
         this.notice = 'This file is too large for GitLab to accept new comments on it.';
       } else if (!this.canComment) {
-        this.notice = 'You cannot comment on this merge request from the extension.';
+        this.notice = "You can't comment on this merge request from the extension.";
       } else {
         this.notice = `Line ${line} is unchanged in the merge request version. Comment on a changed line, or on the base version.`;
       }
@@ -384,7 +384,7 @@ export default {
       post({ command: 'openNative' });
     },
     onLayoutFailed(e) {
-      this.fatalError = `The side-by-side view could not start: ${describeError(e)}`;
+      this.fatalError = `The side-by-side view couldn't start: ${describeError(e)}`;
       this.openNative();
     },
   },
