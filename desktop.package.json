@@ -835,6 +835,44 @@
           "default": false,
           "description": "Show buttons in the side-by-side merge request view that copy a change into your local file, or revert it there, as an unsaved edit"
         },
+        "gitlab.jira.url": {
+          "type": "string",
+          "default": "",
+          "pattern": "^$|^https?://",
+          "markdownDescription": "Base URL of your Jira, for example `https://jira.example.com/`. Jira issue keys such as `PC-1234` link to `<url>/browse/PC-1234`. Empty turns Jira links off."
+        },
+        "gitlab.jira.projectKeys": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]+$"
+          },
+          "default": [],
+          "markdownDescription": "Jira project keys to link, for example `PC`, `PE`. Empty links any key shaped like a Jira key. Listing keys also lets lowercase keys in branch names (`feature/pc-12-x`) match."
+        },
+        "gitlab.jira.ignoredProjectKeys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "AES",
+            "CVE",
+            "GMT",
+            "HTTP",
+            "ISO",
+            "MD",
+            "RFC",
+            "RSA",
+            "SHA",
+            "SSL",
+            "TLS",
+            "UTC",
+            "UTF",
+            "WCAG"
+          ],
+          "markdownDescription": "Key prefixes that look like Jira keys but are not, such as `SHA-256` or `UTF-8`. Ignored when `gitlab.jira.projectKeys` is set."
+        },
         "gitlab.ls.debug": {
           "type": "boolean",
           "default": false,
