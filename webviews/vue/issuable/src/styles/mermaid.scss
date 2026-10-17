@@ -1,0 +1,67 @@
+// Fork-only: the figure utils/mermaid.js wraps around a Mermaid block.
+.mermaid-diagram {
+  position: relative;
+  margin: 0 0 var(--gl-space-4);
+  padding: var(--gl-space-3);
+  border: var(--gl-stroke) solid var(--gl-border);
+  border-radius: var(--gl-radius-medium);
+  background: var(--gl-surface);
+
+  > pre {
+    margin: 0;
+  }
+
+  // the source view sits inside the frame; a second frame would double it
+  &[data-state='rendered'] > pre {
+    border: 0;
+    border-radius: var(--gl-radius-small);
+  }
+
+  &[data-state='rendered']:not([data-view='source']) > pre,
+  &[data-view='source'] > .mermaid-diagram__svg {
+    display: none;
+  }
+}
+
+.mermaid-diagram__svg {
+  overflow-x: auto;
+  text-align: center;
+
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+.mermaid-diagram__toolbar {
+  position: absolute;
+  top: var(--gl-space-1);
+  right: var(--gl-space-1);
+  z-index: 1;
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: var(--gl-stroke) solid var(--gl-border);
+  border-radius: var(--gl-radius-large);
+  background: var(--gl-surface-raised);
+  box-shadow: var(--gl-shadow);
+  opacity: 0;
+  transition: opacity 0.1s;
+
+  .mermaid-diagram:hover > &,
+  .mermaid-diagram:focus-within > & {
+    opacity: 1;
+  }
+}
+
+.mermaid-diagram__error {
+  margin: var(--gl-space-2) 0 0;
+  color: var(--gl-text-muted);
+  font-size: var(--gl-font-size-small);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mermaid-diagram__toolbar {
+    transition: none;
+  }
+}

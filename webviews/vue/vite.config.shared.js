@@ -27,10 +27,14 @@ export default function buildConfigForWebview(name) {
       // sourcemap: 'inline',
       // Can be achieved by supplying the `isProd` argument to buildConfigForWebview
       sourcemap: false,
+      // Preload links would be absolute paths, which a webview cannot resolve; lazy chunks load
+      // through their `import()` alone.
+      modulePreload: false,
       rollupOptions: {
         input: `${name}/index.html`,
         output: {
           entryFileNames: `${name}/assets/app.js`,
+          chunkFileNames: `${name}/assets/[name]-[hash].js`,
           assetFileNames: `${name}/assets/[name].[ext]`,
         },
       },

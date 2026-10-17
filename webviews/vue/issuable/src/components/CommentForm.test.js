@@ -53,6 +53,17 @@ describe('CommentForm', () => {
         await window.dispatchEvent(event);
         expect(wrapper.find('textarea').element.value).toBe('test message');
         expect(wrapper.text()).toContain('Failed to save your comment. Please try again.');
+        expect(wrapper.find('.js-error').attributes('role')).toBe('alert');
+        expect(wrapper.find('textarea').attributes('aria-invalid')).toBe('true');
+      });
+
+      it('clears the error when the next attempt starts', async () => {
+        const event = new Event('message');
+        event.data = { type: 'noteSaved', status: false };
+        await window.dispatchEvent(event);
+        await getSubmitButton(wrapper).trigger('click');
+        expect(wrapper.find('.js-error').exists()).toBe(false);
+        expect(wrapper.find('textarea').attributes('aria-invalid')).toBeUndefined();
       });
     });
 
@@ -63,6 +74,25 @@ describe('CommentForm', () => {
         command: 'saveNote',
         note: 'test message',
       });
+    });
+  });
+
+  describe('submit hint', () => {
+    const mountOn = platform => {
+      vi.spyOn(window.navigator, 'platform', 'get').mockReturnValue(platform);
+      return mount(CommentForm);
+    };
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('shows the Mac shortcut on macOS', () => {
+      expect(mountOn('MacIntel').find('.js-hint').text()).toBe('⌘+Enter to comment');
+    });
+
+    it('shows the Ctrl shortcut elsewhere', () => {
+      expect(mountOn('Win32').find('.js-hint').text()).toBe('Ctrl+Enter to comment');
     });
   });
 

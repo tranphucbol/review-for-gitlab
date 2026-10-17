@@ -66,6 +66,15 @@ describe('jira_links', () => {
       expect(root.innerHTML).toBe(html);
     });
 
+    it('skips diagram text inside an svg', () => {
+      const html =
+        '<svg><g><text>PC-1</text><foreignObject><span>PC-2</span></foreignObject></g></svg>';
+      const root = render(html);
+
+      expect(jiraLinks(root)).toEqual([]);
+      expect(root.querySelector('svg').textContent).toBe('PC-1PC-2');
+    });
+
     it('leaves a GitLab gfm-issue link as GitLab made it', () => {
       const html =
         '<p><a href="https://jira.example.com/browse/PC-1" data-reference-type="external_issue" class="gfm gfm-issue">PC-1</a></p>';

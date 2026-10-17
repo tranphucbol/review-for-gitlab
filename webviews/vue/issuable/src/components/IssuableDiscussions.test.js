@@ -43,4 +43,68 @@ describe('IssuableDiscussions', () => {
     expect(discussions.length).toBe(1);
     expect(discussions.at(0).text()).toMatch(noteText);
   });
+
+  describe('activity', () => {
+    const systemNoteNumber = n => ({
+      ...systemNote,
+      replyId: `system-${n}`,
+      notes: { nodes: [{ ...systemNote.notes.nodes[0], id: `note-${n}` }] },
+    });
+    const mountDiscussions = discussions =>
+      mount(IssuableDiscussions, {
+        props: { discussions },
+        global: { stubs: { date: true }, directives: { tooltip: () => {} } },
+      });
+
+    it('says so when there is nothing to show', () => {
+      const wrapper = mountDiscussions([]);
+      expect(wrapper.find('.js-empty').text()).toBe('No comments yet.');
+    });
+
+    it('keeps two consecutive events unfolded', () => {
+      const wrapper = mountDiscussions([systemNoteNumber(1), labelNote]);
+      expect(wrapper.findAll('.timeline-event').length).toBe(2);
+      expect(wrapper.find('.js-show-events').exists()).toBe(false);
+    });
+
+    it('folds three or more consecutive events between the first and the last', async () => {
+      const wrapper = mountDiscussions([
+        systemNoteNumber(1),
+        systemNoteNumber(2),
+        systemNoteNumber(3),
+        systemNoteNumber(4),
+        singleNote,
+        systemNoteNumber(5),
+      ]);
+      expect(wrapper.findAll('.timeline-event').length).toBe(3);
+      expect(wrapper.find('.js-show-events').text()).toBe('Show 2 more events');
+
+      await wrapper.find('.js-show-events').trigger('click');
+
+      expect(wrapper.findAll('.timeline-event').length).toBe(5);
+      expect(wrapper.find('.js-show-events').exists()).toBe(false);
+    });
+
+    it('filters to comments and remembers the choice', async () => {
+      window.vsCodeApi = { postMessage: vi.fn(), getState: vi.fn(), setState: vi.fn() };
+      const wrapper = mountDiscussions([systemNote, labelNote, singleNote]);
+
+      await wrapper.find('.js-filter-comments').trigger('click');
+
+      expect(wrapper.findAll('.timeline-event').length).toBe(0);
+      expect(wrapper.findAllComponents(Discussion).length).toBe(1);
+      expect(window.vsCodeApi.setState).toHaveBeenCalledWith({ activityFilter: 'comments' });
+    });
+
+    it('restores the filter from the webview state', () => {
+      window.vsCodeApi = {
+        postMessage: vi.fn(),
+        getState: () => ({ activityFilter: 'comments' }),
+        setState: vi.fn(),
+      };
+      const wrapper = mountDiscussions([systemNote, singleNote]);
+      expect(wrapper.find('.js-filter-comments').attributes('aria-pressed')).toBe('true');
+      expect(wrapper.findAll('.timeline-event').length).toBe(0);
+    });
+  });
 });

@@ -1,0 +1,218 @@
+// Rendered markdown in the description and every note, both the local
+// markdown-it rendering and the instance's. Modelled on VS Code's Markdown preview.
+.gl-markdown {
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+
+  > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+
+  p,
+  ul,
+  ol,
+  dl,
+  blockquote,
+  pre,
+  table,
+  details {
+    margin: 0 0 var(--gl-space-3);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: var(--gl-space-6) 0 var(--gl-space-3);
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  h1,
+  h2 {
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--gl-border-subtle);
+  }
+
+  h1 {
+    font-size: 1.6em;
+  }
+
+  h2 {
+    font-size: 1.35em;
+  }
+
+  h3 {
+    font-size: 1.15em;
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-size: 1em;
+  }
+
+  a {
+    color: var(--gl-link);
+    text-decoration: none;
+
+    &:hover,
+    &:active {
+      color: var(--gl-link-active);
+      text-decoration: underline;
+    }
+  }
+
+  ul,
+  ol {
+    padding-inline-start: 2em;
+  }
+
+  li + li {
+    margin-top: 0.15em;
+  }
+
+  // GitLab's task lists and markdown-it-checkbox's
+  li.task-list-item,
+  li:has(> input[type='checkbox']:first-child) {
+    list-style: none;
+
+    > input[type='checkbox'] {
+      margin: 0 0.4em 0.2em -1.4em;
+      vertical-align: middle;
+    }
+  }
+
+  code,
+  kbd,
+  samp {
+    font-family: var(--gl-editor-font-family);
+    font-size: 0.92em;
+  }
+
+  :not(pre) > code {
+    padding: 1px 3px;
+    border-radius: var(--gl-radius-small);
+    background-color: var(--gl-inline-code-bg);
+    color: var(--gl-inline-code-fg);
+  }
+
+  kbd {
+    padding: 1px 3px;
+    border: var(--gl-stroke) solid var(--gl-kbd-border);
+    border-bottom-color: var(--gl-kbd-bottom-border);
+    border-radius: var(--gl-radius-small);
+    background-color: var(--gl-kbd-bg);
+    color: var(--gl-kbd-fg);
+  }
+
+  // code blocks and tables are framed like VS Code's chat renders them
+  pre {
+    padding: var(--gl-space-3) var(--gl-space-4);
+    overflow-x: auto;
+    border: var(--gl-stroke) solid var(--gl-border);
+    border-radius: var(--gl-radius-medium);
+    background-color: var(--gl-code-bg);
+    line-height: 1.45;
+
+    code {
+      padding: 0;
+      background: none;
+      white-space: pre;
+    }
+  }
+
+  blockquote {
+    padding: 0 var(--gl-space-4);
+    border-left: 4px solid var(--gl-quote-border);
+    border-radius: var(--gl-radius-xsmall);
+    background-color: var(--gl-quote-bg);
+    color: var(--gl-text);
+
+    > p {
+      padding: var(--gl-space-1) 0;
+    }
+  }
+
+  hr {
+    height: 0;
+    margin: var(--gl-space-6) 0;
+    border: 0;
+    border-top: 1px solid var(--gl-border-subtle);
+  }
+
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  table:not(.code) {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    overflow-x: auto;
+    // separate borders, so the outer frame can have rounded corners
+    border-collapse: separate;
+    border-spacing: 0;
+    border: var(--gl-stroke) solid var(--gl-border);
+    border-radius: var(--gl-radius-medium);
+
+    th,
+    td {
+      padding: var(--gl-space-1) var(--gl-space-2);
+      border: 0 solid var(--gl-border);
+      border-right-width: var(--gl-stroke);
+      border-bottom-width: var(--gl-stroke);
+      text-align: start;
+      vertical-align: top;
+
+      &:last-child {
+        border-right-width: 0;
+      }
+    }
+
+    tr:last-child > td {
+      border-bottom-width: 0;
+    }
+
+    // a header-only table, or a body after a header, still ends without a rule
+    thead:last-child tr:last-child > th {
+      border-bottom-width: 0;
+    }
+
+    th {
+      font-weight: 600;
+      background-color: var(--gl-surface-sunken);
+    }
+  }
+
+  details > summary {
+    cursor: pointer;
+  }
+
+  // GitLab's inline diff in system notes and "changed the description" notes
+  .idiff.addition {
+    background: var(--gl-inserted-bg);
+  }
+
+  .idiff.deletion {
+    background: var(--gl-removed-bg);
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 0 var(--gl-space-2);
+    border-radius: var(--gl-radius-circle);
+    font-size: var(--gl-font-size-small);
+    line-height: 16px;
+    background-color: var(--gl-badge-bg);
+    color: var(--gl-badge-fg);
+  }
+}

@@ -65,6 +65,16 @@ describe('safe html directive', () => {
       expect(wrapper.html()).toEqual('<div>bye <b>now</b></div>');
     });
 
+    it('wraps a sanitised mermaid block in a diagram figure', () => {
+      createComponent({
+        html: '<pre><code class="language-mermaid" onclick="alert(1)">graph TD</code></pre>',
+      });
+
+      expect(wrapper.element.outerHTML).toEqual(
+        '<div><figure class="mermaid-diagram" data-state="pending"><pre><code class="language-mermaid">graph TD</code></pre></figure></div>',
+      );
+    });
+
     describe('handles data attributes correctly', () => {
       const acceptedDataAttrs = ['data-safe', 'data-random'];
 

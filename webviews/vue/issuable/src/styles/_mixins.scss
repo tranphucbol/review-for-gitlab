@@ -1,0 +1,80 @@
+// Mixins only; this file emits no CSS, so any component may `@use` it.
+@mixin focus-ring {
+  outline: var(--gl-stroke) solid var(--gl-focus);
+  outline-offset: -1px;
+}
+
+// VS Code's text button (`.monaco-text-button`): 4px 8px, 16px line, small
+// corners, a theme border, and a focus outline 2px outside the button.
+@mixin text-button($variant: primary) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gl-space-1);
+  padding: 4px 8px;
+  border: var(--gl-stroke) solid var(--gl-button-border);
+  border-radius: var(--gl-radius-small);
+  font-family: var(--gl-font-family);
+  font-size: var(--gl-button-font-size);
+  line-height: 16px;
+  white-space: nowrap;
+  cursor: pointer;
+
+  @if $variant == primary {
+    background-color: var(--gl-button-bg);
+    color: var(--gl-button-fg);
+
+    &:hover:not(:disabled) {
+      background-color: var(--gl-button-hover-bg);
+    }
+  } @else {
+    border-color: var(--gl-button-secondary-border);
+    background-color: var(--gl-button-secondary-bg);
+    color: var(--gl-button-secondary-fg);
+
+    &:hover:not(:disabled) {
+      background-color: var(--gl-button-secondary-hover-bg);
+    }
+  }
+
+  &:focus-visible {
+    outline: var(--gl-stroke) solid var(--gl-focus);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+}
+
+// A borderless button that shows the toolbar hover, like VS Code's action bar.
+@mixin toolbar-button {
+  border: 0;
+  border-radius: var(--gl-radius-medium);
+  background: transparent;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--gl-toolbar-hover);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+@mixin section-heading {
+  margin: 0 0 var(--gl-space-2);
+  font-size: var(--gl-font-size-small);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gl-text-muted);
+}
+
+@mixin tinted($color) {
+  color: $color;
+  background-color: color-mix(in srgb, #{$color} var(--gl-tint), transparent);
+  border: 1px solid color-mix(in srgb, #{$color} 50%, transparent);
+}

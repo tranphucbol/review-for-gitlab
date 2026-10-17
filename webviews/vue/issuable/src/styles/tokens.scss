@@ -1,0 +1,113 @@
+// Semantic tokens of the Overview, each mapped to a VS Code theme variable.
+// Every colour comes from a `--vscode-*` token; a fallback is another token
+// or a CSS system colour, never a literal, so a theme switch restyles live.
+// Declared on `body`, where VS Code's theme classes are, so that the High
+// Contrast override below also reaches every token derived from it.
+body {
+  --gl-font-family: var(--vscode-font-family, system-ui, sans-serif);
+  --gl-font-size: var(--vscode-font-size, 13px);
+  --gl-font-size-small: 11px;
+  --gl-editor-font-family: var(--vscode-editor-font-family, ui-monospace, monospace);
+  --gl-editor-font-size: var(--vscode-editor-font-size, 12px);
+
+  --gl-text: var(--vscode-foreground, CanvasText);
+  --gl-text-muted: var(--vscode-descriptionForeground, GrayText);
+  --gl-text-error: var(--vscode-errorForeground, var(--gl-text));
+
+  --gl-surface: var(--vscode-editor-background, Canvas);
+  --gl-surface-raised: var(--vscode-editorWidget-background, var(--gl-surface));
+  --gl-surface-sunken: var(--vscode-sideBar-background, var(--gl-surface-raised));
+
+  --gl-border: var(--vscode-widget-border, var(--vscode-panel-border, GrayText));
+  --gl-border-subtle: var(--vscode-panel-border, var(--gl-border));
+
+  --gl-link: var(--vscode-textLink-foreground, LinkText);
+  --gl-link-active: var(--vscode-textLink-activeForeground, var(--gl-link));
+
+  --gl-hover: var(--vscode-list-hoverBackground, transparent);
+  --gl-toolbar-hover: var(--vscode-toolbar-hoverBackground, var(--gl-hover));
+  --gl-focus: var(--vscode-focusBorder, Highlight);
+
+  --gl-button-bg: var(--vscode-button-background, ButtonFace);
+  --gl-button-fg: var(--vscode-button-foreground, ButtonText);
+  --gl-button-hover-bg: var(--vscode-button-hoverBackground, var(--gl-button-bg));
+  --gl-button-border: var(--vscode-button-border, transparent);
+  --gl-button-secondary-bg: var(--vscode-button-secondaryBackground, var(--gl-surface-raised));
+  --gl-button-secondary-fg: var(--vscode-button-secondaryForeground, var(--gl-text));
+  --gl-button-secondary-hover-bg: var(
+    --vscode-button-secondaryHoverBackground,
+    var(--gl-button-secondary-bg)
+  );
+  --gl-button-secondary-border: var(--vscode-button-secondaryBorder, var(--gl-button-border));
+  --gl-button-font-size: var(--vscode-bodyFontSize-small, 12px);
+
+  // pressed state of a toggle, as VS Code's own option toggles draw it
+  --gl-toggle-active-bg: var(--vscode-inputOption-activeBackground, var(--gl-toolbar-hover));
+  --gl-toggle-active-fg: var(--vscode-inputOption-activeForeground, var(--gl-text));
+  --gl-toggle-active-border: var(--vscode-inputOption-activeBorder, var(--gl-focus));
+
+  --gl-input-bg: var(--vscode-input-background, Field);
+  --gl-input-fg: var(--vscode-input-foreground, FieldText);
+  --gl-input-border: var(--vscode-input-border, var(--gl-border));
+  --gl-input-placeholder: var(--vscode-input-placeholderForeground, var(--gl-text-muted));
+
+  --gl-badge-bg: var(--vscode-badge-background, var(--gl-surface-raised));
+  --gl-badge-fg: var(--vscode-badge-foreground, var(--gl-text));
+
+  --gl-state-open: var(--vscode-charts-green, var(--vscode-terminal-ansiGreen, currentColor));
+  --gl-state-merged: var(--vscode-charts-purple, var(--vscode-terminal-ansiMagenta, currentColor));
+  --gl-state-closed: var(--vscode-charts-red, var(--vscode-terminal-ansiRed, currentColor));
+  --gl-state-locked: var(--vscode-charts-orange, var(--vscode-terminal-ansiYellow, currentColor));
+  --gl-state-running: var(--vscode-charts-blue, var(--vscode-terminal-ansiBlue, currentColor));
+
+  --gl-code-bg: var(--vscode-textCodeBlock-background, var(--gl-surface-raised));
+  --gl-inline-code-bg: var(--vscode-textPreformat-background, var(--gl-code-bg));
+  --gl-inline-code-fg: var(--vscode-textPreformat-foreground, var(--gl-text));
+  --gl-kbd-bg: var(--vscode-keybindingLabel-background, transparent);
+  --gl-kbd-fg: var(--vscode-keybindingLabel-foreground, var(--gl-text));
+  --gl-kbd-border: var(--vscode-keybindingLabel-border, var(--gl-border));
+  --gl-kbd-bottom-border: var(--vscode-keybindingLabel-bottomBorder, var(--gl-kbd-border));
+  --gl-quote-bg: var(--vscode-textBlockQuote-background, var(--gl-surface-raised));
+  --gl-quote-border: var(--vscode-textBlockQuote-border, var(--gl-border));
+  --gl-inserted-bg: var(--vscode-diffEditor-insertedTextBackground, transparent);
+  --gl-inserted-fg: var(--vscode-gitDecoration-addedResourceForeground, var(--gl-text));
+  --gl-removed-bg: var(--vscode-diffEditor-removedTextBackground, transparent);
+
+  --gl-error-bg: var(--vscode-inputValidation-errorBackground, var(--gl-surface-raised));
+  --gl-error-border: var(--vscode-inputValidation-errorBorder, var(--gl-text-error));
+  --gl-progress: var(--vscode-progressBar-background, var(--gl-focus));
+  --gl-hover-widget-bg: var(--vscode-editorHoverWidget-background, var(--gl-surface-raised));
+  --gl-hover-widget-fg: var(--vscode-editorHoverWidget-foreground, var(--gl-text));
+  --gl-hover-widget-border: var(--vscode-editorHoverWidget-border, var(--gl-border));
+
+  // Tinted fills mix a state colour into transparency, so they follow the theme too.
+  --gl-tint: 18%;
+
+  // VS Code's own shape tokens, so the Overview's corners follow the workbench:
+  // buttons, inputs and inline code are small, code blocks, tables, cards and
+  // toolbar buttons medium, floating widgets large, pills and avatars circles.
+  // The fallbacks are VS Code's defaults, for versions that predate the tokens.
+  --gl-radius-xsmall: var(--vscode-cornerRadius-xSmall, 2px);
+  --gl-radius-small: var(--vscode-cornerRadius-small, 4px);
+  --gl-radius-medium: var(--vscode-cornerRadius-medium, 6px);
+  --gl-radius-large: var(--vscode-cornerRadius-large, 8px);
+  --gl-radius-circle: var(--vscode-cornerRadius-circle, 9999px);
+  --gl-stroke: var(--vscode-strokeThickness, 1px);
+  // VS Code's --vscode-shadow-lg, which is not sent to webviews
+  --gl-shadow: 0 0 12px var(--vscode-widget-shadow, transparent);
+  --gl-space-1: 4px;
+  --gl-space-2: 8px;
+  --gl-space-3: 12px;
+  --gl-space-4: 16px;
+  --gl-space-6: 24px;
+}
+
+// High Contrast themes outline every card, chip and control.
+body.vscode-high-contrast,
+body.vscode-high-contrast-light {
+  --gl-border: var(--vscode-contrastBorder, CanvasText);
+  --gl-border-subtle: var(--vscode-contrastBorder, CanvasText);
+  --gl-hover: transparent;
+  --gl-tint: 0%;
+  --gl-shadow: none;
+}

@@ -30,13 +30,13 @@ describe('LabelNote', () => {
       });
     });
     it('contains correct text', () => {
-      expect(wrapper.text()).toBe('Tomas Vik @viktomasaddedCategory:Editor Extensionlabel ·');
+      expect(wrapper.text()).toBe('Tomas VikaddedCategory:Editor Extensionlabel');
     });
 
     describe('label pill', () => {
       it('has correct colors', () => {
-        expect(wrapper.find('.label-pill').attributes().style).toBe(
-          'background-color: rgb(66, 139, 202); color: rgb(255, 255, 255); border-color: #428bca;',
+        expect(wrapper.find('.label-chip__scope').attributes().style).toBe(
+          'background-color: rgb(66, 139, 202); color: rgb(255, 255, 255);',
         );
       });
 
@@ -65,20 +65,19 @@ describe('LabelNote', () => {
       });
     });
     it('contains correct text', () => {
-      expect(wrapper.text()).toBe('Tomas Vik @viktomasaddedgroupcode reviewlabel ·');
+      expect(wrapper.text()).toBe('Tomas Vikaddedgroupcode reviewlabel');
     });
 
     describe('label pill', () => {
       it('has correct colors', () => {
-        expect(wrapper.find('.label-pill').attributes().style).toBe(
-          'background-color: rgb(168, 214, 149); color: rgb(51, 51, 51); border-color: #a8d695;',
+        expect(wrapper.find('.label-chip__scope').attributes().style).toBe(
+          'background-color: rgb(168, 214, 149); color: rgb(51, 51, 51);',
         );
       });
 
-      it('has scoped label with inverted colors inside', () => {
-        expect(wrapper.find('.scoped-pill').attributes().style).toBe(
-          'background-color: rgb(51, 51, 51); color: rgb(168, 214, 149);',
-        );
+      it('shows the scoped value on the editor colours', () => {
+        expect(wrapper.find('.label-chip__value').text()).toBe('code review');
+        expect(wrapper.find('.label-chip__value').attributes().style).toBeUndefined();
       });
     });
   });

@@ -60,7 +60,7 @@ export default {
 
 <template>
   <div class="note-body">
-    <div class="body" v-safe-html="renderedNoteBody" />
+    <div class="body gl-markdown" v-safe-html="renderedNoteBody" />
   </div>
 </template>
 
@@ -71,7 +71,7 @@ export default {
   .badge {
     padding: 0 8px;
     line-height: 16px;
-    border-radius: 36px;
+    border-radius: var(--gl-radius-circle);
     font-size: 12px;
     display: inline-block;
   }

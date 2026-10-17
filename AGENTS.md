@@ -201,6 +201,17 @@ node scripts/release.mjs patch             # changelog, commit, tag, push after 
   rewritten.
   [009](docs/decisions/009_jira-keys-link-to-a-configured-jira.md)
 
+- **No literal colours in webviews; use `--vscode-*` tokens with a fallback.**
+  In the Overview only `styles/tokens.scss` reads `--vscode-*`; components use
+  its `--gl-*` tokens.
+  [010](docs/decisions/010_the-overview-is-themed-by-vs-code-tokens.md)
+
+- **A webview's lazy chunks are written under its own `assets/`; anything
+  outside `dist/<webview>/` is not shipped.** `vite.config.shared.js` sets
+  `chunkFileNames` and turns `modulePreload` off, since a preload path is
+  absolute and a webview cannot resolve it.
+  [011](docs/decisions/011_mermaid-renders-lazily-in-the-overview.md)
+
 - **Stay close to upstream.** Prefer the smallest change in upstream's file
   over a parallel copy of it, keep upstream's naming and structure, and keep
   fork-only modules few and obvious. Every line that differs from upstream is a

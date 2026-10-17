@@ -2,6 +2,7 @@
 import DOMPurify from 'dompurify';
 import { forbiddenDataAttrs } from './constants';
 import { linkJiraKeys } from '../../utils/jira_links'; // fork-only
+import { renderMermaidBlocks } from '../../utils/mermaid'; // fork-only
 
 // Mitigate against future dompurify mXSS bypasses by
 // avoiding additional serialize/parse round trip.
@@ -18,6 +19,7 @@ const transform = (el, binding) => {
     el.textContent = '';
     el.appendChild(DOMPurify.sanitize(binding.value, config));
     linkJiraKeys(el); // fork-only: link Jira issue keys, see utils/jira_links.js
+    renderMermaidBlocks(el); // fork-only: draw Mermaid blocks, see utils/mermaid.js
   }
 };
 

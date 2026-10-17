@@ -59,27 +59,31 @@ export default {
 
 <style lang="scss" scoped>
 a {
-  color: var(--vscode-foreground);
+  color: var(--gl-text);
   text-decoration: none;
 }
 .avatar {
-  float: left;
-  margin-right: 16px;
-  border-radius: 100%;
+  margin-right: 6px;
+  border-radius: var(--gl-radius-circle);
   max-width: 64px;
   max-height: 64px;
   vertical-align: middle;
-  background: var(--vscode-editor-background);
+  background: var(--gl-surface);
+}
+
+.s16 {
+  width: 16px;
+  height: 16px;
+}
+
+.s20 {
+  width: 20px;
+  height: 20px;
 }
 
 .s24 {
   width: 24px;
   height: 24px;
-}
-
-.s40 {
-  width: 40px;
-  height: 40px;
 }
 
 .capitalize {
