@@ -33,6 +33,10 @@ export const createMultipartFormBody = (
   file: MultipartFile,
   boundary = `----GitLabWorkflowBoundary${crypto.randomBytes(16).toString('hex')}`,
 ): MultipartFormBody => {
+  // a line break would end the header and let the value write headers of its own
+  if (/[\r\n]/.test(file.contentType)) {
+    throw new Error(`The content type ${JSON.stringify(file.contentType)} contains a line break.`);
+  }
   const header = Buffer.from(
     [
       `--${boundary}`,

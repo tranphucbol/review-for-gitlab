@@ -1,6 +1,7 @@
 const vscode = acquireVsCodeApi();
 
-let nextRequestId = 1;
+// random, so a result posted before VS Code reloaded the webview can't answer a later request
+let nextRequestId = Math.floor(Math.random() * 2 ** 30);
 const pending = new Map();
 
 window.addEventListener('message', event => {

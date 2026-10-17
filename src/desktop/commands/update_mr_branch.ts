@@ -41,8 +41,10 @@ const resetBranchTo = async (
   localExists: boolean,
 ) => {
   if (localExists) {
-    // a checked-out branch can't be deleted, so step off it onto the remote commit first
-    if (rawRepository.state.HEAD?.name === branch) await rawRepository.checkout(remoteRef);
+    // a checked-out branch can't be deleted, so step off it onto the remote commit first;
+    // always, because `state.HEAD` can lag behind the repository, and a failing checkout
+    // (a dirty work tree) then stops the update before the branch is gone
+    await rawRepository.checkout(remoteRef);
     await rawRepository.deleteBranch(branch, true);
   }
   await rawRepository.createBranch(branch, true, remoteRef);

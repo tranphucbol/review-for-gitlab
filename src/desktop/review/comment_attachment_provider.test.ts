@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { CommentAttachmentProvider } from './comment_attachment_provider';
+import { CommentAttachmentProvider, MAX_IMAGE_BYTES } from './comment_attachment_provider';
 import { commentControllerProvider } from './comment_controller_provider';
 import { getGitLabService } from '../gitlab/get_gitlab_service';
 import { mr, projectInRepository } from '../test_utils/entities';
@@ -238,7 +238,47 @@ describe('CommentAttachmentProvider', () => {
 
       expect(edit).toBe(undefined);
       expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
-        expect.stringContaining("Couldn't upload the image"),
+        "Couldn't upload the image to the gitlab-org/gitlab project.",
+        'Show Logs',
+      );
+    });
+
+    it('refuses an image larger than 10 MB without uploading it', async () => {
+      const dataTransfer = createDataTransfer({
+        'image/png': { file: { name: 'big.png', content: new Uint8Array(MAX_IMAGE_BYTES + 1) } },
+      });
+
+      const edit = await provider.provideDocumentDropEdits(
+        createDocument(commentUri()),
+        position,
+        dataTransfer,
+        token,
+      );
+
+      expect(edit).toBe(undefined);
+      expect(uploadFile).not.toHaveBeenCalled();
+      expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
+        'The image big.png is larger than 10 MB.',
+        'Show Logs',
+      );
+    });
+
+    it('refuses a content type that is not a single image type', async () => {
+      const dataTransfer = createDataTransfer({
+        'image/png\r\nX-Injected: 1': { file: { name: 'a.png', content: new Uint8Array([1]) } },
+      });
+
+      const edit = await provider.provideDocumentDropEdits(
+        createDocument(commentUri()),
+        position,
+        dataTransfer,
+        token,
+      );
+
+      expect(edit).toBe(undefined);
+      expect(uploadFile).not.toHaveBeenCalled();
+      expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
+        'a.png is not an image.',
         'Show Logs',
       );
     });

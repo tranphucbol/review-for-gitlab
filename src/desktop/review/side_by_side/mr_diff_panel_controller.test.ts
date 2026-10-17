@@ -12,7 +12,8 @@ import { UserFriendlyError } from '../../errors/user_friendly_error';
 import { diffFile, mr, mrVersion, projectInRepository } from '../../test_utils/entities';
 import { MrDiffPanelController } from './mr_diff_panel_controller';
 import { FromWebviewMessage } from './messages';
-import { MAX_IMAGE_BYTES } from './mr_diff_panel';
+import { MAX_FILE_BYTES } from './mr_diff_panel';
+import { MAX_IMAGE_BYTES } from '../comment_attachment_provider';
 
 jest.mock('../../../common/utils/webviews/prepare_webview_source', () => ({
   prepareWebviewSource: jest.fn().mockResolvedValue('preparedWebviewSource'),
@@ -44,6 +45,7 @@ describe('MrDiffPanelController', () => {
         webview: createFakePartial<vscode.Webview>({
           onDidReceiveMessage: jest.fn().mockImplementation(listener => {
             sendToHost = listener;
+            return { dispose: jest.fn() };
           }),
           postMessage: jest.fn().mockResolvedValue(true),
         }),
@@ -123,6 +125,7 @@ describe('MrDiffPanelController', () => {
           commentableNewLines: [1, 2, 3, 4, 5, 6, 7],
         }),
         aligned: true,
+        generation: 1,
       },
       { command: 'discussions', discussions: [], canComment: true },
     ]);
@@ -245,6 +248,57 @@ describe('MrDiffPanelController', () => {
       expect(commandsAfterLastInit()).toEqual(['discussions', 'localState']);
     });
 
+    it('posts only the latest version when an older one finishes loading last', async () => {
+      let finishOlder: (content: ArrayBuffer) => void = () => {};
+      const newest = { ...newerVersion, id: newerVersion.id + 1, head_commit_sha: 'newest-head' };
+      jest.mocked(gitlabService.getFileContent).mockImplementation(async (_, ref) => {
+        if (ref === 'newer-head') {
+          return new Promise(resolve => {
+            finishOlder = resolve;
+          });
+        }
+        return new TextEncoder().encode(ref === 'newest-head' ? 'newest head' : 'remote head')
+          .buffer;
+      });
+      await controller.open(target);
+      await sendToHost({ command: 'appReady' });
+
+      const older = controller.open({
+        ...target,
+        mrVersion: newerVersion,
+        file: newerVersion.diffs[0],
+      });
+      await controller.open({ ...target, mrVersion: newest, file: newest.diffs[0] });
+      finishOlder(new TextEncoder().encode('newer head').buffer);
+      await older;
+
+      expect(inits().map(m => [m.file.newText, m.generation])).toEqual([
+        ['remote head', 1],
+        ['newest head', 3],
+      ]);
+    });
+
+    it('refuses a comment counted against a version the view no longer shows', async () => {
+      await controller.open(target);
+      await sendToHost({ command: 'appReady' });
+      await controller.open({ ...target, mrVersion: newerVersion, file: newerVersion.diffs[0] });
+      await sendToHost({
+        command: 'createThread',
+        requestId: 9,
+        generation: 1,
+        side: 'new',
+        line: 2,
+        body: 'hi',
+      });
+
+      expect(gitlabService.createDiffNote).not.toHaveBeenCalled();
+      expect(postedMessages()).toContainEqual({
+        command: 'result',
+        requestId: 9,
+        error: expect.stringContaining('newer version'),
+      });
+    });
+
     it('keeps the shown version on refresh when the newer one no longer changes the file', async () => {
       jest.mocked(gitlabService.getMrDiff).mockResolvedValue({ ...newerVersion, diffs: [] });
       await controller.open(target);
@@ -279,6 +333,48 @@ describe('MrDiffPanelController', () => {
     expect(postedMessages()[0]).toEqual({
       command: 'error',
       message: expect.stringContaining('new_file.js'),
+    });
+  });
+
+  describe('a file the view cannot show', () => {
+    const expectNativeDiffError = (reason: string) => {
+      expect(postedMessages().filter(m => m.command !== 'discussions')).toEqual([
+        {
+          command: 'error',
+          message: `The side-by-side diff can't show new_file.js: ${reason}. Open the native diff instead.`,
+        },
+      ]);
+    };
+
+    it('refuses a file with a NUL byte', async () => {
+      jest
+        .mocked(gitlabService.getFileContent)
+        .mockResolvedValue(new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0, 1]).buffer);
+      await controller.open(target);
+      await sendToHost({ command: 'appReady' });
+
+      expectNativeDiffError('it is a binary file');
+    });
+
+    it('refuses a file over 2 MB', async () => {
+      jest
+        .mocked(gitlabService.getFileContent)
+        .mockResolvedValue(new Uint8Array(MAX_FILE_BYTES + 1).fill(0x61).buffer);
+      await controller.open(target);
+      await sendToHost({ command: 'appReady' });
+
+      expectNativeDiffError('it is larger than 2 MB');
+    });
+
+    it('refuses a file GitLab marks as binary without reading it', async () => {
+      await controller.open({
+        ...target,
+        file: { ...diffFile, diff: 'Binary files a/old_file.js and b/new_file.js differ\n' },
+      });
+      await sendToHost({ command: 'appReady' });
+
+      expectNativeDiffError('it is a binary file');
+      expect(gitlabService.getFileContent).not.toHaveBeenCalled();
     });
   });
 
@@ -371,9 +467,63 @@ describe('MrDiffPanelController', () => {
       ]);
     });
 
+    it('shows the token error when GitLab refuses the token', async () => {
+      const unauthorized = Object.assign(new Error('401 Unauthorized'), { status: 401 });
+      jest.mocked(gitlabService.getDiscussions).mockRejectedValue(unauthorized);
+      await controller.open(target);
+      await sendToHost({ command: 'refresh' });
+
+      expect(postedMessages()).toEqual([
+        expect.objectContaining({ command: 'discussions', error: expect.any(String) }),
+      ]);
+      expect(vscode.window.showErrorMessage).toHaveBeenCalledTimes(1);
+      expect(vscode.window.showErrorMessage).toHaveBeenCalledWith('401 Unauthorized', 'Show Logs');
+    });
+
+    it('finds a refused token inside a wrapping error', async () => {
+      const unauthorized = Object.assign(new Error('Response not successful'), {
+        response: { status: 401 },
+      });
+      jest
+        .mocked(gitlabService.uploadFile)
+        .mockRejectedValue(new UserFriendlyError("Couldn't upload.", unauthorized));
+      await controller.open(target);
+      await sendToHost({
+        command: 'uploadImage',
+        requestId: 7,
+        name: 'a.png',
+        contentType: 'image/png',
+        base64: Buffer.from('png').toString('base64'),
+      });
+
+      expect(postedMessages()).toEqual([
+        { command: 'result', requestId: 7, error: expect.any(String) },
+      ]);
+      expect(vscode.window.showErrorMessage).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps a server error in the card without a notification', async () => {
+      const serverError = Object.assign(new Error('500 Internal Server Error'), { status: 500 });
+      jest.mocked(gitlabService.getDiscussions).mockRejectedValue(serverError);
+      await controller.open(target);
+      await sendToHost({ command: 'refresh' });
+
+      expect(postedMessages()).toEqual([
+        expect.objectContaining({ command: 'discussions', error: expect.any(String) }),
+      ]);
+      expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
+    });
+
     it('creates a thread, refreshes the discussions and then answers', async () => {
       await controller.open(target);
-      await sendToHost({ command: 'createThread', requestId: 1, side: 'new', line: 2, body: 'hi' });
+      await sendToHost({
+        command: 'createThread',
+        requestId: 1,
+        generation: 1,
+        side: 'new',
+        line: 2,
+        body: 'hi',
+      });
 
       expect(gitlabService.createDiffNote).toHaveBeenCalledWith(
         mr.id,
@@ -389,7 +539,14 @@ describe('MrDiffPanelController', () => {
 
     it('refuses a new thread on a file GitLab did not diff', async () => {
       await controller.open({ ...target, file: { ...diffFile, diff: '' } });
-      await sendToHost({ command: 'createThread', requestId: 1, side: 'new', line: 2, body: 'hi' });
+      await sendToHost({
+        command: 'createThread',
+        requestId: 1,
+        generation: 1,
+        side: 'new',
+        line: 2,
+        body: 'hi',
+      });
 
       expect(gitlabService.createDiffNote).not.toHaveBeenCalled();
       expect(postedMessages()).toEqual([
@@ -445,6 +602,42 @@ describe('MrDiffPanelController', () => {
       expect(gitlabService.uploadFile).not.toHaveBeenCalled();
       expect(postedMessages()).toEqual([
         { command: 'result', requestId: 4, error: expect.stringContaining('10 MB') },
+      ]);
+    });
+
+    it('refuses a content type that is not an image', async () => {
+      await controller.open(target);
+      await sendToHost({
+        command: 'uploadImage',
+        requestId: 8,
+        name: 'a.html',
+        contentType: 'text/html',
+        base64: Buffer.from('<p>').toString('base64'),
+      });
+
+      expect(gitlabService.uploadFile).not.toHaveBeenCalled();
+      expect(postedMessages()).toEqual([
+        { command: 'result', requestId: 8, error: 'a.html is not an image.' },
+      ]);
+    });
+
+    it("names the merge request's project when the upload fails", async () => {
+      jest.mocked(gitlabService.uploadFile).mockRejectedValue(new Error('500'));
+      await controller.open(target);
+      await sendToHost({
+        command: 'uploadImage',
+        requestId: 9,
+        name: 'a.png',
+        contentType: 'image/png',
+        base64: Buffer.from('png').toString('base64'),
+      });
+
+      expect(postedMessages()).toEqual([
+        {
+          command: 'result',
+          requestId: 9,
+          error: "Couldn't upload the image to the gitlab-org/gitlab project.",
+        },
       ]);
     });
   });
@@ -538,7 +731,13 @@ describe('MrDiffPanelController', () => {
         .mocked(vscode.workspace.getConfiguration)
         .mockReturnValue(createFakePartial<vscode.WorkspaceConfiguration>({}));
       await controller.open(target);
-      await sendToHost({ command: 'applyHunk', requestId: 4, direction: 'apply', ...block });
+      await sendToHost({
+        command: 'applyHunk',
+        requestId: 4,
+        generation: 1,
+        direction: 'apply',
+        ...block,
+      });
 
       expect(vscode.workspace.applyEdit).not.toHaveBeenCalled();
       expect(postedMessages()).toContainEqual({
@@ -586,7 +785,13 @@ describe('MrDiffPanelController', () => {
 
     it('refuses to change the local copy of a file the merge request adds', async () => {
       await controller.open({ ...target, file: { ...diffFile, new_file: true } });
-      await sendToHost({ command: 'applyHunk', requestId: 6, direction: 'revert', ...block });
+      await sendToHost({
+        command: 'applyHunk',
+        requestId: 6,
+        generation: 1,
+        direction: 'revert',
+        ...block,
+      });
 
       expect(vscode.workspace.applyEdit).not.toHaveBeenCalled();
       expect(postedMessages()).toContainEqual({
@@ -598,7 +803,13 @@ describe('MrDiffPanelController', () => {
 
     it('applies a block as an unsaved edit, then reports it applied before answering', async () => {
       await controller.open(target);
-      await sendToHost({ command: 'applyHunk', requestId: 5, direction: 'apply', ...block });
+      await sendToHost({
+        command: 'applyHunk',
+        requestId: 5,
+        generation: 1,
+        direction: 'apply',
+        ...block,
+      });
 
       const [edit] = jest.mocked(vscode.workspace.applyEdit).mock.calls[0];
       expect(edit.replace).toHaveBeenCalledWith(
@@ -612,10 +823,34 @@ describe('MrDiffPanelController', () => {
       ]);
     });
 
+    it('refuses a block counted against a version the view no longer shows', async () => {
+      await controller.open(target);
+      await sendToHost({
+        command: 'applyHunk',
+        requestId: 6,
+        generation: 0,
+        direction: 'apply',
+        ...block,
+      });
+
+      expect(vscode.workspace.applyEdit).not.toHaveBeenCalled();
+      expect(postedMessages()).toContainEqual({
+        command: 'result',
+        requestId: 6,
+        error: expect.stringContaining('newer version'),
+      });
+    });
+
     it('changes nothing when the local file is not what the arrow expects', async () => {
       localText = 'local work';
       await controller.open(target);
-      await sendToHost({ command: 'applyHunk', requestId: 6, direction: 'apply', ...block });
+      await sendToHost({
+        command: 'applyHunk',
+        requestId: 6,
+        generation: 1,
+        direction: 'apply',
+        ...block,
+      });
 
       expect(vscode.workspace.applyEdit).not.toHaveBeenCalled();
       expect(postedMessages()).toEqual([
@@ -664,6 +899,66 @@ describe('MrDiffPanelController', () => {
 
       const watcher = jest.mocked(vscode.workspace.createFileSystemWatcher).mock.results[0].value;
       expect(watcher.dispose).toHaveBeenCalled();
+    });
+  });
+
+  describe('closing the panel while the file loads', () => {
+    let finishLoad: (content: ArrayBuffer) => void;
+    let failLoad: (e: Error) => void;
+
+    beforeEach(() => {
+      jest.mocked(gitlabService.getFileContent).mockImplementation(
+        () =>
+          new Promise((resolve, reject) => {
+            finishLoad = resolve;
+            failLoad = reject;
+          }),
+      );
+    });
+
+    const openAndClose = async () => {
+      const opened = await controller.open(target);
+      const ready = sendToHost({ command: 'appReady' });
+      jest.mocked(opened.onDidDispose).mock.calls[0][0]();
+      return { ready };
+    };
+
+    it('posts nothing once the file arrives', async () => {
+      const { ready } = await openAndClose();
+      jest.mocked(panel.webview.postMessage).mockClear();
+      finishLoad(new TextEncoder().encode('remote head').buffer);
+      await ready;
+
+      expect(allPostedMessages()).toEqual([]);
+      expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
+    });
+
+    it('posts nothing and shows nothing when the file fails to load', async () => {
+      const { ready } = await openAndClose();
+      jest.mocked(panel.webview.postMessage).mockClear();
+      failLoad(new Error('404'));
+      await ready;
+
+      expect(allPostedMessages()).toEqual([]);
+      expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
+    });
+
+    it('does not set the source of a webview closed while it was read', async () => {
+      jest.mocked(vscode.window.createWebviewPanel).mockImplementationOnce(() => {
+        panel = createFakePartial<vscode.WebviewPanel>({
+          webview: createFakePartial<vscode.Webview>({
+            onDidReceiveMessage: jest.fn().mockReturnValue({ dispose: jest.fn() }),
+            postMessage: jest.fn().mockResolvedValue(true),
+          }),
+          // VS Code reports the close before the source is read
+          onDidDispose: jest.fn().mockImplementation(listener => listener()),
+          onDidChangeViewState: jest.fn(),
+        });
+        return panel;
+      });
+      const opened = await controller.open(target);
+
+      expect(opened.webview.html).toBeUndefined();
     });
   });
 });

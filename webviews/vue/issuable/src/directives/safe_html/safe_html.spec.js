@@ -57,6 +57,14 @@ describe('safe html directive', () => {
       expect(wrapper.html()).toEqual('<div>hello world</div>');
     });
 
+    it('should render the new value when the binding changes', async () => {
+      createComponent();
+
+      await wrapper.setData({ rawHtml: 'bye <script>alert(1)</script><b>now</b>' });
+
+      expect(wrapper.html()).toEqual('<div>bye <b>now</b></div>');
+    });
+
     describe('handles data attributes correctly', () => {
       const acceptedDataAttrs = ['data-safe', 'data-random'];
 

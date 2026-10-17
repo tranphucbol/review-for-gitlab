@@ -23,4 +23,5 @@ const transform = (el, binding) => {
 export const SafeHtmlDirective = {
   created: transform,
   update: transform,
+  updated: transform,
 };
