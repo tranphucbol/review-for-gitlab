@@ -5,7 +5,9 @@ import {
   JiraSettings,
   buildJiraLinkConfig,
   findJiraKeys,
+  findJiraKeysFor,
   findJiraKeysInBranch,
+  findJiraKeysInMarkdown,
   findJiraKeysInBranchWith,
   getJiraLinkConfig,
   jiraIssueUrl,
@@ -225,6 +227,60 @@ describe('jira_keys', () => {
       expect(linkJiraKeysInMarkdown('PC-1', config({ url: 'https://example.com/jira/' }))).toBe(
         '[PC-1](https://example.com/jira/browse/PC-1)',
       );
+    });
+  });
+
+  describe('findJiraKeysInMarkdown', () => {
+    it('finds the keys in prose only, in order and once', () => {
+      const markdown = [
+        'Fixes PE-88 and PC-1, see `PC-7`.',
+        '```',
+        'PC-8',
+        '```',
+        'Again PE-88, [link](https://jira.example.com/browse/PC-2) and SHA-256.',
+      ].join('\n');
+      expect(findJiraKeysInMarkdown(markdown, config())).toEqual(['PE-88', 'PC-1']);
+    });
+  });
+
+  describe('findJiraKeysFor', () => {
+    const mr = {
+      title: 'PC-12: Add retries for PE-3',
+      source_branch: 'feature/PC-12-retries',
+      description: 'Part of ACQ-4, not `ACQ-5`. Also PE-3.',
+    };
+
+    beforeEach(() => {
+      jest
+        .mocked(vscode.workspace.getConfiguration)
+        .mockReturnValue(defaults as unknown as vscode.WorkspaceConfiguration);
+    });
+
+    it('takes the branch, then the title, then the description', () => {
+      expect(findJiraKeysFor(config(), { mr })).toEqual([
+        { key: 'PC-12', source: 'branch' },
+        { key: 'PE-3', source: 'merge request title' },
+        { key: 'ACQ-4', source: 'merge request description' },
+      ]);
+    });
+
+    it('prefers an explicit branch over the source branch', () => {
+      expect(findJiraKeysFor(config(), { branch: 'ZPA-9-local', mr })[0]).toEqual({
+        key: 'ZPA-9',
+        source: 'branch',
+      });
+    });
+
+    it('works with a branch alone and with no description', () => {
+      expect(findJiraKeysFor(config(), { branch: 'PC-1-x' })).toEqual([
+        { key: 'PC-1', source: 'branch' },
+      ]);
+      expect(
+        findJiraKeysFor(config(), { mr: { ...mr, description: null, source_branch: 'main' } }),
+      ).toEqual([
+        { key: 'PC-12', source: 'merge request title' },
+        { key: 'PE-3', source: 'merge request title' },
+      ]);
     });
   });
 });

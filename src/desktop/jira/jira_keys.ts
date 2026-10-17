@@ -219,6 +219,9 @@ const protectedRanges = (markdown: string): Range[] => {
   return ranges;
 };
 
+const isProtected = (ranges: Range[], index: number, end: number) =>
+  ranges.some(([start, stop]) => index < stop && end > start);
+
 /**
  * Turns every Jira key in prose into a markdown link. Code, existing links,
  * URLs and HTML are left exactly as written.
@@ -228,9 +231,57 @@ export const linkJiraKeysInMarkdown = (markdown: string, config: JiraLinkConfig)
   return markdown.replace(
     new RegExp(config.pattern, 'g'),
     (match: string, key: string, index: number) => {
-      const end = index + match.length;
-      if (ranges.some(([start, stop]) => index < stop && end > start)) return match;
+      if (isProtected(ranges, index, index + match.length)) return match;
       return `[${key}](${jiraIssueUrl(config, key)})`;
     },
   );
+};
+
+/** The Jira keys `linkJiraKeysInMarkdown` would link, in order and without repeats. */
+export const findJiraKeysInMarkdown = (markdown: string, config: JiraLinkConfig): string[] => {
+  const ranges = protectedRanges(markdown);
+  return unique(
+    allMatches(markdown, new RegExp(config.pattern, 'g'))
+      .filter(match => !isProtected(ranges, match.index, match.index + match[0].length))
+      .map(match => match[1]),
+  );
+};
+
+export type JiraKeySource = 'branch' | 'merge request title' | 'merge request description';
+
+export interface FoundJiraKey {
+  key: string;
+  source: JiraKeySource;
+}
+
+/** The parts of a merge request that may name a Jira issue. */
+export interface MrWithJiraKeys {
+  title: string;
+  source_branch: string;
+  /** REST returns it on list and detail responses; `RestMr` does not declare it */
+  description?: string | null;
+}
+
+/**
+ * Jira keys in the branch name (the merge request's source branch by default), then the
+ * merge request title, then its description: in order, each once, where it was found first.
+ */
+export const findJiraKeysFor = (
+  config: JiraLinkConfig,
+  { branch, mr }: { branch?: string; mr?: MrWithJiraKeys },
+): FoundJiraKey[] => {
+  const found: FoundJiraKey[] = [];
+  const add = (keys: string[], source: JiraKeySource) =>
+    keys.forEach(key => {
+      if (!found.some(f => f.key === key)) found.push({ key, source });
+    });
+  const branchName = branch ?? mr?.source_branch;
+  if (branchName) add(findJiraKeysInBranch(branchName), 'branch');
+  if (mr) {
+    add(findJiraKeys(mr.title, config), 'merge request title');
+    if (mr.description) {
+      add(findJiraKeysInMarkdown(mr.description, config), 'merge request description');
+    }
+  }
+  return found;
 };

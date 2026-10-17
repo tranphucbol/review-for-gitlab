@@ -46,6 +46,7 @@ interface RestMrUser {
 interface RestMrDetail extends RestMr {
   state: 'opened' | 'closed' | 'locked' | 'merged';
   target_branch: string;
+  description?: string | null;
   /** GitLab 14.0 and later; 13.12 has only `work_in_progress` */
   draft?: boolean;
   work_in_progress: boolean;

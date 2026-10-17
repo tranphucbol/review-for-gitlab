@@ -224,6 +224,12 @@
         "icon": "$(git-pull-request)"
       },
       {
+        "command": "gl.openJiraIssue",
+        "title": "Open Jira Issue",
+        "category": "GitLab",
+        "icon": "$(link-external)"
+      },
+      {
         "command": "gl.openInGitLab",
         "title": "Open in GitLab"
       },
@@ -449,6 +455,10 @@
         },
         {
           "command": "gl.mergeRequestActions",
+          "when": "gitlab:validState"
+        },
+        {
+          "command": "gl.openJiraIssue",
           "when": "gitlab:validState"
         },
         {

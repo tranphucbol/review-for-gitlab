@@ -53,6 +53,7 @@ import { openMrFileSideBySide } from './commands/open_mr_file_side_by_side';
 import { mrDiffPanelController } from './review/side_by_side/mr_diff_panel_controller';
 import { affectsEditorFont } from './review/side_by_side/editor_font';
 import { JIRA_CONFIG_SECTION } from './jira/jira_keys';
+import { openJiraIssue } from './jira/open_jira_issue';
 import {
   MERGE_REQUEST_DIFF_VIEWER,
   SHOW_LOCAL_CHANGE_BUTTONS,
@@ -160,6 +161,7 @@ const registerCommands = (context: vscode.ExtensionContext) => {
     [USER_COMMANDS.CHECKOUT_MR_BRANCH]: checkoutMrBranch,
     [USER_COMMANDS.UPDATE_MR_BRANCH]: updateMrBranch,
     [USER_COMMANDS.MERGE_REQUEST_ACTIONS]: mergeRequestActions,
+    [USER_COMMANDS.OPEN_JIRA_ISSUE]: openJiraIssue,
     [USER_COMMANDS.OPEN_IN_GITLAB]: openInGitLab,
     [USER_COMMANDS.COPY_LINK_TO_CLIPBOARD]: copyLinkToClipboard,
     [USER_COMMANDS.CLONE_WIKI]: cloneWiki,
@@ -275,7 +277,10 @@ export const activate = async (context: vscode.ExtensionContext) => {
       if (e.affectsConfiguration('editor.tokenColorCustomizations'))
         mrDiffPanelController.refreshTokenThemes();
       if (affectsEditorFont(e)) mrDiffPanelController.refreshEditorFonts();
-      if (e.affectsConfiguration(JIRA_CONFIG_SECTION)) mrDiffPanelController.refreshJiraLinks();
+      if (e.affectsConfiguration(JIRA_CONFIG_SECTION)) {
+        mrDiffPanelController.refreshJiraLinks();
+        await currentBranchRefresher.refresh();
+      }
     }),
     vscode.window.onDidChangeActiveColorTheme(() => mrDiffPanelController.refreshTokenThemes()),
   );
