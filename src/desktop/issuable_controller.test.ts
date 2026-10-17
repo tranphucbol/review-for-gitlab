@@ -81,6 +81,27 @@ describe('issuableController', () => {
         config: null,
       });
     });
+
+    it('sends the new settings to every open Overview when they change', async () => {
+      await issuableController.open(mr, '/repo');
+      await issuableController.open(issue, '/repo');
+      jest
+        .mocked(vscode.workspace.getConfiguration)
+        .mockReturnValue(
+          createFakePartial<vscode.WorkspaceConfiguration>({ url: 'https://jira.example' }),
+        );
+      panels.forEach(p => jest.mocked(p.webview.postMessage).mockClear());
+
+      await issuableController.refreshJiraLinks();
+
+      expect(panels).toHaveLength(2);
+      panels.forEach(p =>
+        expect(p.webview.postMessage).toHaveBeenCalledWith({
+          type: 'jiraLinks',
+          config: { issueUrlPrefix: 'https://jira.example/browse/', pattern: expect.any(String) },
+        }),
+      );
+    });
   });
 
   describe('for the merge request actions', () => {

@@ -279,6 +279,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
       if (affectsEditorFont(e)) mrDiffPanelController.refreshEditorFonts();
       if (e.affectsConfiguration(JIRA_CONFIG_SECTION)) {
         mrDiffPanelController.refreshJiraLinks();
+        await issuableController.refreshJiraLinks();
         await currentBranchRefresher.refresh();
       }
     }),
