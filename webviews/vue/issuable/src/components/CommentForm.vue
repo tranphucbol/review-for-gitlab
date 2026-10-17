@@ -24,6 +24,10 @@ export default {
     isThreadReply() {
       return Boolean(this.replyId);
     },
+    submitHint() {
+      const platform = window.navigator.userAgentData?.platform || window.navigator.platform || '';
+      return /mac/i.test(platform) ? '⌘+Enter to comment' : 'Ctrl+Enter to comment';
+    },
   },
   methods: {
     addComment() {
@@ -65,71 +69,104 @@ export default {
 
 <template>
   <div class="main-comment-form" :class="{ 'thread-reply': isThreadReply }">
-    <textarea v-model="note" @keydown="handleKeydown" placeholder="Write a comment..." />
-    <button class="primary js-submit" @click="addComment" :disabled="!canSubmit">
-      {{ buttonTitle }}
-    </button>
-    <button class="secondary js-cancel" v-if="isThreadReply" @click="cancelEdit">Cancel</button>
-    <span v-if="isFailed">Failed to save your comment. Please try again.</span>
+    <textarea
+      v-model="note"
+      @keydown="handleKeydown"
+      placeholder="Write a comment..."
+      aria-label="Comment"
+      :aria-invalid="isFailed ? 'true' : undefined"
+      :class="{ 'is-invalid': isFailed }"
+    />
+    <p v-if="isFailed" class="comment-form__error js-error" role="alert">
+      Failed to save your comment. Please try again.
+    </p>
+    <div class="comment-form__actions">
+      <button class="primary js-submit" @click="addComment" :disabled="!canSubmit">
+        {{ buttonTitle }}
+      </button>
+      <button class="secondary js-cancel" v-if="isThreadReply" @click="cancelEdit">Cancel</button>
+      <span class="comment-form__hint js-hint">{{ submitHint }}</span>
+    </div>
   </div>
 </template>
 
 <style lang="scss">
+@use '../styles/mixins';
+
 .main-comment-form {
-  margin: 20px 0 30px 0;
-  background: var(--vscode-editor-background);
+  margin: var(--gl-space-4) 0 var(--gl-space-6);
+
   &.thread-reply {
-    padding: 30px;
-    margin: 0px;
+    margin: 0;
   }
 
   textarea {
+    display: block;
     width: 100%;
-    min-height: 140px;
-    border-radius: 4px;
-    padding: 16px;
-    font-size: 13px;
+    min-height: 96px;
+    margin: 0;
+    padding: 4px 6px;
     box-sizing: border-box;
-    border: 1px solid var(--vscode-input-border);
-    background-color: var(--vscode-input-background);
-    color: var(--vscode-input-foreground);
+    border: var(--gl-stroke) solid var(--gl-input-border);
+    border-radius: var(--gl-radius-small);
+    background-color: var(--gl-input-bg);
+    color: var(--gl-input-fg);
+    font-family: var(--gl-font-family);
+    font-size: var(--gl-font-size);
+    line-height: 1.4;
     resize: vertical;
-    margin-bottom: 8px;
     outline: 0;
 
+    &::placeholder {
+      color: var(--gl-input-placeholder);
+    }
+
+    // VS Code draws the focused input box with a focus outline over its border
     &:focus {
-      box-shadow: 0 0 0 1px var(--vscode-focusBorder);
+      @include mixins.focus-ring;
+    }
+
+    &.is-invalid {
+      border-color: var(--gl-error-border);
+    }
+
+    &.is-invalid:not(:focus) {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
     }
   }
 
-  button {
-    border: 0;
-    padding: 6px 10px;
-    font-size: 14px;
-    outline: 0;
-    margin-right: 10px;
-    cursor: pointer;
+  .comment-form__error {
+    margin: 0;
+    padding: 4px 8px;
+    border: var(--gl-stroke) solid var(--gl-error-border);
+    border-top: 0;
+    border-radius: 0 0 var(--gl-radius-small) var(--gl-radius-small);
+    background-color: var(--gl-error-bg);
+    color: var(--gl-text);
+    font-size: var(--gl-font-size-small);
+  }
 
-    &.primary {
-      background-color: var(--vscode-button-background);
-      color: var(--vscode-button-foreground);
-      &:hover {
-        background-color: var(--vscode-button-hoverBackground);
-      }
-    }
+  .comment-form__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--gl-space-2);
+    margin-top: var(--gl-space-2);
+  }
 
-    &.secondary {
-      background-color: var(--vscode-button-secondaryBackground);
-      color: var(--vscode-button-secondaryForeground);
-      &:hover {
-        background-color: var(--vscode-button-secondaryHoverBackground);
-      }
-    }
+  .comment-form__hint {
+    margin-left: auto;
+    color: var(--gl-text-muted);
+    font-size: var(--gl-font-size-small);
+  }
 
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+  button.primary {
+    @include mixins.text-button(primary);
+  }
+
+  button.secondary {
+    @include mixins.text-button(secondary);
   }
 }
 </style>

@@ -9,7 +9,7 @@ import { shallowRef } from 'vue';
 const LINK_CLASS = 'gl-jira-link';
 // Weak references to every root `linkJiraKeys` has seen, relinked on a config change.
 const roots = new Set();
-const SKIPPED_ELEMENTS = new Set(['A', 'CODE', 'PRE', 'KBD', 'SCRIPT', 'STYLE', 'TEXTAREA']);
+const SKIPPED_ELEMENTS = new Set(['A', 'CODE', 'PRE', 'KBD', 'SCRIPT', 'STYLE', 'TEXTAREA', 'SVG']);
 
 const toConfig = config => {
   if (!config || typeof config.issueUrlPrefix !== 'string' || typeof config.pattern !== 'string') {

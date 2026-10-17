@@ -38,10 +38,13 @@ export default {
   z-index: 10000;
 
   .tooltip-inner {
-    background: var(--vscode-editorWidget-background);
-    color: var(--vscode-editorWidget-foreground);
-    border-radius: 2px;
-    padding: 5px 10px 4px;
+    background: var(--gl-hover-widget-bg);
+    color: var(--gl-hover-widget-fg);
+    border: var(--gl-stroke) solid var(--gl-hover-widget-border);
+    border-radius: var(--gl-radius-medium);
+    box-shadow: var(--gl-shadow);
+    padding: 4px 8px;
+    font-size: var(--gl-font-size-small);
   }
 
   .tooltip-arrow {
@@ -50,7 +53,7 @@ export default {
     border-style: solid;
     position: absolute;
     margin: 5px;
-    border-color: var(--vscode-editorWidget-background);
+    border-color: var(--gl-hover-widget-border);
     z-index: 1;
   }
 

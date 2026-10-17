@@ -1,6 +1,7 @@
 <script>
 import UserAvatar from './UserAvatar.vue';
 import Date from './Date.vue';
+import CodiconIcon from './CodiconIcon.vue';
 import { SafeHtmlDirective } from '../directives/safe_html/safe_html';
 
 export default {
@@ -13,14 +14,23 @@ export default {
       type: Object,
       required: true,
     },
+    isReply: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   components: {
     UserAvatar,
     Date,
+    CodiconIcon,
   },
   computed: {
     author() {
       return this.noteable.author;
+    },
+    avatarSize() {
+      return this.isReply ? 16 : 20;
     },
   },
   mounted() {
@@ -30,19 +40,18 @@ export default {
     initializeSuggestions() {
       const suggestions = this.$el.querySelectorAll('pre.language-suggestion');
       suggestions.forEach(suggestionEl => {
-        const initializedSuggestionHtml = `
-          <div class="suggestion">
-            <div class="header">
-              <strong>Suggested change:</strong>
-              <emphasis><a href="${this.noteable.url}">open on the web</a></emphasis>
-            </div>
-            ${suggestionEl.outerHTML}
-          </div>
-          `;
-        const initializedSuggestionEl = document.createElement('div');
-        initializedSuggestionEl.innerHTML = initializedSuggestionHtml;
-        suggestionEl.parentNode.insertBefore(initializedSuggestionEl, suggestionEl);
-        suggestionEl.remove();
+        const wrapper = document.createElement('div');
+        wrapper.className = 'suggestion';
+        const header = document.createElement('div');
+        header.className = 'header';
+        const title = document.createElement('strong');
+        title.textContent = 'Suggested change:';
+        const link = document.createElement('a');
+        link.href = this.noteable.url;
+        link.textContent = 'open on the web';
+        header.append(title, ' ', link);
+        suggestionEl.parentNode.insertBefore(wrapper, suggestionEl);
+        wrapper.append(header, suggestionEl);
       });
     },
   },
@@ -51,116 +60,113 @@ export default {
 
 <template>
   <li class="note">
-    <div class="timeline-entry-inner">
-      <div class="timelineIcon">
-        <user-avatar :user="author" :size="40" :show-username="false" />
-      </div>
-      <div class="timelineContent">
-        <div class="note-header">
-          <user-avatar :user="author" :size="40" :show-avatar="false" style="margin-right: 2px" />
-          ·
-          <date :date="noteable.createdAt" style="margin-left: 2px" />
-        </div>
-        <div class="note-body">
-          <div class="body" v-safe-html="noteable.bodyHtml" />
-        </div>
-      </div>
+    <div class="note-header">
+      <user-avatar :user="author" :size="avatarSize" class="note-header__author" />
+      <span class="note-header__separator">·</span>
+      <date :date="noteable.createdAt" class="note-header__date" />
+      <slot name="header" />
+      <a
+        v-if="noteable.url"
+        :href="noteable.url"
+        class="gl-icon-button note-header__open js-open-note"
+        title="Open on GitLab"
+        aria-label="Open on GitLab"
+      >
+        <codicon-icon name="link-external" />
+      </a>
+    </div>
+    <div class="note-body">
+      <div class="body gl-markdown" v-safe-html="noteable.bodyHtml" />
     </div>
   </li>
 </template>
 
 <style lang="scss">
 .note {
-  border: 1px solid;
-  border-radius: 4px;
-  padding: 16px;
-  margin: 16px 0;
-  box-sizing: border-box;
   display: block;
-
-  .timeline-entry-inner {
-    display: flex;
-  }
-
-  .timelineContent {
-    width: 100%;
-  }
+  list-style: none;
+  padding: var(--gl-space-2) var(--gl-space-3);
 
   .note-header {
     display: flex;
-    min-height: 29px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--gl-space-1);
+    min-height: 22px;
+
+    .author span {
+      color: var(--gl-text-muted);
+    }
+
+    &__separator,
+    &__date {
+      color: var(--gl-text-muted);
+    }
+
+    &__open {
+      margin-left: auto;
+      opacity: 0;
+    }
+  }
+
+  &:hover .note-header__open,
+  &:focus-within .note-header__open {
+    opacity: 1;
   }
 
   .note-body {
     display: block;
-  }
+    margin-top: var(--gl-space-1);
+    overflow-wrap: anywhere;
 
-  table:not(.code) {
-    margin: 16px 0;
-    border: 0;
-    width: auto;
-    display: block;
-    overflow-x: auto;
-    border-collapse: collapse;
-  }
+    .body > :first-child {
+      margin-top: 0;
+    }
 
-  table:not(.code) tbody td {
-    border: 1px solid;
-    border-color: var(--vscode-panel-border);
-    border-collapse: collapse;
-    border-image-repeat: stretch;
-    padding-bottom: 10px;
-    padding-left: 16px;
-    padding-right: 16px;
-    padding-top: 10px;
-    text-align: start;
-    text-size-adjust: 100%;
-    vertical-align: middle;
-    box-sizing: border-box;
-  }
-
-  table:not(.code) thead th {
-    border-bottom: 2px solid;
-    border-right: 1px solid;
-    border-left: 1px solid;
-    border-top: 1px solid;
-    border-color: var(--vscode-panel-border);
-    border-collapse: collapse;
-    border-image-repeat: stretch;
-    padding-bottom: 10px;
-    padding-left: 16px;
-    padding-right: 16px;
-    padding-top: 10px;
-    text-align: start;
-    text-size-adjust: 100%;
-    vertical-align: middle;
-    box-sizing: border-box;
+    .body > :last-child {
+      margin-bottom: 0;
+    }
   }
 
   .suggestion {
-    border: 1px solid;
-    border-radius: 4px;
-    border-color: var(--vscode-panel-border);
-    margin-top: 1em;
-    margin-bottom: 1em;
+    border: var(--gl-stroke) solid var(--gl-border);
+    border-radius: var(--gl-radius-medium);
+    margin: var(--gl-space-3) 0;
+    overflow: hidden;
+
     .header {
-      padding: 16px;
-      background-color: var(--vscode-input-background);
       display: flex;
       justify-content: space-between;
+      gap: var(--gl-space-2);
+      padding: var(--gl-space-1) var(--gl-space-2);
+      background-color: var(--gl-surface-sunken);
+      border-bottom: 1px solid var(--gl-border-subtle);
+      font-size: var(--gl-font-size-small);
     }
   }
 
-  pre.language-suggestion {
+  .gl-markdown pre.language-suggestion {
     margin: 0;
-    padding: 16px;
+    padding: var(--gl-space-1) 0;
+    border: none;
+    border-radius: 0;
+    background-color: var(--gl-inserted-bg);
+
     code {
       display: flex;
       flex-direction: column;
-      color: var(--vscode-gitDecoration-addedResourceForeground);
+      padding: 0;
+      background: none;
+      color: var(--gl-inserted-fg);
     }
+
+    .line {
+      padding: 0 var(--gl-space-2);
+    }
+
     .line::before {
       content: '+ ';
+      color: var(--gl-text-muted);
     }
   }
 }
