@@ -1,6 +1,7 @@
 /* Copied from https://gitlab.com/gitlab-org/gitlab-ui/-/blob/main/src/directives/safe_html/safe_html.js */
 import DOMPurify from 'dompurify';
 import { forbiddenDataAttrs } from './constants';
+import { linkJiraKeys } from '../../utils/jira_links'; // fork-only
 
 // Mitigate against future dompurify mXSS bypasses by
 // avoiding additional serialize/parse round trip.
@@ -16,6 +17,7 @@ const transform = (el, binding) => {
     // eslint-disable-next-line no-param-reassign
     el.textContent = '';
     el.appendChild(DOMPurify.sanitize(binding.value, config));
+    linkJiraKeys(el); // fork-only: link Jira issue keys, see utils/jira_links.js
   }
 };
 

@@ -3,6 +3,7 @@ import checkbox from 'markdown-it-checkbox';
 import MarkdownIt from 'markdown-it';
 import UserAvatar from './UserAvatar.vue';
 import Date from './Date.vue';
+import JiraText from './JiraText.vue';
 import { SafeHtmlDirective } from '../directives/safe_html/safe_html';
 
 const md = new MarkdownIt().use(checkbox);
@@ -20,6 +21,7 @@ export default {
   components: {
     UserAvatar,
     Date,
+    JiraText,
   },
   computed: {
     stateText() {
@@ -91,7 +93,7 @@ export default {
       <a :href="issuable.web_url" class="view-link"> Open in GitLab </a>
     </div>
     <div class="title">
-      <h2>{{ issuable.title }}</h2>
+      <h2><jira-text :text="issuable.title" /></h2>
     </div>
     <div class="description" v-safe-html="description" />
   </div>

@@ -8,6 +8,7 @@ import { getAddedLinesForFile } from '../../git/diff_line_count';
 import { getFileContent } from '../../git/get_file_content';
 import { getGitLabService } from '../../gitlab/get_gitlab_service';
 import { gitlabProjectRepository } from '../../gitlab/gitlab_project_repository';
+import { getJiraLinkConfig } from '../../jira/jira_keys';
 import { mrCache } from '../../gitlab/mr_cache';
 import { ProjectInRepository } from '../../gitlab/new_project';
 import { UnsupportedVersionError } from '../../errors/unsupported_version_error';
@@ -472,6 +473,11 @@ export class MrDiffPanel {
     await this.#post({ command: 'editorFont', font: getEditorFont() });
   }
 
+  /** Sends the Jira link settings, so the notes link Jira issue keys. */
+  async refreshJiraLinks(): Promise<void> {
+    await this.#post({ command: 'jiraLinks', config: getJiraLinkConfig() ?? null });
+  }
+
   /** Sends the discussions on this file; a response to an older request is dropped. */
   async refreshDiscussions(): Promise<void> {
     this.#discussionsRequest += 1;
@@ -580,6 +586,7 @@ export class MrDiffPanel {
       case 'appReady':
         await this.refreshEditorFont();
         await this.refreshTokenTheme();
+        await this.refreshJiraLinks();
         await this.#sendFile();
         await Promise.all([this.refreshLocalState(), this.refreshDiscussions()]);
         break;

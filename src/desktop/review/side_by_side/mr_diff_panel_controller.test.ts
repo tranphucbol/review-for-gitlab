@@ -35,9 +35,11 @@ describe('MrDiffPanelController', () => {
 
   const allPostedMessages = () =>
     jest.mocked(panel.webview.postMessage).mock.calls.map(([message]) => message);
-  // the font and syntax colours go first to every webview; most tests are not about them
+  // the font, syntax colours and Jira links go first to every webview; most tests are not about them
   const postedMessages = () =>
-    allPostedMessages().filter(m => m.command !== 'tokenTheme' && m.command !== 'editorFont');
+    allPostedMessages().filter(
+      m => m.command !== 'tokenTheme' && m.command !== 'editorFont' && m.command !== 'jiraLinks',
+    );
 
   beforeEach(() => {
     jest.mocked(vscode.window.createWebviewPanel).mockImplementation(() => {
@@ -141,12 +143,40 @@ describe('MrDiffPanelController', () => {
     await sendToHost({ command: 'appReady' });
 
     expect(allPostedMessages()[1]).toEqual({ command: 'tokenTheme', rules: [] });
-    expect(allPostedMessages()[2]).toMatchObject({ command: 'init' });
+    expect(allPostedMessages()[3]).toMatchObject({ command: 'init' });
 
     controller.refreshTokenThemes();
     await new Promise(process.nextTick);
 
     expect(allPostedMessages().filter(m => m.command === 'tokenTheme')).toHaveLength(2);
+  });
+
+  it('sends the Jira link settings after the theme and before the file, and again on request', async () => {
+    await controller.open(target);
+    await sendToHost({ command: 'appReady' });
+
+    expect(
+      allPostedMessages()
+        .slice(0, 4)
+        .map(m => m.command),
+    ).toEqual(['editorFont', 'tokenTheme', 'jiraLinks', 'init']);
+    expect(allPostedMessages()[2]).toEqual({ command: 'jiraLinks', config: null });
+
+    jest
+      .mocked(vscode.workspace.getConfiguration)
+      .mockReturnValue(
+        createFakePartial<vscode.WorkspaceConfiguration>({ url: 'https://jira.example/' }),
+      );
+    controller.refreshJiraLinks();
+    await new Promise(process.nextTick);
+
+    expect(allPostedMessages().filter(m => m.command === 'jiraLinks')[1]).toEqual({
+      command: 'jiraLinks',
+      config: {
+        issueUrlPrefix: 'https://jira.example/browse/',
+        pattern: expect.any(String),
+      },
+    });
   });
 
   it('sends the editor font settings before the file, and again on request', async () => {

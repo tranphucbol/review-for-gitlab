@@ -9,6 +9,7 @@ import { GitLabService } from './gitlab/gitlab_service';
 import { gitlabProjectRepository } from './gitlab/gitlab_project_repository';
 import { ProjectInRepository } from './gitlab/new_project';
 import { getGitLabService } from './gitlab/get_gitlab_service';
+import { getJiraLinkConfig } from './jira/jira_keys';
 import { WEBVIEW_WORKFLOW } from './constants';
 import { RepositoryRootWebviewProvider } from './commands/run_with_valid_project';
 import { waitForWebview } from '../common/utils/webviews/wait_for_webview';
@@ -48,6 +49,7 @@ async function initPanelIfActive(
     });
 
   await waitPromise;
+  await panel.webview.postMessage({ type: 'jiraLinks', config: getJiraLinkConfig() ?? null });
   await panel.webview.postMessage({
     type: 'issuableFetch',
     issuable,

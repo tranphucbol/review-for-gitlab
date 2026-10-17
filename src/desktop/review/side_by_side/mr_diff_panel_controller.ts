@@ -76,6 +76,11 @@ export class MrDiffPanelController implements RepositoryRootWebviewProvider {
     this.#panels.forEach(p => p.refreshEditorFont().catch(handleError));
   }
 
+  /** Relinks Jira keys in every open view after a `gitlab.jira` setting changes. */
+  refreshJiraLinks(): void {
+    this.#panels.forEach(p => p.refreshJiraLinks().catch(handleError));
+  }
+
   // eslint-disable-next-line class-methods-use-this
   matchesViewType(viewType: string): boolean {
     return viewType === `mainThreadWebview-${WEBVIEW_MR_DIFF}`;

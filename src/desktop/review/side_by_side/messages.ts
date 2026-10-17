@@ -4,6 +4,8 @@
   `requestId` is answered with exactly one `result` message.
 */
 
+import type { JiraLinkConfig } from '../../jira/jira_keys';
+
 export type DiffSide = 'old' | 'new';
 
 export interface DiffFileModel {
@@ -121,6 +123,8 @@ export type ToWebviewMessage =
   | { command: 'editorFont'; font: EditorFont }
   /** the syntax colours of the active VS Code theme, sent before `init` and after a theme change */
   | { command: 'tokenTheme'; rules: TokenRule[] }
+  /** the Jira link settings, sent before `init` and after they change; `null` when off */
+  | { command: 'jiraLinks'; config: JiraLinkConfig | null }
   | {
       command: 'discussions';
       discussions: DiffDiscussionModel[];

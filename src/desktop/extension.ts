@@ -52,6 +52,7 @@ import { openMrFile } from './commands/open_mr_file';
 import { openMrFileSideBySide } from './commands/open_mr_file_side_by_side';
 import { mrDiffPanelController } from './review/side_by_side/mr_diff_panel_controller';
 import { affectsEditorFont } from './review/side_by_side/editor_font';
+import { JIRA_CONFIG_SECTION } from './jira/jira_keys';
 import {
   MERGE_REQUEST_DIFF_VIEWER,
   SHOW_LOCAL_CHANGE_BUTTONS,
@@ -274,6 +275,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
       if (e.affectsConfiguration('editor.tokenColorCustomizations'))
         mrDiffPanelController.refreshTokenThemes();
       if (affectsEditorFont(e)) mrDiffPanelController.refreshEditorFonts();
+      if (e.affectsConfiguration(JIRA_CONFIG_SECTION)) mrDiffPanelController.refreshJiraLinks();
     }),
     vscode.window.onDidChangeActiveColorTheme(() => mrDiffPanelController.refreshTokenThemes()),
   );
