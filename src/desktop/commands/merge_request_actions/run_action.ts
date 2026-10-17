@@ -100,7 +100,7 @@ const withRefusals = async (
 const approve = (target: MrActionTarget, { detail }: MrState) =>
   withRefusals(target, detail, 'approve', async service => {
     await service.approveMr(detail, detail.sha);
-    inform(`Approved ${ref(detail)}`);
+    inform(`Approved ${ref(detail)}.`);
     return true;
   });
 
@@ -111,12 +111,12 @@ const unapprove = (target: MrActionTarget, { detail }: MrState) =>
     'revoke your approval of',
     async service => {
       await service.unapproveMr(detail);
-      inform(`Revoked your approval of ${ref(detail)}`);
+      inform(`Revoked your approval of ${ref(detail)}.`);
       return true;
     },
     async status => {
       if (status !== 404) return undefined;
-      inform(`You had not approved ${ref(detail)}.`);
+      inform(`You hadn't approved ${ref(detail)}.`);
       return true;
     },
   );
@@ -171,8 +171,8 @@ const merge = async (
       await service.mergeMr(detail, { sha: detail.sha, whenPipelineSucceeds, ...options });
       inform(
         whenPipelineSucceeds
-          ? `Merge when pipeline succeeds is set for ${ref(detail)}`
-          : `Merged ${ref(detail)} into ${detail.target_branch}`,
+          ? `Merge when pipeline succeeds is set for ${ref(detail)}.`
+          : `Merged ${ref(detail)} into ${detail.target_branch}.`,
       );
       return true;
     },
@@ -181,7 +181,7 @@ const merge = async (
         const fresh = await service.getMrDetail(detail).catch(() => undefined);
         const reason = fresh && mergeBlocker(fresh);
         const choice = await vscode.window.showWarningMessage(
-          `GitLab will not merge ${ref(detail)} right now${reason ? `: ${reason}.` : '.'}`,
+          `GitLab won't merge ${ref(detail)} right now${reason ? `: ${reason}.` : '.'}`,
           OPEN_IN_GITLAB,
         );
         if (choice === OPEN_IN_GITLAB) await openUrl(detail.web_url);
@@ -219,7 +219,7 @@ const cancelAutoMerge = async (target: MrActionTarget, { detail }: MrState) => {
       );
       return true;
     }
-    inform(`Merge when pipeline succeeds is cancelled for ${ref(detail)}`);
+    inform(`Merge when pipeline succeeds is cancelled for ${ref(detail)}.`);
     return true;
   });
 };
@@ -227,7 +227,7 @@ const cancelAutoMerge = async (target: MrActionTarget, { detail }: MrState) => {
 const setDraft = (target: MrActionTarget, { detail }: MrState, draft: boolean) =>
   withRefusals(target, detail, draft ? 'mark as draft' : 'mark as ready', async service => {
     await service.setMrDraft(detail, draft);
-    inform(`Marked ${ref(detail)} as ${draft ? 'draft' : 'ready'}`);
+    inform(`Marked ${ref(detail)} as ${draft ? 'draft' : 'ready'}.`);
     return true;
   });
 
@@ -240,7 +240,7 @@ const close = async (target: MrActionTarget, { detail }: MrState) => {
   if (!confirmed) return false;
   return withRefusals(target, detail, 'close', async service => {
     await service.updateMr(detail, { state_event: 'close' });
-    inform(`Closed ${ref(detail)}`);
+    inform(`Closed ${ref(detail)}.`);
     return true;
   });
 };
@@ -248,7 +248,7 @@ const close = async (target: MrActionTarget, { detail }: MrState) => {
 const reopen = (target: MrActionTarget, { detail }: MrState) =>
   withRefusals(target, detail, 'reopen', async service => {
     await service.updateMr(detail, { state_event: 'reopen' });
-    inform(`Reopened ${ref(detail)}`);
+    inform(`Reopened ${ref(detail)}.`);
     return true;
   });
 
@@ -281,8 +281,8 @@ const editPeople = async (
     const people = updated[role] ?? [];
     inform(
       people.length
-        ? `${noun} of ${ref(detail)}: ${names(people)}`
-        : `${ref(detail)} has no ${role} now`,
+        ? `${noun} of ${ref(detail)}: ${names(people)}.`
+        : `${ref(detail)} has no ${role} now.`,
     );
     return true;
   });
@@ -298,8 +298,8 @@ const editLabels = async (target: MrActionTarget, { detail }: MrState) => {
     const updated = await service.updateMr(detail, update);
     inform(
       updated.labels.length
-        ? `Labels of ${ref(detail)}: ${updated.labels.join(', ')}`
-        : `${ref(detail)} has no labels now`,
+        ? `Labels of ${ref(detail)}: ${updated.labels.join(', ')}.`
+        : `${ref(detail)} has no labels now.`,
     );
     return true;
   });

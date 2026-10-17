@@ -60,7 +60,7 @@ describe('runAction', () => {
       await expect(runAction('approve', target, state)).resolves.toBe(true);
 
       expect(service.approveMr).toHaveBeenCalledWith(state.detail, state.detail.sha);
-      expect(vscode.window.showInformationMessage).toHaveBeenCalledWith('Approved !42');
+      expect(vscode.window.showInformationMessage).toHaveBeenCalledWith('Approved !42.');
     });
 
     it('finishes without waiting for the message to be dismissed', async () => {
@@ -119,9 +119,7 @@ describe('runAction', () => {
 
       await expect(runAction('unapprove', target, state)).resolves.toBe(true);
 
-      expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
-        'You had not approved !42.',
-      );
+      expect(vscode.window.showInformationMessage).toHaveBeenCalledWith("You hadn't approved !42.");
     });
   });
 
@@ -163,7 +161,7 @@ describe('runAction', () => {
         shouldRemoveSourceBranch: true,
         whenPipelineSucceeds: false,
       });
-      expect(vscode.window.showInformationMessage).toHaveBeenCalledWith('Merged !42 into main');
+      expect(vscode.window.showInformationMessage).toHaveBeenCalledWith('Merged !42 into main.');
     });
 
     it('sets merge when pipeline succeeds', async () => {
@@ -176,7 +174,7 @@ describe('runAction', () => {
         expect.objectContaining({ whenPipelineSucceeds: true }),
       );
       expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
-        'Merge when pipeline succeeds is set for !42',
+        'Merge when pipeline succeeds is set for !42.',
       );
     });
 
@@ -201,7 +199,7 @@ describe('runAction', () => {
       await expect(runAction('merge', target, state)).resolves.toBe(true);
 
       expect(vscode.window.showWarningMessage).toHaveBeenCalledWith(
-        'GitLab will not merge !42 right now: It is a draft — mark it as ready first.',
+        "GitLab won't merge !42 right now: It is a draft — mark it as ready first.",
         OPEN_IN_GITLAB,
       );
     });
@@ -250,7 +248,7 @@ describe('runAction', () => {
 
       expect(service.cancelAutoMerge).toHaveBeenCalledWith(state.detail);
       expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
-        'Merge when pipeline succeeds is cancelled for !42',
+        'Merge when pipeline succeeds is cancelled for !42.',
       );
     });
 
@@ -326,7 +324,7 @@ describe('runAction', () => {
       expect(pickUsers).toHaveBeenCalledWith(service, state.detail, 'Reviewers of !42', [ann]);
       expect(service.updateMr).toHaveBeenCalledWith(state.detail, { reviewer_ids: [7, 8] });
       expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
-        'Reviewers of !42: Ann, Bob',
+        'Reviewers of !42: Ann, Bob.',
       );
     });
 
@@ -338,7 +336,9 @@ describe('runAction', () => {
       await runAction('editAssignees', target, state);
 
       expect(service.updateMr).toHaveBeenCalledWith(state.detail, { assignee_ids: [] });
-      expect(vscode.window.showInformationMessage).toHaveBeenCalledWith('!42 has no assignees now');
+      expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
+        '!42 has no assignees now.',
+      );
     });
 
     it.each`
@@ -379,7 +379,7 @@ describe('runAction', () => {
         remove_labels: ['backend'],
       });
       expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
-        'Labels of !42: bug, urgent',
+        'Labels of !42: bug, urgent.',
       );
     });
 
