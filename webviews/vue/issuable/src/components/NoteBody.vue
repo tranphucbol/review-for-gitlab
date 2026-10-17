@@ -21,13 +21,24 @@ export default {
       return this.note.markdownRenderedOnServer ? this.note.body : md.render(this.note.body);
     },
   },
+  watch: {
+    // a reload replaces the note, and the new one is not rendered on the server yet
+    note() {
+      this.renderOnServer();
+    },
+  },
   mounted() {
-    window.vsCodeApi.postMessage({
-      command: 'renderMarkdown',
-      markdown: this.note.body,
-      object: 'note',
-      ref: this.note.id,
-    });
+    this.renderOnServer();
+  },
+  methods: {
+    renderOnServer() {
+      window.vsCodeApi.postMessage({
+        command: 'renderMarkdown',
+        markdown: this.note.body,
+        object: 'note',
+        ref: this.note.id,
+      });
+    },
   },
   created() {
     window.addEventListener('message', event => {
