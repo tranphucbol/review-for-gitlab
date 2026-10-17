@@ -572,6 +572,15 @@
           "when": "view =~ /issuesAndMrs/ && viewItem =~ /mr-item-from-same-project/"
         },
         {
+          "command": "gl.mergeRequestActions",
+          "when": "view =~ /issuesAndMrs/ && viewItem =~ /mr-item-from-/",
+          "group": "inline"
+        },
+        {
+          "command": "gl.mergeRequestActions",
+          "when": "view =~ /issuesAndMrs/ && viewItem =~ /mr-item-from-/"
+        },
+        {
           "command": "gl.openInGitLab",
           "when": "viewItem =~ /web-openable/"
         },
@@ -694,6 +703,16 @@
           "command": "gl.openMrFileSideBySide",
           "when": "resourceScheme == 'gl-review' && resourceFilename != '' && isInDiffEditor",
           "group": "navigation@-98"
+        },
+        {
+          "command": "gl.mergeRequestActions",
+          "when": "resourceScheme == 'gl-review' && isInDiffEditor",
+          "group": "navigation@-97"
+        },
+        {
+          "command": "gl.mergeRequestActions",
+          "when": "activeWebviewPanelId == 'gitlab.mergeRequestDiff'",
+          "group": "navigation@-99"
         },
         {
           "command": "gl.showMergedCIConfig",

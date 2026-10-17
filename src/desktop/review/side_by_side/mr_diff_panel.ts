@@ -167,6 +167,11 @@ export class MrDiffPanel {
     this.#watchLocalFile();
   }
 
+  /** The merge request, version and file the view shows. */
+  get target(): MrDiffTarget {
+    return this.#target;
+  }
+
   dispose(): void {
     this.#disposed = true;
     if (this.#localStateTimer) clearTimeout(this.#localStateTimer);
@@ -219,7 +224,7 @@ export class MrDiffPanel {
   }
 
   /** Shows the latest version of the merge request, or refreshes the discussions if it is shown. */
-  async #refresh(): Promise<void> {
+  async refresh(): Promise<void> {
     let newer: MrDiffTarget | undefined;
     try {
       newer = await this.#newerTarget();
@@ -579,7 +584,7 @@ export class MrDiffPanel {
         await Promise.all([this.refreshLocalState(), this.refreshDiscussions()]);
         break;
       case 'refresh':
-        await this.#refresh();
+        await this.refresh();
         break;
       case 'setAligned':
         await this.#preferences.update(ALIGNED_KEY, message.aligned);

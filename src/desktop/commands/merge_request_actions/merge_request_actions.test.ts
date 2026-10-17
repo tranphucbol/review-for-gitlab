@@ -8,9 +8,10 @@ import { getTrackingBranchName } from '../../git/get_tracking_branch_name';
 import { issuableDataProvider } from '../../tree_view/issuable_data_provider';
 import { currentBranchRefresher } from '../../current_branch_refresher';
 import { toReviewUri } from '../../review/review_uri';
+import { mrDiffPanelController } from '../../review/side_by_side/mr_diff_panel_controller';
 import { createFakePartial } from '../../../common/test_utils/create_fake_partial';
 import { asMock } from '../../test_utils/as_mock';
-import { mr, mrVersion } from '../../test_utils/entities';
+import { diffFile, mr, mrVersion } from '../../test_utils/entities';
 import { getActiveProjectOrSelectOne } from '../run_with_valid_project';
 import { mergeRequestActions } from './merge_request_actions';
 import { runAction } from './run_action';
@@ -21,6 +22,7 @@ jest.mock('../../gitlab/gitlab_project_repository');
 jest.mock('../../git/get_tracking_branch_name');
 jest.mock('../../tree_view/issuable_data_provider');
 jest.mock('../../current_branch_refresher');
+jest.mock('../../review/side_by_side/mr_diff_panel_controller');
 jest.mock('../run_with_valid_project');
 jest.mock('./run_action');
 
@@ -51,6 +53,7 @@ describe('mergeRequestActions', () => {
     });
     asMock(getGitLabService).mockReturnValue(service);
     asMock(runAction).mockResolvedValue(true);
+    asMock(mrDiffPanelController.activeTarget).mockReturnValue(undefined);
   });
 
   describe('resolving the merge request', () => {
@@ -84,6 +87,22 @@ describe('mergeRequestActions', () => {
       beforeEach(() => {
         asMock(getActiveProjectOrSelectOne).mockResolvedValue(projectInRepository);
         asMock(getTrackingBranchName).mockResolvedValue('feature-a');
+      });
+
+      it('uses the merge request of the active side-by-side diff', async () => {
+        asMock(gitlabProjectRepository.getProjectOrFail).mockReturnValue(projectInRepository);
+        asMock(mrDiffPanelController.activeTarget).mockReturnValue({
+          mr,
+          mrVersion,
+          file: diffFile,
+          repositoryRoot: '/repo',
+        });
+
+        await mergeRequestActions();
+
+        expect(gitlabProjectRepository.getProjectOrFail).toHaveBeenCalledWith('/repo');
+        expect(service.fetchFromApi).not.toHaveBeenCalled();
+        expect(service.getMrDetail).toHaveBeenCalledWith(mr);
       });
 
       it('uses the open merge request of the current branch', async () => {
@@ -139,6 +158,7 @@ describe('mergeRequestActions', () => {
     expect(runAction).toHaveBeenCalledWith('approve', item, { detail, approvals });
     expect(issuableDataProvider.refresh).toHaveBeenCalled();
     expect(currentBranchRefresher.refresh).toHaveBeenCalled();
+    expect(mrDiffPanelController.refreshPanelsFor).toHaveBeenCalledWith(mr);
   });
 
   it('does not refresh when the action changed nothing', async () => {
