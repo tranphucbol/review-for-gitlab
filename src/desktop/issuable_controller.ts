@@ -36,8 +36,17 @@ const updateOverviewContext = async (panel: IssuableWebviewPanel) => {
   );
 };
 
+// fork-only: a list item lacks `head_pipeline`, which the Overview sidebar shows
+const getMrDetailOrItself = (issuable: RestIssuable, gitlabService: GitLabService) =>
+  isMr(issuable)
+    ? gitlabService.getMrDetail(issuable).catch(e => {
+        log.warn('Failed to load the merge request details for the Overview.', e);
+        return issuable;
+      })
+    : Promise.resolve(issuable);
+
 async function initPanelIfActive(
-  panel: vscode.WebviewPanel,
+  panel: IssuableWebviewPanel,
   issuable: RestIssuable,
   gitlabService: GitLabService,
 ) {
@@ -45,18 +54,21 @@ async function initPanelIfActive(
 
   const waitPromise = waitForWebview(panel.webview);
 
-  const discussionsAndLabels = await gitlabService
-    .getDiscussionsAndLabelEvents(issuable)
-    .catch(e => {
+  const [details, discussionsAndLabels] = await Promise.all([
+    getMrDetailOrItself(issuable, gitlabService),
+    gitlabService.getDiscussionsAndLabelEvents(issuable).catch(e => {
       handleError(e);
       return [];
-    });
+    }),
+  ]);
+  // eslint-disable-next-line no-param-reassign
+  panel.issuable = details;
 
   await waitPromise;
   await postJiraLinks(panel);
   await panel.webview.postMessage({
     type: 'issuableFetch',
-    issuable,
+    issuable: details,
     discussions: discussionsAndLabels,
   });
 }
@@ -87,7 +99,7 @@ class IssuableController implements RepositoryRootWebviewProvider {
   // eslint-disable-next-line class-methods-use-this
   private createMessageHandler =
     (
-      panel: vscode.WebviewPanel,
+      panel: IssuableWebviewPanel,
       issuable: RestIssuable,
       projectInRepository: ProjectInRepository,
     ) =>
@@ -116,7 +128,7 @@ class IssuableController implements RepositoryRootWebviewProvider {
           const discussionsAndLabels = await gitlabService.getDiscussionsAndLabelEvents(issuable);
           await panel.webview.postMessage({
             type: 'issuableFetch',
-            issuable,
+            issuable: panel.issuable ?? issuable,
             discussions: discussionsAndLabels,
           });
           await panel.webview.postMessage({ type: 'noteSaved' });

@@ -104,6 +104,43 @@ describe('issuableController', () => {
     });
   });
 
+  describe('opening an Overview', () => {
+    it('sends the merge request details, which carry the head pipeline', async () => {
+      const detail = { ...mr, head_pipeline: { id: 7, status: 'success', web_url: 'p' } };
+      jest.mocked(gitlabService.getMrDetail).mockResolvedValue(detail as RestMrDetail);
+
+      await issuableController.open(mr, '/repo');
+
+      expect(gitlabService.getMrDetail).toHaveBeenCalledWith(mr);
+      expect(panels[0].webview.postMessage).toHaveBeenCalledWith({
+        type: 'issuableFetch',
+        issuable: detail,
+        discussions: [],
+      });
+    });
+
+    it('falls back to the list item when the details fail to load', async () => {
+      jest.mocked(gitlabService.getMrDetail).mockRejectedValue(new Error('boom'));
+
+      await issuableController.open(mr, '/repo');
+
+      expect(panels[0].webview.postMessage).toHaveBeenCalledWith({
+        type: 'issuableFetch',
+        issuable: mr,
+        discussions: [],
+      });
+    });
+
+    it('does not load merge request details for an issue', async () => {
+      await issuableController.open(issue, '/repo');
+
+      expect(gitlabService.getMrDetail).not.toHaveBeenCalled();
+      expect(panels[0].webview.postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'issuableFetch', issuable: issue }),
+      );
+    });
+  });
+
   describe('for the merge request actions', () => {
     it('marks an active merge request Overview so it shows the actions button', async () => {
       await issuableController.open(mr, '/repo');
@@ -128,7 +165,10 @@ describe('issuableController', () => {
     it('returns the merge request of the active Overview', async () => {
       await issuableController.open(mr, '/repo');
 
-      expect(issuableController.activeMergeRequest()).toEqual({ mr, repositoryRoot: '/repo' });
+      expect(issuableController.activeMergeRequest()).toEqual({
+        mr: { ...mr, state: 'merged' },
+        repositoryRoot: '/repo',
+      });
     });
 
     it('returns nothing for an issue or an inactive Overview', async () => {
@@ -145,6 +185,7 @@ describe('issuableController', () => {
       await issuableController.open(mr, '/repo');
       await issuableController.open(issue, '/repo');
       jest.mocked(panels[0].webview.postMessage).mockClear();
+      jest.mocked(gitlabService.getMrDetail).mockClear();
 
       await issuableController.refreshMergeRequest(mr);
 
