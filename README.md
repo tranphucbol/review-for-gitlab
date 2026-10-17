@@ -109,6 +109,7 @@ You can use [Command Palette](https://code.visualstudio.com/docs/getstarted/user
 - `GitLab: Validate GitLab CI/CD Config` - Validate GitLab CI/CD configuration file `.gitlab-ci.yml`. [Read more](#validate-gitlab-cicd-configuration).
 - `GitLab: Show Merged GitLab CI/CD Config` - Show a preview of the GitLab CI/CD configuration file `.gitlab-ci.yml` with all includes resolved. [Read more](#show-merged-gitlab-cicd-configuration).
 - `GitLab: Open Merge Request for Current Branch`
+- `GitLab: Open Jira Issue` - Open the Jira issue named in the current branch or its merge request. [Read more](#jira-links).
 - `GitLab: Show Issues Assigned to Me` - Open issues assigned to you on GitLab.
 - `GitLab: Show Merge Requests Assigned to Me` - Open MRs assigned to you on GitLab.
 - `GitLab: Open Current Project on GitLab`
@@ -208,6 +209,37 @@ From the diff, you can:
 - Review and create discussions.
 - Resolve and unresolve these discussions.
 - Delete and edit individual comments.
+
+### Jira links
+
+Set **`gitlab.jira.url`** to the base URL of your Jira, for example
+`https://jira.example.com/`, and Jira issue keys such as `PC-1234` become links
+to `<url>/browse/PC-1234`. The extension never calls Jira; it only builds the
+links. With the setting empty, nothing changes.
+
+Keys are linked in:
+
+- review comments in the diff, as they are displayed; the comment GitLab stores
+  is not changed, and editing it shows what you wrote
+- the merge request or issue title, description and comments in the Overview
+- notes and comment previews in the side-by-side diff
+
+Keys inside code, code blocks and existing links are left alone. Where GitLab's
+own Jira integration has already linked a key, its link is kept.
+
+To open the issue:
+
+- run `GitLab: Open Jira Issue`. It looks for keys in the current branch name,
+  then the title and description of the branch's open merge request, and opens
+  the only key it finds or lets you pick one
+- select a `Jira: PC-1234` item under the merge request in the current branch view
+- pick `Open PC-1234 in Jira` in `GitLab: Merge Request Actions…`
+
+**`gitlab.jira.projectKeys`** _(default: [])_ limits linking to the listed
+projects, for example `["PC", "PE"]`, and lets lowercase keys in branch names
+such as `feature/pc-12-login` match. **`gitlab.jira.ignoredProjectKeys`**
+lists prefixes that look like keys but are not, such as `SHA-256` or `UTF-8`;
+it is ignored when `gitlab.jira.projectKeys` is set.
 
 ### Sidebar: details
 
