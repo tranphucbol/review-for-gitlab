@@ -3,6 +3,7 @@ import { getGitLabService } from '../../gitlab/get_gitlab_service';
 import { GitLabService } from '../../gitlab/gitlab_service';
 import { ProjectInRepository } from '../../gitlab/new_project';
 import { FetchError } from '../../errors/fetch_error';
+import { handleError } from '../../../common/errors/handle_error';
 import { openUrl } from '../openers';
 import { MrActionId, mergeBlocker } from './available_actions';
 import { diffLabels, haveSameMembers, pickLabels, pickUsers } from './edit_people_and_labels';
@@ -29,6 +30,15 @@ const ref = (detail: RestMrDetail) => `!${detail.iid}`;
 const statusOf = (e: unknown): number | undefined =>
   e instanceof FetchError ? e.status : undefined;
 
+// Not awaited: a message without buttons settles only when it is dismissed,
+// and the views should refresh as soon as the action is done.
+const inform = (message: string) => {
+  vscode.window.showInformationMessage(message).then(undefined, handleError);
+};
+const warn = (message: string) => {
+  vscode.window.showWarningMessage(message).then(undefined, handleError);
+};
+
 const confirm = async (message: string, detail: string, action: string): Promise<boolean> =>
   (await vscode.window.showWarningMessage(message, { modal: true, detail }, action)) === action;
 
@@ -51,17 +61,15 @@ const explainRefusal = async (
     } catch {
       return undefined;
     }
-    await vscode.window.showWarningMessage(`You are not allowed to ${verb} ${ref(detail)}.`);
+    warn(`You are not allowed to ${verb} ${ref(detail)}.`);
     return true;
   }
   if (status === 403) {
-    await vscode.window.showWarningMessage(`You are not allowed to ${verb} ${ref(detail)}.`);
+    warn(`You are not allowed to ${verb} ${ref(detail)}.`);
     return true;
   }
   if (status === 409) {
-    await vscode.window.showWarningMessage(
-      `New commits were pushed to ${ref(detail)}. Review them, then try again.`,
-    );
+    warn(`New commits were pushed to ${ref(detail)}. Review them, then try again.`);
     return true;
   }
   return undefined;
@@ -92,7 +100,7 @@ const withRefusals = async (
 const approve = (target: MrActionTarget, { detail }: MrState) =>
   withRefusals(target, detail, 'approve', async service => {
     await service.approveMr(detail, detail.sha);
-    await vscode.window.showInformationMessage(`Approved ${ref(detail)}`);
+    inform(`Approved ${ref(detail)}`);
     return true;
   });
 
@@ -103,12 +111,12 @@ const unapprove = (target: MrActionTarget, { detail }: MrState) =>
     'revoke your approval of',
     async service => {
       await service.unapproveMr(detail);
-      await vscode.window.showInformationMessage(`Revoked your approval of ${ref(detail)}`);
+      inform(`Revoked your approval of ${ref(detail)}`);
       return true;
     },
     async status => {
       if (status !== 404) return undefined;
-      await vscode.window.showInformationMessage(`You had not approved ${ref(detail)}.`);
+      inform(`You had not approved ${ref(detail)}.`);
       return true;
     },
   );
@@ -160,7 +168,7 @@ const merge = async (
     'merge',
     async service => {
       await service.mergeMr(detail, { sha: detail.sha, whenPipelineSucceeds, ...options });
-      await vscode.window.showInformationMessage(
+      inform(
         whenPipelineSucceeds
           ? `Merge when pipeline succeeds is set for ${ref(detail)}`
           : `Merged ${ref(detail)} into ${detail.target_branch}`,
@@ -171,9 +179,7 @@ const merge = async (
       if (status === 405) {
         const fresh = await service.getMrDetail(detail).catch(() => undefined);
         const reason = fresh && mergeBlocker(fresh);
-        await vscode.window.showWarningMessage(
-          `GitLab will not merge ${ref(detail)} right now${reason ? `: ${reason}.` : '.'}`,
-        );
+        warn(`GitLab will not merge ${ref(detail)} right now${reason ? `: ${reason}.` : '.'}`);
         return true;
       }
       if (status === 406) {
@@ -201,16 +207,14 @@ const cancelAutoMerge = async (target: MrActionTarget, { detail }: MrState) => {
     const result = await service.cancelAutoMerge(detail);
     // 13.12 answers 201 even when there was nothing to cancel, with `status: 'error'`
     if (result.status === 'error') {
-      await vscode.window.showWarningMessage(
+      warn(
         `${ref(detail)} has no automatic merge to cancel${
           result.message ? ` (GitLab: ${result.message})` : ''
         }.`,
       );
       return true;
     }
-    await vscode.window.showInformationMessage(
-      `Merge when pipeline succeeds is cancelled for ${ref(detail)}`,
-    );
+    inform(`Merge when pipeline succeeds is cancelled for ${ref(detail)}`);
     return true;
   });
 };
@@ -218,9 +222,7 @@ const cancelAutoMerge = async (target: MrActionTarget, { detail }: MrState) => {
 const setDraft = (target: MrActionTarget, { detail }: MrState, draft: boolean) =>
   withRefusals(target, detail, draft ? 'mark as draft' : 'mark as ready', async service => {
     await service.setMrDraft(detail, draft);
-    await vscode.window.showInformationMessage(
-      `Marked ${ref(detail)} as ${draft ? 'draft' : 'ready'}`,
-    );
+    inform(`Marked ${ref(detail)} as ${draft ? 'draft' : 'ready'}`);
     return true;
   });
 
@@ -233,7 +235,7 @@ const close = async (target: MrActionTarget, { detail }: MrState) => {
   if (!confirmed) return false;
   return withRefusals(target, detail, 'close', async service => {
     await service.updateMr(detail, { state_event: 'close' });
-    await vscode.window.showInformationMessage(`Closed ${ref(detail)}`);
+    inform(`Closed ${ref(detail)}`);
     return true;
   });
 };
@@ -241,7 +243,7 @@ const close = async (target: MrActionTarget, { detail }: MrState) => {
 const reopen = (target: MrActionTarget, { detail }: MrState) =>
   withRefusals(target, detail, 'reopen', async service => {
     await service.updateMr(detail, { state_event: 'reopen' });
-    await vscode.window.showInformationMessage(`Reopened ${ref(detail)}`);
+    inform(`Reopened ${ref(detail)}`);
     return true;
   });
 
@@ -272,7 +274,7 @@ const editPeople = async (
     // the full new list: 13.12 has no add/remove for people
     const updated = await service.updateMr(detail, { [field]: ids });
     const people = updated[role] ?? [];
-    await vscode.window.showInformationMessage(
+    inform(
       people.length
         ? `${noun} of ${ref(detail)}: ${names(people)}`
         : `${ref(detail)} has no ${role} now`,
@@ -289,7 +291,7 @@ const editLabels = async (target: MrActionTarget, { detail }: MrState) => {
 
   return withRefusals(target, detail, 'change the labels of', async service => {
     const updated = await service.updateMr(detail, update);
-    await vscode.window.showInformationMessage(
+    inform(
       updated.labels.length
         ? `Labels of ${ref(detail)}: ${updated.labels.join(', ')}`
         : `${ref(detail)} has no labels now`,

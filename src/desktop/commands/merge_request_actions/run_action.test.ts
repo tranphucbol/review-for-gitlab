@@ -46,6 +46,8 @@ describe('runAction', () => {
       updateMr: jest.fn().mockResolvedValue(state.detail),
     });
     asMock(getGitLabService).mockReturnValue(service);
+    asMock(vscode.window.showInformationMessage).mockResolvedValue(undefined);
+    asMock(vscode.window.showWarningMessage).mockResolvedValue(undefined);
   });
 
   const confirmWith = (answer: string | undefined) =>
@@ -59,6 +61,12 @@ describe('runAction', () => {
 
       expect(service.approveMr).toHaveBeenCalledWith(state.detail, state.detail.sha);
       expect(vscode.window.showInformationMessage).toHaveBeenCalledWith('Approved !42');
+    });
+
+    it('finishes without waiting for the message to be dismissed', async () => {
+      asMock(vscode.window.showInformationMessage).mockReturnValue(new Promise(() => {}));
+
+      await expect(runAction('approve', target, state)).resolves.toBe(true);
     });
 
     it('reports a refusal when a 401 is followed by a successful read', async () => {
