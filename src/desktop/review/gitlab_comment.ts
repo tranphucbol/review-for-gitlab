@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { SYNCED_COMMENT_CONTEXT } from '../constants';
 import { GqlTextDiffNote } from '../gitlab/graphql/shared';
+import { getJiraLinkConfig, linkJiraKeysInMarkdown } from '../jira/jira_keys';
 import { makeMarkdownLinksAbsolute } from '../utils/make_markdown_links_absolute';
 // FIXME: Remove this cyclic dependency
 import { GitLabCommentThread } from './gitlab_comment_thread'; // eslint-disable-line import/no-cycle
@@ -82,8 +83,10 @@ export class GitLabComment implements vscode.Comment {
 
   renderBody(): GitLabComment {
     const { body, url } = this.gqlNote;
+    const rendered = renderUploadLinks(renderSuggestions(body, url), url);
+    const jira = getJiraLinkConfig(); // fork-only: link Jira keys in the rendered body
     return this.copyWith({
-      body: new vscode.MarkdownString(renderUploadLinks(renderSuggestions(body, url), url)),
+      body: new vscode.MarkdownString(jira ? linkJiraKeysInMarkdown(rendered, jira) : rendered),
     });
   }
 
