@@ -209,6 +209,7 @@ describe('jiraActions', () => {
     expect(actions[0]).toEqual({
       id: 'openJiraIssue',
       label: 'Open PC-1 in Jira',
+      description: 'from merge request title',
       icon: 'link-external',
       jiraKey: 'PC-1',
     });

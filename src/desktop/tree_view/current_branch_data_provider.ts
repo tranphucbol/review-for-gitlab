@@ -22,9 +22,12 @@ import { onSidebarViewStateChange } from './sidebar_view_state';
 import { DetachedHeadError } from '../errors/detached_head_error';
 import { USER_COMMANDS } from '../command_names';
 import { getTrackingBranchName } from '../git/get_tracking_branch_name';
-import { findJiraKeysFor, getJiraLinkConfig } from '../jira/jira_keys';
-
-const MAX_JIRA_ITEMS = 3;
+import {
+  MAX_JIRA_ITEMS,
+  findJiraKeysFor,
+  getJiraLinkConfig,
+  jiraItemText,
+} from '../jira/jira_keys';
 
 export class CurrentBranchDataProvider
   implements vscode.TreeDataProvider<ItemModel | vscode.TreeItem>
@@ -99,14 +102,15 @@ export class CurrentBranchDataProvider
       (await getTrackingBranchName(state.projectInRepository.pointer.repository.rawRepository));
     return findJiraKeysFor(config, { branch, mr: state.mr })
       .slice(0, MAX_JIRA_ITEMS)
-      .map(({ key, source }) => {
-        const item = new vscode.TreeItem(`Jira: ${key}`);
+      .map(found => {
+        const { label, description } = jiraItemText(found);
+        const item = new vscode.TreeItem(label);
+        item.description = description;
         item.iconPath = new vscode.ThemeIcon('link-external');
-        item.tooltip = `Open ${key} in Jira (from ${source})`;
         item.command = {
           command: USER_COMMANDS.OPEN_JIRA_ISSUE,
           title: 'Open Jira Issue',
-          arguments: [key],
+          arguments: [found.key],
         };
         return item;
       });

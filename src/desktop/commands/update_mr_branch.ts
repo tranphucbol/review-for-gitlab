@@ -106,7 +106,8 @@ export const updateMrBranch = async (mrItemModel: MrItemModel): Promise<void> =>
 
     if (localSha && mergeBase === remoteSha) {
       await checkout(rawRepository, branch);
-      await vscode.window.showInformationMessage(
+      // local-only commits stay on the checked-out branch: a warning, as when it has diverged
+      await vscode.window.showWarningMessage(
         `Branch ${branch} has local commits that are not on ${remoteRef}, there is nothing to update. Push them to share them.`,
       );
       return;

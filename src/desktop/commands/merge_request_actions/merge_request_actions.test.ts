@@ -202,13 +202,24 @@ describe('mergeRequestActions', () => {
     expect(issuableDataProvider.refresh).not.toHaveBeenCalled();
   });
 
-  it('does nothing when an unavailable action is picked', async () => {
+  it('says why when an unavailable action is picked', async () => {
     asMock(service.getMrApprovals).mockResolvedValue(createApprovals({ user_can_approve: false }));
     pick('Approve');
 
     await mergeRequestActions(item);
 
     expect(runAction).not.toHaveBeenCalled();
+    expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
+      "Approve isn't available for !42. You are not allowed to approve it.",
+    );
+  });
+
+  it('keeps the pick open when focus moves away', async () => {
+    await mergeRequestActions(item);
+
+    expect(asMock(vscode.window.showQuickPick).mock.calls[0][1]).toEqual(
+      expect.objectContaining({ placeHolder: 'Select an action', ignoreFocusOut: true }),
+    );
   });
 
   it('reloads and shows the pick again on refresh', async () => {
@@ -244,6 +255,11 @@ describe('mergeRequestActions', () => {
         '$(close) Close merge request',
         '$(link-external) Open PE-3 in Jira',
         '$(link-external) Open PC-12 in Jira',
+      ]);
+      const items = asMock(vscode.window.showQuickPick).mock.calls[0][0] as vscode.QuickPickItem[];
+      expect(items.slice(-2).map(i => i.description)).toEqual([
+        'from branch',
+        'from merge request title',
       ]);
     });
 

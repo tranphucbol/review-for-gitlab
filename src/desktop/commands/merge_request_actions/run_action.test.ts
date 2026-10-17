@@ -202,6 +202,7 @@ describe('runAction', () => {
 
       expect(vscode.window.showWarningMessage).toHaveBeenCalledWith(
         'GitLab will not merge !42 right now: It is a draft — mark it as ready first.',
+        OPEN_IN_GITLAB,
       );
     });
 

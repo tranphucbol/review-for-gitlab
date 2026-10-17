@@ -131,7 +131,8 @@ const pickMergeOptions = async (
   const picked = await vscode.window.showQuickPick(items, {
     canPickMany: true,
     title: `Merge ${ref(detail)}`,
-    placeHolder: 'Choose merge options, then press Enter',
+    placeHolder: 'Select merge options, then press Enter',
+    ignoreFocusOut: true,
   });
   if (!picked) return undefined;
   const labels = picked.map(i => i.label);
@@ -179,7 +180,11 @@ const merge = async (
       if (status === 405) {
         const fresh = await service.getMrDetail(detail).catch(() => undefined);
         const reason = fresh && mergeBlocker(fresh);
-        warn(`GitLab will not merge ${ref(detail)} right now${reason ? `: ${reason}.` : '.'}`);
+        const choice = await vscode.window.showWarningMessage(
+          `GitLab will not merge ${ref(detail)} right now${reason ? `: ${reason}.` : '.'}`,
+          OPEN_IN_GITLAB,
+        );
+        if (choice === OPEN_IN_GITLAB) await openUrl(detail.web_url);
         return true;
       }
       if (status === 406) {

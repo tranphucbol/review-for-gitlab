@@ -173,7 +173,9 @@ describe('update MR branch', () => {
 
     await updateMrBranch(mrItemModel);
 
-    expect(vscode.window.showWarningMessage).not.toHaveBeenCalled();
+    expect(vscode.window.showWarningMessage).toHaveBeenCalledWith(
+      'Branch feature-a has local commits that are not on origin/feature-a, there is nothing to update. Push them to share them.',
+    );
     expect(rawRepository.deleteBranch).not.toHaveBeenCalled();
     expect(checkout).toHaveBeenCalledWith(rawRepository, 'feature-a');
   });

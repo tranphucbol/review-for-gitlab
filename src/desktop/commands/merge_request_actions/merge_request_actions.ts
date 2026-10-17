@@ -86,7 +86,7 @@ const loadState = async ({ mr, projectInRepository }: MrActionTarget): Promise<M
 
 const toItem = (action: MrAction): ActionItem => ({
   label: `$(${action.icon}) ${action.label}`,
-  description: action.unavailableReason,
+  description: action.unavailableReason ?? action.description,
   action,
 });
 
@@ -98,7 +98,7 @@ export const toQuickPickItems = (actions: MrAction[]): ActionItem[] => {
     ...(unavailable.length
       ? [
           { label: 'Not available', kind: vscode.QuickPickItemKind.Separator },
-          ...unavailable.map(a => ({ ...toItem(a), action: undefined })),
+          ...unavailable.map(toItem),
         ]
       : []),
   ];
@@ -117,8 +117,9 @@ const pickAction = async ({ detail, approvals }: MrState): Promise<MrAction | un
   }
   const item = await vscode.window.showQuickPick(toQuickPickItems(actions), {
     title: describeMr(detail, approvals),
-    placeHolder: 'Choose an action',
+    placeHolder: 'Select an action',
     matchOnDescription: true,
+    ignoreFocusOut: true,
   });
   return item?.action;
 };
@@ -133,6 +134,14 @@ const showActions = async (target: MrActionTarget): Promise<void> => {
   const state = await loadState(target);
   const action = await pickAction(state);
   if (!action) return;
+  if (action.unavailableReason) {
+    await vscode.window.showInformationMessage(
+      `${action.label.replace(/…$/, '')} isn't available for !${state.detail.iid}. ${
+        action.unavailableReason
+      }.`,
+    );
+    return;
+  }
   if (action.id === 'refresh') {
     await showActions(target);
     return;

@@ -71,9 +71,12 @@ describe('openJiraIssue', () => {
 
     const items = asMock(vscode.window.showQuickPick).mock.calls[0][0] as vscode.QuickPickItem[];
     expect(items.map(i => `${i.label} ${i.description}`)).toEqual([
-      'PC-12 from branch',
-      'PE-3 from merge request description',
+      'Open PC-12 in Jira from branch',
+      'Open PE-3 in Jira from merge request description',
     ]);
+    expect(asMock(vscode.window.showQuickPick).mock.calls[0][1]).toEqual(
+      expect.objectContaining({ placeHolder: 'Select a Jira issue', ignoreFocusOut: true }),
+    );
     expect(openUrl).toHaveBeenCalledWith(`${JIRA}PE-3`);
   });
 
@@ -103,6 +106,26 @@ describe('openJiraIssue', () => {
     await openJiraIssue();
 
     expect(openUrl).toHaveBeenCalledWith(`${JIRA}PC-12`);
+    expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
+  });
+
+  it('reports a refused token and still uses the branch', async () => {
+    asMock(service.fetchFromApi).mockRejectedValue(
+      Object.assign(new Error('401 Unauthorized'), { status: 401 }),
+    );
+
+    await openJiraIssue();
+
+    expect(vscode.window.showErrorMessage).toHaveBeenCalledWith('401 Unauthorized', 'Show Logs');
+    expect(openUrl).toHaveBeenCalledWith(`${JIRA}PC-12`);
+  });
+
+  it('offers at most five keys', async () => {
+    asMock(service.fetchFromApi).mockResolvedValue([branchMr('PC-1 PC-2 PC-3 PC-4 PC-5 PC-6')]);
+
+    await openJiraIssue();
+
+    expect(asMock(vscode.window.showQuickPick).mock.calls[0][0]).toHaveLength(5);
   });
 
   it('fails on a detached HEAD', async () => {

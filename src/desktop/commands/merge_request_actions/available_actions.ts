@@ -1,4 +1,9 @@
-import { JiraLinkConfig, findJiraKeysFor } from '../../jira/jira_keys';
+import {
+  JiraLinkConfig,
+  MAX_JIRA_ITEMS,
+  findJiraKeysFor,
+  jiraItemText,
+} from '../../jira/jira_keys';
 
 export type MrActionId =
   | 'approve'
@@ -19,14 +24,14 @@ export type MrActionId =
 export interface MrAction {
   id: MrActionId;
   label: string;
+  /** where the action comes from, shown beside its label */
+  description?: string;
   icon: string;
   /** set when the action is listed but can't run; the reason says why */
   unavailableReason?: string;
   /** the issue `openJiraIssue` opens */
   jiraKey?: string;
 }
-
-const MAX_JIRA_ACTIONS = 5;
 
 /** One `Open PC-12 in Jira` action per key in the source branch, title and description. */
 export const jiraActions = (
@@ -35,12 +40,12 @@ export const jiraActions = (
 ): MrAction[] =>
   config
     ? findJiraKeysFor(config, { mr: detail })
-        .slice(0, MAX_JIRA_ACTIONS)
-        .map(({ key }) => ({
+        .slice(0, MAX_JIRA_ITEMS)
+        .map(found => ({
           id: 'openJiraIssue',
-          label: `Open ${key} in Jira`,
+          ...jiraItemText(found),
           icon: 'link-external',
-          jiraKey: key,
+          jiraKey: found.key,
         }))
     : [];
 

@@ -42,6 +42,13 @@ export class MrDiffPanelController implements RepositoryRootWebviewProvider {
         retainContextWhenHidden: true,
       },
     );
+    // the merge request icon the Overview shows, so its tab reads as part of the same review
+    const { extensionPath } = this.#context;
+    const iconUri = (shade: string) =>
+      vscode.Uri.file(
+        path.join(extensionPath, 'src', 'assets', 'images', shade, 'merge_requests.svg'),
+      );
+    panel.iconPath = { light: iconUri('light'), dark: iconUri('dark') };
     const mrDiffPanel = new MrDiffPanel(panel, target, this.#context.globalState);
     this.#panels.set(key, mrDiffPanel);
     panel.onDidDispose(() => {

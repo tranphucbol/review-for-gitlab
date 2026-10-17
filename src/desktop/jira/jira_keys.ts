@@ -254,6 +254,15 @@ export interface FoundJiraKey {
   source: JiraKeySource;
 }
 
+/** The most Jira issues offered at once: in the sidebar, the actions pick and the command. */
+export const MAX_JIRA_ITEMS = 5;
+
+/** The label and description every list of Jira issues uses. */
+export const jiraItemText = ({ key, source }: FoundJiraKey) => ({
+  label: `Open ${key} in Jira`,
+  description: `from ${source}`,
+});
+
 /** The parts of a merge request that may name a Jira issue. */
 export interface MrWithJiraKeys {
   title: string;

@@ -13,12 +13,15 @@ const openFromReviewUri = async (uri: vscode.Uri): Promise<void> => {
   assert(params.path);
   const projectInRepository = gitlabProjectRepository.getProjectOrFail(params.repositoryRoot);
   const cachedMr = mrCache.getMr(params.mrId, projectInRepository);
-  assert(cachedMr, 'Extension did not find the merge request, please refresh the side panel.');
+  assert(cachedMr, 'The merge request is not loaded. Refresh the side panel and try again.');
   const relativePath = removeLeadingSlash(params.path);
   const file = cachedMr.mrVersion.diffs.find(
     d => d.new_path === relativePath || d.old_path === relativePath,
   );
-  assert(file, 'Extension did not find the file in the MR, please refresh the side panel.');
+  assert(
+    file,
+    `${relativePath} is not in the merge request. Refresh the side panel and try again.`,
+  );
   await mrDiffPanelController.open({
     mr: cachedMr.mr,
     mrVersion: cachedMr.mrVersion,

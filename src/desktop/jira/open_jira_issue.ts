@@ -1,18 +1,22 @@
 import * as vscode from 'vscode';
+import { handleError } from '../../common/errors/handle_error';
 import { log } from '../../common/log';
 import { openUrl } from '../commands/openers';
 import { getActiveProjectOrSelectOne } from '../commands/run_with_valid_project';
 import { getTrackingBranchName } from '../git/get_tracking_branch_name';
 import { getGitLabService } from '../gitlab/get_gitlab_service';
 import { getOpenMergeRequestsForBranch } from '../gitlab/api/get_open_merge_requests_for_branch';
+import { isUnauthorized } from '../gitlab/is_unauthorized';
 import { DetachedHeadError } from '../errors/detached_head_error';
 import {
   JIRA_CONFIG_SECTION,
   JiraLinkConfig,
   FoundJiraKey,
+  MAX_JIRA_ITEMS,
   findJiraKeysFor,
   getJiraLinkConfig,
   jiraIssueUrl,
+  jiraItemText,
 } from './jira_keys';
 
 export const CONFIGURE_JIRA_URL = 'Configure Jira URL';
@@ -45,16 +49,22 @@ const findCurrentBranchKeys = async (
       getOpenMergeRequestsForBranch(projectInRepository.project, branch),
     );
   } catch (e) {
-    // the branch name alone may still name the issue
+    // the branch name alone may still name the issue, but a refused token needs the user
     log.warn(`Could not load the merge request of ${branch} to look for Jira keys: ${e}`);
+    if (isUnauthorized(e)) handleError(e as Error);
   }
   return { branch, keys: findJiraKeysFor(config, { branch, mr }) };
 };
 
 const pickKey = async (keys: FoundJiraKey[]): Promise<string | undefined> => {
   const item = await vscode.window.showQuickPick(
-    keys.map(({ key, source }) => ({ label: key, description: `from ${source}`, key })),
-    { title: 'Open Jira Issue', placeHolder: 'Choose a Jira issue', matchOnDescription: true },
+    keys.slice(0, MAX_JIRA_ITEMS).map(found => ({ ...jiraItemText(found), key: found.key })),
+    {
+      title: 'Open Jira Issue',
+      placeHolder: 'Select a Jira issue',
+      matchOnDescription: true,
+      ignoreFocusOut: true,
+    },
   );
   return item?.key;
 };
