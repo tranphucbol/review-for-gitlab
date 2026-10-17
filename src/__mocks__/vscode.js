@@ -145,6 +145,10 @@ module.exports = {
     Notification: 'Notification',
     Window: 'Window',
   },
+  QuickPickItemKind: {
+    Separator: -1,
+    Default: 0,
+  },
   Location: function Location(uri, range) {
     this.uri = uri;
     this.range = range;

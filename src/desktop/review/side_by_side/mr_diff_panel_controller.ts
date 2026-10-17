@@ -82,7 +82,23 @@ export class MrDiffPanelController implements RepositoryRootWebviewProvider {
   }
 
   get repositoryRootForActiveTab(): string | undefined {
-    return [...this.#panels.values()].find(p => p.panel.active)?.repositoryRoot;
+    return this.#activePanel()?.repositoryRoot;
+  }
+
+  /** What the active view shows, for commands run from its title bar. */
+  activeTarget(): MrDiffTarget | undefined {
+    return this.#activePanel()?.target;
+  }
+
+  /** Brings every open view of the merge request up to date after it changed elsewhere. */
+  refreshPanelsFor(mr: RestMr): void {
+    this.#panels.forEach(p => {
+      if (p.target.mr.id === mr.id) p.refresh().catch(handleError);
+    });
+  }
+
+  #activePanel(): MrDiffPanel | undefined {
+    return [...this.#panels.values()].find(p => p.panel.active);
   }
 }
 

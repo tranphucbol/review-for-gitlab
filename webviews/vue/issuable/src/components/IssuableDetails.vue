@@ -43,13 +43,24 @@ export default {
       return md.render(normalized);
     },
   },
+  watch: {
+    // a reload replaces the issuable, and the new one is not rendered on the server yet
+    issuable() {
+      this.renderOnServer();
+    },
+  },
   mounted() {
-    window.vsCodeApi.postMessage({
-      command: 'renderMarkdown',
-      markdown: this.issuable.description,
-      object: 'issuable',
-      ref: this.issuable.id,
-    });
+    this.renderOnServer();
+  },
+  methods: {
+    renderOnServer() {
+      window.vsCodeApi.postMessage({
+        command: 'renderMarkdown',
+        markdown: this.issuable.description,
+        object: 'issuable',
+        ref: this.issuable.id,
+      });
+    },
   },
   created() {
     window.addEventListener('message', event => {

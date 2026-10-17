@@ -218,6 +218,12 @@
         "title": "Fetch and Update Merge Request Branch"
       },
       {
+        "command": "gl.mergeRequestActions",
+        "title": "Merge Request Actions…",
+        "category": "GitLab",
+        "icon": "$(git-pull-request)"
+      },
+      {
         "command": "gl.openInGitLab",
         "title": "Open in GitLab"
       },
@@ -442,6 +448,10 @@
           "when": "gitlab:validState"
         },
         {
+          "command": "gl.mergeRequestActions",
+          "when": "gitlab:validState"
+        },
+        {
           "command": "gl.openCreateNewIssue",
           "when": "gitlab:validState"
         },
@@ -560,6 +570,15 @@
         {
           "command": "gl.updateMrBranch",
           "when": "view =~ /issuesAndMrs/ && viewItem =~ /mr-item-from-same-project/"
+        },
+        {
+          "command": "gl.mergeRequestActions",
+          "when": "view =~ /issuesAndMrs/ && viewItem =~ /mr-item-from-/",
+          "group": "inline"
+        },
+        {
+          "command": "gl.mergeRequestActions",
+          "when": "view =~ /issuesAndMrs/ && viewItem =~ /mr-item-from-/"
         },
         {
           "command": "gl.openInGitLab",
@@ -684,6 +703,21 @@
           "command": "gl.openMrFileSideBySide",
           "when": "resourceScheme == 'gl-review' && resourceFilename != '' && isInDiffEditor",
           "group": "navigation@-98"
+        },
+        {
+          "command": "gl.mergeRequestActions",
+          "when": "resourceScheme == 'gl-review' && isInDiffEditor",
+          "group": "navigation@-97"
+        },
+        {
+          "command": "gl.mergeRequestActions",
+          "when": "activeWebviewPanelId == 'gitlab.mergeRequestDiff'",
+          "group": "navigation@-99"
+        },
+        {
+          "command": "gl.mergeRequestActions",
+          "when": "activeWebviewPanelId == 'glWorkflow' && gitlab:mergeRequestOverviewActive",
+          "group": "navigation@-99"
         },
         {
           "command": "gl.showMergedCIConfig",

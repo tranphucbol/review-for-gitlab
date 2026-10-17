@@ -961,4 +961,34 @@ describe('MrDiffPanelController', () => {
       expect(opened.webview.html).toBeUndefined();
     });
   });
+
+  describe('for the merge request actions', () => {
+    const otherMr = { ...mr, id: mr.id + 1, iid: mr.iid + 1 };
+    const flush = () => new Promise(process.nextTick);
+
+    it('reports what the active view shows', async () => {
+      const opened = await controller.open(target);
+
+      expect(controller.activeTarget()).toBeUndefined();
+
+      Object.assign(opened, { active: true });
+
+      expect(controller.activeTarget()).toEqual(target);
+    });
+
+    it('refreshes only the views of the changed merge request', async () => {
+      await controller.open(target);
+      await controller.open({ ...target, mr: otherMr });
+      await sendToHost({ command: 'appReady' });
+      jest.mocked(gitlabService.getDiscussions).mockClear();
+      jest.mocked(gitlabService.getMrDiff).mockClear();
+
+      controller.refreshPanelsFor(mr);
+      await flush();
+      await flush();
+
+      expect(gitlabService.getMrDiff).toHaveBeenCalledTimes(1);
+      expect(gitlabService.getMrDiff).toHaveBeenCalledWith(mr);
+    });
+  });
 });
