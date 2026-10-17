@@ -1,6 +1,7 @@
 # 010 - The Overview is themed by VS Code tokens
 
 **Status:** accepted - 2026-10-17
+**Status:** token file moved to `webviews/vue/shared/` and shared with the side-by-side diff by [012](012_the-webviews-and-commands-share-one-look-and-voice.md) - 2026-10-18
 
 **Plan:**
 [docs/plans/006_modern-overview-webview.md](../plans/006_modern-overview-webview.md)

@@ -49,7 +49,9 @@ from `src/desktop/` or `src/browser/` and calls no Node.js or browser API;
 - `webviews/vue/` (Vue 3) and `webviews/vue2/` (Vue 2) — independent npm
   packages for the issuable view, the side-by-side diff (`vue/mr_diff/`, Monaco
   panes over a plain TypeScript diff model) and Duo Chat; they share nothing
-  with the extension or with each other
+  with the extension or with each other. Inside `webviews/vue/`, `shared/`
+  (alias `@shared`) holds the tokens, mixins, Markdown styles, date helpers and
+  components the Overview and the side-by-side diff both use
 - `test/integration/` — integration tests, run inside a downloaded VS Code
 - `scripts/` — the esbuild builds, packaging and workspace helpers behind the
   npm scripts
@@ -202,9 +204,18 @@ node scripts/release.mjs patch             # changelog, commit, tag, push after 
   [009](docs/decisions/009_jira-keys-link-to-a-configured-jira.md)
 
 - **No literal colours in webviews; use `--vscode-*` tokens with a fallback.**
-  In the Overview only `styles/tokens.scss` reads `--vscode-*`; components use
-  its `--gl-*` tokens.
-  [010](docs/decisions/010_the-overview-is-themed-by-vs-code-tokens.md)
+  In `webviews/vue/` only `shared/styles/tokens.scss` reads `--vscode-*`; the
+  Overview and the side-by-side diff use its `--gl-*` tokens, and a concept both
+  show (thread, note, date, badge, composer, error) comes from `shared/`.
+  [010](docs/decisions/010_the-overview-is-themed-by-vs-code-tokens.md),
+  [012](docs/decisions/012_the-webviews-and-commands-share-one-look-and-voice.md)
+
+- **Fork commands, messages and quick picks share one voice.** Title Case
+  command titles under `"category": "GitLab"`, `…` when more input follows;
+  messages are sentences ending in a period; failures go through `handleError`;
+  quick picks start with **Select** and set `ignoreFocusOut`. Upstream's own
+  strings stay as they are.
+  [012](docs/decisions/012_the-webviews-and-commands-share-one-look-and-voice.md)
 
 - **A webview's lazy chunks are written under its own `assets/`; anything
   outside `dist/<webview>/` is not shipped.** `vite.config.shared.js` sets
