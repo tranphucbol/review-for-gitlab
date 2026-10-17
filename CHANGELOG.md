@@ -1,3 +1,34 @@
+# [3.106.0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.105.1...v3.106.0) (2026-10-17)
+
+Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
+GitLab instances older than 15.5.
+
+
+### Bug Fixes
+
+* harden side-by-side diff, branch update and image uploads ([66b8d87](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/66b8d87bc860b08e3fc524e7f64822d9005f9e96))
+* **issuable:** render a reloaded note and description on the server again ([829ae41](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/829ae415ea1ecc23247c53cabceb35cd01a7b2a0))
+* **jira:** refresh the current branch view only after the extension state is ready ([8b9c1e9](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/8b9c1e99cbaa39938a550161d9c929f37e6d746b))
+* **jira:** relink an open Overview when the Jira settings change ([9010f0c](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/9010f0c4b990d11450d9ce845387f122e515dc09))
+* **mr-actions:** refresh views without waiting for the message to be dismissed ([24dfd77](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/24dfd77f2901bc7a8d7910a019857ddd283c7d26))
+* **overview:** load merge request details so the sidebar shows the pipeline ([a84386c](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/a84386cae1cf042956e9d0f8f828168eff34368f))
+
+
+### Features
+
+* **jira:** add gitlab.jira settings and the Jira key matcher ([8efb645](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/8efb645a4b7cb8444a987ab592f284a720f127be))
+* **jira:** link Jira keys in native review comments ([debf557](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/debf5574eb6a9ea26dd7b7c455b74614de566fb5))
+* **jira:** link Jira keys in the issuable and side-by-side webviews ([a2797fb](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/a2797fbac37370665a683c49c646185c5e376bdc))
+* **jira:** open the Jira issue of a branch or merge request ([971f7a9](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/971f7a921b94bdeed3ba49b7aa4452d549cdbb90))
+* **mr-actions:** add merge request action methods to GitLabService ([efd72b7](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/efd72b757990c8e812b868b0fc5657b40000ac32))
+* **mr-actions:** add the merge request actions quick pick ([8155f60](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/8155f60b30ea08cfec582bbfb7bcfe0f5ed9d272))
+* **mr-actions:** edit reviewers, assignees and labels from the actions pick ([068f235](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/068f235b34a395f21125c3276d5ab709b3b80f66))
+* **mr-actions:** offer merge request actions from the Overview ([3c96a78](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/3c96a78b904f908f578756ac7ba0019ec1ec1f80))
+* **mr-actions:** offer merge request actions from the sidebar, review diffs and side-by-side view ([01de96b](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/01de96b8fe41083e957f84a82b53e54389975403))
+* **overview:** theme the Overview with VS Code tokens and render Mermaid diagrams ([4225718](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/42257181330c6a19e06ec7701da6b1e32a11e15c))
+
+
+
 ## [3.105.1](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.105.0...v3.105.1) (2026-10-13)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
