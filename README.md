@@ -109,7 +109,8 @@ You can use [Command Palette](https://code.visualstudio.com/docs/getstarted/user
 - `GitLab: Validate GitLab CI/CD Config` - Validate GitLab CI/CD configuration file `.gitlab-ci.yml`. [Read more](#validate-gitlab-cicd-configuration).
 - `GitLab: Show Merged GitLab CI/CD Config` - Show a preview of the GitLab CI/CD configuration file `.gitlab-ci.yml` with all includes resolved. [Read more](#show-merged-gitlab-cicd-configuration).
 - `GitLab: Open Merge Request for Current Branch`
-- `GitLab: Open Jira Issue` - Open the Jira issue named in the current branch or its merge request. [Read more](#jira-links).
+- `GitLab: Merge Request Actions…` - Approve, merge, close or reopen a merge request, mark it as draft or ready, and edit its reviewers, assignees and labels.
+- `GitLab: Open Jira Issue` - Open the Jira issue named in the current branch or its merge request. Shown when `gitlab.jira.url` is set. [Read more](#jira-links).
 - `GitLab: Show Issues Assigned to Me` - Open issues assigned to you on GitLab.
 - `GitLab: Show Merge Requests Assigned to Me` - Open MRs assigned to you on GitLab.
 - `GitLab: Open Current Project on GitLab`
@@ -210,6 +211,26 @@ From the diff, you can:
 - Resolve and unresolve these discussions.
 - Delete and edit individual comments.
 
+### Side-by-side merge request diff
+
+**`gitlab.mergeRequestDiff.viewer`** _(default: `native`)_ chooses the view
+that opens when you select a changed file of a merge request in the sidebar:
+
+- `native` - VS Code's diff editor, with comments through the VS Code comments
+  API, as described above.
+- `sideBySide` - a webview that shows both sides with connector ribbons between
+  the changes and the discussions inline, where you can reply, resolve, edit,
+  delete and paste images into comments.
+
+Whatever the setting, the side-by-side icon on a changed file and the command
+**GitLab: Open Changed File in Side-by-Side View** open that file in the
+side-by-side view.
+
+**`gitlab.mergeRequestDiff.showLocalChangeButtons`** _(default: false)_ shows
+buttons in the side-by-side view that copy a change into your local file, or
+revert it there. The local file is checked first, and the change is an unsaved
+edit you can review and undo.
+
 ### Jira links
 
 Set **`gitlab.jira.url`** to the base URL of your Jira, for example
@@ -232,8 +253,11 @@ To open the issue:
 - run `GitLab: Open Jira Issue`. It looks for keys in the current branch name,
   then the title and description of the branch's open merge request, and opens
   the only key it finds or lets you pick one
-- select a `Jira: PC-1234` item under the merge request in the current branch view
+- select an `Open PC-1234 in Jira` item under the merge request in the current
+  branch view, or run **Open Jira Issue** from a merge request's context menu
 - pick `Open PC-1234 in Jira` in `GitLab: Merge Request Actions…`
+
+Up to five keys are offered in each place.
 
 **`gitlab.jira.projectKeys`** _(default: [])_ limits linking to the listed
 projects, for example `["PC", "PE"]`, and lets lowercase keys in branch names

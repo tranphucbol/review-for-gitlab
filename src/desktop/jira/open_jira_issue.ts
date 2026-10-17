@@ -56,6 +56,19 @@ const findCurrentBranchKeys = async (
   return { branch, keys: findJiraKeysFor(config, { branch, mr }) };
 };
 
+// a merge request item in the sidebar passes itself
+const keysOfMergeRequest = (
+  config: JiraLinkConfig,
+  arg: unknown,
+): { branch: string; keys: FoundJiraKey[] } | undefined => {
+  if (typeof arg !== 'object' || arg === null || !('mr' in arg)) return undefined;
+  const { mr } = arg as { mr: RestMr };
+  return {
+    branch: mr.source_branch,
+    keys: findJiraKeysFor(config, { branch: mr.source_branch, mr }),
+  };
+};
+
 const pickKey = async (keys: FoundJiraKey[]): Promise<string | undefined> => {
   const item = await vscode.window.showQuickPick(
     keys.slice(0, MAX_JIRA_ITEMS).map(found => ({ ...jiraItemText(found), key: found.key })),
@@ -71,7 +84,8 @@ const pickKey = async (keys: FoundJiraKey[]): Promise<string | undefined> => {
 
 /**
  * `gl.openJiraIssue`: opens the Jira issue given as an argument, or the one named by
- * the current branch or its open merge request. Several keys are offered in a quick pick.
+ * the given merge request, or by the current branch or its open merge request.
+ * Several keys are offered in a quick pick.
  */
 export const openJiraIssue = async (key?: unknown): Promise<void> => {
   const config = getJiraLinkConfig();
@@ -83,7 +97,7 @@ export const openJiraIssue = async (key?: unknown): Promise<void> => {
     await openUrl(jiraIssueUrl(config, key));
     return;
   }
-  const found = await findCurrentBranchKeys(config);
+  const found = keysOfMergeRequest(config, key) ?? (await findCurrentBranchKeys(config));
   if (!found) return;
   if (found.keys.length === 0) {
     await vscode.window.showInformationMessage(

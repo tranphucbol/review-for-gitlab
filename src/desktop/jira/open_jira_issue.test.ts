@@ -80,6 +80,16 @@ describe('openJiraIssue', () => {
     expect(openUrl).toHaveBeenCalledWith(`${JIRA}PE-3`);
   });
 
+  it('uses the merge request it is given instead of the current branch', async () => {
+    await openJiraIssue({
+      mr: { ...branchMr('PE-3: login'), source_branch: 'feature/login' },
+      projectInRepository,
+    });
+
+    expect(openUrl).toHaveBeenCalledWith(`${JIRA}PE-3`);
+    expect(getActiveProjectOrSelectOne).not.toHaveBeenCalled();
+  });
+
   it('opens nothing when the pick is dismissed', async () => {
     asMock(service.fetchFromApi).mockResolvedValue([branchMr('PE-3')]);
     asMock(vscode.window.showQuickPick).mockResolvedValue(undefined);

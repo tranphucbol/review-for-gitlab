@@ -156,7 +156,7 @@
       },
       {
         "command": "gl.openMrFileSideBySide",
-        "title": "Open in Side-by-Side View",
+        "title": "Open Changed File in Side-by-Side View",
         "category": "GitLab",
         "icon": "$(split-horizontal)"
       },
@@ -215,7 +215,8 @@
       },
       {
         "command": "gl.updateMrBranch",
-        "title": "Fetch and Update Merge Request Branch"
+        "title": "Fetch and Update Merge Request Branch",
+        "category": "GitLab"
       },
       {
         "command": "gl.mergeRequestActions",
@@ -459,7 +460,7 @@
         },
         {
           "command": "gl.openJiraIssue",
-          "when": "gitlab:validState"
+          "when": "gitlab:validState && config.gitlab.jira.url"
         },
         {
           "command": "gl.openCreateNewIssue",
@@ -561,6 +562,10 @@
           "command": "gl.refreshSidebar",
           "when": "view =~ /(currentBranchInfo|issuesAndMrs)/",
           "group": "navigation@2"
+        },
+        {
+          "command": "gl.openJiraIssue",
+          "when": "view == currentBranchInfo && config.gitlab.jira.url"
         }
       ],
       "view/item/context": [
@@ -571,7 +576,8 @@
         },
         {
           "command": "gl.openMrFileSideBySide",
-          "when": "viewItem == changed-file-item"
+          "when": "viewItem == changed-file-item",
+          "group": "inline"
         },
         {
           "command": "gl.checkoutMrBranch",
@@ -589,6 +595,10 @@
         {
           "command": "gl.mergeRequestActions",
           "when": "view =~ /issuesAndMrs/ && viewItem =~ /mr-item-from-/"
+        },
+        {
+          "command": "gl.openJiraIssue",
+          "when": "view =~ /(currentBranchInfo|issuesAndMrs)/ && viewItem =~ /mr-item-from-/ && config.gitlab.jira.url"
         },
         {
           "command": "gl.openInGitLab",
@@ -722,12 +732,12 @@
         {
           "command": "gl.mergeRequestActions",
           "when": "activeWebviewPanelId == 'gitlab.mergeRequestDiff'",
-          "group": "navigation@-99"
+          "group": "navigation@-97"
         },
         {
           "command": "gl.mergeRequestActions",
           "when": "activeWebviewPanelId == 'glWorkflow' && gitlab:mergeRequestOverviewActive",
-          "group": "navigation@-99"
+          "group": "navigation@-97"
         },
         {
           "command": "gl.showMergedCIConfig",
@@ -833,17 +843,17 @@
         "gitlab.mergeRequestDiff.viewer": {
           "type": "string",
           "enum": ["native", "sideBySide"],
-          "enumDescriptions": [
-            "VS Code's diff editor, with comments through the VS Code comments API",
-            "A side-by-side webview with connector ribbons and inline discussions"
+          "markdownEnumDescriptions": [
+            "VS Code's diff editor, with comments through the VS Code comments API.",
+            "A side-by-side webview with connector ribbons and inline discussions."
           ],
           "default": "native",
-          "description": "Which view opens when you select a changed file of a merge request in the sidebar"
+          "markdownDescription": "The view that opens when you select a changed file of a merge request in the sidebar. **GitLab: Open Changed File in Side-by-Side View** opens one file in the side-by-side view whatever this is set to."
         },
         "gitlab.mergeRequestDiff.showLocalChangeButtons": {
           "type": "boolean",
           "default": false,
-          "description": "Show buttons in the side-by-side merge request view that copy a change into your local file, or revert it there, as an unsaved edit"
+          "markdownDescription": "Show buttons in the side-by-side view that copy a change into your local file, or revert it there, as an unsaved edit. Off by default."
         },
         "gitlab.jira.url": {
           "type": "string",
