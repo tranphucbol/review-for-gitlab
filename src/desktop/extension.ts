@@ -280,7 +280,6 @@ export const activate = async (context: vscode.ExtensionContext) => {
       if (e.affectsConfiguration(JIRA_CONFIG_SECTION)) {
         mrDiffPanelController.refreshJiraLinks();
         await issuableController.refreshJiraLinks();
-        await currentBranchRefresher.refresh();
       }
     }),
     vscode.window.onDidChangeActiveColorTheme(() => mrDiffPanelController.refreshTokenThemes()),
@@ -322,6 +321,12 @@ export const activate = async (context: vscode.ExtensionContext) => {
 
   const dependencyContainer = createDependencyContainer();
   await extensionState.init(accountService, dependencyContainer.gitLabPlatformManager);
+  context.subscriptions.push(
+    // fork-only: the current branch view lists Jira keys; it cannot refresh before extensionState
+    vscode.workspace.onDidChangeConfiguration(async e => {
+      if (e.affectsConfiguration(JIRA_CONFIG_SECTION)) await currentBranchRefresher.refresh();
+    }),
+  );
 
   if (featureFlags.isEnabled(featureFlags.FeatureFlag.LanguageServer)) {
     await registerLanguageServer(
