@@ -1,5 +1,5 @@
 import { vi, expect, it, describe } from 'vitest';
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
 import CommentForm from './CommentForm.vue';
 
 const getSubmitButton = wrapper => wrapper.find('.js-submit');
@@ -99,7 +99,7 @@ describe('CommentForm', () => {
   describe('is a part of a discussion thread', () => {
     beforeEach(() => {
       wrapper = mount(CommentForm, {
-        propsData: { replyId: 'testReplyId' },
+        propsData: { replyId: 'testReplyId', submitLabel: 'Reply' },
       });
     });
 
@@ -111,6 +111,166 @@ describe('CommentForm', () => {
         note: 'test message',
         replyId: 'testReplyId',
       });
+    });
+
+    it('labels the submit button and the hint with the submit label', () => {
+      expect(getSubmitButton(wrapper).text()).toBe('Reply');
+      expect(wrapper.find('.js-hint').text()).toMatch(/ to reply$/);
+    });
+
+    it('cancels the reply on Escape', async () => {
+      await wrapper.find('textarea').trigger('keydown', { key: 'Escape' });
+      expect(wrapper.emitted('cancel-edit')).toHaveLength(1);
+    });
+  });
+
+  it('keeps a new comment on Escape', async () => {
+    wrapper = mount(CommentForm);
+    await wrapper.find('textarea').trigger('keydown', { key: 'Escape' });
+    expect(wrapper.emitted('cancel-edit')).toBeUndefined();
+  });
+
+  describe('preview', () => {
+    const dispatch = async data => {
+      const event = new Event('message');
+      event.data = data;
+      window.dispatchEvent(event);
+      await wrapper.vm.$nextTick();
+    };
+
+    beforeEach(() => {
+      wrapper = mount(CommentForm);
+    });
+
+    it('says there is nothing to preview for an empty comment', async () => {
+      await wrapper.find('.js-preview-tab').trigger('click');
+      expect(wrapper.find('.js-preview').text()).toBe('Nothing to preview.');
+      expect(window.vsCodeApi.postMessage).not.toHaveBeenCalled();
+    });
+
+    it('shows a local rendering until GitLab renders the comment', async () => {
+      await wrapper.find('textarea').setValue('**bold**');
+      await wrapper.find('.js-preview-tab').trigger('click');
+
+      const [[message]] = window.vsCodeApi.postMessage.mock.calls;
+      expect(message).toEqual(
+        expect.objectContaining({
+          command: 'renderMarkdown',
+          markdown: '**bold**',
+          object: 'preview',
+        }),
+      );
+      expect(wrapper.find('.js-preview').attributes('aria-busy')).toBe('true');
+      expect(wrapper.find('.js-preview strong').text()).toBe('bold');
+
+      await dispatch({
+        type: 'markdownRendered',
+        object: 'preview',
+        ref: message.ref,
+        markdown: '<p>server</p>',
+      });
+
+      expect(wrapper.find('.js-preview').text()).toBe('server');
+      expect(wrapper.find('.js-preview').attributes('aria-busy')).toBe('false');
+    });
+
+    it('ignores the rendering of another form', async () => {
+      await wrapper.find('textarea').setValue('mine');
+      await wrapper.find('.js-preview-tab').trigger('click');
+      await dispatch({
+        type: 'markdownRendered',
+        object: 'preview',
+        ref: 'other',
+        markdown: '<p>theirs</p>',
+      });
+      expect(wrapper.find('.js-preview').text()).toBe('mine');
+    });
+
+    it('marks the selected tab', async () => {
+      await wrapper.find('.js-preview-tab').trigger('click');
+      expect(wrapper.find('.js-preview-tab').attributes('aria-selected')).toBe('true');
+      expect(wrapper.find('.js-write-tab').attributes('aria-selected')).toBe('false');
+    });
+  });
+
+  describe('pasting an image', () => {
+    const image = new File(['png'], 'shot.png', { type: 'image/png' });
+
+    const paste = files => wrapper.find('textarea').trigger('paste', { clipboardData: { files } });
+
+    const answer = async data => {
+      const event = new Event('message');
+      event.data = { type: 'imageUploaded', ...data };
+      window.dispatchEvent(event);
+      await flushPromises();
+    };
+
+    const uploadRequest = () =>
+      window.vsCodeApi.postMessage.mock.calls
+        .map(([message]) => message)
+        .find(message => message.command === 'uploadImage');
+
+    // FileReader answers on a later task
+    const uploadRequested = async () => {
+      for (let i = 0; i < 50 && !uploadRequest(); i += 1) {
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise(resolve => {
+          setTimeout(resolve, 0);
+        });
+      }
+    };
+
+    beforeEach(() => {
+      wrapper = mount(CommentForm);
+    });
+
+    it('uploads the image and replaces the placeholder with its markdown', async () => {
+      await paste([image]);
+      await uploadRequested();
+
+      expect(wrapper.find('textarea').element.value).toBe('![Uploading shot.png…]()');
+      expect(wrapper.find('.js-uploading').exists()).toBe(true);
+      expect(getSubmitButton(wrapper).attributes('disabled')).toBeDefined();
+      const request = uploadRequest();
+      expect(request).toEqual({
+        command: 'uploadImage',
+        requestId: expect.any(Number),
+        name: 'shot.png',
+        contentType: 'image/png',
+        base64: btoa('png'),
+      });
+
+      await answer({ requestId: request.requestId, markdown: '![shot](/uploads/a/shot.png)' });
+
+      expect(wrapper.find('textarea').element.value).toBe('![shot](/uploads/a/shot.png)');
+      expect(wrapper.find('.js-uploading').exists()).toBe(false);
+    });
+
+    it('removes the placeholder and shows the message when the upload fails', async () => {
+      await wrapper.find('textarea').setValue('draft ');
+      await paste([image]);
+      await uploadRequested();
+
+      await answer({ requestId: uploadRequest().requestId, error: "Couldn't upload the image." });
+
+      expect(wrapper.find('textarea').element.value).toBe('draft ');
+      expect(wrapper.find('.js-upload-error').text()).toBe("Couldn't upload the image.");
+      expect(wrapper.find('.js-upload-error').attributes('role')).toBe('alert');
+    });
+
+    it('leaves a paste without an image to the textarea', async () => {
+      await paste([new File(['text'], 'notes.txt', { type: 'text/plain' })]);
+      expect(uploadRequest()).toBeUndefined();
+    });
+
+    it('refuses an image larger than 10 MB without uploading it', async () => {
+      const big = new File(['png'], 'big.png', { type: 'image/png' });
+      Object.defineProperty(big, 'size', { value: 11 * 1024 * 1024 });
+      await paste([big]);
+      expect(uploadRequest()).toBeUndefined();
+      expect(wrapper.find('.js-upload-error').text()).toBe(
+        'The image big.png is larger than 10 MB.',
+      );
     });
   });
 });

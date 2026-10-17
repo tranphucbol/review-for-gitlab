@@ -73,6 +73,37 @@
   color: var(--gl-text-muted);
 }
 
+// Write/Preview tabs of a comment composer
+@mixin composer-tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: var(--gl-stroke) solid var(--gl-border-subtle);
+}
+
+@mixin composer-tab {
+  margin-bottom: -1px;
+  padding: 2px 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--gl-text-muted);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--gl-text);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+@mixin composer-tab-active {
+  border-bottom-color: var(--gl-focus);
+  color: var(--gl-text);
+}
+
 @mixin tinted($color) {
   color: $color;
   background-color: color-mix(in srgb, #{$color} var(--gl-tint), transparent);

@@ -6,6 +6,7 @@ import { GitLabService } from './gitlab/gitlab_service';
 import { gitlabProjectRepository } from './gitlab/gitlab_project_repository';
 import { issue, mr, projectInRepository } from './test_utils/entities';
 import { waitForWebview } from '../common/utils/webviews/wait_for_webview';
+import { handleError } from '../common/errors/handle_error';
 import { issuableController, MR_OVERVIEW_ACTIVE_CONTEXT } from './issuable_controller';
 
 jest.mock('../common/utils/webviews/prepare_webview_source', () => ({
@@ -14,6 +15,7 @@ jest.mock('../common/utils/webviews/prepare_webview_source', () => ({
 jest.mock('../common/utils/webviews/wait_for_webview', () => ({
   waitForWebview: jest.fn().mockResolvedValue(undefined),
 }));
+jest.mock('../common/errors/handle_error');
 jest.mock('./gitlab/get_gitlab_service');
 jest.mock('./gitlab/gitlab_project_repository');
 
@@ -211,6 +213,78 @@ describe('issuableController', () => {
       expect(panels[0].webview.postMessage).toHaveBeenCalledWith(
         expect.objectContaining({ type: 'issuableFetch' }),
       );
+    });
+  });
+
+  describe('uploading a pasted image', () => {
+    const image = {
+      command: 'uploadImage',
+      requestId: 3,
+      name: 'shot.png',
+      contentType: 'image/png',
+      base64: Buffer.from('png').toString('base64'),
+    };
+
+    const send = async (message: unknown) => {
+      const [[handler]] = jest.mocked(panels[0].webview.onDidReceiveMessage).mock.calls;
+      await handler(message);
+    };
+
+    beforeEach(() => {
+      gitlabService.uploadFile = jest
+        .fn()
+        .mockResolvedValue({ markdown: '![shot](/uploads/a/shot.png)' });
+      jest.mocked(handleError).mockClear();
+    });
+
+    it("uploads to the merge request's project and answers with the markdown", async () => {
+      await issuableController.open(mr, '/repo');
+
+      await send(image);
+
+      expect(gitlabService.uploadFile).toHaveBeenCalledWith(mr.project_id, {
+        name: 'shot.png',
+        contentType: 'image/png',
+        content: new Uint8Array(Buffer.from('png')),
+      });
+      expect(panels[0].webview.postMessage).toHaveBeenCalledWith({
+        type: 'imageUploaded',
+        requestId: 3,
+        markdown: '![shot](/uploads/a/shot.png)',
+      });
+      expect(handleError).not.toHaveBeenCalled();
+    });
+
+    it('reports a failed upload and answers with its message', async () => {
+      jest.mocked(gitlabService.uploadFile).mockRejectedValue(new Error('offline'));
+      await issuableController.open(mr, '/repo');
+
+      await send(image);
+
+      expect(handleError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringMatching(/^Couldn't upload the image to the .+ project\.$/),
+        }),
+      );
+      expect(panels[0].webview.postMessage).toHaveBeenCalledWith({
+        type: 'imageUploaded',
+        requestId: 3,
+        error: expect.stringMatching(/^Couldn't upload the image/),
+      });
+    });
+
+    it('refuses an image in an issue comment', async () => {
+      await issuableController.open(issue, '/repo');
+
+      await send(image);
+
+      expect(gitlabService.uploadFile).not.toHaveBeenCalled();
+      expect(handleError).toHaveBeenCalled();
+      expect(panels[0].webview.postMessage).toHaveBeenCalledWith({
+        type: 'imageUploaded',
+        requestId: 3,
+        error: 'Images can be attached only to merge request comments.',
+      });
     });
   });
 });

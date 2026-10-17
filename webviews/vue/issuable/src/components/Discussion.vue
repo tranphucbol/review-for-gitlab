@@ -118,6 +118,7 @@ export default {
       v-if="isRepliesVisible && isEditing"
       class="discussion__form"
       :reply-id="noteable.replyId"
+      submit-label="Reply"
       @cancel-edit="toggleEditting"
     />
   </li>

@@ -600,33 +600,15 @@ body {
 }
 
 .gl-diff-comment-tabs {
-  display: flex;
-  gap: 2px;
-  border-bottom: var(--gl-stroke) solid var(--gl-border-subtle);
+  @include mixins.composer-tabs;
 }
 
 .gl-diff-comment-tab {
-  margin-bottom: -1px;
-  padding: 2px 10px;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  color: var(--gl-text-muted);
-  background: transparent;
-  font: inherit;
-  cursor: pointer;
-
-  &:hover {
-    color: var(--gl-text);
-  }
-
-  &:focus-visible {
-    @include mixins.focus-ring;
-  }
+  @include mixins.composer-tab;
 }
 
 .gl-diff-comment-tab-active {
-  border-bottom-color: var(--gl-focus);
-  color: var(--gl-text);
+  @include mixins.composer-tab-active;
 }
 
 .gl-diff-comment-preview {
