@@ -111,8 +111,12 @@ export interface EditorFont {
 }
 
 export type ToWebviewMessage =
-  /** `aligned`: fillers keep both sides row-aligned; the user's last choice */
-  | { command: 'init'; file: DiffFileModel; aligned: boolean }
+  /**
+   * `aligned`: fillers keep both sides row-aligned; the user's last choice. `generation`
+   * identifies this load of the file; the webview sends it back with every write whose lines
+   * were counted in it.
+   */
+  | { command: 'init'; file: DiffFileModel; aligned: boolean; generation: number }
   /** the editor font settings, sent before `init` and after they change */
   | { command: 'editorFont'; font: EditorFont }
   /** the syntax colours of the active VS Code theme, sent before `init` and after a theme change */
@@ -153,7 +157,14 @@ export type FromWebviewMessage =
   | { command: 'openNative' }
   | { command: 'refresh' }
   | { command: 'setAligned'; aligned: boolean }
-  | { command: 'createThread'; requestId: number; side: DiffSide; line: number; body: string }
+  | {
+      command: 'createThread';
+      requestId: number;
+      generation: number;
+      side: DiffSide;
+      line: number;
+      body: string;
+    }
   | { command: 'reply'; requestId: number; discussionId: string; body: string }
   | { command: 'editNote'; requestId: number; noteId: string; body: string; originalBody: string }
   | { command: 'deleteNote'; requestId: number; noteId: string }
@@ -161,7 +172,12 @@ export type FromWebviewMessage =
   | { command: 'uploadImage'; requestId: number; name: string; contentType: string; base64: string }
   /** renders a draft in the merge request's project, as GitLab will show the saved comment */
   | { command: 'previewMarkdown'; requestId: number; body: string }
-  | ({ command: 'applyHunk'; requestId: number; direction: 'apply' | 'revert' } & BlockRange)
+  | ({
+      command: 'applyHunk';
+      requestId: number;
+      generation: number;
+      direction: 'apply' | 'revert';
+    } & BlockRange)
   /** code navigation, answered by the language extensions for the local file */
   | ({ command: 'definitions'; requestId: number } & CodePosition)
   | ({ command: 'references'; requestId: number } & CodePosition)

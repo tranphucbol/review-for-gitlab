@@ -55,7 +55,9 @@ export class MrDiffPanelController implements RepositoryRootWebviewProvider {
       mrDiffPanel.refreshLocalState().catch(handleError);
     });
     mrDiffPanel.start();
-    panel.webview.html = await prepareWebviewSource(panel.webview, this.#context, 'mr_diff');
+    const html = await prepareWebviewSource(panel.webview, this.#context, 'mr_diff');
+    // a webview that was closed while its source was read can't take it
+    if (this.#panels.get(key) === mrDiffPanel) panel.webview.html = html;
     return panel;
   }
 

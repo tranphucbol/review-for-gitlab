@@ -36,6 +36,15 @@ describe('createMultipartFormBody', () => {
     expect([...body.subarray(contentStart, contentStart + content.length)]).toEqual([...content]);
   });
 
+  it.each(['image/png\r\nX-Injected: 1', 'image/png\nX', 'image/png\rX'])(
+    'refuses a content type with a line break (%j)',
+    contentType => {
+      expect(() => createMultipartFormBody({ ...file, contentType }, 'BOUNDARY')).toThrow(
+        'contains a line break',
+      );
+    },
+  );
+
   it('escapes quotes and newlines in the file name', () => {
     const { body } = createMultipartFormBody({ ...file, fileName: 'we"ird\nname.png' }, 'BOUNDARY');
 

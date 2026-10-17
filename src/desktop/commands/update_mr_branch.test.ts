@@ -139,6 +139,35 @@ describe('update MR branch', () => {
     expect(checkoutOrder).toBeLessThan(deleteOrder);
   });
 
+  it('steps off the branch even when HEAD does not report it as checked out', async () => {
+    mergeBase = LOCAL_SHA;
+    headName = 'main';
+
+    await updateMrBranch(mrItemModel);
+
+    const checkoutOrder = asMock(rawRepository.checkout).mock.invocationCallOrder[0];
+    const deleteOrder = asMock(rawRepository.deleteBranch).mock.invocationCallOrder[0];
+    expect(rawRepository.checkout).toHaveBeenCalledWith('origin/feature-a');
+    expect(checkoutOrder).toBeLessThan(deleteOrder);
+  });
+
+  it('keeps the branch when stepping off it fails', async () => {
+    mergeBase = LOCAL_SHA;
+    asMock(rawRepository.checkout).mockRejectedValue({
+      gitErrorCode: GitErrorCodes.DirtyWorkTree,
+      stderr: 'Your local changes would be overwritten by checkout',
+    });
+
+    await updateMrBranch(mrItemModel);
+
+    expect(rawRepository.deleteBranch).not.toHaveBeenCalled();
+    expect(rawRepository.createBranch).not.toHaveBeenCalled();
+    expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
+      'Update failed: Your local changes would be overwritten by checkout',
+      'See Git Log',
+    );
+  });
+
   it('keeps a branch that is only ahead', async () => {
     mergeBase = REMOTE_SHA;
 

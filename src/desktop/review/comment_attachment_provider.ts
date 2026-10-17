@@ -133,18 +133,48 @@ const getAttachments = async (dataTransfer: vscode.DataTransfer): Promise<Attach
   return files.length > 0 ? files : attachmentsFromUriList(dataTransfer);
 };
 
+/** The largest image a comment may upload, GitLab's default attachment limit. */
+export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+
+const IMAGE_CONTENT_TYPE = /^image\/[\w.+-]+$/;
+
+/** The `namespace/project` path of the project the merge request belongs to. */
+export const mrProjectPath = (mr: RestMr) => mr.references.full.split(/[#!]/)[0];
+
+/** Keeps a validation message as it is, and names the project for any other failure. */
+export const toUploadError = (mr: RestMr, e: Error): UserFriendlyError =>
+  e instanceof UserFriendlyError
+    ? e
+    : new UserFriendlyError(`Couldn't upload the image to the ${mrProjectPath(mr)} project.`, e);
+
+const readAttachment = async ({ name, contentType, read }: Attachment): Promise<Uint8Array> => {
+  if (!IMAGE_CONTENT_TYPE.test(contentType)) {
+    throw new UserFriendlyError(`${name} is not an image.`, new Error(contentType));
+  }
+  const content = await read();
+  if (content.byteLength > MAX_IMAGE_BYTES) {
+    throw new UserFriendlyError(
+      `The image ${name} is larger than 10 MB.`,
+      new Error(`${content.byteLength} bytes`),
+    );
+  }
+  return content;
+};
+
 export const uploadAttachments = async (
   { mr, projectInRepository }: MrCommentContext,
   attachments: Attachment[],
 ): Promise<string> => {
   const gitlabService = getGitLabService(projectInRepository);
+  // every attachment is checked before anything is uploaded
+  const contents = await Promise.all(attachments.map(readAttachment));
 
   const uploaded = await Promise.all(
-    attachments.map(async attachment => {
+    attachments.map(async (attachment, i) => {
       const file: UploadedFile = {
         name: attachment.name,
         contentType: attachment.contentType,
-        content: await attachment.read(),
+        content: contents[i],
       };
       // the note is created in the MR's project, that's the project the upload has to belong to
       return gitlabService.uploadFile(mr.project_id, file);
@@ -180,12 +210,7 @@ const getMarkdownForUploadedImages = async (
       () => uploadAttachments(mrContext, attachments),
     );
   } catch (e) {
-    handleError(
-      new UserFriendlyError(
-        `Couldn't upload the image to the ${mrContext.projectInRepository.project.namespaceWithPath} project.`,
-        e,
-      ),
-    );
+    handleError(toUploadError(mrContext.mr, e));
     return undefined;
   }
 };

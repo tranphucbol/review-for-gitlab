@@ -184,6 +184,8 @@ export default {
     return {
       file: null,
       fileKey: 0,
+      /** the host's load of `file`, sent back with the writes that count its lines */
+      generation: 0,
       blocks: [],
       diffLayout: null,
       fatalError: null,
@@ -285,7 +287,7 @@ export default {
     onHostMessage(message) {
       if (message?.command === 'tokenTheme') setTokenRules(message.rules ?? []);
       if (message?.command === 'editorFont' && message.font) setEditorFont(message.font);
-      if (message?.command === 'init') this.init(message.file, message.aligned);
+      if (message?.command === 'init') this.init(message.file, message.aligned, message.generation);
       if (message?.command === 'error') this.fatalError = message.message;
       if (message?.command === 'discussions') this.setDiscussions(message);
       if (message?.command === 'localState') this.localState = message;
@@ -301,6 +303,7 @@ export default {
       this.pendingBlockId = blockId;
       this.applyError = null;
       request('applyHunk', {
+        generation: this.generation,
         blockId,
         oldStart,
         oldCount,
@@ -348,10 +351,11 @@ export default {
       this.$refs.layout?.focusPane(side);
     },
     createThread({ side, line }, body) {
-      return request('createThread', { side, line, body });
+      return request('createThread', { generation: this.generation, side, line, body });
     },
-    init(file, aligned = true) {
+    init(file, aligned = true, generation = 0) {
       this.fatalError = null;
+      this.generation = generation;
       this.aligned = aligned;
       this.blocks = file.collapsed
         ? computeLineBlocks(splitLines(file.oldText), splitLines(file.newText))

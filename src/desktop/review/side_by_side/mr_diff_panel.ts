@@ -14,7 +14,7 @@ import { UnsupportedVersionError } from '../../errors/unsupported_version_error'
 import { UserFriendlyError } from '../../errors/user_friendly_error';
 import { getBaseAndHeadUri } from '../../tree_view/items/changed_file_item';
 import { makeHtmlLinksAbsolute } from '../../utils/make_html_links_absolute';
-import { uploadAttachments } from '../comment_attachment_provider';
+import { mrProjectPath, toUploadError, uploadAttachments } from '../comment_attachment_provider';
 import { buildDiffPosition } from '../diff_position';
 import { loadTokenRules } from './color_theme_tokens';
 import { getEditorFont } from './editor_font';
@@ -57,9 +57,6 @@ const isSameVersion = (a: RestMrVersion, b: RestMrVersion): boolean =>
 /** global state key: whether the panes are row-aligned with hatched fillers */
 export const ALIGNED_KEY = 'gitlab.mergeRequestDiff.aligned';
 
-/** The largest image the webview may upload, GitLab's default attachment limit. */
-export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
-
 /** how long the view waits for edits to the local file to settle before comparing it again */
 const LOCAL_STATE_DELAY_MS = 150;
 
@@ -70,25 +67,53 @@ const GENERIC_ERROR =
 const toErrorMessage = (e: unknown): string =>
   e instanceof UserFriendlyError ? e.message.replace(/\s+/g, ' ').trim() : GENERIC_ERROR;
 
+/** Whether GitLab refused the token, looking through the errors that wrap the response. */
+const isUnauthorized = (e: unknown): boolean => {
+  if (!e || typeof e !== 'object') return false;
+  const { status, response, originalError } = e as {
+    status?: number;
+    response?: { status?: number };
+    originalError?: unknown;
+  };
+  return status === 401 || response?.status === 401 || isUnauthorized(originalError);
+};
+
+/**
+ * A refused token needs the user, so it gets the notification other commands show. Any
+ * other failure stays in the card and the log: a refresh runs on every visibility change.
+ */
+const reportUnauthorized = (e: unknown) => {
+  if (isUnauthorized(e)) handleError(e as Error);
+};
+
+/** The largest side the view loads; a bigger file opens in the native diff instead. */
+export const MAX_FILE_BYTES = 2 * 1024 * 1024;
+
+/** git's own test: a NUL byte in the first 8000 bytes makes a file binary */
+const isBinary = (content: Uint8Array): boolean => content.subarray(0, 8000).includes(0);
+
+/** the diff GitLab 13.12 sends for a binary file, in place of hunks */
+const BINARY_DIFF = /^Binary files .* differ$/;
+
 /** Reads the file at a commit from the local repository first and from the API otherwise. */
 const readFileAtCommit = async (
   projectInRepository: ProjectInRepository,
   projectId: number,
   filePath: string,
   commit: string,
-): Promise<string> => {
+): Promise<Uint8Array> => {
   const local = await getFileContent(
     projectInRepository.pointer.repository.rawRepository,
     filePath,
     commit,
   );
-  if (local) return decode(local);
+  if (local) return local;
   const remote = await getGitLabService(projectInRepository).getFileContent(
     filePath,
     commit,
     projectId,
   );
-  return decode(new Uint8Array(remote));
+  return new Uint8Array(remote);
 };
 
 export class MrDiffPanel {
@@ -101,6 +126,11 @@ export class MrDiffPanel {
   readonly #projectInRepository: ProjectInRepository;
 
   #file?: Promise<DiffFileModel>;
+
+  /** Counts the loads of `#file`; a write positioned against an older load is refused. */
+  #generation = 0;
+
+  #disposed = false;
 
   readonly #preferences: vscode.Memento;
 
@@ -120,8 +150,10 @@ export class MrDiffPanel {
     this.#preferences = preferences;
     this.repositoryRoot = target.repositoryRoot;
     this.#projectInRepository = gitlabProjectRepository.getProjectOrFail(target.repositoryRoot);
-    panel.webview.onDidReceiveMessage(message =>
-      this.#onMessage(message as FromWebviewMessage).catch(e => handleError(e)),
+    this.#disposables.push(
+      panel.webview.onDidReceiveMessage(message =>
+        this.#onMessage(message as FromWebviewMessage).catch(e => handleError(e)),
+      ),
     );
   }
 
@@ -131,12 +163,12 @@ export class MrDiffPanel {
    * the two-second wait in `waitForWebview`.
    */
   start(): void {
-    this.#file = this.#loadFile();
-    this.#file.catch(e => log.error('Failed to load the file for the side-by-side diff.', e));
+    this.#reloadFile();
     this.#watchLocalFile();
   }
 
   dispose(): void {
+    this.#disposed = true;
     if (this.#localStateTimer) clearTimeout(this.#localStateTimer);
     this.#disposables.forEach(d => d.dispose());
   }
@@ -150,10 +182,27 @@ export class MrDiffPanel {
     this.#target = target;
     this.#applier = undefined;
     this.#codeNavigation = undefined;
+    const generation = this.#reloadFile();
+    await this.#sendFile();
+    // a newer version replaced this one while it loaded, and refreshes for itself
+    if (generation !== this.#generation) return;
+    await Promise.all([this.refreshLocalState(), this.refreshDiscussions()]);
+  }
+
+  #reloadFile(): number {
+    this.#generation += 1;
     this.#file = this.#loadFile();
     this.#file.catch(e => log.error('Failed to load the file for the side-by-side diff.', e));
-    await this.#sendFile();
-    await Promise.all([this.refreshLocalState(), this.refreshDiscussions()]);
+    return this.#generation;
+  }
+
+  /** Refuses a write whose lines were counted in a file the view no longer shows. */
+  #assertCurrentGeneration(generation: number, retry: string): void {
+    if (generation === this.#generation) return;
+    throw new UserFriendlyError(
+      `The merge request has a newer version. The view is loading it; ${retry} again there.`,
+      new Error(`Generation ${generation} is stale, the panel is at ${this.#generation}`),
+    );
   }
 
   /** The file in the latest version of the merge request, if that is not the version shown. */
@@ -176,6 +225,7 @@ export class MrDiffPanel {
       newer = await this.#newerTarget();
     } catch (e) {
       log.error("Couldn't check the merge request for a newer version.", e as Error);
+      reportUnauthorized(e);
     }
     if (newer) await this.showVersion(newer);
     else await this.refreshDiscussions();
@@ -337,28 +387,52 @@ export class MrDiffPanel {
     }
   }
 
+  /** Posts nothing if a newer load replaced the file meanwhile: that load posts its own `init`. */
   async #sendFile(): Promise<void> {
     assert(this.#file);
+    const generation = this.#generation;
+    let file: DiffFileModel;
     try {
-      await this.#post({
-        command: 'init',
-        file: await this.#file,
-        aligned: this.#preferences.get(ALIGNED_KEY, true),
-      });
+      file = await this.#file;
     } catch (e) {
+      if (generation !== this.#generation) return;
       await this.#post({
         command: 'error',
-        message: `The extension couldn't load ${
-          this.#target.file.new_path
-        } for this merge request.`,
+        message:
+          e instanceof UserFriendlyError
+            ? e.message
+            : `The extension couldn't load ${this.#target.file.new_path} for this merge request.`,
       });
+      return;
     }
+    if (generation !== this.#generation) return;
+    await this.#post({
+      command: 'init',
+      file,
+      aligned: this.#preferences.get(ALIGNED_KEY, true),
+      generation,
+    });
   }
 
   async #loadFile(): Promise<DiffFileModel> {
     const { mr, mrVersion, file } = this.#target;
-    const read = (filePath: string, commit: string) =>
-      readFileAtCommit(this.#projectInRepository, mr.project_id, filePath, commit);
+    const cannotShow = (reason: string) =>
+      new UserFriendlyError(
+        `The side-by-side diff can't show ${file.new_path}: ${reason}. Open the native diff instead.`,
+        new Error(`${file.new_path} is not shown side by side: ${reason}`),
+      );
+    if (BINARY_DIFF.test(file.diff.trim())) throw cannotShow('it is a binary file');
+    const read = async (filePath: string, commit: string) => {
+      const content = await readFileAtCommit(
+        this.#projectInRepository,
+        mr.project_id,
+        filePath,
+        commit,
+      );
+      if (isBinary(content)) throw cannotShow('it is a binary file');
+      if (content.byteLength > MAX_FILE_BYTES) throw cannotShow('it is larger than 2 MB');
+      return decode(content);
+    };
     const [oldText, newText] = await Promise.all([
       file.new_file ? '' : read(file.old_path, mrVersion.base_commit_sha),
       file.deleted_file ? '' : read(file.new_path, mrVersion.head_commit_sha),
@@ -415,6 +489,7 @@ export class MrDiffPanel {
         message = { command: 'discussions', discussions: [], canComment: false, unsupported: true };
       } else {
         log.error('Failed to load the discussions for the side-by-side diff.', e as Error);
+        reportUnauthorized(e);
         message = {
           command: 'discussions',
           discussions: [],
@@ -442,11 +517,18 @@ export class MrDiffPanel {
       await this.#post({ command: 'result', requestId, ...content });
     } catch (e) {
       log.error('A side-by-side diff request failed.', e as Error);
+      reportUnauthorized(e);
       await this.#post({ command: 'result', requestId, error: toErrorMessage(e) });
     }
   }
 
-  async #createThread(side: 'old' | 'new', line: number, body: string): Promise<void> {
+  async #createThread(
+    generation: number,
+    side: 'old' | 'new',
+    line: number,
+    body: string,
+  ): Promise<void> {
+    this.#assertCurrentGeneration(generation, 'comment');
     const { mr, mrVersion, file } = this.#target;
     if (file.diff === '') {
       throw new UserFriendlyError(
@@ -464,10 +546,9 @@ export class MrDiffPanel {
   /** The comment is saved in the merge request's project, so its references resolve there. */
   async #previewMarkdown(body: string): Promise<string> {
     const { mr } = this.#target;
-    const namespaceWithPath = mr.references.full.split(/[#!]/)[0];
     try {
       const html = await getGitLabService(this.#projectInRepository).renderMarkdown(body, {
-        namespaceWithPath,
+        namespaceWithPath: mrProjectPath(mr),
       });
       return makeHtmlLinksAbsolute(html ?? '', this.#projectInRepository.account.instanceUrl);
     } catch (e) {
@@ -476,25 +557,14 @@ export class MrDiffPanel {
   }
 
   async #uploadImage(name: string, contentType: string, base64: string): Promise<string> {
-    const content = Buffer.from(base64, 'base64');
-    if (content.byteLength > MAX_IMAGE_BYTES) {
-      throw new UserFriendlyError(
-        `The image ${name} is larger than 10 MB.`,
-        new Error(`${content.byteLength} bytes`),
-      );
-    }
-    const mrContext = { mr: this.#target.mr, projectInRepository: this.#projectInRepository };
+    const { mr } = this.#target;
+    const mrContext = { mr, projectInRepository: this.#projectInRepository };
     try {
       return await uploadAttachments(mrContext, [
-        { name, contentType, read: async () => new Uint8Array(content) },
+        { name, contentType, read: async () => new Uint8Array(Buffer.from(base64, 'base64')) },
       ]);
     } catch (e) {
-      throw new UserFriendlyError(
-        `Couldn't upload the image to the ${
-          this.#projectInRepository.project.namespaceWithPath
-        } project.`,
-        e as Error,
-      );
+      throw toUploadError(mr, e as Error);
     }
   }
 
@@ -519,7 +589,7 @@ export class MrDiffPanel {
         break;
       case 'createThread':
         await this.#respond(message.requestId, () =>
-          this.#createThread(message.side, message.line, message.body),
+          this.#createThread(message.generation, message.side, message.line, message.body),
         );
         break;
       case 'reply':
@@ -562,6 +632,7 @@ export class MrDiffPanel {
           message.requestId,
           async () => {
             try {
+              this.#assertCurrentGeneration(message.generation, 'change the file');
               await this.#applyHunk(
                 { blockId, oldStart, oldCount, newStart, newCount },
                 message.direction,
@@ -611,6 +682,7 @@ export class MrDiffPanel {
   }
 
   async #post(message: ToWebviewMessage): Promise<void> {
+    if (this.#disposed) return;
     await this.panel.webview.postMessage(message);
   }
 }
