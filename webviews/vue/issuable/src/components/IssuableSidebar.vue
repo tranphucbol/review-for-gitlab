@@ -136,7 +136,7 @@ export default {
 </template>
 
 <style lang="scss">
-@use '../styles/mixins';
+@use '@shared/styles/mixins';
 
 .issuable-sidebar {
   display: flex;

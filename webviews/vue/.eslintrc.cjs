@@ -1,10 +1,12 @@
+const path = require('path');
+
 module.exports = {
   root: true,
   extends: ['airbnb-base', 'prettier', 'plugin:vue/strongly-recommended'],
   plugins: ['import', 'vue'],
   settings: {
     'import/resolver': {
-      node: {
+      [path.join(__dirname, 'eslint_shared_resolver.cjs')]: {
         extensions: ['.js', '.vue'],
       },
     },

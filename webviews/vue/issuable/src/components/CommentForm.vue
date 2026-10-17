@@ -91,7 +91,7 @@ export default {
 </template>
 
 <style lang="scss">
-@use '../styles/mixins';
+@use '@shared/styles/mixins';
 
 .main-comment-form {
   margin: var(--gl-space-4) 0 var(--gl-space-6);

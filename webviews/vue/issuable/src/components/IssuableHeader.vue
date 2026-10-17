@@ -135,7 +135,7 @@ export default {
 </template>
 
 <style lang="scss">
-@use '../styles/mixins';
+@use '@shared/styles/mixins';
 
 .issuable-header {
   padding-bottom: var(--gl-space-4);

@@ -13,7 +13,7 @@
     "test": "vitest",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
-    "format": "prettier --write **/src/"
+    "format": "prettier --write **/src/ shared/"
   },
   "dependencies": {
     "@vue/compat": "^3.3.4",

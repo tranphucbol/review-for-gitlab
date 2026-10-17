@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VTooltip from 'v-tooltip';
 import App from './App.vue';
-import './styles/tokens.scss';
+import '@shared/styles/tokens.scss';
 import './styles/markdown.scss';
 import './styles/mermaid.scss';
 

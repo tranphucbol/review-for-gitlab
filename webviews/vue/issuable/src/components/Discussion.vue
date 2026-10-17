@@ -125,7 +125,7 @@ export default {
 </template>
 
 <style lang="scss">
-@use '../styles/mixins';
+@use '@shared/styles/mixins';
 
 .discussion {
   list-style: none;
