@@ -154,6 +154,11 @@ node scripts/release.mjs patch             # changelog, commit, tag, push after 
   still propagate unchanged.
   [001](docs/decisions/001_a-missing-endpoint-is-not-a-bad-token.md)
 
+- **A 401 from a merge request action is re-checked before it is called a bad
+  token.** 13.12 answers a refused action and a bad token with the same 401;
+  re-read the merge request, and let the error propagate only if that fails.
+  [008](docs/decisions/008_merge-request-actions-are-one-quick-pick-over-rest.md)
+
 - **The pipeline runs only what this instance can run.** No `Jobs/*.latest`
   templates, no `include: project` from gitlab.com, no runner tags. A job that
   needs gitlab.com infrastructure or credentials the fork does not have is left
