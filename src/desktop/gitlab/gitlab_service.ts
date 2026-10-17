@@ -149,6 +149,14 @@ const updateNoteBodyMutation = gql`
   }
 `;
 
+const setMrDraftMutation = gql`
+  mutation SetMrDraft($projectPath: ID!, $iid: String!, $draft: Boolean!) {
+    mergeRequestSetDraft(input: { projectPath: $projectPath, iid: $iid, draft: $draft }) {
+      errors
+    }
+  }
+`;
+
 const getNamespaceWithPath = (issuable: RestIssuable) => issuable.references.full.split(/[#!]/)[0];
 const getIssuableGqlId = (issuable: RestIssuable) =>
   `gid://gitlab/${isMr(issuable) ? 'MergeRequest' : 'Issue'}/${issuable.id}`;
@@ -179,6 +187,32 @@ export interface UploadedFile {
   /** MIME type of the file, e.g. `image/png` */
   contentType: string;
   content: Uint8Array;
+}
+
+export interface MergeOptions {
+  /** the head SHA the user saw; GitLab answers 409 if the branch moved since */
+  sha: string;
+  squash: boolean;
+  shouldRemoveSourceBranch: boolean;
+  whenPipelineSucceeds: boolean;
+}
+
+export type MrUpdate = Partial<{
+  state_event: 'close' | 'reopen';
+  reviewer_ids: number[];
+  assignee_ids: number[];
+  add_labels: string[];
+  remove_labels: string[];
+}>;
+
+/**
+ * `POST .../cancel_merge_when_pipeline_succeeds` returns the service result, not the MR.
+ * On 13.12 a failed cancel is still HTTP 201, with `status: 'error'`.
+ */
+export interface AutoMergeCancelResult {
+  status?: string;
+  message?: string;
+  http_status?: number;
 }
 
 // This has to be type, because interface isn't compatible with Record<string,unknown> https://github.com/microsoft/TypeScript/issues/15300#issuecomment-332366024
@@ -318,6 +352,19 @@ export class GitLabService {
     const response = await this.crossFetch(url, {
       headers: { 'Content-Type': 'application/json', ...headers },
       method: 'POST',
+      body: JSON.stringify(body),
+    });
+    await handleFetchError(response, resourceName);
+    return response.json() as Promise<T>;
+  }
+
+  private async putFetch<T>(apiResourcePath: string, resourceName = 'resource', body?: unknown) {
+    const { instanceUrl } = await this.getCredentials();
+    const url = `${instanceUrl}/api/v4${apiResourcePath}`;
+
+    const response = await this.crossFetch(url, {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'PUT',
       body: JSON.stringify(body),
     });
     await handleFetchError(response, resourceName);
@@ -754,6 +801,73 @@ export class GitLabService {
     });
     await handleFetchError(response, 'file upload');
     return response.json() as Promise<RestUpload>;
+  }
+
+  async getMrDetail(mr: RestMr): Promise<RestMrDetail> {
+    return this.fetch(
+      `/projects/${mr.project_id}/merge_requests/${mr.iid}`,
+      { include_diverged_commits_count: true },
+      'merge request',
+    );
+  }
+
+  async getMrApprovals(mr: RestMr): Promise<RestMrApprovals> {
+    return this.fetch(
+      `/projects/${mr.project_id}/merge_requests/${mr.iid}/approvals`,
+      {},
+      'merge request approvals',
+    );
+  }
+
+  async approveMr(mr: RestMr, sha: string): Promise<RestMrApprovals> {
+    return this.postFetch(
+      `/projects/${mr.project_id}/merge_requests/${mr.iid}/approve`,
+      'merge request approval',
+      { sha },
+    );
+  }
+
+  async unapproveMr(mr: RestMr): Promise<RestMrApprovals> {
+    return this.postFetch(
+      `/projects/${mr.project_id}/merge_requests/${mr.iid}/unapprove`,
+      'merge request approval',
+    );
+  }
+
+  async mergeMr(mr: RestMr, options: MergeOptions): Promise<RestMrDetail> {
+    return this.putFetch(`/projects/${mr.project_id}/merge_requests/${mr.iid}/merge`, 'merge', {
+      sha: options.sha,
+      squash: options.squash,
+      should_remove_source_branch: options.shouldRemoveSourceBranch,
+      merge_when_pipeline_succeeds: options.whenPipelineSucceeds,
+    });
+  }
+
+  async cancelAutoMerge(mr: RestMr): Promise<AutoMergeCancelResult> {
+    return this.postFetch(
+      `/projects/${mr.project_id}/merge_requests/${mr.iid}/cancel_merge_when_pipeline_succeeds`,
+      'cancel merge when pipeline succeeds',
+    );
+  }
+
+  async setMrDraft(mr: RestMr, draft: boolean): Promise<void> {
+    const result = await this.graphqlRequest<{ mergeRequestSetDraft: { errors: string[] } }>(
+      setMrDraftMutation,
+      { projectPath: getNamespaceWithPath(mr), iid: String(mr.iid), draft },
+    );
+    const [error] = result.mergeRequestSetDraft.errors;
+    if (error) {
+      throw new UserFriendlyError(error, new Error(`mergeRequestSetDraft: ${error}`));
+    }
+  }
+
+  async updateMr(mr: RestMr, update: MrUpdate): Promise<RestMrDetail> {
+    assert(Object.keys(update).length > 0, 'A merge request update needs at least one field');
+    return this.putFetch(
+      `/projects/${mr.project_id}/merge_requests/${mr.iid}`,
+      'merge request',
+      update,
+    );
   }
 
   async validateVersion(featureName: string, requiredVersion: string) {

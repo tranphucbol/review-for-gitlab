@@ -32,6 +32,56 @@ interface RestMr extends RestIssuable {
   source_branch: string;
 }
 
+interface RestMrUser {
+  id: number;
+  name: string;
+  username: string;
+  avatar_url: string | null;
+}
+
+/**
+ * A single merge request, `GET /projects/:id/merge_requests/:iid`. List items
+ * lack `user`, `head_pipeline`, `diverged_commits_count` and `merge_error`.
+ */
+interface RestMrDetail extends RestMr {
+  state: 'opened' | 'closed' | 'locked' | 'merged';
+  target_branch: string;
+  /** GitLab 14.0 and later; 13.12 has only `work_in_progress` */
+  draft?: boolean;
+  work_in_progress: boolean;
+  merge_status: string;
+  /** GitLab 15.6 and later */
+  detailed_merge_status?: string;
+  has_conflicts: boolean;
+  blocking_discussions_resolved: boolean;
+  merge_when_pipeline_succeeds: boolean;
+  should_remove_source_branch: boolean | null;
+  force_remove_source_branch: boolean | null;
+  squash: boolean;
+  reviewers?: RestMrUser[];
+  assignees: RestMrUser[];
+  labels: string[];
+  user?: { can_merge: boolean };
+  head_pipeline?: { id: number; status: string; web_url: string } | null;
+  diverged_commits_count?: number;
+  merge_error?: string | null;
+}
+
+/** `GET /projects/:id/merge_requests/:iid/approvals` as GitLab CE 13.12 returns it */
+interface RestMrApprovals {
+  approved: boolean;
+  approved_by: { user: RestMrUser }[];
+  user_can_approve: boolean;
+  user_has_approved: boolean;
+}
+
+interface RestLabel {
+  id: number;
+  name: string;
+  color: string;
+  description: string | null;
+}
+
 /** Response of https://docs.gitlab.com/ee/api/projects.html#upload-a-file */
 interface RestUpload {
   alt: string;

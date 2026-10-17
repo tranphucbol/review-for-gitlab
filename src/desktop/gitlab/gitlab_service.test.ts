@@ -645,6 +645,132 @@ describe('gitlab_service', () => {
     });
   });
 
+  describe('merge request actions', () => {
+    const mrPath = `https://gitlab.example.com/api/v4/projects/${mr.project_id}/merge_requests/${mr.iid}`;
+    const failedResponse = (status: number) =>
+      createFakePartial<Response>({
+        ok: false,
+        url: mrPath,
+        status,
+        text: async () => '{"message":"failed"}',
+      });
+    const requestOptions = () => (fetch as jest.Mock).mock.calls[0][1];
+    const requestBody = () => JSON.parse(requestOptions().body);
+
+    beforeEach(() => {
+      asMock(fetch).mockResolvedValue(crossFetchResponse({}));
+    });
+
+    it('reads the merge request detail with the diverged commits count', async () => {
+      await service.getMrDetail(mr);
+
+      expect(crossFetchCallArgument()).toBe(`${mrPath}?include_diverged_commits_count=true`);
+    });
+
+    it('reads the approvals', async () => {
+      await service.getMrApprovals(mr);
+
+      expect(crossFetchCallArgument()).toBe(`${mrPath}/approvals`);
+    });
+
+    it('approves with the sha', async () => {
+      await service.approveMr(mr, 'abc');
+
+      expect(crossFetchCallArgument()).toBe(`${mrPath}/approve`);
+      expect(requestOptions().method).toBe('POST');
+      expect(requestBody()).toEqual({ sha: 'abc' });
+    });
+
+    it('revokes an approval', async () => {
+      await service.unapproveMr(mr);
+
+      expect(crossFetchCallArgument()).toBe(`${mrPath}/unapprove`);
+      expect(requestOptions().method).toBe('POST');
+    });
+
+    it('merges with the sha and the chosen options', async () => {
+      await service.mergeMr(mr, {
+        sha: 'abc',
+        squash: true,
+        shouldRemoveSourceBranch: false,
+        whenPipelineSucceeds: true,
+      });
+
+      expect(crossFetchCallArgument()).toBe(`${mrPath}/merge`);
+      expect(requestOptions().method).toBe('PUT');
+      expect(requestOptions().headers).toEqual(
+        expect.objectContaining({ 'Content-Type': 'application/json' }),
+      );
+      expect(requestBody()).toEqual({
+        sha: 'abc',
+        squash: true,
+        should_remove_source_branch: false,
+        merge_when_pipeline_succeeds: true,
+      });
+    });
+
+    it('cancels merge when pipeline succeeds', async () => {
+      await service.cancelAutoMerge(mr);
+
+      expect(crossFetchCallArgument()).toBe(`${mrPath}/cancel_merge_when_pipeline_succeeds`);
+      expect(requestOptions().method).toBe('POST');
+    });
+
+    it('updates the merge request with the given fields', async () => {
+      await service.updateMr(mr, { state_event: 'close', add_labels: ['bug'] });
+
+      expect(crossFetchCallArgument()).toBe(mrPath);
+      expect(requestOptions().method).toBe('PUT');
+      expect(requestBody()).toEqual({ state_event: 'close', add_labels: ['bug'] });
+    });
+
+    it('refuses to send an empty update', async () => {
+      await expect(service.updateMr(mr, {})).rejects.toThrow();
+      expect(fetch).not.toHaveBeenCalled();
+    });
+
+    it.each`
+      name                 | call
+      ${'approveMr'}       | ${() => service.approveMr(mr, 'abc')}
+      ${'unapproveMr'}     | ${() => service.unapproveMr(mr)}
+      ${'mergeMr'}         | ${() => service.mergeMr(mr, { sha: 'abc', squash: false, shouldRemoveSourceBranch: false, whenPipelineSucceeds: false })}
+      ${'cancelAutoMerge'} | ${() => service.cancelAutoMerge(mr)}
+      ${'updateMr'}        | ${() => service.updateMr(mr, { state_event: 'reopen' })}
+    `('$name passes a FetchError through with its status', async ({ call }) => {
+      asMock(fetch).mockResolvedValue(failedResponse(409));
+
+      const error = await call().catch((e: unknown) => e);
+
+      expect(error).toBeInstanceOf(FetchError);
+      expect((error as FetchError).status).toBe(409);
+    });
+
+    describe('setMrDraft', () => {
+      let request: jest.Mock;
+
+      beforeEach(() => {
+        request = jest.fn().mockResolvedValue({ mergeRequestSetDraft: { errors: [] } });
+        asMock(GraphQLClient).mockReturnValue({ request });
+      });
+
+      it('sends the project path, the iid as a string, and the draft flag', async () => {
+        await service.setMrDraft(mr, true);
+
+        expect(request.mock.calls[0][1]).toEqual({
+          projectPath: 'gitlab-org/gitlab',
+          iid: String(mr.iid),
+          draft: true,
+        });
+      });
+
+      it('throws the first mutation error', async () => {
+        request.mockResolvedValue({ mergeRequestSetDraft: { errors: ['Not allowed'] } });
+
+        await expect(service.setMrDraft(mr, false)).rejects.toThrow('Not allowed');
+      });
+    });
+  });
+
   describe('connectToCable', () => {
     it('connects to ActionCable with Authorization headers', async () => {
       await service.connectToCable();
