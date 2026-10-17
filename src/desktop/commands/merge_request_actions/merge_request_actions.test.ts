@@ -144,6 +144,9 @@ describe('mergeRequestActions', () => {
     expect(pickedLabels()).toEqual([
       '$(git-merge) Merge…',
       '$(edit) Mark as draft',
+      '$(person) Edit reviewers…',
+      '$(account) Edit assignees…',
+      '$(tag) Edit labels…',
       '$(close) Close merge request',
       'Not available',
       '$(check) Approve',

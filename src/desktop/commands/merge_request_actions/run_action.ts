@@ -5,6 +5,7 @@ import { ProjectInRepository } from '../../gitlab/new_project';
 import { FetchError } from '../../errors/fetch_error';
 import { openUrl } from '../openers';
 import { MrActionId, mergeBlocker } from './available_actions';
+import { diffLabels, haveSameMembers, pickLabels, pickUsers } from './edit_people_and_labels';
 
 export interface MrActionTarget {
   mr: RestMr;
@@ -50,6 +51,10 @@ const explainRefusal = async (
     } catch {
       return undefined;
     }
+    await vscode.window.showWarningMessage(`You are not allowed to ${verb} ${ref(detail)}.`);
+    return true;
+  }
+  if (status === 403) {
     await vscode.window.showWarningMessage(`You are not allowed to ${verb} ${ref(detail)}.`);
     return true;
   }
@@ -240,6 +245,59 @@ const reopen = (target: MrActionTarget, { detail }: MrState) =>
     return true;
   });
 
+const PEOPLE = {
+  reviewers: { noun: 'Reviewers', field: 'reviewer_ids' },
+  assignees: { noun: 'Assignees', field: 'assignee_ids' },
+} as const;
+
+const names = (users: RestMrUser[]) => users.map(u => u.name).join(', ');
+
+const editPeople = async (
+  target: MrActionTarget,
+  { detail }: MrState,
+  role: keyof typeof PEOPLE,
+) => {
+  const { noun, field } = PEOPLE[role];
+  const current = detail[role] ?? [];
+  const ids = await pickUsers(
+    getGitLabService(target.projectInRepository),
+    detail,
+    `${noun} of ${ref(detail)}`,
+    current,
+  );
+  const currentIds = current.map(u => u.id);
+  if (!ids || haveSameMembers(ids, currentIds)) return false;
+
+  return withRefusals(target, detail, `change the ${role} of`, async service => {
+    // the full new list: 13.12 has no add/remove for people
+    const updated = await service.updateMr(detail, { [field]: ids });
+    const people = updated[role] ?? [];
+    await vscode.window.showInformationMessage(
+      people.length
+        ? `${noun} of ${ref(detail)}: ${names(people)}`
+        : `${ref(detail)} has no ${role} now`,
+    );
+    return true;
+  });
+};
+
+const editLabels = async (target: MrActionTarget, { detail }: MrState) => {
+  const picked = await pickLabels(getGitLabService(target.projectInRepository), detail);
+  if (!picked) return false;
+  const update = diffLabels(detail.labels, picked);
+  if (!update.add_labels && !update.remove_labels) return false;
+
+  return withRefusals(target, detail, 'change the labels of', async service => {
+    const updated = await service.updateMr(detail, update);
+    await vscode.window.showInformationMessage(
+      updated.labels.length
+        ? `Labels of ${ref(detail)}: ${updated.labels.join(', ')}`
+        : `${ref(detail)} has no labels now`,
+    );
+    return true;
+  });
+};
+
 /**
  * Runs one merge request action against the state the user was shown.
  * Resolves `true` when the merge request may have changed and views should reload.
@@ -268,6 +326,12 @@ export const runAction = async (
       return close(target, state);
     case 'reopen':
       return reopen(target, state);
+    case 'editReviewers':
+      return editPeople(target, state, 'reviewers');
+    case 'editAssignees':
+      return editPeople(target, state, 'assignees');
+    case 'editLabels':
+      return editLabels(target, state);
     case 'refresh':
       return false;
     default:

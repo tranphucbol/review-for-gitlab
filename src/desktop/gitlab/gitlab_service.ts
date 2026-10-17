@@ -870,6 +870,22 @@ export class GitLabService {
     );
   }
 
+  async getProjectUsers(projectId: number, search?: string): Promise<RestMrUser[]> {
+    return this.fetch(
+      `/projects/${projectId}/users`,
+      { search: search || undefined, per_page: 20 },
+      'project users',
+    );
+  }
+
+  async getProjectLabels(projectId: number, search?: string): Promise<RestLabel[]> {
+    return this.fetch(
+      `/projects/${projectId}/labels`,
+      { search: search || undefined, per_page: 100 },
+      'project labels',
+    );
+  }
+
   async validateVersion(featureName: string, requiredVersion: string) {
     const currentVersion = await this.getVersion();
     await ifVersionGte(

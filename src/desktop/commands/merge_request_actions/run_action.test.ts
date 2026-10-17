@@ -15,9 +15,15 @@ import {
   SQUASH_COMMITS,
 } from './run_action';
 import { createApprovals, createMrDetail } from './test_entities';
+import { pickLabels, pickUsers } from './edit_people_and_labels';
 
 jest.mock('../../gitlab/get_gitlab_service');
 jest.mock('../openers');
+jest.mock('./edit_people_and_labels', () => ({
+  ...jest.requireActual('./edit_people_and_labels'),
+  pickUsers: jest.fn(),
+  pickLabels: jest.fn(),
+}));
 
 const fetchError = (status: number) =>
   new FetchError(createFakePartial<Response>({ status, url: 'https://example' }), 'resource');
@@ -292,5 +298,87 @@ describe('runAction', () => {
 
     expect(service.updateMr).toHaveBeenCalledWith(state.detail, { state_event: 'reopen' });
     expect(vscode.window.showWarningMessage).not.toHaveBeenCalled();
+  });
+
+  describe('reviewers and assignees', () => {
+    const ann = { id: 7, name: 'Ann', username: 'ann', avatar_url: '' };
+    const bob = { id: 8, name: 'Bob', username: 'bob', avatar_url: '' };
+
+    beforeEach(() => {
+      state = { ...state, detail: createMrDetail({ reviewers: [ann] }) };
+    });
+
+    it('sends the full new list of reviewers', async () => {
+      asMock(pickUsers).mockResolvedValue([7, 8]);
+      asMock(service.updateMr).mockResolvedValue(createMrDetail({ reviewers: [ann, bob] }));
+
+      await expect(runAction('editReviewers', target, state)).resolves.toBe(true);
+
+      expect(pickUsers).toHaveBeenCalledWith(service, state.detail, 'Reviewers of !42', [ann]);
+      expect(service.updateMr).toHaveBeenCalledWith(state.detail, { reviewer_ids: [7, 8] });
+      expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
+        'Reviewers of !42: Ann, Bob',
+      );
+    });
+
+    it('clears the assignees with an empty list', async () => {
+      state = { ...state, detail: createMrDetail({ assignees: [ann] }) };
+      asMock(pickUsers).mockResolvedValue([]);
+      asMock(service.updateMr).mockResolvedValue(createMrDetail({ assignees: [] }));
+
+      await runAction('editAssignees', target, state);
+
+      expect(service.updateMr).toHaveBeenCalledWith(state.detail, { assignee_ids: [] });
+      expect(vscode.window.showInformationMessage).toHaveBeenCalledWith('!42 has no assignees now');
+    });
+
+    it.each`
+      case                | picked
+      ${'dismissed'}      | ${undefined}
+      ${'left unchanged'} | ${[7]}
+    `('sends nothing when the pick is $case', async ({ picked }) => {
+      asMock(pickUsers).mockResolvedValue(picked);
+
+      await expect(runAction('editReviewers', target, state)).resolves.toBe(false);
+      expect(service.updateMr).not.toHaveBeenCalled();
+    });
+
+    it('reports a 403 as a refusal', async () => {
+      asMock(pickUsers).mockResolvedValue([8]);
+      asMock(service.updateMr).mockRejectedValue(fetchError(403));
+
+      await expect(runAction('editReviewers', target, state)).resolves.toBe(true);
+      expect(vscode.window.showWarningMessage).toHaveBeenCalledWith(
+        'You are not allowed to change the reviewers of !42.',
+      );
+    });
+  });
+
+  describe('labels', () => {
+    beforeEach(() => {
+      state = { ...state, detail: createMrDetail({ labels: ['backend', 'bug'] }) };
+    });
+
+    it('sends only the labels added and removed', async () => {
+      asMock(pickLabels).mockResolvedValue(['bug', 'urgent']);
+      asMock(service.updateMr).mockResolvedValue(createMrDetail({ labels: ['bug', 'urgent'] }));
+
+      await expect(runAction('editLabels', target, state)).resolves.toBe(true);
+
+      expect(service.updateMr).toHaveBeenCalledWith(state.detail, {
+        add_labels: ['urgent'],
+        remove_labels: ['backend'],
+      });
+      expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
+        'Labels of !42: bug, urgent',
+      );
+    });
+
+    it('sends nothing when the labels did not change', async () => {
+      asMock(pickLabels).mockResolvedValue(['bug', 'backend']);
+
+      await expect(runAction('editLabels', target, state)).resolves.toBe(false);
+      expect(service.updateMr).not.toHaveBeenCalled();
+    });
   });
 });

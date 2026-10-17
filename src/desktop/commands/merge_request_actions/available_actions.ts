@@ -8,6 +8,9 @@ export type MrActionId =
   | 'markAsReady'
   | 'close'
   | 'reopen'
+  | 'editReviewers'
+  | 'editAssignees'
+  | 'editLabels'
   | 'refresh';
 
 export interface MrAction {
@@ -95,6 +98,12 @@ export const availableActions = (detail: RestMrDetail, approvals: RestMrApproval
         ? { id: 'markAsReady', label: 'Mark as ready', icon: 'edit' }
         : { id: 'markAsDraft', label: 'Mark as draft', icon: 'edit' },
     );
+    // without the current reviewers the new list would silently drop them
+    if (detail.reviewers) {
+      actions.push({ id: 'editReviewers', label: 'Edit reviewers…', icon: 'person' });
+    }
+    actions.push({ id: 'editAssignees', label: 'Edit assignees…', icon: 'account' });
+    actions.push({ id: 'editLabels', label: 'Edit labels…', icon: 'tag' });
     actions.push({ id: 'close', label: 'Close merge request', icon: 'close' });
   }
   if (detail.state === 'closed') {

@@ -729,6 +729,22 @@ describe('gitlab_service', () => {
       expect(fetch).not.toHaveBeenCalled();
     });
 
+    it('searches the users of a project', async () => {
+      await service.getProjectUsers(12817, 'ann');
+
+      expect(crossFetchCallArgument()).toBe(
+        'https://gitlab.example.com/api/v4/projects/12817/users?search=ann&per_page=20',
+      );
+    });
+
+    it('lists the labels of a project without an empty search', async () => {
+      await service.getProjectLabels(12817, '');
+
+      expect(crossFetchCallArgument()).toBe(
+        'https://gitlab.example.com/api/v4/projects/12817/labels?per_page=100',
+      );
+    });
+
     it.each`
       name                 | call
       ${'approveMr'}       | ${() => service.approveMr(mr, 'abc')}

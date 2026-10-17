@@ -21,8 +21,29 @@ const unavailable = (detail: RestMrDetail, approvals = createApprovals()) =>
   ) as Partial<Record<MrActionId, string>>;
 
 describe('availableActions', () => {
-  it('offers approve, merge, draft and close on a mergeable open merge request', () => {
-    expect(ids(createMrDetail())).toEqual(['approve', 'merge', 'markAsDraft', 'close']);
+  it('offers approve, merge, draft, edits and close on a mergeable open merge request', () => {
+    expect(ids(createMrDetail())).toEqual([
+      'approve',
+      'merge',
+      'markAsDraft',
+      'editReviewers',
+      'editAssignees',
+      'editLabels',
+      'close',
+    ]);
+  });
+
+  describe('edits', () => {
+    it('does not offer reviewers when GitLab does not report them', () => {
+      const actions = ids(createMrDetail({ reviewers: undefined }));
+
+      expect(actions).not.toContain('editReviewers');
+      expect(actions).toContain('editAssignees');
+    });
+
+    it('offers no edits on a closed merge request', () => {
+      expect(ids(createMrDetail({ state: 'closed' }))).toEqual(['reopen']);
+    });
   });
 
   describe('approve', () => {
