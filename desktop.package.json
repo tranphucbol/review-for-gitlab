@@ -218,6 +218,12 @@
         "title": "Fetch and Update Merge Request Branch"
       },
       {
+        "command": "gl.mergeRequestActions",
+        "title": "Merge Request Actions…",
+        "category": "GitLab",
+        "icon": "$(git-pull-request)"
+      },
+      {
         "command": "gl.openInGitLab",
         "title": "Open in GitLab"
       },
@@ -439,6 +445,10 @@
         },
         {
           "command": "gl.openCurrentMergeRequest",
+          "when": "gitlab:validState"
+        },
+        {
+          "command": "gl.mergeRequestActions",
           "when": "gitlab:validState"
         },
         {
