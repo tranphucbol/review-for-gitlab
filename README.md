@@ -1,444 +1,380 @@
-# <img src="https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/-/raw/main/src/assets/logo.png" width="64" align="center" /> [Jetbrain GitLab](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab)
+<p align="center">
+  <img src="src/assets/logo.png" alt="Jetbrain GitLab logo" width="128">
+</p>
 
-> **This is a fork.** Jetbrain GitLab is
-> [GitLab Workflow](https://marketplace.visualstudio.com/items?itemName=GitLab.gitlab-workflow)
-> adapted to work with GitLab 13.12, with a side-by-side merge request diff,
-> image paste in comments, merge request actions and Jira links added. It is not
-> maintained or endorsed by GitLab. Do not install it next to GitLab Workflow:
-> both register the same commands, views and `gitlab.*` settings. Sign in with a
-> personal access token; OAuth sign-in to GitLab.com belongs to the official
-> extension.
+# Jetbrain GitLab
 
-This extension integrates GitLab into Visual Studio Code. After you [set up the extension](#setup), you can:
+GitLab Workflow for GitLab 13.12: issues, merge requests and pipelines in VS Code, on an instance
+older than upstream supports, with a side-by-side merge request diff modelled on JetBrains IDEs.
+A fork of [GitLab Workflow](https://gitlab.com/gitlab-org/gitlab-vscode-extension), not
+maintained or endorsed by GitLab.
 
-- [**View GitLab issues and merge requests**](#issue-and-merge-request-details-and-comments-in-vs-code).
-  View issues, comments, merge requests, and changed files [in the VS Code sidebar](#sidebar-details),
-  or build a [custom search](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/custom-queries.md)
-  to meet your needs.
-- [**Create and review merge requests**](#merge-request-reviews).
-- [**View security findings in your current branch**](#security-findings)
-- [**Validate your GitLab CI/CD configuration**](#validate-gitlab-cicd-configuration) locally with a [command](#commands).
-- [**Manage your pipelines**](#pipeline-actions). View your [pipeline status](#status-bar-details)
-  and open the related merge request. With [advanced pipeline actions](#pipeline-actions),
-  you can create, retry, or cancel a pipeline.
-- [**View the job output**](#view-the-job-output). View the output of a running or finished job in an editor tab.
-- **Manage snippets**. [Create](#create-snippet) and [insert](#insert-snippet)
-  snippets, and apply [snippet patches](#create-and-apply-snippet-patch).
-- [**Browse a GitLab repository directly**](#browse-a-repository-without-cloning)
-  in Visual Studio Code without cloning it.
-- [**Auto-complete GitLab CI/CD variables**](#cicd-variable-autocompletion) in your `.gitlab-ci.yml` pipeline file, and any file beginning with `.gitlab-ci` and ending with `.yml` or `.yaml`, like `.gitlab-ci.production.yml`.
+![Side-by-side merge request diff](docs/assets/fork/side-by-side-diff.gif)
 
-If you face an issue, check out our [list of known issues](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/known-issues.md) and if it's not listed, please [report it](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/CONTRIBUTING.md#reporting-issues).
+## Highlights
 
-## Minimum supported version
+- [Side-by-side merge request diff](#side-by-side-diff): both versions with ribbons between the
+  changes and the discussions inline, where you reply, resolve and start new threads.
+- [Paste images into review comments](#merge-request-review): `cmd + v` on a screenshot uploads
+  it to the merge request's project and inserts the Markdown.
+- [Approve, merge and edit from VS Code](#merge-request-actions): one quick pick for approve,
+  merge, draft, reviewers, assignees and labels.
+- [Go to Definition in a review diff](#merge-request-review): `cmd + click` on `ErrNotCancellable`
+  in the diff opens `errors.go` when your checkout has the same file.
+- [Jira keys become links](#jira-links): `PC-1234` in a branch, title or comment opens your Jira.
+- [Mermaid in the Overview](#overview), and a comment box with Write and Preview, in your VS Code
+  theme.
+- [Works on GitLab 13.12](#compatibility): adding an account no longer needs
+  `personal_access_tokens/self`, which arrived in GitLab 15.5.
 
-### Minimum supported GitLab Version
+## Install
 
-This extension supports GitLab versions 16.1 and later. Even though most of the extension's features work with older versions, we currently don't actively support GitLab instances below version 16.1.
+- [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=tranphucbol.jetbrain-gitlab)
+- A `.vsix` from the [releases](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/-/releases)
+  of this project
 
-To find your GitLab version, visit `/help` (like `https://gitlab.com/help`).
+Or run `ext install tranphucbol.jetbrain-gitlab` from the command palette quick open
+(`cmd + p` / `ctrl + p`). It needs VS Code 1.82 or later.
 
-### Minimum supported VS Code Version for Code Suggestions
+> Coming from `GitLab.gitlab-workflow`? This extension is a fork of it and keeps the same
+> `gitlab.*` settings and command IDs, so your settings carry over. Uninstall or disable GitLab
+> Workflow first, otherwise both register the same commands, views and settings. Sign in with a
+> personal access token; OAuth sign-in to GitLab.com belongs to the official extension.
 
-To use [Code Suggestions](#code-suggestions), VS Code 1.82.0 and later is required.
+## Quick start
+
+1. Create a personal access token with the `api` scope on your GitLab: **User Settings** →
+   **Access Tokens**.
+2. Run **GitLab: Add Account to VS Code**, enter the URL of your GitLab, for example
+   `https://gitlab.example.com`, and paste the token. To skip this step on machines you rebuild
+   often, set `GITLAB_WORKFLOW_INSTANCE_URL` and `GITLAB_WORKFLOW_TOKEN` before VS Code starts.
+3. Open a clone of a project on that GitLab. The GitLab view in the activity bar lists your
+   issues and merge requests, and the status bar shows the pipeline and merge request of the
+   current branch.
+4. Expand a merge request and select a changed file to review it. Set
+   `gitlab.mergeRequestDiff.viewer` to `sideBySide` to open the side-by-side diff instead of VS
+   Code's diff editor.
+
+## How it works
+
+The extension is built from GitLab Workflow v3.101.1. Everything it shows comes from your GitLab's
+REST and GraphQL APIs, called with your token from VS Code; nothing goes through a third party.
+
+The fork keeps upstream's code and adds what a GitLab 13.12 instance needs:
+
+- an endpoint newer than the instance answers 404, and the extension reads that as "not supported
+  here", not as a bad token
+- features that need a newer GitLab check for it and stay out of the way, without errors
+- merge request actions use only REST routes and GraphQL mutations that 13.12 has
+
+It works on newer GitLab too, including GitLab.com with a token: the images on this page were
+recorded against a project on GitLab.com. See [Compatibility](#compatibility) for what needs a
+newer GitLab.
 
 ## Features
 
-_You need to set up your access token(s) to use these features, please see [Setup](#setup) section below._
-
-### Code Suggestions
-
-Write code more efficiently by using generative AI to suggest code while you're developing. To learn more about this feature, see the
-[Code Suggestions documentation](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html). With Code Suggestions, you get:
-
-- Code Completion, which suggests completions for the current line you are typing. These suggestions usually have low latency.
-- Code Generation, which generates code based on a natural-language code comment block. Responses for code generation are streamed in VS Code to quickly begin giving results.
-
-Code Suggestions is a generative artificial intelligence (AI) model. GitLab selects the best-in-class large-language models for specific tasks. We use [Google Vertex AI Code Models](https://cloud.google.com/vertex-ai/docs/generative-ai/code/code-models-overview) and [Anthropic Claude](https://www.anthropic.com/product) for Code Suggestions.
-
-No new additional data is collected to enable this feature. Private non-public GitLab customer data is not used as training data.
-Learn more about [Code Suggestion data usage](https://docs.gitlab.com/ee/user/project/repository/code_suggestions/#code-suggestions-data-usage).
-
-Users should read about the [known limitations](https://docs.gitlab.com/ee/user/project/repository/code_suggestions.html#known-limitations).
-
-Report issues by [creating an issue](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/new).
-
-#### Set up Code Suggestions
-
-You must meet all these conditions to use Code Suggestions:
-
-- You must be using GitLab Enterprise Edition.
-- For self-managed installations, Code Suggestions must be
-  [enabled for your instance](https://docs.gitlab.com/ee/user/project/repository/code_suggestions/self_managed.html).
-- For GitLab.com, Code Suggestions must be
-  enabled for your top-level group. See instructions
-  [for SaaS](https://docs.gitlab.com/ee/user/group/manage.html#enable-code-suggestions-for-a-group).
-
-If you meet all these conditions, continue [setting up this extension](#setup) to use Code Suggestions.
-
-#### Use Code Generation
-
-To use Code Generation:
-
-1. Add a comment to a supported file type.
-1. In the comment, use natural language to describe the code you want to build.
-1. To accept the generated code:
-   - To accept the entire suggestion, press <kbd>Tab</kbd>.
-   - To accept the suggestion line-by-line, select **Accept Line**.
-   - To accept the suggestion word-by-word, press <kbd>Command</kbd> + <kbd>→</kbd> (right arrow).
-
-![Demo of Code Generation in use](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d20455832b118aa92ca7f634166e2b14a1c7a5c5/docs/assets/streaming.gif)
-
-You can [disable the streaming function](docs/user/troubleshooting.md#disable-streaming), if needed.
-
-### Browse issues, review MRs
-
-See your issues, MRs (including changed files) and other [custom search results](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/custom-queries.md) on a dedicated panel in the VS Code sidebar. [Read more](#sidebar-details)
-
-### Information about your branch - pipelines, MR, closing issue
-
-See pipeline status, open MR and closing issue links in the status bar. [Read more](#status-bar-details).
-This pipeline status automatically updates so you don't need to open GitLab to see your pipeline status.
-
-Advanced pipeline actions allow you to view pipeline on GitLab, create a new pipeline, retry or cancel current pipeline. [Read more](#pipeline-actions).
-
-![status_bar.gif](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/status-bar.gif)
-
-### Commands
-
-You can use [Command Palette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette) to run the commands.
-
-- `GitLab: Search Project Issues (Supports Filters)`. [Read more](#search-with-filters)
-- `GitLab: Search Project Merge Requests (Supports Filters)`. [Read more](#search-with-filters)
-- `GitLab: Advanced Search (Issues, Merge Requests, Commits, Comments...)`. [Read more](#search-with-advanced-search)
-- `GitLab: Create Snippet` - Create public, internal or private snippet from entire file or selection. [Read more](#create-snippet).
-- `GitLab: Insert Snippet` - Insert a project snippet, supports multi-file snippets. [Read more](#insert-snippet).
-- `GitLab: Compare Current Branch with Default Branch` - Compare your branch with the repository's default branch and view changes on GitLab. [Read more](#compare-with-default-branch).
-- `GitLab: Open Active File on GitLab` - View active file on GitLab with highlighting active line number and selected text block. [Read more](#open-active-file).
-- `GitLab: Validate GitLab CI/CD Config` - Validate GitLab CI/CD configuration file `.gitlab-ci.yml`. [Read more](#validate-gitlab-cicd-configuration).
-- `GitLab: Show Merged GitLab CI/CD Config` - Show a preview of the GitLab CI/CD configuration file `.gitlab-ci.yml` with all includes resolved. [Read more](#show-merged-gitlab-cicd-configuration).
-- `GitLab: Open Merge Request for Current Branch`
-- `GitLab: Merge Request Actions…` - Approve, merge, close or reopen a merge request, mark it as draft or ready, and edit its reviewers, assignees and labels.
-- `GitLab: Open Jira Issue` - Open the Jira issue named in the current branch or its merge request. Shown when `gitlab.jira.url` is set. [Read more](#jira-links).
-- `GitLab: Show Issues Assigned to Me` - Open issues assigned to you on GitLab.
-- `GitLab: Show Merge Requests Assigned to Me` - Open MRs assigned to you on GitLab.
-- `GitLab: Open Current Project on GitLab`
-- `GitLab: Create New Issue on Current Project`
-- `GitLab: Create New Merge Request on Current Project` - Open the merge request page to create a merge request.
-- `GitLab: Open Remote Repository` - Browse a remote GitLab repository. [Read more](#browse-a-repository-without-cloning).
-- `GitLab: Open Active File on GitLab`
-- `GitLab: Copy Link to Active File on GitLab`
-- `GitLab: Remove Account from VS Code`
-
-Commands this extension extends or integrates with:
-
-- `Git: Clone` - Search for and clone projects for every GitLab instance you set up. [Read more](#clone-gitlab-projects), [Official Documentation](https://code.visualstudio.com/docs/editor/versioncontrol#_cloning-a-repository)
-- `Git: Add Remote...` - Add existing projects as remote from every GitLab instance you set up.
-
-## Setup
-
-This extension requires you to create a GitLab personal access token, and assign it to the extension:
-
-1. [Install the extension](https://marketplace.visualstudio.com/items?itemName=GitLab.gitlab-workflow) from the Visual Studio Marketplace and enable it. If you use an unofficial version of VS Code, install the extension from the [Open VSX Registry](https://open-vsx.org/extension/GitLab/gitlab-workflow).
-1. Optional. To sign in to GitLab.com, you can run the command `GitLab: Authenticate to GitLab.com` to authenticate using OAuth. This feature is not available for self-managed installations.
-1. If you did not sign in with OAuth, create a personal access token with the `api` scope:
-   - If you use GitLab.com, go to the [personal access tokens](https://gitlab.com/-/profile/personal_access_tokens) page.
-   - If you use a self-managed GitLab instance, follow the instructions [in the GitLab documentation](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token).
-1. Copy the token. _For security reasons, this value is never displayed again, so you must copy this value now._
-1. Open Visual Studio Code, then open the command palette by pressing <kbd>Command</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>.
-1. In the command palette, search for **GitLab: Add Account** and press <kbd>Enter<kbd>.
-1. In the **URL to GitLab instance**, paste the full URL to your GitLab instance, including the `http://` or `https://`. Press <kbd>Enter</kbd> to confirm.
-1. Paste in your GitLab personal access token and press <kbd>Enter</kbd>. The token is not displayed, nor is it accessible to others.
-
-The extension automatically matches your Git repository remote URL with the GitLab instance URL you specified for your token. If this automatic matching fails, you can right-click (<kbd>Ctrl</kbd>+click on MacOS) the repository in the GitLab Tree View and resolve the problem.
-
-The extension is ready to use. If your project has a pipeline for the last commit, and a merge request from your current branch, information about both is displayed in the Visual Studio Code status bar.
-
-### Set token with environment variables
-
-If you often delete your VS Code storage (such as in Gitpod containers) you can create environment variables before starting VS Code. If you set the token in an environment variable you don't have to set the personal access token every time you delete your VS Code storage.
-
-- `GITLAB_WORKFLOW_INSTANCE_URL`: GitLab instance URL (e.g. `https://gitlab.com`).
-- `GITLAB_WORKFLOW_TOKEN`: personal access token, which you created [during setup](#setup).
-
-The token configured in an environment variable is overridden if you configure a token for the same GitLab instance in the extension.
-
-### Self-signed certificate authority
-
-If your GitLab uses a self-signed CA (certificate authority), please read
-[the SSL setup guide](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/ssl.md)
-and the [settings for self-signed certificates](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/troubleshooting.md#settings-for-self-signed-certificates)
-
-## Extension settings
-
-To learn how to change the VS Code Settings, read the official [Settings documentation](https://code.visualstudio.com/docs/getstarted/settings).
-
-If you use self-signed certificates to connect to your GitLab instance, read the
-community-contributed
-[settings for self-signed certificates](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/troubleshooting.md#settings-for-self-signed-certificates).
-
-**`gitlab.pipelineGitRemoteName`** _(default: null)_
-
-The name of the Git remote name corresponding to the GitLab repository with your pipelines. If set to `null` or missing, then the extension uses the same remote as for the non-pipeline features.
-
-**`gitlab.debug`** _(default: false)_
-
-Setting this option to `true` enables debug mode. Debug mode improves error stack trace because the extension will use source maps to understand minified code. Debug mode also shows debug log messages in the extension logs.
-
-**`gitlab.customQueries`**
-
-Defines the search queries that retrieves the items shown on the GitLab Panel. See [Custom Queries documentation](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/custom-queries.md) for more details.
-
-**`gitlab.aiAssistedCodeSuggestions.enabled`** _(default: true)_
-
-Toggle to enable or disable AI assisted code suggestions.
-
-## Features in-depth
-
-### Issue and Merge Request details and comments in VS Code
-
-![Issues in Visual Studio Code](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/issues-in-vscode.png)
-
-GitLab Workflow allows you to view issue details and comments right in the VS Code. Click an issue link from the VS Code sidebar to open a new tab with the issue details. You can also comment on the issue from VS Code.
-
-You can use [GitLab Slash Commands](https://docs.gitlab.com/ee/integration/slash_commands.html) to perform actions directly from VS Code. For example, to assign an issue to `@fatihacet`, simply add a comment `/assign @fatihacet` inside VS Code.
-
-#### Merge Request Reviews
-
-GitLab Workflow enables you to review merge requests directly inside the editor:
-
-![Animated gif showing how to review a merge request](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/diff-comments.gif)
-
-1. In VS Code, on the left-hand sidebar, go to **Issues and Merge Requests**.
-1. Select the appropriate merge request filter to view a list of merge requests.
-1. Expand a relevant merge request to view the description and files changed.
-1. Select a file to open it, and view the diff.
-
-From the diff, you can:
-
-- Review and create discussions.
-- Resolve and unresolve these discussions.
-- Delete and edit individual comments.
-
-### Side-by-side merge request diff
-
-**`gitlab.mergeRequestDiff.viewer`** _(default: `native`)_ chooses the view
-that opens when you select a changed file of a merge request in the sidebar:
-
-- `native` - VS Code's diff editor, with comments through the VS Code comments
-  API, as described above.
-- `sideBySide` - a webview that shows both sides with connector ribbons between
-  the changes and the discussions inline, where you can reply, resolve, edit,
-  delete and paste images into comments.
-
-Whatever the setting, the side-by-side icon on a changed file and the command
-**GitLab: Open Changed File in Side-by-Side View** open that file in the
-side-by-side view.
-
-**`gitlab.mergeRequestDiff.showLocalChangeButtons`** _(default: false)_ shows
-buttons in the side-by-side view that copy a change into your local file, or
-revert it there. The local file is checked first, and the change is an unsaved
-edit you can review and undo.
+### Merge request review
+
+Select a changed file of a merge request in the sidebar to open it in VS Code's diff editor, with
+the discussions as comment threads on their lines.
+
+- **Comments**: start a thread on any line, reply, resolve and unresolve, edit and delete your
+  comments. Slash commands such as `/assign @user` work in comments as they do on GitLab.
+- **Paste images**: paste or drop an image into a comment box and it is uploaded to the merge
+  request's project, the one the comment is created in, and inserted as Markdown. Pasting needs VS
+  Code 1.97 or later; dropping a file works on every supported version. A failed upload shows a
+  notification and leaves the comment as it was.
+
+  ![Paste an image into a review comment](docs/assets/fork/paste-image.gif)
+
+- **Code navigation**: Go to Definition, Find References and hover work on both sides of the
+  diff, through the language server of your local file, when the local file has the same content
+  as the merge request version. Check out the merge request branch for that. A local file with
+  unsaved or different changes gives no answer rather than a wrong line.
+
+  ![Go to Definition in a review diff](docs/assets/fork/code-navigation.gif)
+
+- **Check out the branch**: **Check out Merge Request Branch** on a merge request in the sidebar
+  checks out its source branch. **GitLab: Fetch and Update Merge Request Branch** fetches it and
+  moves your local branch to the remote one; when your local branch has commits the remote does
+  not, it asks before dropping them and tells you how to get them back. It is offered for merge
+  requests from the same project.
+
+### Side-by-side diff
+
+`gitlab.mergeRequestDiff.viewer` chooses what opens when you select a changed file in the
+sidebar: `native`, VS Code's diff editor (the default), or `sideBySide`, a view that shows both
+versions next to each other the way JetBrains IDEs do.
+
+- **Ribbons and alignment**: the changes are joined by ribbons across the gutter, and hatched
+  filler keeps both sides on the same row. **Align both sides** in the toolbar turns the filler
+  off; scrolling then maps one side onto the other. The choice is remembered.
+- **Discussions inline**: threads sit under the line they belong to. Reply, resolve, edit, delete
+  and start a thread from the `+` next to a line number. `cmd + enter` / `ctrl + enter` comments on
+  the cursor's line. Comments have Write and Preview tabs and take pasted images, like the native
+  review.
+- **Navigation**: the toolbar counts the changes and moves between them, as do `f7` and
+  `shift + f7`. Hover, Go to Definition and Find References work as in the native review.
+  **Refresh** loads the latest version of the merge request and its discussions.
+- **Open it anywhere**: the side-by-side icon on a changed file, the button on a review diff's
+  title bar, or **GitLab: Open Changed File in Side-by-Side View** open one file in this view
+  whatever the setting. **Open native diff** goes back.
+- **Copy a change locally** (`gitlab.mergeRequestDiff.showLocalChangeButtons`): arrows copy a
+  change into your local file, when it equals the old version, or revert it there, when it equals
+  the new one. The file is checked first, and the change is an unsaved edit you can undo. Off by
+  default.
+
+### Merge request actions
+
+**GitLab: Merge Request Actions…** opens one quick pick for a merge request, from the sidebar, a
+review diff's title bar, the side-by-side diff, the Overview or the command palette.
+
+- **What it offers**: approve or revoke your approval, merge, merge when the pipeline succeeds,
+  cancel that, mark as draft or ready, edit reviewers, assignees and labels, close or reopen, and
+  open the Jira issue. The title shows the merge request's state and whether it can be merged.
+- **What it does not offer**: actions you cannot take are listed under **Not available** with the
+  reason, for example "You are not allowed to approve it".
+- **Safe writes**: merge, cancelling an automatic merge and close ask first. A merge sends the
+  commit you saw, so it is refused if someone pushed in the meantime. After a change, the sidebar,
+  status bar and open views refresh.
+
+![Merge request actions](docs/assets/fork/merge-request-actions.gif)
+
+### Overview
+
+Select **Overview** under a merge request, or an issue in the sidebar, to open its description,
+labels, activity and comments in a tab.
+
+- **Your theme**: the Overview takes its colours from your VS Code theme.
+- **Mermaid**: `mermaid` code blocks in descriptions and comments render as diagrams, with a
+  button to show the source and one to copy it.
+- **Comment box**: Write and Preview tabs, pasted images uploaded as in the review, and `escape`
+  to close a reply.
+
+![Overview](docs/assets/fork/overview.gif)
 
 ### Jira links
 
-Set **`gitlab.jira.url`** to the base URL of your Jira, for example
-`https://jira.example.com/`, and Jira issue keys such as `PC-1234` become links
-to `<url>/browse/PC-1234`. The extension never calls Jira; it only builds the
-links. With the setting empty, nothing changes.
+Set `gitlab.jira.url` to the base URL of your Jira, for example `https://jira.example.com/`, and
+keys such as `PC-1234` link to `https://jira.example.com/browse/PC-1234`. The extension never
+calls Jira; it only builds links. With the setting empty, nothing changes.
+
+- **Where keys link**: review comments as they are displayed, the title, description and comments
+  in the Overview, and notes and previews in the side-by-side diff. The comment stored on GitLab
+  is not changed. Keys in code, code blocks and existing links are left alone.
+- **Open the issue**: **GitLab: Open Jira Issue** looks in the current branch name, then the title
+  and description of its open merge request, and opens the key it finds or lets you pick one. The
+  same is offered as **Open PC-1234 in Jira** under the merge request in the sidebar, on its
+  context menu and in **Merge Request Actions…**, up to five keys each.
+- **Which keys**: `gitlab.jira.projectKeys` limits links to your projects and lets lowercase keys
+  in branch names, such as `feature/pc-12-login`, match. `gitlab.jira.ignoredProjectKeys` lists
+  prefixes that look like keys but are not, such as `SHA-256`.
+
+### Branch and pipeline
+
+- **Status bar**: the pipeline of the last commit, the merge request of the current branch and the
+  issue it closes. Select the pipeline for its actions, the others to open them on GitLab.
+- **Pipeline actions**: **GitLab: Pipeline Actions - View, Create, Retry, or Cancel** works on the
+  current branch's latest pipeline. The sidebar lists its jobs, including downstream pipelines,
+  where you can retry, cancel or run a job and download its artifacts.
+- **Job output**: select a job to open its log in a tab. A running job's log updates as it runs;
+  **Scroll to Bottom** follows it.
+- **Notifications** (`gitlab.showPipelineUpdateNotifications`): a message when the pipeline status
+  changes. Off by default.
+
+![Status bar](docs/assets/status-bar.gif)
+
+### Issues and merge requests
+
+- **Sidebar**: issues and merge requests assigned to you, created by you, to review, and every
+  open merge request of the project. Each list is a query in `gitlab.customQueries`; see
+  [custom queries](docs/user/custom-queries.md) for the fields.
+- **Search with filters**: **GitLab: Search Project Issues (Supports Filters)** and **GitLab:
+  Search Project Merge Requests (Supports Filters)** open the results on GitLab. Type words to
+  search titles and descriptions, or combine tokens:
+  `title: cancel orders author: alice assignee: bob labels: backend, orders milestone: 13.12`.
+  The tokens are `title`, `labels` (comma-separated), `label` (repeatable), `milestone`, `author`,
+  `assignee` and `scope` (`created-by-me`, `assigned-to-me` or `all`). The `:` after a token is
+  required; quotes are not.
+- **Advanced Search**: **GitLab: Advanced Search (Issues, Merge Requests, Commits, Comments...)**
+  opens GitLab's search page with your query. Advanced Search syntax needs Elasticsearch on your
+  GitLab; without it, GitLab runs its basic search.
+- **Open on GitLab**: the current project, the merge request for the current branch, a new issue
+  or merge request, and what is assigned to you. **GitLab: Compare Current Branch with Default
+  Branch** opens the comparison.
+
+### Snippets, CI/CD and repository
+
+- **CI/CD configuration**: **GitLab: Validate GitLab CI/CD Configuration** lints the open
+  `.gitlab-ci.yml` on your GitLab, and **GitLab: Show Merged GitLab CI/CD Configuration** shows it
+  with every `include` resolved, updated when you save.
+- **CI/CD variables**: typing `$` lists the predefined variables in `.gitlab-ci.yml` and any
+  `.gitlab-ci*.yml` or `.yaml` file.
+- **Snippets**: **GitLab: Create Snippet** from a file or selection, **GitLab: Insert Snippet**
+  with multi-file snippets, and **GitLab: Create Snippet Patch** / **GitLab: Apply Snippet Patch**
+  to pass a `git diff` around through a snippet.
+- **Files**: **GitLab: Open Active File on GitLab** and **GitLab: Copy Link to Active File on
+  GitLab** keep the selected lines.
+- **Clone**: **Git: Clone** searches the projects you are a member of on every GitLab you added.
+  Over HTTPS, your token is used to clone, fetch and push.
+- **Browse without cloning**: **GitLab: Open Remote Repository** opens a project at a branch or
+  tag as a read-only folder. See [the URL format](docs/user/remote-fs-url-format.md) to add one to
+  a workspace file.
+
+## Compatibility
+
+Checked against GitLab 13.12.10 Community Edition with the calls the extension makes. Everything
+under [Features](#features) works there, except snippets, which were not exercised.
+
+These upstream features need a newer or paid GitLab. On 13.12 they are absent without an error:
 
-Keys are linked in:
+| Feature                                  | Needs                                |
+| ---------------------------------------- | ------------------------------------ |
+| Code Suggestions                         | GitLab 16.1 or later with GitLab Duo |
+| Duo Chat                                 | GitLab 16.x or later with GitLab Duo |
+| Security findings of the current branch  | GitLab 16.1 or later, Ultimate       |
+| `vulnerabilities` type in custom queries | GitLab Ultimate                      |
+| `epics` type in custom queries           | GitLab Premium                       |
 
-- review comments in the diff, as they are displayed; the comment GitLab stores
-  is not changed, and editing it shows what you wrote
-- the merge request or issue title, description and comments in the Overview
-- notes and comment previews in the side-by-side diff
+The oldest GitLab the extension starts with is 13.6; below it, it warns once.
 
-Keys inside code, code blocks and existing links are left alone. Where GitLab's
-own Jira integration has already linked a key, its link is kept.
+## Commands
 
-To open the issue:
+The fork adds four commands. None has a default key.
 
-- run `GitLab: Open Jira Issue`. It looks for keys in the current branch name,
-  then the title and description of the branch's open merge request, and opens
-  the only key it finds or lets you pick one
-- select an `Open PC-1234 in Jira` item under the merge request in the current
-  branch view, or run **Open Jira Issue** from a merge request's context menu
-- pick `Open PC-1234 in Jira` in `GitLab: Merge Request Actions…`
+| Command                   | Title                                          | Where                                                                           |
+| ------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------- |
+| `gl.mergeRequestActions`  | GitLab: Merge Request Actions…                 | palette, sidebar, review diff, side-by-side diff, Overview                      |
+| `gl.openMrFileSideBySide` | GitLab: Open Changed File in Side-by-Side View | changed file in the sidebar, review diff title bar                              |
+| `gl.updateMrBranch`       | GitLab: Fetch and Update Merge Request Branch  | merge request from the same project in the sidebar                              |
+| `gl.openJiraIssue`        | GitLab: Open Jira Issue                        | palette, current branch view, merge request menu; when `gitlab.jira.url` is set |
 
-Up to five keys are offered in each place.
+- **Merge Request Actions…** without a merge request uses the focused side-by-side diff or
+  Overview, then the current branch's merge request.
+- **Open Changed File in Side-by-Side View** opens one file in the side-by-side diff whatever
+  `gitlab.mergeRequestDiff.viewer` says.
+- **Fetch and Update Merge Request Branch** fetches the source branch and moves the local branch
+  to it, asking before it drops local commits.
+- **Open Jira Issue** opens the Jira key of the current branch or its merge request.
 
-**`gitlab.jira.projectKeys`** _(default: [])_ limits linking to the listed
-projects, for example `["PC", "PE"]`, and lets lowercase keys in branch names
-such as `feature/pc-12-login` match. **`gitlab.jira.ignoredProjectKeys`**
-lists prefixes that look like keys but are not, such as `SHA-256` or `UTF-8`;
-it is ignored when `gitlab.jira.projectKeys` is set.
+Upstream's commands keep their names; type `GitLab:` in the command palette to list them.
 
-### Sidebar: details
+## Extension Settings
 
-Extension will add a GitLab Workflow panel to sidebar of VS Code. The dedicated panel will allow you to see the list of your issues and MRs (you can decide the exact queries by using the [custom queries](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/custom-queries.md)). Also you will be able to see pipeline, MR and issue links for your current branch.
+### Merge request diff
 
-You can see the issue and MR details by clicking on the issue item or by expanding the MR item and clicking on "Description". When you expand the MR, you can see all the changed files. When you click on a changed file, the extension opens the MR diff.
+- `gitlab.mergeRequestDiff.viewer`, default `"native"`
 
-![_sidebar.gif](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/sidebar.gif)
+  What opens when you select a changed file of a merge request in the sidebar: `native`, VS
+  Code's diff editor, or `sideBySide`, the [side-by-side diff](#side-by-side-diff).
 
-### View the job output
+- `gitlab.mergeRequestDiff.showLocalChangeButtons`, default `false`
 
-To view the output of a job directly in VS Code, on the left sidebar, select the job. The output is updated automatically. To view the latest output, select **Scroll to Bottom**.
+  Show the arrows in the side-by-side diff that copy a change into your local file, or revert it
+  there, as an unsaved edit.
 
-![view-job-output.png](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/9555acfd02253cb506d2b5e50dee7fde885fbddf/docs/assets/view-job-output.png)
+### Jira
 
-### Security findings
+- `gitlab.jira.url`, default `""`
 
-If your project includes [Secure](https://about.gitlab.com/features/?stage=secure) features, then security findings are displayed for the currently checked out branch after you've opened a merge request for that branch and scans have completed. Secure features must be [configured](https://docs.gitlab.com/ee/user/application_security/secure_your_application.html).
+  Base URL of your Jira, for example `https://jira.example.com/`. Empty turns Jira links off.
 
-![_security_findings.gif](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d2887f4b98821a32ae861b2b7f45d3edbcac614e/docs/assets/security_findings.gif)
+- `gitlab.jira.projectKeys`, default `[]`
 
-### Pipeline actions
+  Jira project keys to link, for example `["PC", "PE"]`. Empty links any key shaped like a Jira
+  key. Listing keys also lets lowercase keys in branch names match.
 
-One of the real power features of this extension is pipeline actions. This feature can be accessible from the status bar by clicking the pipeline status text or command palette and allows you to,
+- `gitlab.jira.ignoredProjectKeys`
 
-- View the latest pipeline on GitLab
-- Create a new pipeline for your current branch
-- Retry the last pipeline
-- Cancel the last pipeline
+  Prefixes that look like Jira keys but are not. Ignored when `gitlab.jira.projectKeys` is set.
 
-![_pipeline_actions.gif](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/pipeline_actions.gif)
+  Default value:
 
-### Status bar: details
+  ```json
+  [
+    "AES",
+    "CVE",
+    "GMT",
+    "HTTP",
+    "ISO",
+    "MD",
+    "RFC",
+    "RSA",
+    "SHA",
+    "SSL",
+    "TLS",
+    "UTC",
+    "UTF",
+    "WCAG"
+  ]
+  ```
 
-If your current project is a GitLab project, the extension will do the following things:
+### General
 
-- Fetch pipeline of the last commit and show it on the status bar. Clicking this item will open the pipeline actions menu.
-- Show open MR for current branch and show it on the status bar. Clicking this item will open MR on GitLab.
-- Fetch closing issue of that MR and show it on the status bar. Clicking this item will open Issue on GitLab.
+- `gitlab.customQueries`
 
-### Search
+  The lists in the GitLab sidebar. See [custom queries](docs/user/custom-queries.md).
 
-GitLab Workflow extension provides you two types of search. Search with filters and Advanced Search.
+- `gitlab.showProjectMergeRequests`, default `true`
 
-#### Search with filters
+  Show the "All project merge requests" list.
 
-It allows users to search issues/MRs against their title and description fields. In the search input, you can type your search term and hit Enter, for example, `Inconsistent line endings for HEX files` or `Pipelines should ignore retried builds`.
+- `gitlab.pipelineGitRemoteName`, default `null`
 
-It can become more powerful by allowing you to filter issues/MRs by author, assignee, milestone, title etc. Below is the full list of supported filter tokens
+  The Git remote whose project runs your pipelines. Empty uses the same remote as everything else.
 
-| Token     | Description                                                                                                                                                 | Example                                                            |
-| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| title     | Search issues/MRs against their title and description. You don't need to add quotes around multiple words. See [Important notes](#important-notes) section. | discussions refactor                                               |
-| labels    | Comma separated label list for multiple labels.                                                                                                             | `labels: frontend, Discussion, performance`                        |
-| label     | To search with a single label. You can also have multiple `label` tokens.                                                                                   | `label: frontend` or `label:frontend label: Discussion`            |
-| milestone | Milestone title without `%`.                                                                                                                                | `milestone: 9.5`                                                   |
-| scope     | Searches issues/MRs for the given scope. Values can be `created-by-me`, `assigned-to-me` or `all`. Defaults to `created-by-me`.                             | `scope: created-by-me` or `scope: assigned-to-me` or `scope: all`. |
-| author    | Username of the author without `@`.                                                                                                                         | `author: fatihacet`                                                |
-| assignee  | Username of the assignee without `@`.                                                                                                                       | `assignee: timzallmann`                                            |
+- `gitlab.showPipelineUpdateNotifications`, default `false`
 
-##### Examples
+  Show a message when the pipeline status changes.
 
-- `title: new merge request widget author: fatihacet assignee: jschatz1 labels: frontend, performance milestone: 10.5`
-- `title: multiple group page author: annabeldunstone assignee: timzallmann label: frontend`
+- `gitlab.ca`, `gitlab.cert`, `gitlab.certKey`, default `null`; `gitlab.ignoreCertificateErrors`,
+  default `false`
 
-##### Important notes
+  A custom CA, client certificate and key, or no certificate check, for a GitLab behind a
+  self-signed certificate. See [Troubleshooting](#troubleshooting).
 
-- `:` after the token name is necessary. `label :` is not a valid token name and may return parsing error. Hence `label:` should be used. However, space after the token name is optional. Both `label: frontend` and `label:frontend` is valid. This rule is valid for all tokens above.
-- You don't need to add quotes around multiple words for `title` token. `title:"new merge request widget"` may return parsing error. `title: new merge request widget` should be used.
-- You can have `labels` and `label` tokens at the same time. `labels: fronted discussion label: performance` is a valid query and all labels will be included in your search query. It's equal with `labels: fronted discussion performance`. You can also have multiple `label` tokens. `label: frontend label: discussion label: performance` is valid and equals to `labels: fronted discussion performance`.
+- `gitlab.debug`, default `false`
 
-![Advanced search](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/advanced-search.gif)
+  Source-mapped stack traces and debug lines in the **GitLab Workflow** output. Restart the
+  extension after changing it.
 
-#### Search with Advanced Search
+## Troubleshooting
 
-GitLab provides [Advanced Search feature which is backed by Elasticsearch](https://docs.gitlab.com/ee/integration/elasticsearch.html). Please see [Advanced Search syntax](https://docs.gitlab.com/ee/user/search/advanced_search.html#syntax) for more details.
+- **Logs**: the **GitLab Workflow** channel in the Output panel. Turn on `gitlab.debug` for more.
+- **Self-signed certificate**: see the [SSL guide](docs/user/ssl.md) and the
+  [certificate settings](docs/user/troubleshooting.md#settings-for-self-signed-certificates).
+- **Wrong project**: the extension matches your Git remote with the URL of an account. If it
+  picks the wrong one, right-click the repository in the GitLab sidebar and select the project.
+- **Token in environment variables**: an account added in VS Code for the same URL takes
+  precedence over `GITLAB_WORKFLOW_TOKEN`.
 
-### Create snippet
+Report a problem in this project's
+[issues](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/-/issues), not upstream's.
 
-You can create a snippet from selection or entire file. You can also select visibility level of your snippet.
+## Release Notes
 
-![_create-snippet.gif](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/create-snippet.gif)
+See [CHANGELOG.md](CHANGELOG.md).
 
-### Insert snippet
+## Development
 
-You can insert public and private project snippets. The insert supports [multi-file snippets](https://docs.gitlab.com/ee/user/snippets.html#multiple-files-by-snippet).
+```sh
+npm ci                    # Node 18.17.0; run it in webviews/vue and webviews/vue2 too
+npm run watch:desktop     # esbuild watch into dist-desktop/
+npm run test:unit         # jest over src/
+npm run lint              # eslint, prettier and both webview lints
+npm run package           # the .vsix in dist-desktop/
+```
 
-![insert-multi-file-snippet](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/insert-multi-file-snippet.gif)
+To try the extension, open the repository in VS Code and start **Run Extension** from the "Run and
+Debug" view. [AGENTS.md](AGENTS.md) describes the layout and the rules a change follows.
 
-### Create and apply snippet patch
+## Credits
 
-Creating a snippet patch is a great way to suggest a multi-file change during MR review.
+Created by [Fatih Acet](https://gitlab.com/fatihacet) as GitLab Workflow and developed by
+[GitLab](https://gitlab.com/gitlab-org/gitlab-vscode-extension) and its
+[contributors](CONTRIBUTORS.md). This fork is maintained by
+[tranphucbol](https://gitlab.com/tranphucbol).
 
-1. Locally check out the branch where you want to suggest changes.
-1. Edit the project's code.
-1. Run command `GitLab: Create snippet patch`. This stores the result of the `git diff` command in a GitLab snippet in your project.
-1. VS Code opens a GitLab web page with the snippet patch. The snippet's description contains instructions on how to apply the patch.
-1. Other team members can apply the snippet using the `GitLab: Apply snippet patch` command.
-
-![Create and apply snippet patch](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/snippet-patch.mp4)
-
-### Compare with default branch
-
-You can see changes on GitLab by comparing your branch with the repository's default branch.
-
-![_compare-with-master.gif](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/compare-with-master.gif)
-
-### Open active file
-
-This command allows you to see active file on GitLab. Extension sends active line number and selected text block to GitLab UI so you can see them highlighted.
-
-![_open_active_file.gif](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/open_active_file.gif)
-
-### Validate GitLab CI/CD Configuration
-
-Using this command, you can quickly validate GitLab CI/CD configuration.
-
-![Validate CI/CD configuration](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/validate-ci-config.gif)
-
-### Show merged GitLab CI/CD configuration
-
-This command displays a preview of your merged CI/CD configuration file, with all includes and references resolved.
-
-![Show merged CI/CD configuration](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/e6492d12bab89d6a726046841fcc0f655e0db113/docs/assets/show-merged-ci-config.gif)
-
-### CI/CD variable autocompletion
-
-Quickly find the CI/CD variable you are looking for with the CI/CD variable autocompletion.
-
-![screenshot of the CI/CD variable autocompletion](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/ci_variable_autocomplete.png)
-
-### Clone GitLab projects
-
-This extension integrates with the built-in Git Extension and allows you to search for and clone projects from GitLab (command `Git: Clone`).
-
-- You can search for projects on each GitLab instance for which you [added an access-token](#setup).
-- Only projects where you are a **member of** are displayed.
-- You can clone with SSH or HTTPS
-- With HTTPS, your access token is used to clone the repository, fetch commits, and push commits. Access tokens are used this way for all GitLab projects that are cloned manually with HTTPS, then opened in VS Code.
-
-![Demonstration of cloning a project from GitLab.com](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/d0589878829338b64657e592f3451f1dace41cdf/docs/assets/git-clone.gif)
-
-> **NOTE:** Using the access-token for cloning with HTTPS does not work with VS Code version 1.53.x (See [discussion](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/merge_requests/172#note_513068345))
-
-### Browse a repository without cloning
-
-With this extension, you can browse a GitLab repository without cloning it. While similar to the [GitHub Repositories](https://marketplace.visualstudio.com/items?itemName=github.remotehub) extension, remote GitLab repository browsing is **read-only**.
-
-Prerequisite:
-
-- You have [registered an access token](#setup) for that GitLab instance.
-
-![browse remote repository](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/c8d66e145569749bc05b6b63531eea3dfbb80edb/docs/assets/virtual-workspace.gif)
-
-To open and browse a repository, either:
-
-- Run the **GitLab: Open Remote Repository** command
-- Select _Choose Project_ option.
-- Select GitLab instance, project and branch/tag that you would like to browse
-
-Alternatively, run the **GitLab: Open Remote Repository** command and select `Enter gitlab-remote URL` option or manually add a `gitlab-remote` URL to your [workspace file](https://code.visualstudio.com/docs/editor/multi-root-workspaces#_workspace-file). For information about how to create GitLab remote URL, please see [GitLab remote URL format documentation](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/docs/user/remote-fs-url-format.md)
-
----
-
-## Contribution
-
-This extension is open source and [hosted on GitLab](https://gitlab.com/gitlab-org/gitlab-vscode-extension). Contributions are more than welcome. Feel free to fork and add new features or submit bug reports. See [CONTRIBUTING](CONTRIBUTING.md) for more information.
-
-[A list of the great people](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/blob/main/CONTRIBUTORS.md) who contributed this project, and made it even more awesome, is available. Thank you all! 🎉
+If you find it useful, a rating on the
+[Marketplace](https://marketplace.visualstudio.com/items?itemName=tranphucbol.jetbrain-gitlab&ssr=false#review-details)
+or a star on [GitLab](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab) is appreciated.
