@@ -77,7 +77,7 @@ export const updateMrBranch = async (mrItemModel: MrItemModel): Promise<void> =>
   const { mr, projectInRepository } = mrItemModel;
   assert(
     mr.target_project_id === mr.source_project_id,
-    'this command is only available for same-project MRs',
+    'This command is available only for merge requests from the same project.',
   );
   const { rawRepository } = projectInRepository.pointer.repository;
   const remoteName = projectInRepository.pointer.remote.name;
@@ -99,15 +99,16 @@ export const updateMrBranch = async (mrItemModel: MrItemModel): Promise<void> =>
     if (localSha === remoteSha) {
       await checkout(rawRepository, branch);
       await vscode.window.showInformationMessage(
-        `Branch ${branch} is up to date with ${remoteRef}`,
+        `Branch ${branch} is up to date with ${remoteRef}.`,
       );
       return;
     }
 
     if (localSha && mergeBase === remoteSha) {
       await checkout(rawRepository, branch);
-      await vscode.window.showInformationMessage(
-        `Branch ${branch} has local commits that are not on ${remoteRef}, there is nothing to update. Push them to share them.`,
+      // local-only commits stay on the checked-out branch: a warning, as when it has diverged
+      await vscode.window.showWarningMessage(
+        `Branch ${branch} has local commits that are not on ${remoteRef}, so there is nothing to update. Push them to share them.`,
       );
       return;
     }
@@ -136,7 +137,7 @@ export const updateMrBranch = async (mrItemModel: MrItemModel): Promise<void> =>
       );
       return;
     }
-    await vscode.window.showInformationMessage(`Branch ${branch} updated to ${remoteRef}`);
+    await vscode.window.showInformationMessage(`Branch ${branch} updated to ${remoteRef}.`);
   } catch (e) {
     if (e.gitErrorCode) {
       await handleGitError(e);

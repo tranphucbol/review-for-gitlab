@@ -187,21 +187,24 @@ describe('CurrentBranchDataProvider', () => {
     beforeEach(() => mockJiraUrl('https://jira.example.com'));
     afterEach(() => mockJiraUrl(undefined));
 
-    it('lists up to three keys of the branch and merge request after the merge request', async () => {
+    it('lists up to five keys of the branch and merge request after the merge request', async () => {
       currentBranchProvider.refresh({
         ...branchState,
-        mr: { ...mr, source_branch: 'feature/PC-1-x', title: 'PC-2 PC-3 PC-4' },
+        mr: { ...mr, source_branch: 'feature/PC-1-x', title: 'PC-2 PC-3 PC-4 PC-5 PC-6' },
       });
 
       const children = await currentBranchProvider.getChildren(undefined);
 
-      expect(labels(children).slice(2, 6)).toEqual([
-        'Jira: PC-1',
-        'Jira: PC-2',
-        'Jira: PC-3',
+      expect(labels(children).slice(2, 8)).toEqual([
+        'Open PC-1 in Jira',
+        'Open PC-2 in Jira',
+        'Open PC-3 in Jira',
+        'Open PC-4 in Jira',
+        'Open PC-5 in Jira',
         '#1000 · Issuable Title',
       ]);
       const item = children[2] as vscode.TreeItem;
+      expect(item.description).toBe('from branch');
       expect(item.command).toEqual({
         command: 'gl.openJiraIssue',
         title: 'Open Jira Issue',
@@ -215,7 +218,7 @@ describe('CurrentBranchDataProvider', () => {
 
       const children = await currentBranchProvider.getChildren(undefined);
 
-      expect(labels(children)).toContain('Jira: PE-7');
+      expect(labels(children)).toContain('Open PE-7 in Jira');
     });
 
     it('lists nothing when Jira links are off', async () => {
@@ -227,7 +230,7 @@ describe('CurrentBranchDataProvider', () => {
 
       const children = await currentBranchProvider.getChildren(undefined);
 
-      expect(labels(children).some(l => String(l).startsWith('Jira:'))).toBe(false);
+      expect(labels(children).some(l => String(l).includes('Jira'))).toBe(false);
     });
   });
 

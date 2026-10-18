@@ -1,6 +1,7 @@
 # 011 - Mermaid renders lazily in the Overview
 
 **Status:** accepted - 2026-10-17
+**Status:** failure line reworded by [012](012_the-webviews-and-commands-share-one-look-and-voice.md) - 2026-10-18
 
 **Plan:**
 [docs/plans/006_modern-overview-webview.md](../plans/006_modern-overview-webview.md)

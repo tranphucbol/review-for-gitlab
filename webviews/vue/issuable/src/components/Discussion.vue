@@ -1,4 +1,5 @@
 <script>
+import ResolvedBadge from '@shared/components/ResolvedBadge.vue';
 import Note from './Note.vue';
 import CommentForm from './CommentForm.vue';
 import CodiconIcon from './CodiconIcon.vue';
@@ -30,6 +31,7 @@ export default {
     Note,
     CommentForm,
     CodiconIcon,
+    ResolvedBadge,
   },
   computed: {
     initialDiscussion() {
@@ -78,14 +80,11 @@ export default {
             <codicon-icon name="file" :size="14" />
             {{ position }}
           </code>
-          <span
-            v-if="noteable.resolvable"
-            class="discussion__badge js-resolved-badge"
-            :class="noteable.resolved ? 'discussion__badge--resolved' : 'discussion__badge--open'"
-          >
-            <codicon-icon :name="noteable.resolved ? 'pass' : 'comment-discussion'" :size="14" />
-            {{ noteable.resolved ? 'Resolved' : 'Unresolved' }}
-          </span>
+          <resolved-badge v-if="noteable.resolvable" :resolved="noteable.resolved">
+            <template #icon="{ resolved }">
+              <codicon-icon :name="resolved ? 'pass' : 'comment-discussion'" :size="14" />
+            </template>
+          </resolved-badge>
         </template>
       </note>
     </ul>
@@ -119,13 +118,14 @@ export default {
       v-if="isRepliesVisible && isEditing"
       class="discussion__form"
       :reply-id="noteable.replyId"
+      submit-label="Reply"
       @cancel-edit="toggleEditting"
     />
   </li>
 </template>
 
 <style lang="scss">
-@use '../styles/mixins';
+@use '@shared/styles/mixins';
 
 .discussion {
   list-style: none;
@@ -155,25 +155,6 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-
-  &__badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    padding: 0 6px;
-    border-radius: var(--gl-radius-circle);
-    font-size: var(--gl-font-size-small);
-    line-height: 16px;
-
-    &--resolved {
-      @include mixins.tinted(var(--gl-state-open));
-    }
-
-    &--open {
-      color: var(--gl-badge-fg);
-      background-color: var(--gl-badge-bg);
-    }
   }
 
   &--folded .discussion__first .note-body {

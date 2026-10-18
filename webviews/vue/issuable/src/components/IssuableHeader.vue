@@ -1,16 +1,16 @@
 <script>
+import TimeAgo from '@shared/components/TimeAgo.vue';
+import UserAvatar from '@shared/components/UserAvatar.vue';
 import CodiconIcon from './CodiconIcon.vue';
-import Date from './Date.vue';
 import JiraText from './JiraText.vue';
 import StatePill from './StatePill.vue';
-import UserAvatar from './UserAvatar.vue';
 
 const COPY_STATUS_TIMEOUT = 2000;
 
 export default {
   components: {
     CodiconIcon,
-    Date,
+    TimeAgo,
     JiraText,
     StatePill,
     UserAvatar,
@@ -128,14 +128,14 @@ export default {
       <span v-else>opened</span>
       <template v-if="issuable.created_at">
         <span aria-hidden="true">·</span>
-        <date :date="issuable.created_at" />
+        <time-ago :date="issuable.created_at" />
       </template>
     </div>
   </header>
 </template>
 
 <style lang="scss">
-@use '../styles/mixins';
+@use '@shared/styles/mixins';
 
 .issuable-header {
   padding-bottom: var(--gl-space-4);

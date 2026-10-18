@@ -1,16 +1,10 @@
 <script>
-import dayjs from 'dayjs';
-import dayjsUtc from 'dayjs/plugin/utc';
-import dayjsTimezone from 'dayjs/plugin/timezone';
-import dayjsRelativeTime from 'dayjs/plugin/relativeTime';
-
-dayjs.extend(dayjsRelativeTime);
-dayjs.extend(dayjsUtc);
-dayjs.extend(dayjsTimezone);
-
-dayjs.tz.setDefault(Intl.DateTimeFormat().resolvedOptions().timeZone);
+import { VTooltip } from 'v-tooltip';
+import { absoluteDate, isoDate, relativeDate } from '../utils/date';
 
 export default {
+  name: 'TimeAgo',
+  directives: { tooltip: VTooltip },
   props: {
     date: {
       type: String,
@@ -18,20 +12,30 @@ export default {
     },
   },
   computed: {
-    dateAgo() {
-      return dayjs(this.date).fromNow();
+    relative() {
+      return relativeDate(this.date);
     },
-    formatedDate() {
-      return dayjs(this.date).format('MMM D, YYYY h:mma [GMT]ZZ');
+    absolute() {
+      return absoluteDate(this.date);
+    },
+    iso() {
+      return isoDate(this.date);
     },
   },
 };
 </script>
+
 <template>
-  <span v-tooltip="{ content: formatedDate, placement: 'top' }">
-    {{ dateAgo }}
-  </span>
+  <time
+    v-if="relative"
+    v-tooltip="{ content: absolute, placement: 'top' }"
+    :datetime="iso"
+    class="time-ago"
+  >
+    {{ relative }}
+  </time>
 </template>
+
 <style lang="scss">
 .tooltip {
   display: block !important;

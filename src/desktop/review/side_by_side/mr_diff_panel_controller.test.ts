@@ -107,6 +107,12 @@ describe('MrDiffPanelController', () => {
       expect.objectContaining({ enableScripts: true, retainContextWhenHidden: true }),
     );
     expect(second).toBe(first);
+    expect(first.iconPath).toEqual({
+      light: expect.objectContaining({
+        fsPath: expect.stringContaining('light/merge_requests.svg'),
+      }),
+      dark: expect.objectContaining({ fsPath: expect.stringContaining('dark/merge_requests.svg') }),
+    });
     expect(first.reveal).toHaveBeenCalled();
     expect(first.webview.html).toBe('preparedWebviewSource');
   });
@@ -669,6 +675,11 @@ describe('MrDiffPanelController', () => {
           error: "Couldn't upload the image to the gitlab-org/gitlab project.",
         },
       ]);
+      // as in the native comment box, the failure is a notification too
+      expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
+        "Couldn't upload the image to the gitlab-org/gitlab project.",
+        'Show Logs',
+      );
     });
   });
 
@@ -827,7 +838,7 @@ describe('MrDiffPanelController', () => {
       expect(postedMessages()).toContainEqual({
         command: 'result',
         requestId: 6,
-        error: expect.stringContaining('cannot change the local file'),
+        error: expect.stringContaining("can't change the local file"),
       });
     });
 
@@ -851,6 +862,10 @@ describe('MrDiffPanelController', () => {
         { command: 'localState', enabled: true, applicable: 'base', appliedBlockIds: [0] },
         { command: 'result', requestId: 5 },
       ]);
+      expect(vscode.window.setStatusBarMessage).toHaveBeenCalledWith(
+        'Copied the change into new_file.js.',
+        expect.any(Number),
+      );
     });
 
     it('refuses a block counted against a version the view no longer shows', async () => {

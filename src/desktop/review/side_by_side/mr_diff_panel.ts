@@ -8,6 +8,7 @@ import { getAddedLinesForFile } from '../../git/diff_line_count';
 import { getFileContent } from '../../git/get_file_content';
 import { getGitLabService } from '../../gitlab/get_gitlab_service';
 import { gitlabProjectRepository } from '../../gitlab/gitlab_project_repository';
+import { isUnauthorized } from '../../gitlab/is_unauthorized';
 import { getJiraLinkConfig } from '../../jira/jira_keys';
 import { mrCache } from '../../gitlab/mr_cache';
 import { ProjectInRepository } from '../../gitlab/new_project';
@@ -61,23 +62,15 @@ export const ALIGNED_KEY = 'gitlab.mergeRequestDiff.aligned';
 /** how long the view waits for edits to the local file to settle before comparing it again */
 const LOCAL_STATE_DELAY_MS = 150;
 
+/** how long the status bar confirms a change copied into or reverted in the local file */
+const HUNK_MESSAGE_MS = 3000;
+
 const GENERIC_ERROR =
   'The request to GitLab failed. For more information, review the extension logs.';
 
 /** The card that sent the request shows the message, the details go to the log. */
 const toErrorMessage = (e: unknown): string =>
   e instanceof UserFriendlyError ? e.message.replace(/\s+/g, ' ').trim() : GENERIC_ERROR;
-
-/** Whether GitLab refused the token, looking through the errors that wrap the response. */
-const isUnauthorized = (e: unknown): boolean => {
-  if (!e || typeof e !== 'object') return false;
-  const { status, response, originalError } = e as {
-    status?: number;
-    response?: { status?: number };
-    originalError?: unknown;
-  };
-  return status === 401 || response?.status === 401 || isUnauthorized(originalError);
-};
 
 /**
  * A refused token needs the user, so it gets the notification other commands show. Any
@@ -368,7 +361,7 @@ export class MrDiffPanel {
     const applier = await this.#localApplier();
     if (!uri || !applier || this.#target.file.new_file) {
       throw new UserFriendlyError(
-        'The view cannot change the local file.',
+        "The view can't change the local file.",
         new Error(`No local file for ${this.#target.file.new_path}`),
       );
     }
@@ -391,6 +384,13 @@ export class MrDiffPanel {
         new Error('workspace.applyEdit returned false'),
       );
     }
+    const fileName = path.basename(uri.fsPath);
+    vscode.window.setStatusBarMessage(
+      direction === 'apply'
+        ? `Copied the change into ${fileName}.`
+        : `Reverted the change in ${fileName}.`,
+      HUNK_MESSAGE_MS,
+    );
   }
 
   /** Posts nothing if a newer load replaced the file meanwhile: that load posts its own `init`. */
@@ -515,12 +515,13 @@ export class MrDiffPanel {
   /**
    * Runs a request from the webview and answers it with one `result` message. A write
    * refreshes the discussions first, so the webview replaces its draft with the saved note
-   * in one step.
+   * in one step. `notify` decides which failures also get a notification.
    */
   async #respond(
     requestId: number,
     action: () => Promise<ResultContent | void>,
     refreshDiscussions = true,
+    notify: (e: unknown) => void = reportUnauthorized,
   ): Promise<void> {
     try {
       const content = await action();
@@ -528,7 +529,7 @@ export class MrDiffPanel {
       await this.#post({ command: 'result', requestId, ...content });
     } catch (e) {
       log.error('A side-by-side diff request failed.', e as Error);
-      reportUnauthorized(e);
+      notify(e);
       await this.#post({ command: 'result', requestId, error: toErrorMessage(e) });
     }
   }
@@ -543,7 +544,7 @@ export class MrDiffPanel {
     const { mr, mrVersion, file } = this.#target;
     if (file.diff === '') {
       throw new UserFriendlyError(
-        'GitLab did not return a diff for this file because it is too large, so it does not accept new comments on it.',
+        "GitLab didn't return a diff for this file because it is too large, so it doesn't accept new comments on it.",
         new Error(`Empty diff for ${file.new_path}`),
       );
     }
@@ -629,6 +630,8 @@ export class MrDiffPanel {
             markdown: await this.#uploadImage(message.name, message.contentType, message.base64),
           }),
           false,
+          // as in the native comment box, a failed upload is a notification; the card marks the draft
+          e => handleError(e as Error),
         );
         break;
       case 'previewMarkdown':

@@ -215,7 +215,7 @@ describe('mermaid', () => {
     expect(figure.dataset.state).toBe('error');
     expect(figure.querySelector('pre code').textContent).toBe('graph TD\n  A -->');
     expect(figure.querySelector('.mermaid-diagram__error').textContent).toBe(
-      'Diagram could not be rendered: Parse error on line 2:',
+      "The diagram couldn't be rendered: Parse error on line 2:",
     );
     expect(document.getElementById('dgl-mermaid-1')).toBeNull();
   });

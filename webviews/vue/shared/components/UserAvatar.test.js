@@ -25,4 +25,21 @@ describe('UserAvatar', () => {
       },
     );
   });
+
+  it('leaves the picture unnamed beside the visible name', () => {
+    const wrapper = mount(UserAvatar, {
+      propsData: { user: { name: 'John Doe', username: 'johndoe', avatarUrl: 'a.png' } },
+    });
+    expect(wrapper.find('.js-avatar').attributes('alt')).toBe('');
+  });
+
+  it('names the picture when the name is hidden', () => {
+    const wrapper = mount(UserAvatar, {
+      propsData: {
+        user: { name: 'John Doe', username: 'johndoe', avatarUrl: 'a.png' },
+        showUsername: false,
+      },
+    });
+    expect(wrapper.find('.js-avatar').attributes('alt')).toBe('John Doe');
+  });
 });

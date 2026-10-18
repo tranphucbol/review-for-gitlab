@@ -46,7 +46,7 @@ export default {
 </template>
 
 <style lang="scss">
-@use '../styles/mixins';
+@use '@shared/styles/mixins';
 
 .state-pill {
   display: inline-flex;

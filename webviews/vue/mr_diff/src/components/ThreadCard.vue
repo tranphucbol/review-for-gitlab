@@ -1,7 +1,7 @@
 <template>
   <section
     class="gl-diff-card"
-    :class="{ 'gl-diff-card-resolved': discussion.resolved }"
+    :class="{ 'gl-diff-card-resolved': discussion.resolved && collapsed }"
     :aria-label="`Discussion on line ${discussion.line}`"
   >
     <header class="gl-diff-card-header">
@@ -11,10 +11,22 @@
         :aria-expanded="String(!collapsed)"
         @click="collapsed = !collapsed"
       >
-        <span aria-hidden="true">{{ collapsed ? '▸' : '▾' }}</span>
-        {{ title }}
+        <span
+          class="gl-diff-icon"
+          :class="collapsed ? 'gl-diff-icon-chevron-right' : 'gl-diff-icon-chevron-down'"
+          aria-hidden="true"
+        ></span>
+        <span class="gl-diff-card-title">{{ title }}</span>
       </button>
-      <span v-if="discussion.resolved" class="gl-diff-card-badge">Resolved</span>
+      <resolved-badge v-if="discussion.resolvable" :resolved="discussion.resolved">
+        <template #icon="{ resolved }">
+          <span
+            class="gl-diff-icon gl-diff-icon-small"
+            :class="resolved ? 'gl-diff-icon-pass' : 'gl-diff-icon-comment-discussion'"
+            aria-hidden="true"
+          ></span>
+        </template>
+      </resolved-badge>
       <button
         v-if="discussion.resolvable && discussion.canResolve"
         type="button"
@@ -26,18 +38,16 @@
       </button>
     </header>
     <template v-if="!collapsed">
-      <article v-for="note in discussion.notes" :key="note.id" class="gl-diff-note">
+      <article v-for="(note, index) in discussion.notes" :key="note.id" class="gl-diff-note">
         <div class="gl-diff-note-header">
-          <img
-            v-if="note.avatarUrl"
-            class="gl-diff-avatar"
-            :src="note.avatarUrl"
-            alt=""
-            width="20"
-            height="20"
+          <user-avatar
+            :user="authorOf(note)"
+            :size="index === 0 ? 20 : 16"
+            :show-avatar="Boolean(note.avatarUrl)"
+            :show-link="false"
           />
-          <strong>{{ note.authorName }}</strong>
-          <span class="gl-diff-note-meta">@{{ note.authorUsername }} · {{ when(note) }}</span>
+          <span class="gl-diff-note-meta" aria-hidden="true">·</span>
+          <time-ago :date="note.createdAt" class="gl-diff-note-meta" />
           <span class="gl-diff-note-actions">
             <button
               v-if="note.canEdit && editingId !== note.id"
@@ -61,8 +71,13 @@
             </button>
           </span>
         </div>
-        <div v-if="confirmingId === note.id" class="gl-diff-confirm" role="alertdialog">
-          <span>Delete this comment?</span>
+        <div
+          v-if="confirmingId === note.id"
+          class="gl-diff-confirm"
+          role="alertdialog"
+          :aria-labelledby="`gl-diff-confirm-${note.id}`"
+        >
+          <span :id="`gl-diff-confirm-${note.id}`">Delete this comment?</span>
           <button
             type="button"
             class="gl-diff-button gl-diff-button-danger"
@@ -89,9 +104,9 @@
           @sent="editingId = null"
           @cancel="editingId = null"
         />
-        <div v-else v-safe-html="note.bodyHtml" class="gl-diff-note-body"></div>
+        <div v-else v-safe-html="note.bodyHtml" class="gl-diff-note-body gl-markdown"></div>
       </article>
-      <p v-if="error" class="gl-diff-card-error" role="alert">{{ error }}</p>
+      <p v-if="error" class="gl-diff-alert" role="alert">{{ error }}</p>
       <comment-box
         v-if="replying"
         label="Reply"
@@ -101,8 +116,9 @@
         @cancel="replying = false"
       />
       <div v-else-if="canComment && discussion.canReply" class="gl-diff-card-actions">
-        <button type="button" class="gl-diff-button gl-diff-button-text" @click="replying = true">
-          Reply…
+        <button type="button" class="gl-diff-link-button" @click="replying = true">
+          <span class="gl-diff-icon gl-diff-icon-comment" aria-hidden="true"></span>
+          Reply
         </button>
       </div>
     </template>
@@ -110,13 +126,16 @@
 </template>
 
 <script>
+import ResolvedBadge from '@shared/components/ResolvedBadge.vue';
+import TimeAgo from '@shared/components/TimeAgo.vue';
+import UserAvatar from '@shared/components/UserAvatar.vue';
 import CommentBox from './CommentBox.vue';
 import { SafeHtmlDirective } from '../../../issuable/src/directives/safe_html/safe_html';
 import { request } from '../vscode_bridge';
 
 export default {
   name: 'ThreadCard',
-  components: { CommentBox },
+  components: { CommentBox, ResolvedBadge, TimeAgo, UserAvatar },
   directives: { SafeHtml: SafeHtmlDirective },
   props: {
     discussion: {
@@ -159,9 +178,8 @@ export default {
     this.codeBlocks?.stop();
   },
   methods: {
-    when(note) {
-      const date = new Date(note.createdAt);
-      return Number.isNaN(date.getTime()) ? '' : date.toLocaleString();
+    authorOf(note) {
+      return { name: note.authorName, username: note.authorUsername, avatarUrl: note.avatarUrl };
     },
     reply(body) {
       return request('reply', { discussionId: this.discussion.id, body });

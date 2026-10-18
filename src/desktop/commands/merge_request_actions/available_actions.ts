@@ -1,4 +1,9 @@
-import { JiraLinkConfig, findJiraKeysFor } from '../../jira/jira_keys';
+import {
+  JiraLinkConfig,
+  MAX_JIRA_ITEMS,
+  findJiraKeysFor,
+  jiraItemText,
+} from '../../jira/jira_keys';
 
 export type MrActionId =
   | 'approve'
@@ -19,14 +24,14 @@ export type MrActionId =
 export interface MrAction {
   id: MrActionId;
   label: string;
+  /** where the action comes from, shown beside its label */
+  description?: string;
   icon: string;
   /** set when the action is listed but can't run; the reason says why */
   unavailableReason?: string;
   /** the issue `openJiraIssue` opens */
   jiraKey?: string;
 }
-
-const MAX_JIRA_ACTIONS = 5;
 
 /** One `Open PC-12 in Jira` action per key in the source branch, title and description. */
 export const jiraActions = (
@@ -35,12 +40,12 @@ export const jiraActions = (
 ): MrAction[] =>
   config
     ? findJiraKeysFor(config, { mr: detail })
-        .slice(0, MAX_JIRA_ACTIONS)
-        .map(({ key }) => ({
+        .slice(0, MAX_JIRA_ITEMS)
+        .map(found => ({
           id: 'openJiraIssue',
-          label: `Open ${key} in Jira`,
+          ...jiraItemText(found),
           icon: 'link-external',
-          jiraKey: key,
+          jiraKey: found.key,
         }))
     : [];
 
@@ -63,7 +68,7 @@ export const mergeBlocker = (detail: RestMrDetail): string | undefined => {
   if (detail.has_conflicts) return 'It has conflicts — resolve them in GitLab';
   if (!detail.blocking_discussions_resolved) return 'Unresolved threads must be resolved';
   if (isStillChecking(detail)) return STILL_CHECKING_REASON;
-  if (detail.merge_status !== 'can_be_merged') return 'GitLab reports it cannot be merged';
+  if (detail.merge_status !== 'can_be_merged') return "GitLab reports it can't be merged";
   return undefined;
 };
 
@@ -138,7 +143,7 @@ export const availableActions = (detail: RestMrDetail, approvals: RestMrApproval
 
 const MERGE_STATUS_TEXT: Record<string, string> = {
   can_be_merged: 'can be merged',
-  cannot_be_merged: 'cannot be merged',
+  cannot_be_merged: "can't be merged",
 };
 
 const PIPELINE_STATUS_TEXT: Record<string, string> = {

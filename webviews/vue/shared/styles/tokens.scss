@@ -1,4 +1,5 @@
-// Semantic tokens of the Overview, each mapped to a VS Code theme variable.
+// Semantic tokens of the Overview and the side-by-side diff, each mapped to a
+// VS Code theme variable. This is the one file in webviews/vue that reads them.
 // Every colour comes from a `--vscode-*` token; a fallback is another token
 // or a CSS system colour, never a literal, so a theme switch restyles live.
 // Declared on `body`, where VS Code's theme classes are, so that the High
@@ -73,8 +74,44 @@ body {
   --gl-inserted-fg: var(--vscode-gitDecoration-addedResourceForeground, var(--gl-text));
   --gl-removed-bg: var(--vscode-diffEditor-removedTextBackground, transparent);
 
+  // The side-by-side diff: whole lines, changed words, the line-number margin
+  // and the hatched filler, from the same sources as VS Code's diff editor.
+  --gl-diff-inserted-line-bg: var(
+    --vscode-diffEditor-insertedLineBackground,
+    color-mix(in srgb, var(--gl-state-open) 20%, transparent)
+  );
+  --gl-diff-removed-line-bg: var(
+    --vscode-diffEditor-removedLineBackground,
+    color-mix(in srgb, var(--gl-state-closed) 20%, transparent)
+  );
+  --gl-diff-inserted-word-bg: var(
+    --vscode-diffEditor-insertedTextBackground,
+    color-mix(in srgb, var(--gl-state-open) 40%, transparent)
+  );
+  --gl-diff-removed-word-bg: var(
+    --vscode-diffEditor-removedTextBackground,
+    color-mix(in srgb, var(--gl-state-closed) 40%, transparent)
+  );
+  // themes rarely set the gutter colours, and VS Code then uses the line colours
+  --gl-diff-inserted-gutter-bg: var(
+    --vscode-diffEditorGutter-insertedLineBackground,
+    var(--gl-diff-inserted-line-bg)
+  );
+  --gl-diff-removed-gutter-bg: var(
+    --vscode-diffEditorGutter-removedLineBackground,
+    var(--gl-diff-removed-line-bg)
+  );
+  --gl-diff-diagonal-fill: var(
+    --vscode-diffEditor-diagonalFill,
+    color-mix(in srgb, GrayText 20%, transparent)
+  );
+
   --gl-error-bg: var(--vscode-inputValidation-errorBackground, var(--gl-surface-raised));
   --gl-error-border: var(--vscode-inputValidation-errorBorder, var(--gl-text-error));
+  --gl-warning-border: var(--vscode-editorWarning-foreground, var(--gl-state-locked));
+  // a destructive confirmation, such as deleting a comment
+  --gl-danger-bg: var(--vscode-errorForeground, var(--gl-text-error));
+  --gl-danger-fg: var(--vscode-button-foreground, var(--gl-button-fg));
   --gl-progress: var(--vscode-progressBar-background, var(--gl-focus));
   --gl-hover-widget-bg: var(--vscode-editorHoverWidget-background, var(--gl-surface-raised));
   --gl-hover-widget-fg: var(--vscode-editorHoverWidget-foreground, var(--gl-text));

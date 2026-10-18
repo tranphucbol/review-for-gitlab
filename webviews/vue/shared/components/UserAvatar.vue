@@ -48,10 +48,16 @@ export default {
 <template>
   <span>
     <component :is="showLink ? 'a' : 'span'" :href="userUrl" target="_blank">
-      <img v-if="showAvatar" :src="avatarUrl" :class="sizeClass" class="avatar js-avatar" />
+      <img
+        v-if="showAvatar"
+        :src="avatarUrl"
+        :alt="showUsername ? '' : user.name"
+        :class="sizeClass"
+        class="avatar js-avatar"
+      />
       <span v-if="showUsername" class="author">
         <strong> {{ user.name }}</strong>
-        <span v-if="showHandle"> @{{ user.username }}</span>
+        <span v-if="showHandle" class="author__handle"> @{{ user.username }}</span>
       </span>
     </component>
   </span>
@@ -61,6 +67,9 @@ export default {
 a {
   color: var(--gl-text);
   text-decoration: none;
+}
+.author__handle {
+  color: var(--gl-text-muted);
 }
 .avatar {
   margin-right: 6px;

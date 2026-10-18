@@ -149,7 +149,7 @@ export default {
 </template>
 
 <style lang="scss">
-@use '../styles/mixins';
+@use '@shared/styles/mixins';
 
 * {
   box-sizing: border-box;

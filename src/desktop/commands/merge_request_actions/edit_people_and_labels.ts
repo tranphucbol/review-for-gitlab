@@ -20,7 +20,8 @@ export const pickManyWithQuery = async <K, T extends KeyedItem<K>>(
   pick.title = title;
   pick.canSelectMany = true;
   pick.matchOnDescription = true;
-  pick.placeholder = 'Type to search, select with Space, then press Enter';
+  pick.placeholder = 'Select with Space, type to search, then press Enter';
+  pick.ignoreFocusOut = true;
   const chosen = new Map(initial.map(i => [i.key, i]));
   let latestRequest = 0;
 

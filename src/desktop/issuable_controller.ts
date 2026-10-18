@@ -10,6 +10,8 @@ import { gitlabProjectRepository } from './gitlab/gitlab_project_repository';
 import { ProjectInRepository } from './gitlab/new_project';
 import { getGitLabService } from './gitlab/get_gitlab_service';
 import { getJiraLinkConfig } from './jira/jira_keys';
+import { UserFriendlyError } from './errors/user_friendly_error';
+import { toUploadError, uploadAttachments } from './review/comment_attachment_provider';
 import { WEBVIEW_WORKFLOW } from './constants';
 import { RepositoryRootWebviewProvider } from './commands/run_with_valid_project';
 import { waitForWebview } from '../common/utils/webviews/wait_for_webview';
@@ -44,6 +46,33 @@ const getMrDetailOrItself = (issuable: RestIssuable, gitlabService: GitLabServic
         return issuable;
       })
     : Promise.resolve(issuable);
+
+interface UploadImageMessage {
+  name: string;
+  contentType: string;
+  base64: string;
+}
+
+/** Uploads to the merge request's project, the one its notes are created in. */
+const uploadOverviewImage = async (
+  issuable: RestIssuable,
+  projectInRepository: ProjectInRepository,
+  { name, contentType, base64 }: UploadImageMessage,
+): Promise<string> => {
+  if (!isMr(issuable)) {
+    throw new UserFriendlyError(
+      'Images can be attached only to merge request comments.',
+      new Error(`${issuable.references.full} is not a merge request.`),
+    );
+  }
+  try {
+    return await uploadAttachments({ mr: issuable, projectInRepository }, [
+      { name, contentType, read: async () => new Uint8Array(Buffer.from(base64, 'base64')) },
+    ]);
+  } catch (e) {
+    throw toUploadError(issuable, e as Error);
+  }
+};
 
 async function initPanelIfActive(
   panel: IssuableWebviewPanel,
@@ -135,6 +164,26 @@ class IssuableController implements RepositoryRootWebviewProvider {
         } catch (e) {
           log.error('Failed to submit note to the API.', e);
           await panel.webview.postMessage({ type: 'noteSaved', status: false });
+        }
+      }
+
+      // fork-only: images pasted into an Overview comment, see docs/decisions/003
+      if (message.command === 'uploadImage') {
+        const { requestId } = message;
+        try {
+          const markdown = await uploadOverviewImage(
+            panel.issuable ?? issuable,
+            projectInRepository,
+            message,
+          );
+          await panel.webview.postMessage({ type: 'imageUploaded', requestId, markdown });
+        } catch (e) {
+          handleError(e as Error);
+          await panel.webview.postMessage({
+            type: 'imageUploaded',
+            requestId,
+            error: (e as Error).message,
+          });
         }
       }
     };

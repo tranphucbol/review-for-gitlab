@@ -1,7 +1,7 @@
 <script>
+import UserAvatar from '@shared/components/UserAvatar.vue';
 import CodiconIcon from './CodiconIcon.vue';
 import LabelChip from './LabelChip.vue';
-import UserAvatar from './UserAvatar.vue';
 
 const PIPELINE_STATUSES = {
   success: { icon: 'pass', text: 'Passed' },
@@ -136,7 +136,7 @@ export default {
 </template>
 
 <style lang="scss">
-@use '../styles/mixins';
+@use '@shared/styles/mixins';
 
 .issuable-sidebar {
   display: flex;

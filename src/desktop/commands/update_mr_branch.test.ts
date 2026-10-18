@@ -99,7 +99,7 @@ describe('update MR branch', () => {
     expect(checkout).toHaveBeenCalledWith(rawRepository, 'feature-a');
     expect(rawRepository.deleteBranch).not.toHaveBeenCalled();
     expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
-      'Branch feature-a is up to date with origin/feature-a',
+      'Branch feature-a is up to date with origin/feature-a.',
     );
   });
 
@@ -123,7 +123,7 @@ describe('update MR branch', () => {
     expect(rawRepository.deleteBranch).toHaveBeenCalledWith('feature-a', true);
     expect(rawRepository.createBranch).toHaveBeenCalledWith('feature-a', true, 'origin/feature-a');
     expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
-      'Branch feature-a updated to origin/feature-a',
+      'Branch feature-a updated to origin/feature-a.',
     );
   });
 
@@ -173,7 +173,9 @@ describe('update MR branch', () => {
 
     await updateMrBranch(mrItemModel);
 
-    expect(vscode.window.showWarningMessage).not.toHaveBeenCalled();
+    expect(vscode.window.showWarningMessage).toHaveBeenCalledWith(
+      'Branch feature-a has local commits that are not on origin/feature-a, so there is nothing to update. Push them to share them.',
+    );
     expect(rawRepository.deleteBranch).not.toHaveBeenCalled();
     expect(checkout).toHaveBeenCalledWith(rawRepository, 'feature-a');
   });
@@ -253,7 +255,7 @@ describe('update MR branch', () => {
     mrItemModel = createMrItemModel({ target_project_id: 456 });
 
     await expect(updateMrBranch(mrItemModel)).rejects.toMatchObject({
-      message: 'this command is only available for same-project MRs',
+      message: 'This command is available only for merge requests from the same project.',
     });
   });
 });
