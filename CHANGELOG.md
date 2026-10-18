@@ -1,3 +1,15 @@
+## [0.0.2](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v0.0.1...v0.0.2) (2026-10-18)
+
+Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
+GitLab instances older than 15.5.
+
+
+### Features
+
+* give the extension its own icon ([130af9c](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/130af9ceb8b1a81c8295fdf86e2a3e3248c33bd5))
+
+
+
 ## [0.0.1](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.107.1...v0.0.1) (2026-10-18)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
