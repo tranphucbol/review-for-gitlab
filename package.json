@@ -2,7 +2,7 @@
   "name": "jetbrain-gitlab",
   "displayName": "Jetbrain GitLab",
   "description": "A fork of GitLab Workflow for older GitLab instances (13.12), with a side-by-side merge request diff.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "tranphucbol",
   "license": "MIT",
   "repository": {

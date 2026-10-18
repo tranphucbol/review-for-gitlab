@@ -1,3 +1,10 @@
+## [0.0.3](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v0.0.2...v0.0.3) (2026-10-18)
+
+Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
+GitLab instances older than 15.5.
+
+
+
 ## [0.0.2](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v0.0.1...v0.0.2) (2026-10-18)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
