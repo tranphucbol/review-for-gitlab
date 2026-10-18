@@ -46,15 +46,15 @@ describe('jira_keys', () => {
   describe('toIssueUrlPrefix', () => {
     it.each`
       url                                  | prefix
-      ${'https://jira.example.com'}         | ${'https://jira.example.com/browse/'}
-      ${'https://jira.example.com/'}        | ${'https://jira.example.com/browse/'}
-      ${' https://jira.example.com// '}     | ${'https://jira.example.com/browse/'}
+      ${'https://jira.example.com'}        | ${'https://jira.example.com/browse/'}
+      ${'https://jira.example.com/'}       | ${'https://jira.example.com/browse/'}
+      ${' https://jira.example.com// '}    | ${'https://jira.example.com/browse/'}
       ${'http://example.com/jira'}         | ${'http://example.com/jira/browse/'}
       ${'https://example.com/jira/'}       | ${'https://example.com/jira/browse/'}
       ${'https://user:pw@example.com/(x)'} | ${'https://example.com/%28x%29/browse/'}
       ${'ftp://example.com'}               | ${undefined}
       ${'file:///etc/passwd'}              | ${undefined}
-      ${'jira.example.com'}                 | ${undefined}
+      ${'jira.example.com'}                | ${undefined}
     `('turns $url into $prefix', ({ url, prefix }) => {
       expect(toIssueUrlPrefix(url)).toBe(prefix);
     });
@@ -83,27 +83,27 @@ describe('jira_keys', () => {
 
   describe('findJiraKeys', () => {
     it.each`
-      text                             | keys
-      ${'PC-1'}                        | ${['PC-1']}
-      ${'ZPA2-10'}                     | ${['ZPA2-10']}
-      ${'A_B-3'}                       | ${['A_B-3']}
-      ${'(PC-1)'}                      | ${['PC-1']}
-      ${'PC-1: fix'}                   | ${['PC-1']}
-      ${'PC-1, PE-2.'}                 | ${['PC-1', 'PE-2']}
-      ${'**PC-1**'}                    | ${['PC-1']}
-      ${'PC-1 and PC-1 again'}         | ${['PC-1']}
-      ${'pc-1'}                        | ${[]}
-      ${'PC-01'}                       | ${[]}
-      ${'PC-'}                         | ${[]}
-      ${'xPC-1'}                       | ${[]}
-      ${'PC-1x'}                       | ${[]}
-      ${'foo/PC-1'}                    | ${[]}
+      text                              | keys
+      ${'PC-1'}                         | ${['PC-1']}
+      ${'ZPA2-10'}                      | ${['ZPA2-10']}
+      ${'A_B-3'}                        | ${['A_B-3']}
+      ${'(PC-1)'}                       | ${['PC-1']}
+      ${'PC-1: fix'}                    | ${['PC-1']}
+      ${'PC-1, PE-2.'}                  | ${['PC-1', 'PE-2']}
+      ${'**PC-1**'}                     | ${['PC-1']}
+      ${'PC-1 and PC-1 again'}          | ${['PC-1']}
+      ${'pc-1'}                         | ${[]}
+      ${'PC-01'}                        | ${[]}
+      ${'PC-'}                          | ${[]}
+      ${'xPC-1'}                        | ${[]}
+      ${'PC-1x'}                        | ${[]}
+      ${'foo/PC-1'}                     | ${[]}
       ${'jira.example.com/browse/PC-1'} | ${[]}
-      ${'SHA-256 UTF-8'}               | ${[]}
-      ${'CVE-2024-1234'}               | ${[]}
-      ${'A-1'}                         | ${[]}
-      ${'PC-12345678'}                 | ${[]}
-      ${'ABCDEFGHIJK-1'}               | ${[]}
+      ${'SHA-256 UTF-8'}                | ${[]}
+      ${'CVE-2024-1234'}                | ${[]}
+      ${'A-1'}                          | ${[]}
+      ${'PC-12345678'}                  | ${[]}
+      ${'ABCDEFGHIJK-1'}                | ${[]}
     `('finds $keys in "$text"', ({ text, keys }) => {
       expect(findJiraKeys(text, config())).toEqual(keys);
     });
