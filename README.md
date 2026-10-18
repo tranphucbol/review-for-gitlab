@@ -41,7 +41,7 @@ Or run `ext install tranphucbol.jetbrain-gitlab` from the command palette quick 
 > Workflow first, otherwise both register the same commands, views and settings. Sign in with a
 > personal access token; OAuth sign-in to GitLab.com belongs to the official extension.
 
-## Quick start
+## Setup
 
 1. Create a personal access token with the `api` scope on your GitLab: **User Settings** →
    **Access Tokens**.
@@ -217,9 +217,12 @@ calls Jira; it only builds links. With the setting empty, nothing changes.
   GitLab** keep the selected lines.
 - **Clone**: **Git: Clone** searches the projects you are a member of on every GitLab you added.
   Over HTTPS, your token is used to clone, fetch and push.
-- **Browse without cloning**: **GitLab: Open Remote Repository** opens a project at a branch or
-  tag as a read-only folder. See [the URL format](docs/user/remote-fs-url-format.md) to add one to
-  a workspace file.
+
+### Browse a repository without cloning
+
+**GitLab: Open Remote Repository** opens a project of a GitLab you added at a branch or tag, as a
+read-only folder. Select a project from the list, or enter a `gitlab-remote://` URL; see
+[the URL format](docs/user/remote-fs-url-format.md) to add one to a workspace file.
 
 ## Compatibility
 
