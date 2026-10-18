@@ -15,6 +15,10 @@ const BRANCH = 'main';
 const UPSTREAM_URL = 'https://gitlab.com/gitlab-org/gitlab-vscode-extension';
 const RELEASE_FILES = ['package.json', 'package-lock.json', 'CHANGELOG.md'];
 const BUMPS = ['major', 'minor', 'patch', 'prerelease'];
+// Tags of the builds that still carried upstream's GitLab.gitlab-workflow ID.
+// tranphucbol.jetbrain-gitlab starts its own line at 0.0.1, so they are not
+// the latest release. See docs/decisions/016.
+const LEGACY_VERSIONS = '>=3.101.1 <=3.107.1';
 
 const fail = message => {
   console.error(`ERROR: ${message}`);
@@ -106,7 +110,7 @@ const main = async () => {
   const options = parseArgs(process.argv.slice(2));
   const head = await preflight();
   const versions = await remoteVersions();
-  const latest = versions[0];
+  const latest = versions.find(v => !semver.satisfies(v, LEGACY_VERSIONS));
   const version = nextVersion(options.target, latest, options.pre);
   const tag = `v${version}`;
   const forkUrl = webUrl(await git('remote', 'get-url', REMOTE));

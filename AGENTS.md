@@ -240,10 +240,12 @@ node scripts/release.mjs patch             # changelog, commit, tag, push after 
   link in it at the fork's own project, repeats the "Fork release" paragraph,
   and tags `vX.Y.Z` on the default branch; the tag pipeline publishes the
   `.vsix` and creates the Release with `CI_JOB_TOKEN` alone, and publishes an
-  `X.Y.Z` to the Marketplace.
+  `X.Y.Z` to the Marketplace. The Marketplace line started at 0.0.1; the tags
+  v3.101.1 to v3.107.1 belong to the old ID and are not the latest release.
   [005](docs/decisions/005_a-release-tag-publishes-the-vsix-as-a-generic-package.md),
   [014](docs/decisions/014_the-release-is-created-with-the-job-token.md),
-  [015](docs/decisions/015_the-extension-is-published-to-the-marketplace.md)
+  [015](docs/decisions/015_the-extension-is-published-to-the-marketplace.md),
+  [016](docs/decisions/016_the-marketplace-extension-starts-at-0-0-1.md)
 
 - **The extension is `tranphucbol.jetbrain-gitlab`.** Code that looks itself
   up with `vscode.extensions.getExtension()` or builds a `vscode://` URI uses
