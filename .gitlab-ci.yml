@@ -1,6 +1,7 @@
-# Fork-local pipeline for a GitLab 13.12 instance.
+# Fork-local pipeline. It was written for a GitLab 13.12 instance and runs
+# unchanged on gitlab.com's shared runners (see docs/decisions/013).
 #
-# Upstream's .gitlab-ci.yml targets gitlab.com and cannot run on this instance:
+# Upstream's .gitlab-ci.yml targets gitlab.com and cannot run on 13.12:
 #   - Jobs/*.latest.gitlab-ci.yml security templates ship inside GitLab >= 14.x,
 #     so 13.12 rejects the include and the pipeline dies before any job starts.
 #   - include:project 'gitlab-org/quality/pipeline-common' does not exist here.
