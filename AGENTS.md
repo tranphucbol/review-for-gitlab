@@ -237,5 +237,6 @@ node scripts/release.mjs patch             # changelog, commit, tag, push after 
   `package.json`, which still points at gitlab.com. `scripts/release.mjs`
   points them at the fork's own project, repeats the "Fork release" paragraph,
   and tags `vX.Y.Z` on the default branch; the tag pipeline publishes the
-  `.vsix` and needs the masked `CI_GIT_TOKEN` variable.
-  [005](docs/decisions/005_a-release-tag-publishes-the-vsix-as-a-generic-package.md)
+  `.vsix` and creates the Release with `CI_JOB_TOKEN` alone.
+  [005](docs/decisions/005_a-release-tag-publishes-the-vsix-as-a-generic-package.md),
+  [014](docs/decisions/014_the-release-is-created-with-the-job-token.md)

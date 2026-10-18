@@ -99,11 +99,6 @@ publish:
     - apt-get update && apt-get install -y --no-install-recommends ca-certificates curl git
   script:
     - set -eu
-    - |
-      if [ -z "${CI_GIT_TOKEN:-}" ]; then
-        echo "ERROR: CI_GIT_TOKEN (masked, api scope) is required to create a GitLab release."
-        exit 1
-      fi
     - VERSION="${CI_COMMIT_TAG#v}"
     - VSIX_NAME="${PACKAGE_NAME}-${VERSION}.vsix"
     - VSIX_PATH="dist-desktop/${VSIX_NAME}"
@@ -202,7 +197,7 @@ publish:
       RELEASES_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases"
       curl --fail --silent --show-error --retry 3 --retry-connrefused \
         --output releases.json \
-        --header "PRIVATE-TOKEN: ${CI_GIT_TOKEN}" "${RELEASES_URL}?per_page=100"
+        --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${RELEASES_URL}?per_page=100"
       if node -e '
         var releases = require("./releases.json");
         process.exit(releases.some(function (release) {
@@ -214,7 +209,7 @@ publish:
         echo "Creating release ${CI_COMMIT_TAG}"
         curl --fail --silent --show-error --retry 3 --retry-connrefused \
           --request POST \
-          --header "PRIVATE-TOKEN: ${CI_GIT_TOKEN}" \
+          --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
           --header "Content-Type: application/json" \
           --data @release.json \
           "$RELEASES_URL" > /dev/null

@@ -1,6 +1,7 @@
 # 005 - A release tag publishes the VSIX as a generic package
 
 **Status:** accepted - 2026-09-26
+**Status:** release token replaced by `CI_JOB_TOKEN` by [014](014_the-release-is-created-with-the-job-token.md) - 2026-10-18
 
 ## Context
 

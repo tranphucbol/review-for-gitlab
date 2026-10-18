@@ -1,6 +1,7 @@
 # 013 - The fork is hosted on gitlab.com
 
 **Status:** accepted - 2026-10-18
+**Status:** `CI_GIT_TOKEN` made unnecessary by [014](014_the-release-is-created-with-the-job-token.md) - 2026-10-18
 
 ## Context
 
