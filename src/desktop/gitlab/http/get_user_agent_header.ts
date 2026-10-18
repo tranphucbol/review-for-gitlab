@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 export const getUserAgentHeader = (): Record<string, string> => {
-  const extension = vscode.extensions.getExtension('GitLab.gitlab-workflow');
+  const extension = vscode.extensions.getExtension('tranphucbol.jetbrain-gitlab');
   const extensionVersion = extension?.packageJSON?.version || 'unknown';
   const nodePlatform = `Node.js/${process.version.substring(1)} (${process.platform}; ${
     process.arch

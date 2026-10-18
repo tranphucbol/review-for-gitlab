@@ -14,7 +14,7 @@ const commentUri = (authority = 'gitlab-mr-gitlab-org/gitlab!1') =>
   new Uri({
     scheme: 'comment',
     authority,
-    path: '/GitLab.gitlab-workflow/commentinput-1.md',
+    path: '/tranphucbol.jetbrain-gitlab/commentinput-1.md',
     query: '',
     fragment: '',
   });

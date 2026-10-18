@@ -53,7 +53,7 @@ const initializeTestEnvironment = async testRoot => {
   pendingWebviewController.init(extensionContext);
   issuableController.init(extensionContext);
   selectedProjectStore.init(extensionContext);
-  const ext = vscode.extensions.getExtension('gitlab.gitlab-workflow');
+  const ext = vscode.extensions.getExtension('tranphucbol.jetbrain-gitlab');
   // run the extension activation and project load with a mock server
   const server = getServer();
   await ext.activate();

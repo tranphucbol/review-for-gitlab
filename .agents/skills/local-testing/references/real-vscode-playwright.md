@@ -17,7 +17,7 @@ downloaded by layer 2).
   repository checkout is on that branch. Pushing and opening the MR need the
   user's approval first.
 - A `.vsix` exists outside `dist-desktop/`: `npm run package` writes
-  `dist-desktop/gitlab-workflow-<version>.vsix`, and the next build wipes that
+  `dist-desktop/jetbrain-gitlab-<version>.vsix`, and the next build wipes that
   directory, so copy it somewhere else first (the examples use
   `~/Downloads/`).
 
@@ -26,7 +26,7 @@ downloaded by layer 2).
 ```sh
 E=$(mktemp -d)        # throwaway profile; any free port works
 zsh .agents/skills/local-testing/scripts/launch.sh \
-  "/Applications/Visual Studio Code.app" 9333 "$E" "$PWD" ~/Downloads/gitlab-workflow-<version>.vsix
+  "/Applications/Visual Studio Code.app" 9333 "$E" "$PWD" ~/Downloads/jetbrain-gitlab-<version>.vsix
 sleep 20
 curl -s localhost:9333/json/list    # wait for a page whose url ends in workbench.html
 ```

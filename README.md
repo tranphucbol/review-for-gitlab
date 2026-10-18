@@ -1,5 +1,14 @@
 # <img src="https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/ef3c16e228e51f522b1af0d19b6284b309c4f601/src/assets/logo.png" width="64" align="center" /> [GitLab VS Code Extension](https://gitlab.com/gitlab-org/gitlab-vscode-extension)
 
+> **This is a fork.** Jetbrain GitLab is
+> [GitLab Workflow](https://marketplace.visualstudio.com/items?itemName=GitLab.gitlab-workflow)
+> adapted to work with GitLab 13.12, with a side-by-side merge request diff,
+> image paste in comments, merge request actions and Jira links added. It is not
+> maintained or endorsed by GitLab. Do not install it next to GitLab Workflow:
+> both register the same commands, views and `gitlab.*` settings. Sign in with a
+> personal access token; OAuth sign-in to GitLab.com belongs to the official
+> extension.
+
 This extension integrates GitLab into Visual Studio Code. After you [set up the extension](#setup), you can:
 
 - [**View GitLab issues and merge requests**](#issue-and-merge-request-details-and-comments-in-vs-code).

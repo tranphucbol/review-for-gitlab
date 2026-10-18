@@ -90,7 +90,7 @@ const GC_TIME = 60000;
 const getIdeVersionContext = () => {
   // this logic is duplicated in common/language_server/get_client_context.ts
   // the idea is that we'll delete this whole file once we switch to LS
-  const extension = vscode.extensions.getExtension('Gitlab.gitlab-workflow');
+  const extension = vscode.extensions.getExtension('tranphucbol.jetbrain-gitlab');
 
   return {
     schema: 'iglu:com.gitlab/ide_extension_version/jsonschema/1-0-0',

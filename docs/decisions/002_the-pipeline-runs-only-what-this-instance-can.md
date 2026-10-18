@@ -1,6 +1,7 @@
 # 002 - The pipeline runs only what this instance can run
 
 **Status:** accepted - 2026-09-13
+**Status:** Marketplace publishing added by [015](015_the-extension-is-published-to-the-marketplace.md) - 2026-10-18
 
 ## Context
 

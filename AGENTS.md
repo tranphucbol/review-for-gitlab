@@ -127,7 +127,10 @@ watcher.
 CI runs `lint` and `test-unit` in parallel, then `package`, which keeps the
 `.vsix` and its checksum as an artifact for a year. A `vX.Y.Z` tag adds
 `publish`: the `.vsix` goes to this project's generic package registry and a
-GitLab Release links it. Nothing is published to a marketplace.
+GitLab Release links it. An `X.Y.Z` tag, not a prerelease, also adds
+`publish-marketplace`: the Visual Studio Marketplace as
+`tranphucbol.jetbrain-gitlab`, signed in through a federated Azure identity
+with no stored secret. Nothing goes to Open VSX.
 
 ```sh
 node scripts/release.mjs patch --dry-run   # or minor, major, prerelease --pre beta, X.Y.Z
@@ -233,10 +236,17 @@ node scripts/release.mjs patch             # changelog, commit, tag, push after 
   unconventional message is a change the changelog never mentions.
 
 - **A fork release says it is one.** `npm version` bumps `package.json` and
-  writes the `CHANGELOG.md` entry, but it takes its links from `repository` in
-  `package.json`, which still points at gitlab.com. `scripts/release.mjs`
-  points them at the fork's own project, repeats the "Fork release" paragraph,
+  writes the `CHANGELOG.md` entry; `scripts/release.mjs` points any upstream
+  link in it at the fork's own project, repeats the "Fork release" paragraph,
   and tags `vX.Y.Z` on the default branch; the tag pipeline publishes the
-  `.vsix` and creates the Release with `CI_JOB_TOKEN` alone.
+  `.vsix` and creates the Release with `CI_JOB_TOKEN` alone, and publishes an
+  `X.Y.Z` to the Marketplace.
   [005](docs/decisions/005_a-release-tag-publishes-the-vsix-as-a-generic-package.md),
-  [014](docs/decisions/014_the-release-is-created-with-the-job-token.md)
+  [014](docs/decisions/014_the-release-is-created-with-the-job-token.md),
+  [015](docs/decisions/015_the-extension-is-published-to-the-marketplace.md)
+
+- **The extension is `tranphucbol.jetbrain-gitlab`.** Code that looks itself
+  up with `vscode.extensions.getExtension()` or builds a `vscode://` URI uses
+  that ID, not upstream's `GitLab.gitlab-workflow`; commands, views and
+  `gitlab.*` settings keep upstream's names.
+  [015](docs/decisions/015_the-extension-is-published-to-the-marketplace.md)

@@ -24,7 +24,10 @@ const fakeOAuthService = (urlString: string): string => {
     params.get('client_id'),
     '36f2a70cddeb5a0889d4fd8295c241b7e9848e89cf9e599d0eed2d8e5350fbf5',
   );
-  assert.strictEqual(params.get('redirect_uri'), 'vscode://gitlab.gitlab-workflow/authentication');
+  assert.strictEqual(
+    params.get('redirect_uri'),
+    'vscode://tranphucbol.jetbrain-gitlab/authentication',
+  );
   assert.strictEqual(params.get('response_type'), 'code');
   assert.strictEqual(params.get('scope'), 'api');
   assert.strictEqual(params.get('code_challenge_method'), 'S256');

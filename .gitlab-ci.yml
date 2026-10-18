@@ -9,12 +9,13 @@
 #
 # What is kept: lint, unit tests, and the VSIX build - the three things that
 # actually guard this fork. Security scanning, docs linting, commit linting,
-# integration tests and Marketplace publishing are all dropped; they depend on
+# integration tests and Open VSX publishing are all dropped; they depend on
 # gitlab.com infrastructure or on credentials this fork does not have.
 #
 # A release tag (vX.Y.Z, see scripts/release.mjs) also publishes the VSIX and
 # its checksum to this project's generic package registry and creates a GitLab
-# Release that links them. See docs/decisions/005.
+# Release that links them (docs/decisions/005), and publishes the VSIX to the
+# Visual Studio Marketplace as tranphucbol.jetbrain-gitlab (docs/decisions/015).
 
 workflow:
   rules:
@@ -30,7 +31,7 @@ stages:
   - publish
 
 variables:
-  PACKAGE_NAME: gitlab-workflow
+  PACKAGE_NAME: jetbrain-gitlab
   PACKAGE_REGISTRY_URL: '${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}'
 
 # git is needed by npm ci (git-backed dependencies) and by the lint job.
@@ -215,3 +216,25 @@ publish:
           "$RELEASES_URL" > /dev/null
       fi
     - 'echo "Done: ${CI_PROJECT_URL}/-/releases/${CI_COMMIT_TAG}"'
+
+# The Marketplace accepts only X.Y.Z, so a prerelease tag stops at the package
+# registry. There is no stored secret: the job signs in to Azure as a managed
+# identity that trusts this project's protected tags. See docs/decisions/015.
+publish-marketplace:
+  stage: publish
+  image: node:22-slim
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/'
+  needs:
+    - job: package
+      artifacts: true
+  id_tokens:
+    AZURE_ID_TOKEN:
+      aud: api://AzureADTokenExchange
+  script:
+    - set -eu
+    - VSIX_PATH="dist-desktop/${PACKAGE_NAME}-${CI_COMMIT_TAG#v}.vsix"
+    # AZURE_CLIENT_ID and AZURE_TENANT_ID are protected project variables
+    - printf '%s' "$AZURE_ID_TOKEN" > "${CI_PROJECT_DIR}/.azure-id-token"
+    - export AZURE_FEDERATED_TOKEN_FILE="${CI_PROJECT_DIR}/.azure-id-token"
+    - npx --yes @vscode/vsce@3 publish --azure-credential --packagePath "$VSIX_PATH" --skip-duplicate

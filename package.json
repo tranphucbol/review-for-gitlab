@@ -1,13 +1,13 @@
 {
-  "name": "gitlab-workflow",
-  "displayName": "GitLab Workflow",
-  "description": "Official GitLab-maintained extension for Visual Studio Code.",
+  "name": "jetbrain-gitlab",
+  "displayName": "Jetbrain GitLab",
+  "description": "A fork of GitLab Workflow for older GitLab instances (13.12), with a side-by-side merge request diff.",
   "version": "3.107.1",
-  "publisher": "GitLab",
+  "publisher": "tranphucbol",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/gitlab-org/gitlab-vscode-extension"
+    "url": "https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab"
   },
   "engines": {
     "vscode": "^1.82.0"
@@ -29,8 +29,7 @@
     "onStartupFinished"
   ],
   "bugs": {
-    "url": "https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues",
-    "email": "incoming+gitlab-org-gitlab-vscode-extension-5261717-issue-@incoming.gitlab.com"
+    "url": "https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/-/issues"
   },
   "galleryBanner": {
     "color": "#171321",
