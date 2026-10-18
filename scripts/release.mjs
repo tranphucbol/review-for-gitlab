@@ -110,7 +110,9 @@ const main = async () => {
   const options = parseArgs(process.argv.slice(2));
   const head = await preflight();
   const versions = await remoteVersions();
-  const latest = versions.find(v => !semver.satisfies(v, LEGACY_VERSIONS));
+  const latest = versions.find(
+    v => !semver.satisfies(v, LEGACY_VERSIONS, { includePrerelease: true }),
+  );
   const version = nextVersion(options.target, latest, options.pre);
   const tag = `v${version}`;
   const forkUrl = webUrl(await git('remote', 'get-url', REMOTE));
