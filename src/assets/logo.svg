@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="26" fill="#F4F1EA"/>
+  <rect x="63.25" y="12" width="1.5" height="104" rx="0.75" fill="#E2DCCF"/>
+  <rect x="14" y="14" width="34" height="5" rx="2.5" fill="#D9D3C6"/><rect x="14" y="23" width="42" height="5" rx="2.5" fill="#EBC3B5"/><rect x="14" y="32" width="26" height="5" rx="2.5" fill="#D9D3C6"/>
+  <rect x="70" y="14" width="34" height="5" rx="2.5" fill="#D9D3C6"/><rect x="70" y="23" width="44" height="5" rx="2.5" fill="#BFDCC6"/><rect x="70" y="32" width="26" height="5" rx="2.5" fill="#D9D3C6"/>
+  <rect x="14" y="91" width="30" height="5" rx="2.5" fill="#D9D3C6"/><rect x="14" y="100" width="40" height="5" rx="2.5" fill="#EBC3B5"/><rect x="14" y="109" width="22" height="5" rx="2.5" fill="#D9D3C6"/>
+  <rect x="70" y="91" width="30" height="5" rx="2.5" fill="#D9D3C6"/><rect x="70" y="100" width="38" height="5" rx="2.5" fill="#BFDCC6"/><rect x="70" y="109" width="22" height="5" rx="2.5" fill="#D9D3C6"/>
+  <rect x="8" y="45" width="112" height="38" rx="10" fill="#1B1D24"/>
+  <text x="58" y="72" text-anchor="middle" font-family="Menlo, monospace" font-weight="700" font-size="23" fill="#FFFFFF"><tspan fill="#FC6D26">G</tspan>it<tspan fill="#FC6D26">L</tspan>ab</text>
+  <rect x="103" y="54" width="3" height="20" rx="1.5" fill="#FC6D26"/>
+</svg>

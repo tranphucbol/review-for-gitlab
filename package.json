@@ -32,7 +32,7 @@
     "url": "https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/-/issues"
   },
   "galleryBanner": {
-    "color": "#171321",
+    "color": "#1B1D24",
     "theme": "dark"
   },
   "contributes": {

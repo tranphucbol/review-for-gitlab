@@ -1,4 +1,4 @@
-# <img src="https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/raw/ef3c16e228e51f522b1af0d19b6284b309c4f601/src/assets/logo.png" width="64" align="center" /> [GitLab VS Code Extension](https://gitlab.com/gitlab-org/gitlab-vscode-extension)
+# <img src="https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/-/raw/main/src/assets/logo.png" width="64" align="center" /> [Jetbrain GitLab](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab)
 
 > **This is a fork.** Jetbrain GitLab is
 > [GitLab Workflow](https://marketplace.visualstudio.com/items?itemName=GitLab.gitlab-workflow)
