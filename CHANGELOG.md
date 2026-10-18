@@ -1,3 +1,28 @@
+## [0.0.1](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.107.1...v0.0.1) (2026-10-18)
+
+Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
+GitLab instances older than 15.5.
+
+
+### Bug Fixes
+
+* **release:** leave the 3.101.3-beta.0 tag out of the latest release too ([bea55a5](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/bea55a5ff4af5008a81533f45c4d67c6acaac230))
+
+
+### Features
+
+* publish to the Marketplace as tranphucbol.jetbrain-gitlab ([6b47d8a](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/6b47d8aa4bb6b17cbf8c63fcba26cabadaea6bcb))
+
+
+### BREAKING CHANGES
+
+* the extension ID changes from GitLab.gitlab-workflow to
+tranphucbol.jetbrain-gitlab. Uninstall the old build before installing this
+one. OAuth sign-in to GitLab.com no longer completes; use a personal access
+token.
+
+
+
 ## [3.107.1](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.107.0...v3.107.1) (2026-10-18)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
