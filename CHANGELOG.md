@@ -1,3 +1,22 @@
+# [3.107.0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.106.0...v3.107.0) (2026-10-18)
+
+Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
+GitLab instances older than 15.5.
+
+
+### Bug Fixes
+
+* **review:** report failures and confirm actions the same way on every surface ([fabcd74](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/fabcd74276b836f10605cd9b9cb479756c9e511e))
+
+
+### Features
+
+* **commands:** give the fork's commands and settings one style ([3923352](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/39233524c935704a036b151216c6cbb1ee88ce0f))
+* **overview:** give the Overview composer preview, Escape and image paste ([7f43c13](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/7f43c137b4225a33cacd7381471656dfef85ab1d))
+* **webviews:** share the thread look between the Overview and the side-by-side diff ([398b8bc](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/398b8bc6f0b1a3b4b82ca9862a285a0ef1aecebb))
+
+
+
 # [3.106.0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.105.1...v3.106.0) (2026-10-17)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
