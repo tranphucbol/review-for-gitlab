@@ -20,6 +20,7 @@ import { mrProjectPath, toUploadError, uploadAttachments } from '../comment_atta
 import { buildDiffPosition } from '../diff_position';
 import { loadTokenRules } from './color_theme_tokens';
 import { getEditorFont } from './editor_font';
+import { loadDiffKeybindings } from './diff_keybindings';
 import { toDiffDiscussions } from './diff_discussions';
 import { LocalCodeNavigation } from './local_code_navigation';
 import { HunkDirection, LocalHunkApplier, minimalEdit } from './local_hunk_applier';
@@ -28,6 +29,7 @@ import {
   BlockRange,
   CodeHover,
   CodeLocation,
+  DiffAction,
   DiffFileModel,
   FromWebviewMessage,
   TokenRule,
@@ -478,6 +480,16 @@ export class MrDiffPanel {
     await this.#post({ command: 'jiraLinks', config: getJiraLinkConfig() ?? null });
   }
 
+  /** Sends the keys the panes take over, so a rebound key works in them as in a diff editor. */
+  async refreshKeybindings(): Promise<void> {
+    await this.#post({ command: 'keybindings', keybindings: await loadDiffKeybindings() });
+  }
+
+  /** Runs a `gl.sideBySide*` command in this view. */
+  async runAction(action: DiffAction): Promise<void> {
+    await this.#post({ command: 'runAction', action });
+  }
+
   /** Sends the discussions on this file; a response to an older request is dropped. */
   async refreshDiscussions(): Promise<void> {
     this.#discussionsRequest += 1;
@@ -588,6 +600,7 @@ export class MrDiffPanel {
         await this.refreshEditorFont();
         await this.refreshTokenTheme();
         await this.refreshJiraLinks();
+        await this.refreshKeybindings();
         await this.#sendFile();
         await Promise.all([this.refreshLocalState(), this.refreshDiscussions()]);
         break;

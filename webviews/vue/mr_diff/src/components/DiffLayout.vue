@@ -184,6 +184,7 @@ export default {
             if (this.canCommentOn(side, line)) this.$emit('add-comment', { side, line });
             else this.$emit('comment-refused', { side, line });
           },
+          onNavigate: direction => this.navigate(direction),
           paths: { old: this.file.oldPath, new: this.file.newPath },
           navigation: hostCodeNavigation,
           soloSide: this.soloSide ?? undefined,
@@ -195,12 +196,10 @@ export default {
     }
     this.stopWatchingTheme = watchThemeChanges(() => this.diffView.refreshTheme());
     this.stopWatchingFont = onEditorFontChange(() => this.diffView.refreshFont());
-    window.addEventListener('keydown', this.onKeyDown);
     this.syncThreads();
     if (this.blocks.length > 0) this.$nextTick(() => this.diffView.revealBlock(this.blocks[0].id));
   },
   beforeUnmount() {
-    window.removeEventListener('keydown', this.onKeyDown);
     this.stopWatchingTheme?.();
     this.stopWatchingFont?.();
     this.diffView?.dispose();
@@ -244,10 +243,9 @@ export default {
       const first = direction > 0 ? 0 : tops.length - 1;
       this.diffView.revealBlock(layout.connectors[index === -1 ? first : index].blockId);
     },
-    onKeyDown(event) {
-      if (event.key !== 'F7') return;
-      event.preventDefault();
-      this.navigate(event.shiftKey ? -1 : 1);
+    /** Runs a `gl.sideBySide*` command; the panes run their own keys. */
+    runAction(action) {
+      this.diffView?.runAction(action);
     },
     revealBlock(blockId) {
       this.diffView?.revealBlock(blockId);

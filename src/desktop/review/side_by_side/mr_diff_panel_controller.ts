@@ -5,6 +5,8 @@ import { handleError } from '../../../common/errors/handle_error';
 import { prepareWebviewSource } from '../../../common/utils/webviews/prepare_webview_source';
 import { RepositoryRootWebviewProvider } from '../../commands/run_with_valid_project';
 import { WEBVIEW_MR_DIFF } from '../../constants';
+import { initDiffKeybindings } from './diff_keybindings';
+import { DiffAction } from './messages';
 import { MrDiffPanel, MrDiffTarget } from './mr_diff_panel';
 
 const panelTitle = ({ mr, file }: MrDiffTarget) =>
@@ -17,6 +19,7 @@ export class MrDiffPanelController implements RepositoryRootWebviewProvider {
 
   init(context: vscode.ExtensionContext) {
     this.#context = context;
+    initDiffKeybindings(context);
   }
 
   async open(target: MrDiffTarget): Promise<vscode.WebviewPanel> {
@@ -60,6 +63,8 @@ export class MrDiffPanelController implements RepositoryRootWebviewProvider {
       if (!webviewPanel.visible) return;
       mrDiffPanel.refreshDiscussions().catch(handleError);
       mrDiffPanel.refreshLocalState().catch(handleError);
+      // keybindings.json has no change event; the user may have edited it meanwhile
+      mrDiffPanel.refreshKeybindings().catch(handleError);
     });
     mrDiffPanel.start();
     const html = await prepareWebviewSource(panel.webview, this.#context, 'mr_diff');
@@ -86,6 +91,16 @@ export class MrDiffPanelController implements RepositoryRootWebviewProvider {
   /** Relinks Jira keys in every open view after a `gitlab.jira` setting changes. */
   refreshJiraLinks(): void {
     this.#panels.forEach(p => p.refreshJiraLinks().catch(handleError));
+  }
+
+  /** Updates the keys of every open view after an extension, such as a keymap, comes or goes. */
+  refreshKeybindings(): void {
+    this.#panels.forEach(p => p.refreshKeybindings().catch(handleError));
+  }
+
+  /** Runs a `gl.sideBySide*` command in the active view; without one it does nothing. */
+  async runAction(action: DiffAction): Promise<void> {
+    await this.#activePanel()?.runAction(action);
   }
 
   // eslint-disable-next-line class-methods-use-this

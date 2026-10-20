@@ -179,6 +179,13 @@ const registerCommands = (context: vscode.ExtensionContext) => {
     },
     [USER_COMMANDS.OPEN_MR_FILE]: openMrFile,
     [USER_COMMANDS.OPEN_MR_FILE_SIDE_BY_SIDE]: openMrFileSideBySide,
+    [USER_COMMANDS.SIDE_BY_SIDE_NEXT_CHANGE]: () => mrDiffPanelController.runAction('nextChange'),
+    [USER_COMMANDS.SIDE_BY_SIDE_PREVIOUS_CHANGE]: () =>
+      mrDiffPanelController.runAction('previousChange'),
+    [USER_COMMANDS.SIDE_BY_SIDE_COMMENT_ON_LINE]: () =>
+      mrDiffPanelController.runAction('commentOnLine'),
+    [USER_COMMANDS.SIDE_BY_SIDE_GO_TO_DEFINITION]: () =>
+      mrDiffPanelController.runAction('goToDefinition'),
     [USER_COMMANDS.SELECT_PROJECT_FOR_REPOSITORY]: selectProjectForRepository,
     [USER_COMMANDS.SELECT_PROJECT]: selectProjectCommand,
     [USER_COMMANDS.ASSIGN_PROJECT]: assignProject,
@@ -283,6 +290,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
       }
     }),
     vscode.window.onDidChangeActiveColorTheme(() => mrDiffPanelController.refreshTokenThemes()),
+    vscode.extensions.onDidChange(() => mrDiffPanelController.refreshKeybindings()),
   );
   await accountService.init(context).catch(e => {
     handleError(e);

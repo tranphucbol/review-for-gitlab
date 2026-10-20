@@ -116,6 +116,12 @@ versions next to each other the way JetBrains IDEs do.
 - **Navigation**: the toolbar counts the changes and moves between them, as do `f7` and
   `shift + f7`. Hover, Go to Definition and Find References work as in the native review.
   **Refresh** loads the latest version of the merge request and its discussions.
+- **Your keys**: the keys are VS Code keybindings, so you can change them in **Keyboard
+  Shortcuts**. A key you or a keymap extension bound to the diff editor's **Go to Next/Previous
+  Change**, to **Go to Definition** or **Go to Declaration**, or to **Find References** works in
+  the code panes too, as long as its `when` clause names nothing beyond editor focus, a diff, the
+  file's language and the side-by-side diff. Keys from `keybindings.json` of a profile other than
+  the default one are not read.
 - **Open it anywhere**: the side-by-side icon on a changed file, the button on a review diff's
   title bar, or **GitLab: Open Changed File in Side-by-Side View** open one file in this view
   whatever the setting. **Open native diff** goes back.
@@ -243,7 +249,7 @@ The oldest GitLab the extension starts with is 13.6; below it, it warns once.
 
 ## Commands
 
-The fork adds four commands. None has a default key.
+The fork adds these commands.
 
 | Command                   | Title                                          | Where                                                                           |
 | ------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------- |
@@ -259,6 +265,38 @@ The fork adds four commands. None has a default key.
 - **Fetch and Update Merge Request Branch** fetches the source branch and moves the local branch
   to it, asking before it drops local commits.
 - **Open Jira Issue** opens the Jira key of the current branch or its merge request.
+
+These run in the side-by-side diff, and are in the palette while it is the active editor:
+
+| Command                       | Title                                       | Default key                      |
+| ----------------------------- | ------------------------------------------- | -------------------------------- |
+| `gl.sideBySideNextChange`     | GitLab: Side-by-Side Diff: Next Change      | `f7`                             |
+| `gl.sideBySidePreviousChange` | GitLab: Side-by-Side Diff: Previous Change  | `shift + f7`                     |
+| `gl.sideBySideCommentOnLine`  | GitLab: Side-by-Side Diff: Comment on Line  | `cmd + enter` / `ctrl + enter`   |
+| `gl.sideBySideGoToDefinition` | GitLab: Side-by-Side Diff: Go to Definition | none; `f12` works in a code pane |
+
+To move between changes with `alt + down` and `alt + up` instead of `f7`, add to
+`keybindings.json`:
+
+```jsonc
+[
+  {
+    "key": "alt+down",
+    "command": "gl.sideBySideNextChange",
+    "when": "activeWebviewPanelId == 'gitlab.mergeRequestDiff'"
+  },
+  {
+    "key": "alt+up",
+    "command": "gl.sideBySidePreviousChange",
+    "when": "activeWebviewPanelId == 'gitlab.mergeRequestDiff'"
+  },
+  { "key": "f7", "command": "-gl.sideBySideNextChange" },
+  { "key": "shift+f7", "command": "-gl.sideBySidePreviousChange" }
+]
+```
+
+Keep the `when` clause: without it the key is taken from every editor, where the command does
+nothing.
 
 Upstream's commands keep their names; type `GitLab:` in the command palette to list them.
 
