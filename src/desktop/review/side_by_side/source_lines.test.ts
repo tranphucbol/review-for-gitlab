@@ -1,4 +1,4 @@
-import { LINE_LCS_CELL_LIMIT, mapSourceRange } from './source_lines';
+import { MAX_EDIT_DISTANCE, mapSourceRange } from './source_lines';
 
 const text = (...lines: string[]) => lines.join('\n');
 const range = (startLine: number, startColumn: number, endLine: number, endColumn: number) => ({
@@ -106,8 +106,18 @@ describe('mapSourceRange', () => {
     expect(mapSourceRange(original, original, range(9, 1, 9, 1)).range.startLine).toBe(5);
   });
 
-  it('maps through the common prefix and suffix when the middle is too large for an LCS', () => {
-    const size = Math.ceil(Math.sqrt(LINE_LCS_CELL_LIMIT)) + 1;
+  it('follows unchanged lines between edits far apart in a long file', () => {
+    const lines = Array.from({ length: 5000 }, (_, i) => `line ${i}`);
+    const from = text(...lines);
+    const to = text(...lines.slice(0, 10), 'added', ...lines.slice(10, 4990), 'edited');
+    expect(mapSourceRange(from, to, range(2500, 3, 2501, 4))).toEqual({
+      exact: true,
+      range: range(2501, 3, 2502, 4),
+    });
+  });
+
+  it('maps through the common prefix and suffix when the middle has too many edits', () => {
+    const size = MAX_EDIT_DISTANCE / 2 + 1;
     const middle = (tag: string) => Array.from({ length: size }, (_, i) => `${tag}${i}`);
     const from = text('head', ...middle('a'), 'tail');
     const to = text('head', ...middle('b'), 'tail');

@@ -1,7 +1,10 @@
 import { CodeRange } from './messages';
 
-/** The largest line LCS the mapping runs; past it the changed middle is one block, as in the webview. */
-export const LINE_LCS_CELL_LIMIT = 250_000;
+/**
+ * The most inserted and removed lines the mapping looks for; past it the changed middle is
+ * one block. Work grows with this times the file's length, memory with its square.
+ */
+export const MAX_EDIT_DISTANCE = 1000;
 
 /** A range in another text, and whether every line in it is unchanged from the original. */
 export interface SourceRange {
@@ -12,8 +15,64 @@ export interface SourceRange {
 const splitLines = (text: string): string[] => text.split(/\r?\n/);
 
 /**
+ * The unchanged lines of a shortest edit script from `a` to `b` (Myers' greedy diff), as
+ * pairs of 0-based indexes, or undefined when it needs more than MAX_EDIT_DISTANCE edits.
+ * `trace[d][k + d]` is the furthest `x` on diagonal `k = x - y` after `d` edits.
+ */
+const unchangedPairs = (a: string[], b: string[]): Array<[number, number]> | undefined => {
+  const n = a.length;
+  const m = b.length;
+  const trace: Int32Array[] = [];
+  // the move into diagonal k after d edits: down from k + 1 (an insertion) or right from k - 1
+  const comesDown = (previous: Int32Array, d: number, k: number) =>
+    k === -d || (k !== d && previous[k - 1 + d - 1] < previous[k + 1 + d - 1]);
+  for (let d = 0; d <= Math.min(n + m, MAX_EDIT_DISTANCE); d += 1) {
+    const furthest = new Int32Array(2 * d + 1);
+    trace.push(furthest);
+    for (let k = -d; k <= d; k += 2) {
+      let x = 0;
+      if (d > 0) {
+        const previous = trace[d - 1];
+        x = comesDown(previous, d, k) ? previous[k + 1 + d - 1] : previous[k - 1 + d - 1] + 1;
+      }
+      let y = x - k;
+      while (x < n && y < m && a[x] === b[y]) {
+        x += 1;
+        y += 1;
+      }
+      furthest[k + d] = x;
+      if (x >= n && y >= m) {
+        const pairs: Array<[number, number]> = [];
+        let [px, py] = [n, m];
+        for (let step = d; step > 0; step -= 1) {
+          const previous = trace[step - 1];
+          const pk = px - py;
+          const fromK = comesDown(previous, step, pk) ? pk + 1 : pk - 1;
+          const fromX = previous[fromK + step - 1];
+          const fromY = fromX - fromK;
+          while (px > fromX && py > fromY) {
+            px -= 1;
+            py -= 1;
+            pairs.push([px, py]);
+          }
+          [px, py] = [fromX, fromY];
+        }
+        while (px > 0 && py > 0) {
+          px -= 1;
+          py -= 1;
+          pairs.push([px, py]);
+        }
+        return pairs;
+      }
+    }
+  }
+  return undefined;
+};
+
+/**
  * For each line of `from`, its 0-based index in `to` when the line is unchanged, -1 otherwise.
- * Common leading and trailing lines always match; the middle matches by LCS when it fits.
+ * Common leading and trailing lines always match; the middle matches by a shortest edit
+ * script when one is short enough.
  */
 const matchLines = (from: string[], to: string[]): number[] => {
   const matches = new Array<number>(from.length).fill(-1);
@@ -34,31 +93,9 @@ const matchLines = (from: string[], to: string[]): number[] => {
   const a = from.slice(prefix, from.length - suffix);
   const b = to.slice(prefix, to.length - suffix);
   if (a.length === 0 || b.length === 0) return matches;
-  if ((a.length + 1) * (b.length + 1) > LINE_LCS_CELL_LIMIT) return matches;
-  // lengths[i][j]: the LCS of a[i..] and b[j..], so the walk below runs forwards
-  const width = b.length + 1;
-  const lengths = new Uint32Array((a.length + 1) * width);
-  for (let i = a.length - 1; i >= 0; i -= 1) {
-    for (let j = b.length - 1; j >= 0; j -= 1) {
-      lengths[i * width + j] =
-        a[i] === b[j]
-          ? lengths[(i + 1) * width + j + 1] + 1
-          : Math.max(lengths[(i + 1) * width + j], lengths[i * width + j + 1]);
-    }
-  }
-  let i = 0;
-  let j = 0;
-  while (i < a.length && j < b.length) {
-    if (a[i] === b[j]) {
-      matches[prefix + i] = prefix + j;
-      i += 1;
-      j += 1;
-    } else if (lengths[(i + 1) * width + j] >= lengths[i * width + j + 1]) {
-      i += 1;
-    } else {
-      j += 1;
-    }
-  }
+  unchangedPairs(a, b)?.forEach(([i, j]) => {
+    matches[prefix + i] = prefix + j;
+  });
   return matches;
 };
 
