@@ -112,6 +112,25 @@ export interface EditorFont {
   tabSize: number;
 }
 
+/** What a key or a `gl.sideBySide*` command asks the view to do. */
+export type DiffAction =
+  | 'nextChange'
+  | 'previousChange'
+  | 'commentOnLine'
+  | 'goToDefinition'
+  | 'findReferences';
+
+/**
+ * A key the panes handle themselves, resolved on the host from VS Code's keybindings.
+ * `key` is in VS Code's syntax for this platform (`cmd+b`, `ctrl+k ctrl+d`); `when`, if set,
+ * holds only `editorLangId` comparisons.
+ */
+export interface DiffKeybinding {
+  key: string;
+  action: DiffAction;
+  when?: string;
+}
+
 export type ToWebviewMessage =
   /**
    * `aligned`: fillers keep both sides row-aligned; the user's last choice. `generation`
@@ -125,6 +144,10 @@ export type ToWebviewMessage =
   | { command: 'tokenTheme'; rules: TokenRule[] }
   /** the Jira link settings, sent before `init` and after they change; `null` when off */
   | { command: 'jiraLinks'; config: JiraLinkConfig | null }
+  /** the keys the panes take over, sent before `init` and when a panel is shown again */
+  | { command: 'keybindings'; keybindings: DiffKeybinding[] }
+  /** a `gl.sideBySide*` command ran with this view active */
+  | { command: 'runAction'; action: DiffAction }
   | {
       command: 'discussions';
       discussions: DiffDiscussionModel[];

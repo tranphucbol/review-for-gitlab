@@ -35,11 +35,10 @@ describe('MrDiffPanelController', () => {
 
   const allPostedMessages = () =>
     jest.mocked(panel.webview.postMessage).mock.calls.map(([message]) => message);
-  // the font, syntax colours and Jira links go first to every webview; most tests are not about them
-  const postedMessages = () =>
-    allPostedMessages().filter(
-      m => m.command !== 'tokenTheme' && m.command !== 'editorFont' && m.command !== 'jiraLinks',
-    );
+  // the font, syntax colours, Jira links and keys go first to every webview; most tests are not
+  // about them
+  const SETUP_MESSAGES = ['tokenTheme', 'editorFont', 'jiraLinks', 'keybindings'];
+  const postedMessages = () => allPostedMessages().filter(m => !SETUP_MESSAGES.includes(m.command));
 
   beforeEach(() => {
     jest.mocked(vscode.window.createWebviewPanel).mockImplementation(() => {
@@ -149,7 +148,7 @@ describe('MrDiffPanelController', () => {
     await sendToHost({ command: 'appReady' });
 
     expect(allPostedMessages()[1]).toEqual({ command: 'tokenTheme', rules: [] });
-    expect(allPostedMessages()[3]).toMatchObject({ command: 'init' });
+    expect(allPostedMessages()[4]).toMatchObject({ command: 'init' });
 
     controller.refreshTokenThemes();
     await new Promise(process.nextTick);
@@ -163,9 +162,9 @@ describe('MrDiffPanelController', () => {
 
     expect(
       allPostedMessages()
-        .slice(0, 4)
+        .slice(0, 5)
         .map(m => m.command),
-    ).toEqual(['editorFont', 'tokenTheme', 'jiraLinks', 'init']);
+    ).toEqual(['editorFont', 'tokenTheme', 'jiraLinks', 'keybindings', 'init']);
     expect(allPostedMessages()[2]).toEqual({ command: 'jiraLinks', config: null });
 
     jest
@@ -1034,6 +1033,47 @@ describe('MrDiffPanelController', () => {
 
       expect(gitlabService.getMrDiff).toHaveBeenCalledTimes(1);
       expect(gitlabService.getMrDiff).toHaveBeenCalledWith(mr);
+    });
+  });
+
+  describe('keys and commands', () => {
+    it('sends the keys the panes take over before the file', async () => {
+      await controller.open(target);
+      await sendToHost({ command: 'appReady' });
+
+      const commands = allPostedMessages().map(m => m.command);
+      expect(commands.indexOf('keybindings')).toBeLessThan(commands.indexOf('init'));
+      expect(allPostedMessages()).toContainEqual({
+        command: 'keybindings',
+        keybindings: expect.arrayContaining([{ key: 'alt+f5', action: 'nextChange' }]),
+      });
+    });
+
+    it('runs a command in the active view only', async () => {
+      const inactive = await controller.open(target);
+      const inactivePost = jest.mocked(inactive.webview.postMessage);
+      const active = await controller.open({ ...target, file: { ...diffFile, new_path: 'b.ts' } });
+      Object.assign(active, { active: true });
+
+      await controller.runAction('nextChange');
+
+      expect(active.webview.postMessage).toHaveBeenCalledWith({
+        command: 'runAction',
+        action: 'nextChange',
+      });
+      expect(inactivePost).not.toHaveBeenCalledWith(
+        expect.objectContaining({ command: 'runAction' }),
+      );
+    });
+
+    it('does nothing without an active view', async () => {
+      const opened = await controller.open(target);
+
+      await controller.runAction('commentOnLine');
+
+      expect(opened.webview.postMessage).not.toHaveBeenCalledWith(
+        expect.objectContaining({ command: 'runAction' }),
+      );
     });
   });
 });

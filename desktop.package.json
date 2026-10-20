@@ -161,6 +161,26 @@
         "icon": "$(split-horizontal)"
       },
       {
+        "command": "gl.sideBySideNextChange",
+        "title": "Side-by-Side Diff: Next Change",
+        "category": "GitLab"
+      },
+      {
+        "command": "gl.sideBySidePreviousChange",
+        "title": "Side-by-Side Diff: Previous Change",
+        "category": "GitLab"
+      },
+      {
+        "command": "gl.sideBySideCommentOnLine",
+        "title": "Side-by-Side Diff: Comment on Line",
+        "category": "GitLab"
+      },
+      {
+        "command": "gl.sideBySideGoToDefinition",
+        "title": "Side-by-Side Diff: Go to Definition",
+        "category": "GitLab"
+      },
+      {
         "command": "gl.resolveThread",
         "title": "Resolve Thread",
         "category": "GitLab",
@@ -332,6 +352,24 @@
         "category": "GitLab"
       }
     ],
+    "keybindings": [
+      {
+        "command": "gl.sideBySideNextChange",
+        "key": "f7",
+        "when": "activeWebviewPanelId == 'gitlab.mergeRequestDiff'"
+      },
+      {
+        "command": "gl.sideBySidePreviousChange",
+        "key": "shift+f7",
+        "when": "activeWebviewPanelId == 'gitlab.mergeRequestDiff'"
+      },
+      {
+        "command": "gl.sideBySideCommentOnLine",
+        "key": "ctrl+enter",
+        "mac": "cmd+enter",
+        "when": "activeWebviewPanelId == 'gitlab.mergeRequestDiff'"
+      }
+    ],
     "menus": {
       "commandPalette": [
         {
@@ -433,6 +471,22 @@
         {
           "command": "gl.openMrFileSideBySide",
           "when": "false"
+        },
+        {
+          "command": "gl.sideBySideNextChange",
+          "when": "activeWebviewPanelId == 'gitlab.mergeRequestDiff'"
+        },
+        {
+          "command": "gl.sideBySidePreviousChange",
+          "when": "activeWebviewPanelId == 'gitlab.mergeRequestDiff'"
+        },
+        {
+          "command": "gl.sideBySideCommentOnLine",
+          "when": "activeWebviewPanelId == 'gitlab.mergeRequestDiff'"
+        },
+        {
+          "command": "gl.sideBySideGoToDefinition",
+          "when": "activeWebviewPanelId == 'gitlab.mergeRequestDiff'"
         },
         {
           "command": "gl.showIssuesAssignedToMe",

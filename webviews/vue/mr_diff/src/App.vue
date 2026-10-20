@@ -24,7 +24,7 @@
         type="button"
         class="gl-diff-button gl-diff-icon-button"
         :disabled="blocks.length === 0 || !diffLayout"
-        title="Previous change (Shift+F7)"
+        title="Previous change"
         aria-label="Previous change"
         @click="navigate(-1)"
       >
@@ -34,7 +34,7 @@
         type="button"
         class="gl-diff-button gl-diff-icon-button"
         :disabled="blocks.length === 0 || !diffLayout"
-        title="Next change (F7)"
+        title="Next change"
         aria-label="Next change"
         @click="navigate(1)"
       >
@@ -170,6 +170,7 @@ import { parseUnifiedDiff } from './model/unified_diff_parser.ts';
 import { computeLineBlocks, splitLines } from './model/line_alignment.ts';
 import { setTokenRules } from './view/token_theme.ts';
 import { setEditorFont } from './view/editor_font.ts';
+import { setDiffKeybindings } from './view/keybindings.ts';
 import { setJiraLinkConfig } from '../../issuable/src/utils/jira_links';
 
 const describeError = e => (e instanceof Error ? e.message : String(e));
@@ -289,6 +290,8 @@ export default {
       if (message?.command === 'tokenTheme') setTokenRules(message.rules ?? []);
       if (message?.command === 'editorFont' && message.font) setEditorFont(message.font);
       if (message?.command === 'jiraLinks') setJiraLinkConfig(message.config);
+      if (message?.command === 'keybindings') setDiffKeybindings(message.keybindings ?? []);
+      if (message?.command === 'runAction') this.$refs.layout?.runAction(message.action);
       if (message?.command === 'init') this.init(message.file, message.aligned, message.generation);
       if (message?.command === 'error') this.fatalError = message.message;
       if (message?.command === 'discussions') this.setDiscussions(message);

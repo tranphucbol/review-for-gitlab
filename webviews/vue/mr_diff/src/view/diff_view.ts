@@ -9,6 +9,7 @@ import type { DiffBlock, DiffSide } from '../model/types';
 import { computeWordDiff } from '../model/word_diff';
 import { splitLines } from '../model/line_alignment';
 import { registerCodeNavigation, type CodeNavigation } from './code_navigation';
+import { diffKeybindings, onDiffKeybindingsChange, parseKey, type DiffAction } from './keybindings';
 import {
   PADDING_BOTTOM,
   PADDING_TOP,
@@ -60,8 +61,10 @@ interface DiffViewOptions {
   align: boolean;
   onViewStateChange: (state: ViewState) => void;
   onLineHover: (hover: LineHover | undefined) => void;
-  /** Ctrl/Cmd+Enter in a pane asks to comment on the line with the cursor. */
+  /** Comment on Line asks to comment on the line with the cursor. */
   onCommentRequest: (side: DiffSide, line: number) => void;
+  /** Next or Previous Change, from a key in a pane or a command */
+  onNavigate: (direction: 1 | -1) => void;
   paths: Record<DiffSide, string>;
   navigation?: CodeNavigation;
   /**
@@ -72,7 +75,44 @@ interface DiffViewOptions {
 }
 
 const COMMENT_SHORTCUT_HINT =
-  'Press Control+Enter or Command+Enter to comment on a line, F12 to go to a definition.';
+  'Run GitLab: Side-by-Side Diff: Comment on Line to comment on the line with the cursor.';
+
+const CODE_NAVIGATION_ACTIONS: Partial<Record<DiffAction, string>> = {
+  goToDefinition: 'editor.action.revealDefinition',
+  findReferences: 'editor.action.goToReferences',
+};
+
+const ACTIONS: DiffAction[] = [
+  'nextChange',
+  'previousChange',
+  'commentOnLine',
+  'goToDefinition',
+  'findReferences',
+];
+
+const actionCommandId = (action: DiffAction) => `glDiff.${action}`;
+
+const isMac = () => /Mac|iPhone|iPad/.test(navigator.userAgent);
+
+/** A VS Code key as a Monaco keybinding; `undefined` for one Monaco cannot express. */
+const toMonacoKeybinding = (key: string): number | undefined => {
+  const chords = parseKey(key, isMac());
+  if (!chords) return undefined;
+  const codes = chords.map(chord => {
+    const keyCode = monaco.KeyCode[chord.keyCode as keyof typeof monaco.KeyCode];
+    if (keyCode === undefined) return undefined;
+    return (
+      (chord.ctrlCmd ? monaco.KeyMod.CtrlCmd : 0) |
+      (chord.shift ? monaco.KeyMod.Shift : 0) |
+      (chord.alt ? monaco.KeyMod.Alt : 0) |
+      (chord.winCtrl ? monaco.KeyMod.WinCtrl : 0) |
+      keyCode
+    );
+  });
+  if (codes.some(code => code === undefined)) return undefined;
+  const [first, second] = codes as number[];
+  return second === undefined ? first : monaco.KeyMod.chord(first, second);
+};
 
 /**
  * Owns the two read-only Monaco editors of the side-by-side view: models,
@@ -111,6 +151,11 @@ export class DiffView {
   #paneObserver: ResizeObserver;
 
   #disposables: monaco.IDisposable[] = [];
+
+  /** the pane that last had focus; Comment on Line and Go to Definition act on it */
+  #focusedSide: DiffSide | undefined;
+
+  #keybindingRules: monaco.IDisposable | undefined;
 
   constructor(containers: Record<DiffSide, HTMLElement>, options: DiffViewOptions) {
     this.#options = options;
@@ -152,6 +197,14 @@ export class DiffView {
     this.refreshDecorations();
     this.#applyFillers();
     SIDES.forEach(side => this.#wireEditor(side));
+    this.#disposables.push(
+      ...ACTIONS.map(action =>
+        monaco.editor.registerCommand(actionCommandId(action), () => this.runAction(action)),
+      ),
+    );
+    this.#applyKeybindings();
+    const stopWatchingKeybindings = onDiffKeybindingsChange(() => this.#applyKeybindings());
+    this.#disposables.push({ dispose: stopWatchingKeybindings });
     if (options.navigation) {
       this.#disposables.push(
         registerCodeNavigation(
@@ -206,15 +259,52 @@ export class DiffView {
         const line = e.position.lineNumber;
         this.#options.onLineHover({ side, line, top: this.lineTop(side, line) });
       }),
-      editor.onKeyDown(e => {
-        if (!(e.ctrlKey || e.metaKey) || e.keyCode !== monaco.KeyCode.Enter) return;
-        const line = editor.getPosition()?.lineNumber;
-        if (!line) return;
-        e.preventDefault();
-        e.stopPropagation();
-        this.#options.onCommentRequest(side, line);
+      editor.onDidFocusEditorText(() => {
+        this.#focusedSide = side;
       }),
     );
+  }
+
+  /**
+   * Hands the keys the host resolved to Monaco, so a key bound in VS Code runs its action in a
+   * pane before Monaco's own binding of that key, and is not passed on to VS Code a second time.
+   */
+  #applyKeybindings() {
+    this.#keybindingRules?.dispose();
+    const rules = diffKeybindings().flatMap(({ key, action, when }) => {
+      const keybinding = toMonacoKeybinding(key);
+      if (keybinding === undefined) return [];
+      return [
+        {
+          keybinding,
+          command: actionCommandId(action),
+          when: when ? `editorTextFocus && ${when}` : 'editorTextFocus',
+        },
+      ];
+    });
+    this.#keybindingRules = monaco.editor.addKeybindingRules(rules);
+  }
+
+  /** Runs what a key in a pane or a `gl.sideBySide*` command asks for. */
+  runAction(action: DiffAction) {
+    if (action === 'nextChange' || action === 'previousChange') {
+      this.#options.onNavigate(action === 'nextChange' ? 1 : -1);
+      return;
+    }
+    if (!this.#focusedSide) return;
+    const side = this.#focusedSide;
+    const editor = this.editors[side];
+    if (action === 'commentOnLine') {
+      const line = editor.getPosition()?.lineNumber;
+      if (line) this.#options.onCommentRequest(side, line);
+      return;
+    }
+    const actionId = CODE_NAVIGATION_ACTIONS[action];
+    if (!actionId) return;
+    // Monaco registers these as commands, not editor actions, so `getAction()` does not find them;
+    // a command runs on the focused editor
+    editor.focus();
+    editor.trigger('gitlab', actionId, undefined);
   }
 
   /** Scrolls the other pane to the place that the `side` pane shows. */
@@ -513,6 +603,7 @@ export class DiffView {
   dispose() {
     this.#resizeObserver.disconnect();
     this.#paneObserver.disconnect();
+    this.#keybindingRules?.dispose();
     this.#disposables.forEach(d => d.dispose());
     SIDES.forEach(side => {
       this.editors[side].dispose();
