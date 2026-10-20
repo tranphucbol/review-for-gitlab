@@ -276,10 +276,13 @@ export class DiffView {
       editor.onDidFocusEditorText(() => {
         this.#focusedSide = side;
       }),
-      // a right mouse button does not move Monaco's cursor; VS Code shows the menu after this
+      // a right mouse button does not move Monaco's cursor; VS Code shows the menu after this.
+      // Monaco's lines cover its view zones, so the section is set here, not on the zones
       editor.onContextMenu(e => {
         const { position } = e.target;
-        if (!position || !CONTEXT_MENU_TARGETS.has(e.target.type)) return;
+        const onLine = Boolean(position) && CONTEXT_MENU_TARGETS.has(e.target.type);
+        setWebviewSection(editor.getContainerDomNode(), onLine ? 'diffPane' : 'diffZone');
+        if (!position || !onLine) return;
         editor.focus();
         this.#focusedSide = side;
         const selection = editor.getSelection();
@@ -495,7 +498,6 @@ export class DiffView {
           .forEach(anchor => {
             const domNode = document.createElement('div');
             domNode.className = 'gl-diff-thread-zone';
-            setWebviewSection(domNode, 'diffThread');
             const content = document.createElement('div');
             content.className = 'gl-diff-thread-zone-content';
             domNode.appendChild(content);
@@ -612,7 +614,6 @@ export class DiffView {
             filler.blockId === undefined
               ? 'gl-diff-filler'
               : `gl-diff-filler gl-diff-filler-empty gl-diff-filler-${side}`;
-          setWebviewSection(domNode, 'diffFiller');
           return accessor.addZone({
             afterLineNumber: filler.afterLineNumber,
             heightInPx: filler.heightInPx,

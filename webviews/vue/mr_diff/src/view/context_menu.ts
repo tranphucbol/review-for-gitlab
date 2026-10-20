@@ -1,5 +1,8 @@
-/** Where an element sits for VS Code's webview context menu, read from `data-vscode-context`. */
-export type WebviewSection = 'diffPane' | 'diffThread' | 'diffFiller';
+/**
+ * Where a right-click lands for VS Code's webview context menu, read from `data-vscode-context`:
+ * a line of a pane, or something between lines (a filler or a thread).
+ */
+export type WebviewSection = 'diffPane' | 'diffZone';
 
 /** Marks `element` so that the `webview/context` items for `section` show on a right-click in it. */
 export const setWebviewSection = (element: HTMLElement, section: WebviewSection) => {
