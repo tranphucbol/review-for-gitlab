@@ -23,6 +23,9 @@ import { ProjectInRepository } from '../../gitlab/new_project';
 import { getGitLabService } from '../../gitlab/get_gitlab_service';
 import { mrCache } from '../../gitlab/mr_cache';
 
+// fork-only: lets `gl.reloadOverview` reload this merge request's Overview, see docs/decisions/017
+export const MR_OVERVIEW_ITEM_CONTEXT = 'mr-overview-item';
+
 const isTextDiffDiscussion = (discussion: GqlDiscussion): discussion is GqlTextDiffDiscussion => {
   const firstNote = discussion.notes.nodes[0];
   return firstNote?.position?.positionType === 'text';
@@ -79,6 +82,7 @@ export class MrItemModel extends ItemModel {
   private get overviewItem() {
     const result = new vscode.TreeItem('Overview');
     result.iconPath = new vscode.ThemeIcon('note');
+    result.contextValue = MR_OVERVIEW_ITEM_CONTEXT;
     result.command = {
       command: PROGRAMMATIC_COMMANDS.SHOW_RICH_CONTENT,
       arguments: [this.mr, this.projectInRepository.pointer.repository.rootFsPath],

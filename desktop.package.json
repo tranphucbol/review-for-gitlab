@@ -245,6 +245,12 @@
         "icon": "$(git-pull-request)"
       },
       {
+        "command": "gl.reloadOverview",
+        "title": "Reload Overview",
+        "category": "GitLab",
+        "icon": "$(sync)"
+      },
+      {
         "command": "gl.openJiraIssue",
         "title": "Open Jira Issue",
         "category": "GitLab",
@@ -513,6 +519,10 @@
           "when": "gitlab:validState"
         },
         {
+          "command": "gl.reloadOverview",
+          "when": "activeWebviewPanelId == 'glWorkflow'"
+        },
+        {
           "command": "gl.openJiraIssue",
           "when": "gitlab:validState && config.gitlab.jira.url"
         },
@@ -653,6 +663,11 @@
         {
           "command": "gl.openJiraIssue",
           "when": "view =~ /(currentBranchInfo|issuesAndMrs)/ && viewItem =~ /mr-item-from-/ && config.gitlab.jira.url"
+        },
+        {
+          "command": "gl.reloadOverview",
+          "when": "viewItem == mr-overview-item",
+          "group": "inline"
         },
         {
           "command": "gl.openInGitLab",
@@ -806,6 +821,13 @@
         {
           "command": "gl.scrollToBottom",
           "when": "resourceScheme == 'gl-job-log'",
+          "group": "navigation"
+        }
+      ],
+      "webview/context": [
+        {
+          "command": "gl.reloadOverview",
+          "when": "webviewId == 'glWorkflow'",
           "group": "navigation"
         }
       ]

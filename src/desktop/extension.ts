@@ -43,6 +43,7 @@ import { changeTypeDecorationProvider } from './review/change_type_decoration_pr
 import { checkoutMrBranch } from './commands/checkout_mr_branch';
 import { updateMrBranch } from './commands/update_mr_branch';
 import { mergeRequestActions } from './commands/merge_request_actions/merge_request_actions';
+import { reloadOverview } from './commands/reload_overview';
 import { openInGitLab, copyLinkToClipboard } from './commands/open_in_gitlab';
 import { cloneWiki } from './commands/clone_wiki';
 import { createSnippetPatch } from './commands/create_snippet_patch';
@@ -161,6 +162,7 @@ const registerCommands = (context: vscode.ExtensionContext) => {
     [USER_COMMANDS.CHECKOUT_MR_BRANCH]: checkoutMrBranch,
     [USER_COMMANDS.UPDATE_MR_BRANCH]: updateMrBranch,
     [USER_COMMANDS.MERGE_REQUEST_ACTIONS]: mergeRequestActions,
+    [USER_COMMANDS.RELOAD_OVERVIEW]: reloadOverview,
     [USER_COMMANDS.OPEN_JIRA_ISSUE]: openJiraIssue,
     [USER_COMMANDS.OPEN_IN_GITLAB]: openInGitLab,
     [USER_COMMANDS.COPY_LINK_TO_CLIPBOARD]: copyLinkToClipboard,
