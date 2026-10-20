@@ -13,6 +13,7 @@ export default {
   data() {
     return {
       isLoading: false,
+      isReloading: false,
       issuable: {},
       discussions: [],
     };
@@ -35,11 +36,19 @@ export default {
         this.discussions = event.data.discussions;
         this.isLoading = false;
       }
+      if (event.data.type === 'issuableReloading') this.isReloading = true;
+      if (event.data.type === 'issuableReloaded') this.isReloading = false;
     });
 
     window.vsCodeApi.postMessage({
       command: 'appReady',
     });
+  },
+  methods: {
+    reload() {
+      this.isReloading = true;
+      window.vsCodeApi.postMessage({ command: 'reloadIssuable' });
+    },
   },
 };
 </script>
@@ -56,7 +65,15 @@ export default {
       </div>
     </div>
     <div v-else class="issuable-layout">
-      <issuable-header :issuable="issuable" class="issuable-layout__header" />
+      <div v-if="isReloading" class="loading__progress js-reloading" role="status">
+        <span class="loading__label">Reloading details and discussions…</span>
+      </div>
+      <issuable-header
+        :issuable="issuable"
+        :reloading="isReloading"
+        class="issuable-layout__header"
+        @reload="reload"
+      />
       <issuable-sidebar
         :issuable="issuable"
         :discussions="discussions"

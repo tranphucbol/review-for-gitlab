@@ -192,13 +192,26 @@ describe('issuableController', () => {
       await issuableController.refreshMergeRequest(mr);
 
       expect(gitlabService.getMrDetail).toHaveBeenCalledTimes(1);
-      expect(gitlabService.getMrDetail).toHaveBeenCalledWith(mr);
+      expect(gitlabService.getMrDetail).toHaveBeenCalledWith(
+        expect.objectContaining({ id: mr.id }),
+      );
       expect(panels[0].webview.postMessage).toHaveBeenCalledWith({
         type: 'issuableFetch',
         issuable: { ...mr, state: 'merged' },
         discussions: [],
       });
       expect(issuableController.activeMergeRequest()?.mr).toEqual({ ...mr, state: 'merged' });
+    });
+
+    it('reads again after a reload that started before the merge request changed', async () => {
+      await issuableController.open(mr, '/repo');
+      jest.mocked(gitlabService.getMrDetail).mockClear();
+
+      const reload = issuableController.reloadActiveOverview();
+      await issuableController.refreshMergeRequest(mr);
+      await reload;
+
+      expect(gitlabService.getMrDetail).toHaveBeenCalledTimes(2);
     });
 
     it('posts to a loaded Overview without waiting for it to initialize again', async () => {
@@ -213,6 +226,137 @@ describe('issuableController', () => {
       expect(panels[0].webview.postMessage).toHaveBeenCalledWith(
         expect.objectContaining({ type: 'issuableFetch' }),
       );
+    });
+  });
+
+  describe('reloading an Overview', () => {
+    const postedTypes = (panel: vscode.WebviewPanel) =>
+      jest.mocked(panel.webview.postMessage).mock.calls.map(([message]) => message.type);
+
+    const send = async (message: unknown) => {
+      const [[handler]] = jest.mocked(panels[0].webview.onDidReceiveMessage).mock.calls;
+      await handler(message);
+    };
+
+    const openAndClear = async (issuable: RestIssuable) => {
+      await issuableController.open(issuable, '/repo');
+      jest.mocked(panels[panels.length - 1].webview.postMessage).mockClear();
+      jest.mocked(gitlabService.getMrDetail).mockClear();
+      jest.mocked(gitlabService.getDiscussionsAndLabelEvents).mockClear();
+      jest.mocked(handleError).mockClear();
+    };
+
+    it('posts reloading, the fresh merge request and its discussions, then reloaded', async () => {
+      type Note = Awaited<ReturnType<GitLabService['getDiscussionsAndLabelEvents']>>[number];
+      const discussions = [{ id: 'gid://gitlab/Discussion/1' }] as unknown as Note[];
+      jest.mocked(gitlabService.getDiscussionsAndLabelEvents).mockResolvedValue(discussions);
+      await openAndClear(mr);
+
+      await send({ command: 'reloadIssuable' });
+
+      expect(postedTypes(panels[0])).toEqual([
+        'issuableReloading',
+        'issuableFetch',
+        'issuableReloaded',
+      ]);
+      expect(panels[0].webview.postMessage).toHaveBeenCalledWith({
+        type: 'issuableFetch',
+        issuable: { ...mr, state: 'merged' },
+        discussions,
+      });
+      expect(panels[0].webview.postMessage).toHaveBeenLastCalledWith({
+        type: 'issuableReloaded',
+        ok: true,
+      });
+    });
+
+    it('keeps the page and reports once when the discussions fail to load', async () => {
+      await openAndClear(mr);
+      jest
+        .mocked(gitlabService.getDiscussionsAndLabelEvents)
+        .mockRejectedValue(new Error('offline'));
+
+      await send({ command: 'reloadIssuable' });
+
+      expect(postedTypes(panels[0])).toEqual(['issuableReloading', 'issuableReloaded']);
+      expect(panels[0].webview.postMessage).toHaveBeenLastCalledWith({
+        type: 'issuableReloaded',
+        ok: false,
+      });
+      expect(handleError).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps the page when the merge request fails to load', async () => {
+      await openAndClear(mr);
+      jest.mocked(gitlabService.getMrDetail).mockRejectedValue(new Error('gone'));
+
+      await send({ command: 'reloadIssuable' });
+
+      expect(postedTypes(panels[0])).toEqual(['issuableReloading', 'issuableReloaded']);
+      expect(handleError).toHaveBeenCalledTimes(1);
+      expect(issuableController.activeMergeRequest()?.mr).toEqual({ ...mr, state: 'merged' });
+    });
+
+    it('reloads only the discussions of an issue', async () => {
+      await openAndClear(issue);
+
+      await send({ command: 'reloadIssuable' });
+
+      expect(gitlabService.getMrDetail).not.toHaveBeenCalled();
+      expect(gitlabService.getDiscussionsAndLabelEvents).toHaveBeenCalledWith(issue);
+      expect(panels[0].webview.postMessage).toHaveBeenCalledWith({
+        type: 'issuableFetch',
+        issuable: issue,
+        discussions: [],
+      });
+    });
+
+    it('reads once for two requests that overlap', async () => {
+      await openAndClear(mr);
+
+      await Promise.all([send({ command: 'reloadIssuable' }), send({ command: 'reloadIssuable' })]);
+
+      expect(gitlabService.getMrDetail).toHaveBeenCalledTimes(1);
+      expect(gitlabService.getDiscussionsAndLabelEvents).toHaveBeenCalledTimes(1);
+      expect(postedTypes(panels[0])).toEqual([
+        'issuableReloading',
+        'issuableFetch',
+        'issuableReloaded',
+      ]);
+    });
+
+    it('does not fail when the panel closes mid-reload', async () => {
+      await openAndClear(mr);
+      jest
+        .mocked(panels[0].webview.postMessage)
+        .mockRejectedValue(new Error('Webview is disposed'));
+
+      await expect(send({ command: 'reloadIssuable' })).resolves.toBeUndefined();
+    });
+
+    it('reloads the active Overview from the command', async () => {
+      await openAndClear(mr);
+      await openAndClear(issue);
+      Object.assign(panels[0], { active: false });
+
+      await issuableController.reloadActiveOverview();
+
+      expect(postedTypes(panels[0])).toEqual([]);
+      expect(postedTypes(panels[1])).toEqual([
+        'issuableReloading',
+        'issuableFetch',
+        'issuableReloaded',
+      ]);
+    });
+
+    it('does nothing from the command when no Overview is active', async () => {
+      await openAndClear(mr);
+      Object.assign(panels[0], { active: false });
+
+      await issuableController.reloadActiveOverview();
+
+      expect(postedTypes(panels[0])).toEqual([]);
+      expect(gitlabService.getDiscussionsAndLabelEvents).not.toHaveBeenCalled();
     });
   });
 

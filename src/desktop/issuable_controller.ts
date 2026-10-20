@@ -20,6 +20,8 @@ import { prepareWebviewSource } from '../common/utils/webviews/prepare_webview_s
 export type IssuableWebviewPanel = vscode.WebviewPanel & {
   repositoryRoot?: string;
   issuable?: RestIssuable;
+  /** The reload in flight, so a second request joins it instead of reading twice. */
+  reloading?: Promise<void>;
 };
 
 /** True while the active Overview shows a merge request; it shows the merge request actions button. */
@@ -101,6 +103,50 @@ async function initPanelIfActive(
     discussions: discussionsAndLabels,
   });
 }
+
+// fork-only: the Overview's Reload, see docs/decisions/017
+// a panel closed mid-reload refuses messages, and there is nobody left to tell
+const postReloadState = (panel: IssuableWebviewPanel, message: object) =>
+  Promise.resolve(panel.webview.postMessage(message)).catch(e =>
+    log.warn('The Overview closed before it reloaded.', e),
+  );
+
+const readAndPostIssuable = async (panel: IssuableWebviewPanel, gitlabService: GitLabService) => {
+  let ok = false;
+  await postReloadState(panel, { type: 'issuableReloading' });
+  try {
+    const current = panel.issuable;
+    assert(current, 'The Overview has no issuable to reload.');
+    const [issuable, discussions] = await Promise.all([
+      isMr(current) ? gitlabService.getMrDetail(current) : Promise.resolve(current),
+      gitlabService.getDiscussionsAndLabelEvents(current),
+    ]);
+    // eslint-disable-next-line no-param-reassign
+    panel.issuable = issuable;
+    // the webview is already initialized: it sent `appReady` once, when it loaded
+    await panel.webview.postMessage({ type: 'issuableFetch', issuable, discussions });
+    ok = true;
+  } catch (e) {
+    handleError(e);
+  } finally {
+    await postReloadState(panel, { type: 'issuableReloaded', ok });
+  }
+};
+
+/** Re-reads the issuable and its discussions; the Overview keeps its page if a read fails. */
+const reloadPanel = (panel: IssuableWebviewPanel, gitlabService: GitLabService) => {
+  if (!panel.reloading) {
+    // eslint-disable-next-line no-param-reassign
+    panel.reloading = readAndPostIssuable(panel, gitlabService).finally(() => {
+      // eslint-disable-next-line no-param-reassign
+      panel.reloading = undefined;
+    });
+  }
+  return panel.reloading;
+};
+
+const gitlabServiceForPanel = (panel: IssuableWebviewPanel) =>
+  getGitLabService(gitlabProjectRepository.getProjectOrFail(panel.repositoryRoot!));
 
 class IssuableController implements RepositoryRootWebviewProvider {
   context?: vscode.ExtensionContext;
@@ -186,6 +232,10 @@ class IssuableController implements RepositoryRootWebviewProvider {
           });
         }
       }
+
+      if (message.command === 'reloadIssuable') {
+        await reloadPanel(panel, getGitLabService(projectInRepository));
+      }
     };
 
   private getIconPathForIssuable(issuable: RestIssuable) {
@@ -269,6 +319,17 @@ class IssuableController implements RepositoryRootWebviewProvider {
     await Promise.all(panels.map(postJiraLinks));
   }
 
+  /** Reloads the active Overview, the one `gl.reloadOverview` and its context menu act on. */
+  async reloadActiveOverview(): Promise<void> {
+    const panel = Object.values(this.openedPanels).find(p => p?.active);
+    if (!panel?.issuable || !panel.repositoryRoot) return;
+    try {
+      await reloadPanel(panel, gitlabServiceForPanel(panel));
+    } catch (e) {
+      handleError(e);
+    }
+  }
+
   /** Reloads every Overview of `mr` after it changed, so it does not show a stale state. */
   async refreshMergeRequest(mr: RestMr): Promise<void> {
     const panels = Object.values(this.openedPanels).filter((p): p is IssuableWebviewPanel =>
@@ -277,19 +338,9 @@ class IssuableController implements RepositoryRootWebviewProvider {
     await Promise.all(
       panels.map(async panel => {
         try {
-          const projectInRepository = gitlabProjectRepository.getProjectOrFail(
-            panel.repositoryRoot!,
-          );
-          const service = getGitLabService(projectInRepository);
-          const fresh = await service.getMrDetail(mr);
-          // eslint-disable-next-line no-param-reassign
-          panel.issuable = fresh;
-          // the webview is already initialized: it sent `appReady` once, when it loaded
-          await panel.webview.postMessage({
-            type: 'issuableFetch',
-            issuable: fresh,
-            discussions: await service.getDiscussionsAndLabelEvents(fresh),
-          });
+          // a reload already in flight may have read the merge request before it changed
+          await panel.reloading;
+          await reloadPanel(panel, gitlabServiceForPanel(panel));
         } catch (e) {
           handleError(e);
         }

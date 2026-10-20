@@ -86,6 +86,38 @@ describe('IssuableHeader', () => {
     expect(wrapper.text()).not.toContain('undefined');
   });
 
+  describe('reload', () => {
+    it('asks to reload, for a merge request and an issue alike', async () => {
+      createWrapper(openIssue);
+      const button = wrapper.find('.js-reload');
+
+      await button.trigger('click');
+
+      expect(button.attributes('aria-label')).toBe('Reload');
+      expect(button.find('.codicon-sync').exists()).toBe(true);
+      expect(wrapper.emitted('reload')).toHaveLength(1);
+    });
+
+    it('is disabled and busy while the Overview reloads', async () => {
+      wrapper = mount(IssuableHeader, { props: { issuable: openMr, reloading: true } });
+      const button = wrapper.find('.js-reload');
+
+      await button.trigger('click');
+
+      expect(button.attributes('disabled')).toBeDefined();
+      expect(button.attributes('aria-busy')).toBe('true');
+      expect(wrapper.emitted('reload')).toBeUndefined();
+    });
+
+    it('comes before the copy button', () => {
+      createWrapper(openMr);
+      const buttons = wrapper.findAll('.issuable-header__actions .gl-icon-button');
+
+      expect(buttons[0].classes()).toContain('js-reload');
+      expect(buttons[1].classes()).toContain('js-copy-reference');
+    });
+  });
+
   describe('copy reference', () => {
     beforeEach(() => createWrapper(openMr));
 

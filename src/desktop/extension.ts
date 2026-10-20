@@ -161,6 +161,7 @@ const registerCommands = (context: vscode.ExtensionContext) => {
     [USER_COMMANDS.CHECKOUT_MR_BRANCH]: checkoutMrBranch,
     [USER_COMMANDS.UPDATE_MR_BRANCH]: updateMrBranch,
     [USER_COMMANDS.MERGE_REQUEST_ACTIONS]: mergeRequestActions,
+    [USER_COMMANDS.RELOAD_OVERVIEW]: () => issuableController.reloadActiveOverview(),
     [USER_COMMANDS.OPEN_JIRA_ISSUE]: openJiraIssue,
     [USER_COMMANDS.OPEN_IN_GITLAB]: openInGitLab,
     [USER_COMMANDS.COPY_LINK_TO_CLIPBOARD]: copyLinkToClipboard,

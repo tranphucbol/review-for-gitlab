@@ -20,7 +20,13 @@ export default {
       type: Object,
       required: true,
     },
+    reloading: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
+  emits: ['reload'],
   data() {
     return {
       copyStatus: '',
@@ -85,6 +91,18 @@ export default {
           role="status"
           >{{ copyTitle }}</span
         >
+        <button
+          :disabled="reloading"
+          :aria-busy="reloading ? 'true' : undefined"
+          :class="{ 'issuable-header__reload--busy': reloading }"
+          title="Reload"
+          aria-label="Reload"
+          type="button"
+          class="gl-icon-button issuable-header__reload js-reload"
+          @click="$emit('reload')"
+        >
+          <codicon-icon name="sync" />
+        </button>
         <button
           v-if="fullReference"
           :title="copyTitle"
@@ -171,6 +189,10 @@ export default {
     margin-left: auto;
   }
 
+  &__reload--busy .codicon {
+    animation: issuable-header-spin 1s linear infinite;
+  }
+
   &__copy-status {
     font-size: var(--gl-font-size-small);
     color: var(--gl-text-muted);
@@ -225,5 +247,22 @@ export default {
   height: 22px;
   padding: 0;
   color: var(--gl-text);
+
+  &:disabled {
+    cursor: default;
+    background: transparent;
+  }
+}
+
+@keyframes issuable-header-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .issuable-header__reload--busy .codicon {
+    animation: none;
+  }
 }
 </style>
