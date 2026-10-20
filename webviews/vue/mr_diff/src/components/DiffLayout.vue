@@ -111,7 +111,7 @@ export default {
       default: null,
     },
   },
-  emits: ['add-comment', 'comment-refused', 'failed'],
+  emits: ['add-comment', 'comment-refused', 'go-to-source', 'failed'],
   data() {
     return {
       viewState: null,
@@ -185,6 +185,7 @@ export default {
             else this.$emit('comment-refused', { side, line });
           },
           onNavigate: direction => this.navigate(direction),
+          onGoToSource: (side, range) => this.$emit('go-to-source', { side, range }),
           paths: { old: this.file.oldPath, new: this.file.newPath },
           navigation: hostCodeNavigation,
           soloSide: this.soloSide ?? undefined,

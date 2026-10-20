@@ -51,6 +51,8 @@ export const USER_COMMANDS = {
   SIDE_BY_SIDE_PREVIOUS_CHANGE: 'gl.sideBySidePreviousChange',
   SIDE_BY_SIDE_COMMENT_ON_LINE: 'gl.sideBySideCommentOnLine',
   SIDE_BY_SIDE_GO_TO_DEFINITION: 'gl.sideBySideGoToDefinition',
+  SIDE_BY_SIDE_GO_TO_SOURCE: 'gl.sideBySideGoToSource',
+  SIDE_BY_SIDE_GO_TO_SOURCE_FROM_MENU: 'gl.sideBySideGoToSourceFromMenu',
   OPEN_REPOSITORY: 'gl.openRepository',
   SELECT_PROJECT_FOR_REPOSITORY: 'gl.selectProjectForRepository',
   SELECT_PROJECT: 'gl.selectProject',

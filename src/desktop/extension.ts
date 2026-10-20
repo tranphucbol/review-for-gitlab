@@ -188,6 +188,10 @@ const registerCommands = (context: vscode.ExtensionContext) => {
       mrDiffPanelController.runAction('commentOnLine'),
     [USER_COMMANDS.SIDE_BY_SIDE_GO_TO_DEFINITION]: () =>
       mrDiffPanelController.runAction('goToDefinition'),
+    [USER_COMMANDS.SIDE_BY_SIDE_GO_TO_SOURCE]: () => mrDiffPanelController.runAction('goToSource'),
+    // the context menu shows a title without its category, so it gets a command of its own
+    [USER_COMMANDS.SIDE_BY_SIDE_GO_TO_SOURCE_FROM_MENU]: () =>
+      mrDiffPanelController.runAction('goToSource'),
     [USER_COMMANDS.SELECT_PROJECT_FOR_REPOSITORY]: selectProjectForRepository,
     [USER_COMMANDS.SELECT_PROJECT]: selectProjectCommand,
     [USER_COMMANDS.ASSIGN_PROJECT]: assignProject,

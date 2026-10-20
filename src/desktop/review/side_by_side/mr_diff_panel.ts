@@ -29,12 +29,15 @@ import {
   BlockRange,
   CodeHover,
   CodeLocation,
+  CodeRange,
   DiffAction,
   DiffFileModel,
+  DiffSide,
   FromWebviewMessage,
   TokenRule,
   ToWebviewMessage,
 } from './messages';
+import { mapSourceRange } from './source_lines';
 
 export interface MrDiffTarget {
   mr: RestMr;
@@ -66,6 +69,27 @@ const LOCAL_STATE_DELAY_MS = 150;
 
 /** how long the status bar confirms a change copied into or reverted in the local file */
 const HUNK_MESSAGE_MS = 3000;
+
+/** how long the status bar says that Go to Source selected the closest lines */
+const SOURCE_MESSAGE_MS = 5000;
+
+const APPROXIMATE_SOURCE =
+  'The local file differs from the merge request; the closest lines are selected.';
+
+const NO_LOCAL_SOURCE =
+  "The file is not in your local repository; the merge request's version is open instead.";
+
+/** Opens `uri` with `range` selected, in the middle of the editor unless it is already in view. */
+const showRange = async (uri: vscode.Uri, range: CodeRange): Promise<void> => {
+  const selection = new vscode.Selection(
+    range.startLine - 1,
+    range.startColumn - 1,
+    range.endLine - 1,
+    range.endColumn - 1,
+  );
+  const editor = await vscode.window.showTextDocument(uri, { selection });
+  editor.revealRange(selection, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+};
 
 const GENERIC_ERROR =
   'The request to GitLab failed. For more information, review the extension logs.';
@@ -693,9 +717,43 @@ export class MrDiffPanel {
       case 'openLocation':
         await (await this.#navigation())?.open(message.uri, message.line, message.column);
         break;
+      case 'openSource': {
+        const { generation, side, startLine, startColumn, endLine, endColumn } = message;
+        await this.#openSource(generation, side, { startLine, startColumn, endLine, endColumn });
+        break;
+      }
       default:
         break;
     }
+  }
+
+  /**
+   * Opens the local file on the lines that hold the `range` of the `side` pane, found by
+   * their content, so they open right after the checkout moved on. Without a local file the
+   * merge request's own version of that side opens instead.
+   */
+  async #openSource(generation: number, side: DiffSide, range: CodeRange): Promise<void> {
+    this.#assertCurrentGeneration(generation, 'go to the source');
+    const file = await this.#file;
+    assert(file);
+    const uri = this.#localUri();
+    const localText = uri && (await MrDiffPanel.#readLocalText(uri));
+    if (uri && localText !== undefined) {
+      const mapped = mapSourceRange(side === 'old' ? file.oldText : file.newText, localText, range);
+      await showRange(uri, mapped.range);
+      if (!mapped.exact) vscode.window.setStatusBarMessage(APPROXIMATE_SOURCE, SOURCE_MESSAGE_MS);
+      return;
+    }
+    const { mr, mrVersion, repositoryRoot } = this.#target;
+    const { baseFileUri, headFileUri } = getBaseAndHeadUri(
+      mr,
+      mrVersion,
+      this.#target.file,
+      repositoryRoot,
+    );
+    await showRange(side === 'old' ? baseFileUri : headFileUri, range);
+    // resolves only when dismissed
+    vscode.window.showInformationMessage(NO_LOCAL_SOURCE).then(undefined, handleError);
   }
 
   async openNativeDiff(): Promise<void> {

@@ -7,7 +7,8 @@ export type DiffAction =
   | 'previousChange'
   | 'commentOnLine'
   | 'goToDefinition'
-  | 'findReferences';
+  | 'findReferences'
+  | 'goToSource';
 
 export interface DiffKeybinding {
   /** VS Code's syntax for this platform: `cmd+b`, `shift+f7`, `ctrl+k ctrl+d` */
