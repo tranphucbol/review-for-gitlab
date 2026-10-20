@@ -358,6 +358,30 @@ describe('issuableController', () => {
       expect(postedTypes(panels[0])).toEqual([]);
       expect(gitlabService.getDiscussionsAndLabelEvents).not.toHaveBeenCalled();
     });
+
+    it('reveals and reloads the Overview of a merge request picked in the sidebar', async () => {
+      await openAndClear(mr);
+      await openAndClear(issue);
+      Object.assign(panels[0], { active: false });
+
+      await issuableController.reloadOverview(mr, '/repo');
+
+      expect(panels[0].reveal).toHaveBeenCalled();
+      expect(postedTypes(panels[0])).toEqual([
+        'issuableReloading',
+        'issuableFetch',
+        'issuableReloaded',
+      ]);
+      expect(postedTypes(panels[1])).toEqual([]);
+    });
+
+    it('opens the Overview of a merge request picked in the sidebar when it is closed', async () => {
+      await issuableController.reloadOverview(mr, '/repo');
+
+      expect(panels).toHaveLength(1);
+      expect(postedTypes(panels[0])).toContain('issuableFetch');
+      expect(postedTypes(panels[0])).not.toContain('issuableReloading');
+    });
   });
 
   describe('uploading a pasted image', () => {

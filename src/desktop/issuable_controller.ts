@@ -330,6 +330,21 @@ class IssuableController implements RepositoryRootWebviewProvider {
     }
   }
 
+  /** Reloads the Overview of `issuable` and brings it forward; opens it if it is closed. */
+  async reloadOverview(issuable: RestIssuable, repositoryRoot: string): Promise<void> {
+    const panel = this.openedPanels[`${repositoryRoot}-${issuable.id}`];
+    if (!panel) {
+      await this.open(issuable, repositoryRoot);
+      return;
+    }
+    panel.reveal();
+    try {
+      await reloadPanel(panel, gitlabServiceForPanel(panel));
+    } catch (e) {
+      handleError(e);
+    }
+  }
+
   /** Reloads every Overview of `mr` after it changed, so it does not show a stale state. */
   async refreshMergeRequest(mr: RestMr): Promise<void> {
     const panels = Object.values(this.openedPanels).filter((p): p is IssuableWebviewPanel =>

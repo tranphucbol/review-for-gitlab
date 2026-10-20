@@ -665,6 +665,10 @@
           "when": "view =~ /(currentBranchInfo|issuesAndMrs)/ && viewItem =~ /mr-item-from-/ && config.gitlab.jira.url"
         },
         {
+          "command": "gl.reloadOverview",
+          "when": "viewItem == mr-overview-item"
+        },
+        {
           "command": "gl.openInGitLab",
           "when": "viewItem =~ /web-openable/"
         },

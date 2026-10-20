@@ -26,7 +26,8 @@ The decision is constrained by:
 
 An Overview reloads its issuable, discussions and label events when asked, from
 a Reload button in its header, from **GitLab: Reload Overview** in the Command
-Palette, or from the same command in the webview's context menu.
+Palette, or from the same command in the webview's context menu and on the
+merge request's **Overview** item in the sidebar.
 
 - The host owns the read. `reloadPanel()` in
   `src/desktop/issuable_controller.ts` posts `issuableReloading`, reads the
@@ -43,12 +44,16 @@ Palette, or from the same command in the webview's context menu.
   bar and a busy, disabled button, so the layout, the comment form and reply
   drafts stay mounted.
 - `gl.reloadOverview` acts on the active Overview and does nothing without
-  one. The context menu passes the webview's view type, not a panel, so the
-  command ignores its argument. The menu entry is the fork's first
-  `webview/context` contribution and leaves VS Code's own entries in place.
+  one. The webview's context menu passes the view type, not a panel, so that
+  argument is ignored. The menu entry is the fork's first `webview/context`
+  contribution and leaves VS Code's own entries in place.
+- On the sidebar's **Overview** item (`contextValue` `mr-overview-item`) the
+  command acts on that merge request instead: it reveals and reloads its open
+  Overview, or opens it, which reads it fresh. `src/desktop/commands/reload_overview.ts`
+  tells the two arguments apart.
 
 ```text
-button | command | context menu -> reloadPanel(panel)
+button | command | context menu | sidebar item -> reloadPanel(panel)
   -> issuableReloading -> [getMrDetail, getDiscussionsAndLabelEvents]
   -> issuableFetch (success only) -> issuableReloaded { ok }
 ```
