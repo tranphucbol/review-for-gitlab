@@ -119,6 +119,7 @@
       :block-states="blockStates"
       @add-comment="addDraft"
       @comment-refused="explainRefusedComment"
+      @go-to-source="goToSource"
       @failed="onLayoutFailed"
     >
       <template #gutter="{ connectors }">
@@ -385,6 +386,9 @@ export default {
     },
     openNative() {
       post({ command: 'openNative' });
+    },
+    goToSource({ side, range }) {
+      post({ command: 'openSource', generation: this.generation, side, ...range });
     },
     onLayoutFailed(e) {
       this.fatalError = `The side-by-side view couldn't start: ${describeError(e)}`;

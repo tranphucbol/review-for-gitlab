@@ -8,7 +8,8 @@ import {
 import type { DiffBlock, DiffSide } from '../model/types';
 import { computeWordDiff } from '../model/word_diff';
 import { splitLines } from '../model/line_alignment';
-import { registerCodeNavigation, type CodeNavigation } from './code_navigation';
+import { registerCodeNavigation, type CodeNavigation, type CodeRange } from './code_navigation';
+import { rightClickKeepsSelection, setWebviewSection } from './context_menu';
 import { diffKeybindings, onDiffKeybindingsChange, parseKey, type DiffAction } from './keybindings';
 import {
   PADDING_BOTTOM,
@@ -65,6 +66,8 @@ interface DiffViewOptions {
   onCommentRequest: (side: DiffSide, line: number) => void;
   /** Next or Previous Change, from a key in a pane or a command */
   onNavigate: (direction: 1 | -1) => void;
+  /** Go to Source asks to open the local file on the selection, or the cursor's line. */
+  onGoToSource: (side: DiffSide, range: CodeRange) => void;
   paths: Record<DiffSide, string>;
   navigation?: CodeNavigation;
   /**
@@ -88,7 +91,16 @@ const ACTIONS: DiffAction[] = [
   'commentOnLine',
   'goToDefinition',
   'findReferences',
+  'goToSource',
 ];
+
+/** where a right-click puts the cursor, unless it keeps the selection */
+const CONTEXT_MENU_TARGETS = new Set<monaco.editor.MouseTargetType>([
+  monaco.editor.MouseTargetType.CONTENT_TEXT,
+  monaco.editor.MouseTargetType.CONTENT_EMPTY,
+  monaco.editor.MouseTargetType.GUTTER_LINE_NUMBERS,
+  monaco.editor.MouseTargetType.GUTTER_LINE_DECORATIONS,
+]);
 
 const actionCommandId = (action: DiffAction) => `glDiff.${action}`;
 
@@ -194,6 +206,8 @@ export class DiffView {
       SIDES.forEach(side => this.editors[side].layout()),
     );
     SIDES.forEach(side => this.#paneObserver.observe(containers[side]));
+    // Go to Source in VS Code's context menu shows on code; thread and filler zones say otherwise
+    SIDES.forEach(side => setWebviewSection(containers[side], 'diffPane'));
     this.refreshDecorations();
     this.#applyFillers();
     SIDES.forEach(side => this.#wireEditor(side));
@@ -262,6 +276,17 @@ export class DiffView {
       editor.onDidFocusEditorText(() => {
         this.#focusedSide = side;
       }),
+      // a right mouse button does not move Monaco's cursor; VS Code shows the menu after this
+      editor.onContextMenu(e => {
+        const { position } = e.target;
+        if (!position || !CONTEXT_MENU_TARGETS.has(e.target.type)) return;
+        editor.focus();
+        this.#focusedSide = side;
+        const selection = editor.getSelection();
+        if (!selection || !rightClickKeepsSelection(selection, position)) {
+          editor.setPosition(position);
+        }
+      }),
     );
   }
 
@@ -297,6 +322,17 @@ export class DiffView {
     if (action === 'commentOnLine') {
       const line = editor.getPosition()?.lineNumber;
       if (line) this.#options.onCommentRequest(side, line);
+      return;
+    }
+    if (action === 'goToSource') {
+      const selection = editor.getSelection();
+      if (!selection) return;
+      this.#options.onGoToSource(side, {
+        startLine: selection.startLineNumber,
+        startColumn: selection.startColumn,
+        endLine: selection.endLineNumber,
+        endColumn: selection.endColumn,
+      });
       return;
     }
     const actionId = CODE_NAVIGATION_ACTIONS[action];
@@ -459,6 +495,7 @@ export class DiffView {
           .forEach(anchor => {
             const domNode = document.createElement('div');
             domNode.className = 'gl-diff-thread-zone';
+            setWebviewSection(domNode, 'diffThread');
             const content = document.createElement('div');
             content.className = 'gl-diff-thread-zone-content';
             domNode.appendChild(content);
@@ -575,6 +612,7 @@ export class DiffView {
             filler.blockId === undefined
               ? 'gl-diff-filler'
               : `gl-diff-filler gl-diff-filler-empty gl-diff-filler-${side}`;
+          setWebviewSection(domNode, 'diffFiller');
           return accessor.addZone({
             afterLineNumber: filler.afterLineNumber,
             heightInPx: filler.heightInPx,

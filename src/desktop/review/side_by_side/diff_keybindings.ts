@@ -26,6 +26,7 @@ const ACTIONS: Record<string, DiffAction> = {
   'gl.sideBySidePreviousChange': 'previousChange',
   'gl.sideBySideCommentOnLine': 'commentOnLine',
   'gl.sideBySideGoToDefinition': 'goToDefinition',
+  'gl.sideBySideGoToSource': 'goToSource',
   'workbench.action.compareEditor.nextChange': 'nextChange',
   'workbench.action.compareEditor.previousChange': 'previousChange',
   'editor.action.revealDefinition': 'goToDefinition',

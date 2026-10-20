@@ -181,6 +181,16 @@
         "category": "GitLab"
       },
       {
+        "command": "gl.sideBySideGoToSource",
+        "title": "Side-by-Side Diff: Go to Source",
+        "category": "GitLab"
+      },
+      {
+        "command": "gl.sideBySideGoToSourceFromMenu",
+        "title": "Go to Source",
+        "category": "GitLab"
+      },
+      {
         "command": "gl.resolveThread",
         "title": "Resolve Thread",
         "category": "GitLab",
@@ -489,6 +499,14 @@
           "when": "activeWebviewPanelId == 'gitlab.mergeRequestDiff'"
         },
         {
+          "command": "gl.sideBySideGoToSource",
+          "when": "activeWebviewPanelId == 'gitlab.mergeRequestDiff'"
+        },
+        {
+          "command": "gl.sideBySideGoToSourceFromMenu",
+          "when": "false"
+        },
+        {
           "command": "gl.showIssuesAssignedToMe",
           "when": "gitlab:validState"
         },
@@ -765,6 +783,13 @@
           "command": "gl.createComment",
           "group": "inline",
           "when": "commentController =~ /^gitlab-mr-/"
+        }
+      ],
+      "webview/context": [
+        {
+          "command": "gl.sideBySideGoToSourceFromMenu",
+          "when": "webviewId == 'gitlab.mergeRequestDiff' && webviewSection == 'diffPane'",
+          "group": "navigation@1"
         }
       ],
       "editor/title": [

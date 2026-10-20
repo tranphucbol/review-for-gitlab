@@ -116,6 +116,11 @@ versions next to each other the way JetBrains IDEs do.
 - **Navigation**: the toolbar counts the changes and moves between them, as do `f7` and
   `shift + f7`. Hover, Go to Definition and Find References work as in the native review.
   **Refresh** loads the latest version of the merge request and its discussions.
+- **Go to Source**: right-click a line, or a selection, in either side and choose **Go to Source**
+  to open your local file on the same lines. The lines are found by their content, so they open
+  right even when your checkout has moved on; when the local file changed them, the closest lines
+  are selected and the status bar says so. Without a local file, the merge request's version
+  opens instead.
 - **Your keys**: the keys are VS Code keybindings, so you can change them in **Keyboard
   Shortcuts**. A key you or a keymap extension bound to the diff editor's **Go to Next/Previous
   Change**, to **Go to Definition** or **Go to Declaration**, or to **Find References** works in
@@ -274,6 +279,7 @@ These run in the side-by-side diff, and are in the palette while it is the activ
 | `gl.sideBySidePreviousChange` | GitLab: Side-by-Side Diff: Previous Change  | `shift + f7`                     |
 | `gl.sideBySideCommentOnLine`  | GitLab: Side-by-Side Diff: Comment on Line  | `cmd + enter` / `ctrl + enter`   |
 | `gl.sideBySideGoToDefinition` | GitLab: Side-by-Side Diff: Go to Definition | none; `f12` works in a code pane |
+| `gl.sideBySideGoToSource`     | GitLab: Side-by-Side Diff: Go to Source     | none; also in the context menu   |
 
 To move between changes with `alt + down` and `alt + up` instead of `f7`, add to
 `keybindings.json`:

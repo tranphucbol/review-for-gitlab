@@ -118,7 +118,8 @@ export type DiffAction =
   | 'previousChange'
   | 'commentOnLine'
   | 'goToDefinition'
-  | 'findReferences';
+  | 'findReferences'
+  | 'goToSource';
 
 /**
  * A key the panes handle themselves, resolved on the host from VS Code's keybindings.
@@ -210,4 +211,6 @@ export type FromWebviewMessage =
   | ({ command: 'references'; requestId: number } & CodePosition)
   | ({ command: 'hover'; requestId: number } & CodePosition)
   /** opens a `uri` location from a `definitions` or `references` answer in a VS Code editor */
-  | { command: 'openLocation'; uri: string; line: number; column: number };
+  | { command: 'openLocation'; uri: string; line: number; column: number }
+  /** opens the local file on the lines of `range` in the `side` pane, as counted in `generation` */
+  | ({ command: 'openSource'; generation: number; side: DiffSide } & CodeRange);
