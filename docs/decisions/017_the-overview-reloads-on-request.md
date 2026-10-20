@@ -26,8 +26,8 @@ The decision is constrained by:
 
 An Overview reloads its issuable, discussions and label events when asked, from
 a Reload button in its header, from **GitLab: Reload Overview** in the Command
-Palette, or from the same command in the webview's context menu and on the
-merge request's **Overview** item in the sidebar.
+Palette, from the same command in the webview's context menu, or from a reload
+icon shown on hover over the merge request's **Overview** item in the sidebar.
 
 - The host owns the read. `reloadPanel()` in
   `src/desktop/issuable_controller.ts` posts `issuableReloading`, reads the
@@ -47,13 +47,15 @@ merge request's **Overview** item in the sidebar.
   one. The webview's context menu passes the view type, not a panel, so that
   argument is ignored. The menu entry is the fork's first `webview/context`
   contribution and leaves VS Code's own entries in place.
-- On the sidebar's **Overview** item (`contextValue` `mr-overview-item`) the
-  command acts on that merge request instead: it reveals and reloads its open
-  Overview, or opens it, which reads it fresh. `src/desktop/commands/reload_overview.ts`
-  tells the two arguments apart.
+- The sidebar's **Overview** item (`contextValue` `mr-overview-item`) carries
+  the command as an `inline` action, the `sync` icon VS Code shows on hover,
+  rather than a context menu entry that has to be discovered. There it acts on
+  that merge request: it reveals and reloads its open Overview, or opens it,
+  which reads it fresh. `src/desktop/commands/reload_overview.ts` tells the two
+  arguments apart.
 
 ```text
-button | command | context menu | sidebar item -> reloadPanel(panel)
+button | command | context menu | sidebar icon -> reloadPanel(panel)
   -> issuableReloading -> [getMrDetail, getDiscussionsAndLabelEvents]
   -> issuableFetch (success only) -> issuableReloaded { ok }
 ```

@@ -666,7 +666,8 @@
         },
         {
           "command": "gl.reloadOverview",
-          "when": "viewItem == mr-overview-item"
+          "when": "viewItem == mr-overview-item",
+          "group": "inline"
         },
         {
           "command": "gl.openInGitLab",
