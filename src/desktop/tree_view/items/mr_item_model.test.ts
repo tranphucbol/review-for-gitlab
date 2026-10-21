@@ -9,10 +9,10 @@ import {
 import * as mrVersion from '../../../../test/integration/fixtures/rest/mr_version.json';
 import { CommentingRangeProvider } from '../../review/commenting_range_provider';
 import { fromReviewUri } from '../../review/review_uri';
-import { DELETED, CHANGE_TYPE_QUERY_KEY, HAS_COMMENTS_QUERY_KEY } from '../../constants';
+import { DELETED, MODIFIED, CHANGE_TYPE_QUERY_KEY, HAS_COMMENTS_QUERY_KEY } from '../../constants';
 import { setSidebarViewState, SidebarViewState } from '../sidebar_view_state';
 import { ChangedFolderItem } from './changed_folder_item';
-import { ChangedFileItem } from './changed_file_item';
+import { ChangedFileItem, getBaseAndHeadUri } from './changed_file_item';
 import { asMock } from '../../test_utils/as_mock';
 import { getGitLabService } from '../../gitlab/get_gitlab_service';
 
@@ -96,6 +96,34 @@ describe('MrItemModel', () => {
     const discussionPosition = discussionOnDiff.notes.nodes[0].position;
     expect(commit).toBe(discussionPosition.diffRefs.baseSha);
     expect(path).toBe(discussionPosition.oldPath);
+  });
+
+  it('gives the thread the URI of the diff that shows it', async () => {
+    const { position } = discussionOnDiff.notes.nodes[0];
+    const version = {
+      ...mrVersion,
+      base_commit_sha: position.diffRefs.baseSha,
+      head_commit_sha: position.diffRefs.headSha,
+      diffs: [{ ...mrVersion.diffs[1], old_path: position.oldPath, new_path: position.newPath }],
+    };
+    gitLabService.getMrDiff = jest.fn().mockResolvedValue(version);
+    await item.getChildren();
+
+    const [uri] = createCommentThreadMock.mock.calls[0];
+    const { baseFileUri } = getBaseAndHeadUri(
+      mr,
+      version,
+      version.diffs[0],
+      projectInRepository.pointer.repository.rootFsPath,
+    );
+    expect(uri.toString()).toBe(baseFileUri.toString());
+  });
+
+  it('names a thread outside the changed files as modified', async () => {
+    await item.getChildren();
+
+    const [uri] = createCommentThreadMock.mock.calls[0];
+    expect(fromReviewUri(uri).change).toBe(MODIFIED);
   });
 
   it('should return changed file items as children', async () => {

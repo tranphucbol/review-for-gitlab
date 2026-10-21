@@ -22,6 +22,16 @@ export interface DiffFileModel {
   collapsed: boolean;
   /** head lines that GitLab accepts a new diff comment on */
   commentableNewLines: number[];
+  /**
+   * Set when the panes show two versions of the merge request rather than its base and latest
+   * head: the old pane is read-only, and the new one takes comments only at the latest head.
+   */
+  comparison?: {
+    /** such as `v3 → v5` */
+    label: string;
+    /** the target branch moved between the two versions, so some changes may come from it */
+    rebased: boolean;
+  };
 }
 
 export interface DiffNoteModel {

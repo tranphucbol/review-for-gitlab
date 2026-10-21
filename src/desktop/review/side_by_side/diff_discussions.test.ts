@@ -6,7 +6,7 @@ import {
 } from '../../../../test/integration/fixtures/graphql/discussions.js';
 import { GqlDiscussion, GqlTextDiffDiscussion } from '../../gitlab/graphql/get_discussions';
 import { diffFile, mrVersion } from '../../test_utils/entities';
-import { toDiffDiscussions } from './diff_discussions';
+import { toComparisonDiscussions, toDiffDiscussions } from './diff_discussions';
 
 describe('toDiffDiscussions', () => {
   const { oldPath, newPath, diffRefs } = noteOnDiff.position;
@@ -78,5 +78,55 @@ describe('toDiffDiscussions', () => {
     expect(toDiffDiscussions([singleNote, systemNote] as GqlDiscussion[], version, file)).toEqual(
       [],
     );
+  });
+});
+
+describe('toComparisonDiscussions', () => {
+  const { oldPath, newPath, diffRefs } = noteOnDiff.position;
+  const file: RestDiffFile = { ...diffFile, old_path: oldPath, new_path: newPath };
+  const comparison: RestMrVersion = {
+    ...mrVersion,
+    base_commit_sha: 'older-head',
+    start_commit_sha: 'older-head',
+    head_commit_sha: diffRefs.headSha,
+    diffs: [file],
+  };
+
+  const onNewLine = (position: Record<string, unknown>): GqlDiscussion =>
+    ({
+      ...discussionOnDiff,
+      notes: {
+        nodes: [
+          {
+            ...noteOnDiff,
+            position: { ...noteOnDiff.position, oldLine: null, newLine: 7, ...position },
+          },
+        ],
+      },
+    }) as GqlDiscussion;
+
+  it('places a discussion on the newer head on the right side', () => {
+    const discussions = toComparisonDiscussions([onNewLine({})], comparison, file);
+
+    expect(discussions.map(d => [d.side, d.line])).toEqual([['new', 7]]);
+  });
+
+  it('places a discussion on the older head on the left side', () => {
+    const discussions = toComparisonDiscussions(
+      [onNewLine({ newPath: oldPath, diffRefs: { ...diffRefs, headSha: 'older-head' } })],
+      comparison,
+      file,
+    );
+
+    expect(discussions.map(d => [d.side, d.line])).toEqual([['old', 7]]);
+  });
+
+  it.each`
+    description                   | position
+    ${'an old line'}              | ${{ oldLine: 48, newLine: null }}
+    ${'another head'}             | ${{ diffRefs: { ...diffRefs, headSha: 'previous' } }}
+    ${'another file on the head'} | ${{ newPath: 'other.vue' }}
+  `('skips a discussion on $description', ({ position }) => {
+    expect(toComparisonDiscussions([onNewLine(position)], comparison, file)).toEqual([]);
   });
 });

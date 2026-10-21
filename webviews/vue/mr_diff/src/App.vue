@@ -73,6 +73,14 @@
         Open native diff
       </button>
     </div>
+    <div v-if="file && file.comparison" class="gl-diff-banner" role="status">
+      <span class="gl-diff-banner-text">
+        Comparing {{ file.comparison.label }}.
+        <template v-if="file.comparison.rebased">
+          Rebased since your review; some changes may come from the target branch.
+        </template>
+      </span>
+    </div>
     <div v-if="file && file.collapsed" class="gl-diff-banner" role="status">
       GitLab didn't return a diff for this file because it is too large. The changes below are
       computed locally, and new comments are disabled.
@@ -335,14 +343,21 @@ export default {
     },
     canCommentOn(side, line) {
       if (!this.file || !this.canComment || this.file.collapsed) return false;
+      // comparing two versions, only the latest head takes new comments
+      if (side === 'old' && this.file.comparison) return false;
       if (side === 'old') return line >= 1 && line <= this.lineCounts.old;
       return this.commentableNewLines.has(line);
     },
-    explainRefusedComment({ line }) {
+    explainRefusedComment({ side, line }) {
       if (this.file?.collapsed) {
         this.notice = 'This file is too large for GitLab to accept new comments on it.';
       } else if (!this.canComment) {
         this.notice = "You can't comment on this merge request from the extension.";
+      } else if (
+        this.file?.comparison &&
+        (side === 'old' || !this.file.commentableNewLines.length)
+      ) {
+        this.notice = 'This version is read-only; comment on the latest version.';
       } else {
         this.notice = `Line ${line} is unchanged in the merge request version. Comment on a changed line, or on the base version.`;
       }

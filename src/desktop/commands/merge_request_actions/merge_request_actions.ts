@@ -54,7 +54,7 @@ const targetFromCurrentBranch = async (): Promise<MrActionTarget | undefined> =>
   return { mr, projectInRepository };
 };
 
-const resolveTarget = async (arg: unknown): Promise<MrActionTarget | undefined> => {
+export const resolveTarget = async (arg: unknown): Promise<MrActionTarget | undefined> => {
   if (isMrActionTarget(arg)) return { mr: arg.mr, projectInRepository: arg.projectInRepository };
   if (arg instanceof vscode.Uri && arg.scheme === REVIEW_URI_SCHEME) {
     return targetFromReviewUri(arg);

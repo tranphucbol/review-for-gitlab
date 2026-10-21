@@ -17,12 +17,14 @@ import { UserFriendlyError } from '../../errors/user_friendly_error';
 import { getBaseAndHeadUri } from '../../tree_view/items/changed_file_item';
 import { getMentionCandidates } from '../../mentions/mention_candidates';
 import { makeHtmlLinksAbsolute } from '../../utils/make_html_links_absolute';
+import { findFileInDiffs } from '../../utils/find_file_in_diffs';
+import { READ_ONLY_VERSION_MESSAGE } from '../versions/mr_version_comparison';
 import { mrProjectPath, toUploadError, uploadAttachments } from '../comment_attachment_provider';
 import { buildDiffPosition } from '../diff_position';
 import { loadTokenRules } from './color_theme_tokens';
 import { getEditorFont } from './editor_font';
 import { loadDiffKeybindings } from './diff_keybindings';
-import { toDiffDiscussions } from './diff_discussions';
+import { toComparisonDiscussions, toDiffDiscussions } from './diff_discussions';
 import { LocalCodeNavigation } from './local_code_navigation';
 import { HunkDirection, LocalHunkApplier, minimalEdit } from './local_hunk_applier';
 import { getShowLocalChangeButtons, SHOW_LOCAL_CHANGE_BUTTONS } from './merge_request_diff_viewer';
@@ -40,12 +42,40 @@ import {
 } from './messages';
 import { mapSourceRange } from './source_lines';
 
+/** Two versions of the merge request compared, see docs/plans/013. */
+export interface MrDiffComparison {
+  /** the older head as its base and the newer head as its head */
+  version: RestMrVersion;
+  /** such as `v3 → v5` */
+  label: string;
+  rebased: boolean;
+}
+
 export interface MrDiffTarget {
   mr: RestMr;
+  /** the latest version of the merge request, which new comments are positioned against */
   mrVersion: RestMrVersion;
   file: RestDiffFile;
   repositoryRoot: string;
+  comparison?: MrDiffComparison;
 }
+
+/** The version whose base and head the panes show. */
+export const shownVersion = ({ mrVersion, comparison }: MrDiffTarget): RestMrVersion =>
+  comparison?.version ?? mrVersion;
+
+/** The file in the latest version, if the right pane shows its head and new comments go there. */
+const commentableFile = ({
+  mrVersion,
+  comparison,
+  file,
+}: MrDiffTarget): RestDiffFile | undefined => {
+  if (!comparison) return file;
+  if (comparison.version.head_commit_sha !== mrVersion.head_commit_sha) return undefined;
+  return findFileInDiffs(mrVersion.diffs, { newPath: file.new_path });
+};
+
+const COMPARING_VERSIONS = 'Not available while comparing versions.';
 
 /** what a successful `result` carries besides its `requestId` */
 type ResultContent = Pick<
@@ -239,6 +269,8 @@ export class MrDiffPanel {
     const { mr, file } = this.#target;
     const { mrVersion } = await mrCache.reloadMr(mr, this.#projectInRepository);
     if (isSameVersion(this.#target.mrVersion, mrVersion)) return undefined;
+    // a comparison keeps its two versions; only where new comments go changes
+    if (this.#target.comparison) return { ...this.#target, mrVersion };
     const latestFile = mrVersion.diffs.find(d => d.new_path === file.new_path);
     if (!latestFile) {
       log.info(`The latest version of !${mr.iid} no longer changes ${file.new_path}.`);
@@ -312,7 +344,7 @@ export class MrDiffPanel {
   async refreshLocalState(): Promise<void> {
     const applier = await this.#localApplier();
     if (!applier) return;
-    if (!getShowLocalChangeButtons()) {
+    if (!getShowLocalChangeButtons() || this.#target.comparison) {
       await this.#post({
         command: 'localState',
         enabled: false,
@@ -381,6 +413,12 @@ export class MrDiffPanel {
    * applier expects it.
    */
   async #applyHunk(block: BlockRange, direction: HunkDirection): Promise<void> {
+    if (this.#target.comparison) {
+      throw new UserFriendlyError(
+        COMPARING_VERSIONS,
+        new Error('Local change buttons are off in a comparison'),
+      );
+    }
     if (!getShowLocalChangeButtons()) {
       throw new UserFriendlyError(
         `Turn on the ${SHOW_LOCAL_CHANGE_BUTTONS} setting to change the local file from this view.`,
@@ -451,7 +489,9 @@ export class MrDiffPanel {
   }
 
   async #loadFile(): Promise<DiffFileModel> {
-    const { mr, mrVersion, file } = this.#target;
+    const { mr, file, comparison } = this.#target;
+    const shown = shownVersion(this.#target);
+    const latestFile = commentableFile(this.#target);
     const cannotShow = (reason: string) =>
       new UserFriendlyError(
         `The side-by-side diff can't show ${file.new_path}: ${reason}. Open the native diff instead.`,
@@ -470,8 +510,8 @@ export class MrDiffPanel {
       return decode(content);
     };
     const [oldText, newText] = await Promise.all([
-      file.new_file ? '' : read(file.old_path, mrVersion.base_commit_sha),
-      file.deleted_file ? '' : read(file.new_path, mrVersion.head_commit_sha),
+      file.new_file ? '' : read(file.old_path, shown.base_commit_sha),
+      file.deleted_file ? '' : read(file.new_path, shown.head_commit_sha),
     ]);
     const collapsed = file.diff === '' && oldText !== newText;
     return {
@@ -483,7 +523,10 @@ export class MrDiffPanel {
       newExists: !file.deleted_file,
       diff: file.diff,
       collapsed,
-      commentableNewLines: file.diff ? getAddedLinesForFile(mrVersion, file.new_path) : [],
+      commentableNewLines: latestFile?.diff
+        ? getAddedLinesForFile(this.#target.mrVersion, file.new_path)
+        : [],
+      ...(comparison && { comparison: { label: comparison.label, rebased: comparison.rebased } }),
     };
   }
 
@@ -522,7 +565,7 @@ export class MrDiffPanel {
   async refreshDiscussions(): Promise<void> {
     this.#discussionsRequest += 1;
     const request = this.#discussionsRequest;
-    const { mr, mrVersion, file } = this.#target;
+    const { mr, mrVersion, file, comparison } = this.#target;
     const gitlabService = getGitLabService(this.#projectInRepository);
     let message: ToWebviewMessage;
     try {
@@ -532,7 +575,9 @@ export class MrDiffPanel {
       ]);
       message = {
         command: 'discussions',
-        discussions: toDiffDiscussions(discussions, mrVersion, file),
+        discussions: comparison
+          ? toComparisonDiscussions(discussions, comparison.version, file)
+          : toDiffDiscussions(discussions, mrVersion, file),
         canComment,
       };
     } catch (e) {
@@ -581,7 +626,14 @@ export class MrDiffPanel {
     body: string,
   ): Promise<void> {
     this.#assertCurrentGeneration(generation, 'comment');
-    const { mr, mrVersion, file } = this.#target;
+    const { mr, mrVersion } = this.#target;
+    const file = commentableFile(this.#target);
+    if (!file || (this.#target.comparison && side === 'old')) {
+      throw new UserFriendlyError(
+        READ_ONLY_VERSION_MESSAGE,
+        new Error(`No new comments on the ${side} side of ${this.#target.comparison?.label}`),
+      );
+    }
     if (file.diff === '') {
       throw new UserFriendlyError(
         "GitLab didn't return a diff for this file because it is too large, so it doesn't accept new comments on it.",
@@ -762,12 +814,13 @@ export class MrDiffPanel {
       if (!mapped.exact) vscode.window.setStatusBarMessage(APPROXIMATE_SOURCE, SOURCE_MESSAGE_MS);
       return;
     }
-    const { mr, mrVersion, repositoryRoot } = this.#target;
+    const { mr, mrVersion, repositoryRoot, comparison } = this.#target;
     const { baseFileUri, headFileUri } = getBaseAndHeadUri(
       mr,
-      mrVersion,
+      shownVersion(this.#target),
       this.#target.file,
       repositoryRoot,
+      comparison && mrVersion,
     );
     await showRange(side === 'old' ? baseFileUri : headFileUri, range);
     // resolves only when dismissed
@@ -775,13 +828,20 @@ export class MrDiffPanel {
   }
 
   async openNativeDiff(): Promise<void> {
-    const { mr, mrVersion, file, repositoryRoot } = this.#target;
-    const { baseFileUri, headFileUri } = getBaseAndHeadUri(mr, mrVersion, file, repositoryRoot);
+    const { mr, mrVersion, file, repositoryRoot, comparison } = this.#target;
+    const { baseFileUri, headFileUri } = getBaseAndHeadUri(
+      mr,
+      shownVersion(this.#target),
+      file,
+      repositoryRoot,
+      comparison && mrVersion,
+    );
+    const suffix = comparison ? ` ${comparison.label}` : '';
     await vscode.commands.executeCommand(
       VS_COMMANDS.DIFF,
       baseFileUri,
       headFileUri,
-      `${path.basename(file.new_path)} (!${mr.iid})`,
+      `${path.basename(file.new_path)} (!${mr.iid}${suffix})`,
     );
   }
 

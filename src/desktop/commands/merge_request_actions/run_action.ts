@@ -5,6 +5,7 @@ import { ProjectInRepository } from '../../gitlab/new_project';
 import { FetchError } from '../../errors/fetch_error';
 import { handleError } from '../../../common/errors/handle_error';
 import { openUrl } from '../openers';
+import { reviewedVersionStore } from '../../review/versions/reviewed_version_store';
 import { MrActionId, mergeBlocker } from './available_actions';
 import { diffLabels, haveSameMembers, pickLabels, pickUsers } from './edit_people_and_labels';
 
@@ -100,6 +101,7 @@ const withRefusals = async (
 const approve = (target: MrActionTarget, { detail }: MrState) =>
   withRefusals(target, detail, 'approve', async service => {
     await service.approveMr(detail, detail.sha);
+    await reviewedVersionStore.record(target.projectInRepository.account, detail, detail.sha);
     inform(`Approved ${ref(detail)}.`);
     return true;
   });

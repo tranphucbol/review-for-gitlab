@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import assert from 'assert';
 import { PROGRAMMATIC_COMMANDS } from '../../command_names';
-import { ChangedFileItem, HasCommentsFn } from './changed_file_item';
+import { ChangedFileItem, HasCommentsFn, getChangeTypeForPath } from './changed_file_item';
 import { ItemModel } from './item_model';
 import { GqlDiscussion, GqlTextDiffDiscussion } from '../../gitlab/graphql/get_discussions';
 import { handleError } from '../../../common/errors/handle_error';
@@ -22,6 +22,10 @@ import { getSidebarViewState, SidebarViewState } from '../sidebar_view_state';
 import { ProjectInRepository } from '../../gitlab/new_project';
 import { getGitLabService } from '../../gitlab/get_gitlab_service';
 import { mrCache } from '../../gitlab/mr_cache';
+import {
+  reviewStateDescription,
+  versionComparisonItems,
+} from '../../review/versions/mr_version_comparison_item';
 
 // fork-only: lets `gl.reloadOverview` reload this merge request's Overview, see docs/decisions/017
 export const MR_OVERVIEW_ITEM_CONTEXT = 'mr-overview-item';
@@ -41,15 +45,19 @@ const uriForDiscussion = (
   rootFsPath: string,
   mr: RestMr,
   discussion: GqlTextDiffDiscussion,
+  mrVersion: RestMrVersion,
 ): vscode.Uri => {
   const { position } = firstNoteFrom(discussion);
+  const path = pathFromPosition(position);
   return toReviewUri({
-    path: pathFromPosition(position),
+    path,
     commit: commitFromPosition(position),
     exists: true,
     repositoryRoot: rootFsPath,
     projectId: mr.project_id,
     mrId: mr.id,
+    // fork-only: matches the diff's URI so the thread shows in it, see docs/plans/013
+    change: getChangeTypeForPath(mrVersion, path),
   });
 };
 
@@ -76,6 +84,8 @@ export class MrItemModel extends ItemModel {
       item.iconPath = vscode.Uri.parse(author.avatar_url);
     }
     item.contextValue = `web-openable;mr-item-from-${this.isFromFork ? 'fork' : 'same-project'}`;
+    // fork-only: see docs/plans/013
+    item.description = reviewStateDescription(this.projectInRepository, this.mr);
     return item;
   }
 
@@ -124,6 +134,7 @@ export class MrItemModel extends ItemModel {
           this.projectInRepository.pointer.repository.rootFsPath,
           this.mr,
           d,
+          mrVersion,
         ).toString(),
       );
     }
@@ -149,7 +160,13 @@ export class MrItemModel extends ItemModel {
         ? new ChangedFolderItem('', createChangedFiles(false)).getChildren()
         : createChangedFiles(true).map(file => file.item);
 
-    return [this.overviewItem, ...changedFiles];
+    // fork-only: the changes since the reviewer's last review, see docs/plans/013
+    const comparisonItems = await versionComparisonItems(
+      { mr: this.mr, projectInRepository: this.projectInRepository, mrVersion },
+      hasCommentsFn,
+    );
+
+    return [this.overviewItem, ...comparisonItems, ...changedFiles];
   }
 
   private async addAllCommentsToVsCode(
@@ -174,6 +191,7 @@ export class MrItemModel extends ItemModel {
           this.projectInRepository.pointer.repository.rootFsPath,
           this.mr,
           discussion,
+          mrVersion,
         ),
         commentRangeFromPosition(position),
         // the comments need to know about the thread, so we first

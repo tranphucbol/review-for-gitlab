@@ -174,6 +174,17 @@ describe('MR discussion commands', () => {
         },
       );
 
+      it('refuses a new thread on an older version opened to compare versions', async () => {
+        await expect(
+          createComment({
+            text: 'new thread text',
+            thread: createVsThread(mrDiff.new_path, 'older-head', 7),
+          }),
+        ).rejects.toThrow('This version is read-only; comment on the latest version.');
+
+        expect(mockedCreateDiffNote).not.toHaveBeenCalled();
+      });
+
       describe('retryFailedComment', () => {
         let thread: vscode.CommentThread;
         let comment: CommentWithThread;

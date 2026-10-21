@@ -17,6 +17,24 @@ const toNoteModel = (note: GqlTextDiffNote): DiffNoteModel => ({
   canDelete: note.userPermissions.adminNote,
 });
 
+const toDiscussionModel = (
+  discussion: GqlTextDiffDiscussion,
+  side: 'old' | 'new',
+  line: number,
+): DiffDiscussionModel => {
+  const [firstNote] = discussion.notes.nodes;
+  return {
+    id: discussion.replyId,
+    side,
+    line,
+    resolvable: discussion.resolvable,
+    resolved: discussion.resolved,
+    canResolve: firstNote.userPermissions.resolveNote,
+    canReply: firstNote.userPermissions.createNote,
+    notes: discussion.notes.nodes.filter(note => !note.system).map(toNoteModel),
+  };
+};
+
 /**
  * Picks the discussions that the native diff shows on this file and places each on the
  * line of the base or head version it was started on. A discussion on a line of the old
@@ -39,15 +57,31 @@ export const toDiffDiscussions = (
         position.diffRefs.headSha === mrVersion.head_commit_sha;
     if (!matches) return [];
     return [
-      {
-        id: discussion.replyId,
-        side: isOld ? 'old' : 'new',
-        line: (isOld ? position.oldLine : position.newLine) as number,
-        resolvable: discussion.resolvable,
-        resolved: discussion.resolved,
-        canResolve: firstNote.userPermissions.resolveNote,
-        canReply: firstNote.userPermissions.createNote,
-        notes: discussion.notes.nodes.filter(note => !note.system).map(toNoteModel),
-      },
+      toDiscussionModel(
+        discussion,
+        isOld ? 'old' : 'new',
+        (isOld ? position.oldLine : position.newLine) as number,
+      ),
     ];
+  });
+
+/**
+ * Places the discussions on two versions of the merge request compared: a discussion started
+ * on a line of a version's head goes in the pane that shows that head.
+ */
+export const toComparisonDiscussions = (
+  discussions: GqlDiscussion[],
+  comparison: RestMrVersion,
+  file: RestDiffFile,
+): DiffDiscussionModel[] =>
+  discussions.filter(isTextDiffDiscussion).flatMap(discussion => {
+    const [firstNote] = discussion.notes.nodes;
+    const { position } = firstNote;
+    if (position.newLine === null) return [];
+    const { headSha } = position.diffRefs;
+    let side: 'old' | 'new' | undefined;
+    if (headSha === comparison.base_commit_sha && position.newPath === file.old_path) side = 'old';
+    if (headSha === comparison.head_commit_sha && position.newPath === file.new_path) side = 'new';
+    if (!side) return [];
+    return [toDiscussionModel(discussion, side, position.newLine)];
   });

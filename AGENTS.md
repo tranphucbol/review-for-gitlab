@@ -201,6 +201,15 @@ node scripts/release.mjs patch             # changelog, commit, tag, push after 
   [006](docs/decisions/006_side-by-side-diff-is-an-opt-in-webview.md),
   [007](docs/decisions/007_local-change-buttons-are-off-until-turned-on.md)
 
+- **A comparison of two merge request versions is read-only except where the
+  position is known.** The "reviewed" record stays in `globalState` and moves
+  only on **Mark as Reviewed** or Approve; a comparison is a synthetic
+  `RestMrVersion` built from `repository/compare`; a new comment goes only on
+  the right side of one ending at the latest head, positioned against the real
+  latest version; a thread URI carries the same `change` as the diff that shows
+  it.
+  [019](docs/decisions/019_a-reviewer-sees-the-changes-since-their-last-review.md)
+
 - **Jira links are built on the host from `gitlab.jira.url`.**
   `src/desktop/jira/jira_keys.ts` is the one matcher; webviews only append a
   matched key to the prefix the host sends. Nothing calls Jira, a stored comment

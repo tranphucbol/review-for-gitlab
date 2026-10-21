@@ -16,9 +16,11 @@ import {
 } from './run_action';
 import { createApprovals, createMrDetail } from './test_entities';
 import { pickLabels, pickUsers } from './edit_people_and_labels';
+import { reviewedVersionStore } from '../../review/versions/reviewed_version_store';
 
 jest.mock('../../gitlab/get_gitlab_service');
 jest.mock('../openers');
+jest.mock('../../review/versions/reviewed_version_store');
 jest.mock('./edit_people_and_labels', () => ({
   ...jest.requireActual('./edit_people_and_labels'),
   pickUsers: jest.fn(),
@@ -61,6 +63,24 @@ describe('runAction', () => {
 
       expect(service.approveMr).toHaveBeenCalledWith(state.detail, state.detail.sha);
       expect(vscode.window.showInformationMessage).toHaveBeenCalledWith('Approved !42.');
+    });
+
+    it('marks the approved sha as reviewed', async () => {
+      await runAction('approve', target, state);
+
+      expect(reviewedVersionStore.record).toHaveBeenCalledWith(
+        projectInRepository.account,
+        state.detail,
+        state.detail.sha,
+      );
+    });
+
+    it("doesn't mark a refused approval as reviewed", async () => {
+      asMock(service.approveMr).mockRejectedValue(fetchError(403));
+
+      await runAction('approve', target, state);
+
+      expect(reviewedVersionStore.record).not.toHaveBeenCalled();
     });
 
     it('finishes without waiting for the message to be dismissed', async () => {

@@ -8,9 +8,9 @@ import {
   MODIFIED,
   RENAMED,
 } from '../../constants';
-import { toReviewUri } from '../../review/review_uri';
+import { fromReviewUri, toReviewUri } from '../../review/review_uri';
 import { diffFile, mr, mrVersion } from '../../test_utils/entities';
-import { ChangedFileItem } from './changed_file_item';
+import { ChangedFileItem, getBaseAndHeadUri } from './changed_file_item';
 
 describe('ChangedFileItem', () => {
   describe('image file', () => {
@@ -149,6 +149,31 @@ describe('ChangedFileItem', () => {
         }),
       );
       expect(item.contextValue).toBe('changed-file-item');
+    });
+  });
+
+  describe('a comparison of two versions', () => {
+    const modified = { ...diffFile, renamed_file: false, old_path: 'a.js', new_path: 'a.js' };
+
+    it('names each side as the latest version does, so its threads show', () => {
+      const latest = { ...mrVersion, diffs: [{ ...modified, new_file: true }] };
+      const { baseFileUri, headFileUri } = getBaseAndHeadUri(
+        mr,
+        mrVersion,
+        modified,
+        '/repo',
+        latest,
+      );
+
+      expect(fromReviewUri(baseFileUri).change).toBe(ADDED);
+      expect(fromReviewUri(headFileUri).change).toBe(ADDED);
+    });
+
+    it('names a file the latest version leaves alone as modified', () => {
+      const latest = { ...mrVersion, diffs: [] };
+      const item = new ChangedFileItem(mr, mrVersion, modified, '/repo', () => false, true, latest);
+
+      expect(fromReviewUri(item.headFileUri).change).toBe(MODIFIED);
     });
   });
 });

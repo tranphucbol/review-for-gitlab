@@ -15,11 +15,19 @@ import {
 export type ChangeType = typeof ADDED | typeof DELETED | typeof RENAMED | typeof MODIFIED;
 export type HasCommentsFn = (reviewUri: vscode.Uri) => boolean;
 
-const getChangeType = (file: RestDiffFile): ChangeType => {
+export const getChangeType = (file: RestDiffFile): ChangeType => {
   if (file.new_file) return ADDED;
   if (file.deleted_file) return DELETED;
   if (file.renamed_file) return RENAMED;
   return MODIFIED;
+};
+
+// fork-only: VS Code shows a comment thread only in an editor whose URI equals the thread's, so
+// a thread's URI and every diff URI name a path's change as the latest version does (upstream
+// does the same since 763b823d); see docs/plans/013
+export const getChangeTypeForPath = (mrVersion: RestMrVersion, filePath: string): ChangeType => {
+  const file = mrVersion.diffs.find(d => filePath === d.new_path || filePath === d.old_path);
+  return file ? getChangeType(file) : MODIFIED;
 };
 
 // All extensions supported by VS Code's built-in Media Previewer.
@@ -49,21 +57,26 @@ export const getBaseAndHeadUri = (
   mrVersion: RestMrVersion,
   file: RestDiffFile,
   repositoryPath: string,
+  // fork-only: a comparison of two versions passes the latest version, see docs/plans/013
+  latestMrVersion?: RestMrVersion,
 ) => {
+  const changeOf = (filePath: string) =>
+    latestMrVersion ? getChangeTypeForPath(latestMrVersion, filePath) : getChangeType(file);
   const commonParams = {
     repositoryRoot: repositoryPath,
-    change: getChangeType(file),
     projectId: mr.project_id,
     mrId: mr.id,
   };
   const baseFileUri = toReviewUri({
     ...commonParams,
+    change: changeOf(file.old_path),
     path: file.old_path,
     exists: !file.new_file,
     commit: mrVersion.base_commit_sha,
   });
   const headFileUri = toReviewUri({
     ...commonParams,
+    change: changeOf(file.new_path),
     path: file.new_path,
     exists: !file.deleted_file,
     commit: mrVersion.head_commit_sha,
@@ -83,6 +96,7 @@ export class ChangedFileItem extends vscode.TreeItem {
     repositoryPath: string,
     hasComment: HasCommentsFn,
     shownInList = true,
+    latestMrVersion?: RestMrVersion,
   ) {
     super(vscode.Uri.file(file.new_path));
     if (shownInList) {
@@ -90,7 +104,7 @@ export class ChangedFileItem extends vscode.TreeItem {
       this.description = path.dirname(`/${file.new_path}`).split('/').slice(1).join('/');
     }
     this.contextValue = 'changed-file-item';
-    const uris = getBaseAndHeadUri(mr, mrVersion, file, repositoryPath);
+    const uris = getBaseAndHeadUri(mr, mrVersion, file, repositoryPath, latestMrVersion);
     this.headFileUri = uris.headFileUri;
     this.baseFileUri = uris.baseFileUri;
     const headIsEmpty = isEmptyFileUri(uris.headFileUri);
