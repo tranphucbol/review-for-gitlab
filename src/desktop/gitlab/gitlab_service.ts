@@ -488,6 +488,22 @@ export class GitLabService {
     return this.fetch<RestCompare>(comparePath, { from, to, straight: true }, 'comparison');
   }
 
+  // fork-only: commit by commit review, see docs/plans/014
+  async getMrCommits(mr: RestMr): Promise<RestCommit[]> {
+    const commitsPath = `/projects/${mr.project_id}/merge_requests/${mr.iid}/commits`;
+    return this.fetchAllPages(commitsPath, { per_page: 100 }, 'MR commits');
+  }
+
+  async getCommit(projectId: number, sha: string): Promise<RestCommitDetail> {
+    const commitPath = `/projects/${projectId}/repository/commits/${encodeURIComponent(sha)}`;
+    return this.fetch(commitPath, {}, 'commit');
+  }
+
+  async getCommitDiff(projectId: number, sha: string): Promise<RestDiffFile[]> {
+    const diffPath = `/projects/${projectId}/repository/commits/${encodeURIComponent(sha)}/diff`;
+    return this.fetchAllPages(diffPath, { per_page: 100 }, 'commit diff');
+  }
+
   async getFileContent(
     path: string,
     ref: string,

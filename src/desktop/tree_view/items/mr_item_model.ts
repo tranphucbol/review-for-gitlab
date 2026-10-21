@@ -22,10 +22,14 @@ import { getSidebarViewState, SidebarViewState } from '../sidebar_view_state';
 import { ProjectInRepository } from '../../gitlab/new_project';
 import { getGitLabService } from '../../gitlab/get_gitlab_service';
 import { mrCache } from '../../gitlab/mr_cache';
+import { log } from '../../../common/log';
 import {
   reviewStateDescription,
   versionComparisonItems,
 } from '../../review/versions/mr_version_comparison_item';
+import { mrVersionComparisons } from '../../review/versions/mr_version_comparison';
+import { createCommitsItem } from '../../review/commits/commits_item';
+import { CommitThreads, isDeferredToCommit } from '../../review/commits/commit_threads';
 
 // fork-only: lets `gl.reloadOverview` reload this merge request's Overview, see docs/decisions/017
 export const MR_OVERVIEW_ITEM_CONTEXT = 'mr-overview-item';
@@ -63,6 +67,9 @@ const uriForDiscussion = (
 
 export class MrItemModel extends ItemModel {
   private allUrisWithComments?: string[];
+
+  // fork-only: threads that show in a commit's view, see docs/plans/014
+  private commitThreads?: CommitThreads;
 
   readonly mr: RestMr;
 
@@ -166,7 +173,35 @@ export class MrItemModel extends ItemModel {
       hasCommentsFn,
     );
 
-    return [this.overviewItem, ...comparisonItems, ...changedFiles];
+    const commitsItem = this.commitThreads
+      ? await createCommitsItem({
+          mr: this.mr,
+          mrVersion,
+          projectInRepository: this.projectInRepository,
+          commitThreads: this.commitThreads,
+        })
+      : [];
+
+    return [this.overviewItem, ...comparisonItems, ...commitsItem, ...changedFiles];
+  }
+
+  // fork-only: a note on any version's SHA stays where a comparison shows it, see docs/plans/014
+  private async getVersionShas(mrVersion: RestMrVersion): Promise<string[]> {
+    if (!mrVersion.commits?.length) return [];
+    try {
+      const versions = await mrVersionComparisons.versions({
+        mr: this.mr,
+        projectInRepository: this.projectInRepository,
+        mrVersion,
+      });
+      return versions.flatMap(v => [v.baseSha, v.headSha]);
+    } catch (e) {
+      log.warn(
+        `Couldn't load the versions of !${this.mr.iid}; outdated notes may show on a commit.`,
+        e as Error,
+      );
+      return [];
+    }
   }
 
   private async addAllCommentsToVsCode(
@@ -184,7 +219,18 @@ export class MrItemModel extends ItemModel {
     );
     this.setDisposableChildren([commentController]);
 
+    const versionShas = await this.getVersionShas(mrVersion);
+    const isDeferred = (d: GqlTextDiffDiscussion) => isDeferredToCommit(d, mrVersion, versionShas);
+    this.commitThreads = new CommitThreads(
+      commentController,
+      discussions.filter(isDeferred),
+      this.mr,
+      gitlabService,
+      this.projectInRepository.pointer.repository.rootFsPath,
+    );
+
     discussions.forEach(discussion => {
+      if (isDeferred(discussion)) return undefined;
       const { position } = firstNoteFrom(discussion);
       const vsThread = commentController.createCommentThread(
         uriForDiscussion(

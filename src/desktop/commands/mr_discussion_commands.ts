@@ -5,7 +5,7 @@ import { UserFriendlyError } from '../errors/user_friendly_error';
 import { READ_ONLY_VERSION_MESSAGE } from '../review/versions/mr_version_comparison';
 import { getGitLabService } from '../gitlab/get_gitlab_service';
 import { gitlabProjectRepository } from '../gitlab/gitlab_project_repository';
-import { mrCache } from '../gitlab/mr_cache';
+import { getCachedMrForReviewUri } from '../review/commits/commit_versions';
 import { GitLabComment } from '../review/gitlab_comment';
 import { buildDiffPosition } from '../review/diff_position';
 import { GitLabCommentThread } from '../review/gitlab_comment_thread';
@@ -18,9 +18,10 @@ const createNewComment = async (
   text: string,
   thread: vscode.CommentThread,
 ): Promise<GitLabCommentThread> => {
-  const { path, commit, repositoryRoot, mrId } = fromReviewUri(thread.uri);
+  const params = fromReviewUri(thread.uri);
+  const { path, commit, repositoryRoot, mrId } = params;
   const projectInRepository = gitlabProjectRepository.getProjectOrFail(repositoryRoot);
-  const cachedMr = mrCache.getMr(mrId, projectInRepository);
+  const cachedMr = getCachedMrForReviewUri(params, projectInRepository);
   assert(cachedMr);
   const { mr, mrVersion } = cachedMr;
   const isOld = commit === mrVersion.base_commit_sha;

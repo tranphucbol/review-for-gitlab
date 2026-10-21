@@ -1,7 +1,12 @@
 import * as vscode from 'vscode';
-import { diffFile, mr, mrVersion } from '../test_utils/entities';
+import { diffFile, mr, mrVersion, projectInRepository } from '../test_utils/entities';
+import { getGitLabService } from '../gitlab/get_gitlab_service';
+import { asMock } from '../test_utils/as_mock';
 import { CommentingRangeProvider } from './commenting_range_provider';
+import { clearCommitVersionsForTests, loadCommitVersion } from './commits/commit_versions';
 import { toReviewUri } from './review_uri';
+
+jest.mock('../gitlab/get_gitlab_service');
 
 describe('CommentingRangeProvider', () => {
   let commentingRangeProvider: CommentingRangeProvider;
@@ -95,5 +100,62 @@ describe('CommentingRangeProvider', () => {
     } as vscode.TextDocument);
 
     expect(ranges).toEqual([]);
+  });
+
+  describe('a file of one commit', () => {
+    const oneAddedLine = ['@@ -1,1 +1,2 @@', ' a', '+b', ''].join('\n');
+    const commitFile = { ...diffFile, diff: oneAddedLine };
+
+    beforeEach(async () => {
+      clearCommitVersionsForTests();
+      asMock(getGitLabService).mockReturnValue({
+        getCommit: async () => ({ parent_ids: ['parent1'] }),
+        getCommitDiff: async () => [commitFile],
+      });
+      await loadCommitVersion(mr, mrVersion, projectInRepository, mrVersion.head_commit_sha);
+    });
+
+    const scopedUri = (commit: string) =>
+      toReviewUri({
+        ...commonUriParams,
+        commit,
+        path: commitFile.new_path,
+        exists: true,
+        scope: `parent1..${mrVersion.head_commit_sha}`,
+      });
+
+    it("takes the commit's added lines, not the merge request's", () => {
+      const ranges = commentingRangeProvider.provideCommentingRanges({
+        uri: scopedUri(mrVersion.head_commit_sha),
+      } as vscode.TextDocument);
+
+      expect(ranges.map(r => r.start.line)).toEqual([1]);
+    });
+
+    it('takes the whole parent side', () => {
+      const ranges = commentingRangeProvider.provideCommentingRanges({
+        uri: scopedUri('parent1'),
+        lineCount: 10,
+        lineAt: () => ({ isEmptyOrWhitespace: false }),
+      } as unknown as vscode.TextDocument);
+
+      expect(ranges).toEqual([
+        new vscode.Range(new vscode.Position(0, 0), new vscode.Position(9, 0)),
+      ]);
+    });
+
+    it('offers nothing for a commit that is not loaded', () => {
+      const uri = toReviewUri({
+        ...commonUriParams,
+        commit: 'other',
+        path: commitFile.new_path,
+        exists: true,
+        scope: 'parent1..other',
+      });
+
+      expect(
+        commentingRangeProvider.provideCommentingRanges({ uri } as vscode.TextDocument),
+      ).toEqual([]);
+    });
   });
 });

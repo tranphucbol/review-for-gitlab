@@ -5,7 +5,7 @@ import { fromReviewUri, isEmptyFileUri, toReviewUri } from './review_uri';
 import { log } from '../../common/log';
 import { getNewLineForOldUnchangedLine } from '../git/diff_line_count';
 import { gitlabProjectRepository } from '../gitlab/gitlab_project_repository';
-import { mrCache } from '../gitlab/mr_cache';
+import { getCachedMrForReviewUri } from './commits/commit_versions';
 import { findFileInDiffs } from '../utils/find_file_in_diffs';
 
 type LocationResult = vscode.Location | vscode.LocationLink;
@@ -98,7 +98,7 @@ const mergeHovers = (
 const findHeadLine = (baseUri: vscode.Uri, line: number): HeadLine | undefined => {
   const params = fromReviewUri(baseUri);
   const project = gitlabProjectRepository.getSelectedOrDefaultForRepository(params.repositoryRoot);
-  const cachedMr = project && mrCache.getMr(params.mrId, project);
+  const cachedMr = project && getCachedMrForReviewUri(params, project);
   if (!cachedMr || params.commit !== cachedMr.mrVersion.base_commit_sha) return undefined;
   const { mrVersion } = cachedMr;
   const diff = findFileInDiffs(mrVersion.diffs, { oldPath: params.path });
