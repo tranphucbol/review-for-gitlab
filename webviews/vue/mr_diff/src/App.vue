@@ -64,14 +64,6 @@
       >
         <span class="gl-diff-icon gl-diff-icon-refresh" aria-hidden="true"></span>
       </button>
-      <button
-        type="button"
-        class="gl-diff-button gl-diff-button-text"
-        title="Open this file in the native VS Code diff"
-        @click="openNative"
-      >
-        Open native diff
-      </button>
     </div>
     <div v-if="file && file.comparison" class="gl-diff-banner" role="status">
       <span class="gl-diff-banner-text">
@@ -129,6 +121,7 @@
       @comment-refused="explainRefusedComment"
       @go-to-source="goToSource"
       @failed="onLayoutFailed"
+      @ready="onLayoutReady"
     >
       <template #gutter="{ connectors }">
         <hunk-actions
@@ -211,6 +204,10 @@ export default {
       pendingBlockId: null,
       applyError: null,
       notice: null,
+      /** the line the host asked to show, kept until the layout and the discussions are in */
+      pendingReveal: null,
+      layoutReady: false,
+      discussionsLoaded: false,
     };
   },
   computed: {
@@ -305,6 +302,21 @@ export default {
       if (message?.command === 'error') this.fatalError = message.message;
       if (message?.command === 'discussions') this.setDiscussions(message);
       if (message?.command === 'localState') this.localState = message;
+      if (message?.command === 'reveal') {
+        this.pendingReveal = { side: message.side, line: message.line };
+        this.applyReveal();
+      }
+    },
+    onLayoutReady() {
+      this.layoutReady = true;
+      this.applyReveal();
+    },
+    applyReveal() {
+      if (!this.pendingReveal || !this.layoutReady || !this.discussionsLoaded) return;
+      const { side, line } = this.pendingReveal;
+      this.pendingReveal = null;
+      // the zones of the discussions just set are added on the next render
+      this.$nextTick(() => this.$refs.layout?.revealLine(side, line));
     },
     actionable(connectors) {
       if (!this.arrowDirection) return [];
@@ -340,6 +352,8 @@ export default {
       this.unsupported = Boolean(unsupported);
       this.discussionsError = error ?? null;
       if (!canComment) this.drafts = [];
+      this.discussionsLoaded = true;
+      this.applyReveal();
     },
     canCommentOn(side, line) {
       if (!this.file || !this.canComment || this.file.collapsed) return false;
@@ -387,6 +401,8 @@ export default {
       this.dismissed = [];
       this.applyError = null;
       this.notice = null;
+      this.layoutReady = false;
+      this.discussionsLoaded = false;
       this.fileKey += 1;
     },
     navigate(direction) {

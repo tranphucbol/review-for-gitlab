@@ -51,7 +51,10 @@ import { createSnippetPatch } from './commands/create_snippet_patch';
 import { downloadArtifacts } from './commands/download_artifact';
 import { applySnippetPatch } from './commands/apply_snippet_patch';
 import { openMrFile } from './commands/open_mr_file';
-import { openMrFileSideBySide } from './commands/open_mr_file_side_by_side';
+import {
+  openMrFileSideBySide,
+  openReviewUriSideBySide,
+} from './commands/open_mr_file_side_by_side';
 import { mrDiffPanelController } from './review/side_by_side/mr_diff_panel_controller';
 import {
   clearMrVersionComparison,
@@ -62,10 +65,8 @@ import { reviewedVersionStore } from './review/versions/reviewed_version_store';
 import { affectsEditorFont } from './review/side_by_side/editor_font';
 import { JIRA_CONFIG_SECTION } from './jira/jira_keys';
 import { openJiraIssue } from './jira/open_jira_issue';
-import {
-  MERGE_REQUEST_DIFF_VIEWER,
-  SHOW_LOCAL_CHANGE_BUTTONS,
-} from './review/side_by_side/merge_request_diff_viewer';
+import { SHOW_LOCAL_CHANGE_BUTTONS } from './review/side_by_side/merge_request_diff_viewer';
+import { registerReviewTabRedirect } from './review/side_by_side/review_tab_redirect';
 import { GitLabRemoteFileSystem } from './remotefs/gitlab_remote_file_system';
 import { openRepository } from './commands/open_repository';
 import { contextUtils } from './utils/context_utils';
@@ -77,11 +78,7 @@ import {
   runWithValidProjectFile,
 } from './commands/run_with_valid_project';
 import { triggerPipelineAction } from './commands/trigger_pipeline_action';
-import {
-  getSidebarViewState,
-  setSidebarViewState,
-  SidebarViewState,
-} from './tree_view/sidebar_view_state';
+import { setSidebarViewState, SidebarViewState } from './tree_view/sidebar_view_state';
 import { doNotAwait } from './utils/do_not_await';
 import { gitlabProjectRepository } from './gitlab/gitlab_project_repository';
 import {
@@ -291,12 +288,10 @@ export const activate = async (context: vscode.ExtensionContext) => {
   registerReviewLanguageFeatures(context);
   issuableController.init(context);
   mrDiffPanelController.init(context);
+  context.subscriptions.push(registerReviewTabRedirect(openReviewUriSideBySide));
   reviewedVersionStore.init(context.globalState);
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration(async e => {
-      // changed files pick the command for the configured diff viewer when they render
-      if (e.affectsConfiguration(MERGE_REQUEST_DIFF_VIEWER))
-        await setSidebarViewState(getSidebarViewState());
       if (e.affectsConfiguration(SHOW_LOCAL_CHANGE_BUTTONS))
         mrDiffPanelController.refreshLocalStates();
       if (e.affectsConfiguration('editor.tokenColorCustomizations'))

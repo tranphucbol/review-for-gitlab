@@ -31,18 +31,26 @@ const activeDiffBaseUri = (): vscode.Uri | undefined => {
     : undefined;
 };
 
-const openFromReviewUri = async (uri: vscode.Uri, baseUri?: vscode.Uri): Promise<void> => {
+const openFromReviewUri = async (
+  uri: vscode.Uri,
+  baseUri?: vscode.Uri,
+  line?: number,
+): Promise<void> => {
   const params = fromReviewUri(uri);
   assert(params.path);
   const projectInRepository = gitlabProjectRepository.getProjectOrFail(params.repositoryRoot);
   const cachedMr = getCachedMrForReviewUri(params, projectInRepository);
   assert(cachedMr, 'The merge request is not loaded. Refresh the side panel and try again.');
-  const comparison = findComparison(
-    cachedMr.mrVersion,
-    params.mrId,
-    params.commit,
-    baseUri && fromReviewUri(baseUri).commit,
-  );
+  // a thread on a removed line is on the base of the version, not the head of a comparison
+  const isBase = !baseUri && params.commit === cachedMr.mrVersion.base_commit_sha;
+  const comparison = isBase
+    ? undefined
+    : findComparison(
+        cachedMr.mrVersion,
+        params.mrId,
+        params.commit,
+        baseUri && fromReviewUri(baseUri).commit,
+      );
   const relativePath = removeLeadingSlash(params.path);
   const file = (comparison?.version ?? cachedMr.mrVersion).diffs.find(
     d => d.new_path === relativePath || d.old_path === relativePath,
@@ -51,13 +59,16 @@ const openFromReviewUri = async (uri: vscode.Uri, baseUri?: vscode.Uri): Promise
     file,
     `${relativePath} is not in the merge request. Refresh the side panel and try again.`,
   );
-  await mrDiffPanelController.open({
-    mr: cachedMr.mr,
-    mrVersion: cachedMr.mrVersion,
-    file,
-    repositoryRoot: params.repositoryRoot,
-    comparison: comparison && toDiffComparison(comparison),
-  });
+  await mrDiffPanelController.open(
+    {
+      mr: cachedMr.mr,
+      mrVersion: cachedMr.mrVersion,
+      file,
+      repositoryRoot: params.repositoryRoot,
+      comparison: comparison && toDiffComparison(comparison),
+    },
+    line === undefined ? undefined : { side: isBase ? 'old' : 'new', line },
+  );
 };
 
 /**
@@ -75,3 +86,10 @@ export const openMrFileSideBySide = async (param?: ChangedFileItem | vscode.Uri)
   );
   return openFromReviewUri(uri, activeDiffBaseUri());
 };
+
+/**
+ * fork-only: opens one side of a changed file, as a comment thread's URI names it, in the
+ * side-by-side view on `line`, see docs/decisions/020
+ */
+export const openReviewUriSideBySide = (uri: vscode.Uri, line: number): Promise<void> =>
+  openFromReviewUri(uri, undefined, line);

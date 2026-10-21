@@ -7,7 +7,7 @@ import { RepositoryRootWebviewProvider } from '../../commands/run_with_valid_pro
 import { WEBVIEW_MR_DIFF } from '../../constants';
 import { initDiffKeybindings } from './diff_keybindings';
 import { diffTitleSuffix, getScope } from '../commits/commit_versions';
-import { DiffAction } from './messages';
+import { DiffAction, DiffLocation } from './messages';
 import { MrDiffPanel, MrDiffTarget } from './mr_diff_panel';
 
 const panelTitle = ({ mr, mrVersion, file, comparison }: MrDiffTarget) =>
@@ -37,7 +37,8 @@ export class MrDiffPanelController implements RepositoryRootWebviewProvider {
     initDiffKeybindings(context);
   }
 
-  async open(target: MrDiffTarget): Promise<vscode.WebviewPanel> {
+  /** Opens the view of `target`, or shows it if it is open, scrolled to `location` if given. */
+  async open(target: MrDiffTarget, location?: DiffLocation): Promise<vscode.WebviewPanel> {
     assert(this.#context);
     const key = panelKey(target);
     const existing = this.#panels.get(key);
@@ -45,6 +46,7 @@ export class MrDiffPanelController implements RepositoryRootWebviewProvider {
       existing.panel.reveal();
       // the sidebar may know a newer version of the merge request than the open view
       await existing.showVersion(target);
+      if (location) await existing.reveal(location);
       return existing.panel;
     }
     const panel = vscode.window.createWebviewPanel(
@@ -82,6 +84,7 @@ export class MrDiffPanelController implements RepositoryRootWebviewProvider {
       mrDiffPanel.refreshKeybindings().catch(handleError);
     });
     mrDiffPanel.start();
+    if (location) await mrDiffPanel.reveal(location);
     const html = await prepareWebviewSource(panel.webview, this.#context, 'mr_diff');
     // a webview that was closed while its source was read can't take it
     if (this.#panels.get(key) === mrDiffPanel) panel.webview.html = html;

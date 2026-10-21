@@ -396,6 +396,15 @@ export class DiffView {
     this.editors[side].setPosition({ lineNumber: line, column: 1 });
   }
 
+  /** Scrolls so that a line sits a third of the way down the viewport, with the cursor on it. */
+  revealLine(side: DiffSide, line: number) {
+    const shown = this.#solo ? this.#primary : side;
+    const editor = this.editors[shown];
+    const viewport = editor.getLayoutInfo().height;
+    editor.setScrollTop(Math.max(0, editor.getTopForLineNumber(line) - viewport / 3));
+    editor.setPosition({ lineNumber: line, column: 1 });
+  }
+
   refreshDecorations() {
     const removedColor = cssVariable('--vscode-diffEditorOverview-removedForeground', '#f8514966');
     const insertedColor = cssVariable(

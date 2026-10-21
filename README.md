@@ -51,9 +51,7 @@ Or run `ext install tranphucbol.jetbrain-gitlab` from the command palette quick 
 3. Open a clone of a project on that GitLab. The GitLab view in the activity bar lists your
    issues and merge requests, and the status bar shows the pipeline and merge request of the
    current branch.
-4. Expand a merge request and select a changed file to review it. Set
-   `gitlab.mergeRequestDiff.viewer` to `sideBySide` to open the side-by-side diff instead of VS
-   Code's diff editor.
+4. Expand a merge request and select a changed file to review it in the side-by-side diff.
 
 ## How it works
 
@@ -75,8 +73,10 @@ newer GitLab.
 
 ### Merge request review
 
-Select a changed file of a merge request in the sidebar to open it in VS Code's diff editor, with
-the discussions as comment threads on their lines.
+Select a changed file of a merge request in the sidebar to open it in the
+[side-by-side diff](#side-by-side-diff), with the discussions inline on their lines. VS Code's
+**Comments** panel lists every discussion too; selecting one opens the side-by-side diff on its
+line. VS Code's diff editor opens only for images and for files the side-by-side diff can't show.
 
 - **Comments**: start a thread on any line, reply, resolve and unresolve, edit and delete your
   comments. Slash commands such as `/assign @user` work in comments as they do on GitLab.
@@ -102,9 +102,8 @@ the discussions as comment threads on their lines.
 
 ### Side-by-side diff
 
-`gitlab.mergeRequestDiff.viewer` chooses what opens when you select a changed file in the
-sidebar: `native`, VS Code's diff editor (the default), or `sideBySide`, a view that shows both
-versions next to each other the way JetBrains IDEs do.
+Selecting a changed file in the sidebar, or a discussion in the **Comments** panel, opens a view
+that shows both versions next to each other the way JetBrains IDEs do.
 
 - **Ribbons and alignment**: the changes are joined by ribbons across the gutter, and hatched
   filler keeps both sides on the same row. **Align both sides** in the toolbar turns the filler
@@ -127,9 +126,8 @@ versions next to each other the way JetBrains IDEs do.
   the code panes too, as long as its `when` clause names nothing beyond editor focus, a diff, the
   file's language and the side-by-side diff. Keys from `keybindings.json` of a profile other than
   the default one are not read.
-- **Open it anywhere**: the side-by-side icon on a changed file, the button on a review diff's
-  title bar, or **GitLab: Open Changed File in Side-by-Side View** open one file in this view
-  whatever the setting. **Open native diff** goes back.
+- **Files it can't show**: a binary file or one larger than 2 MB shows why, with **Open native
+  diff** to open it in VS Code's diff editor instead.
 - **Copy a change locally** (`gitlab.mergeRequestDiff.showLocalChangeButtons`): arrows copy a
   change into your local file, when it equals the old version, or revert it there, when it equals
   the new one. The file is checked first, and the change is an unsaved edit you can undo. Off by
@@ -256,17 +254,14 @@ The oldest GitLab the extension starts with is 13.6; below it, it warns once.
 
 The fork adds these commands.
 
-| Command                   | Title                                          | Where                                                                           |
-| ------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------- |
-| `gl.mergeRequestActions`  | GitLab: Merge Request Actions…                 | palette, sidebar, review diff, side-by-side diff, Overview                      |
-| `gl.openMrFileSideBySide` | GitLab: Open Changed File in Side-by-Side View | changed file in the sidebar, review diff title bar                              |
-| `gl.updateMrBranch`       | GitLab: Fetch and Update Merge Request Branch  | merge request from the same project in the sidebar                              |
-| `gl.openJiraIssue`        | GitLab: Open Jira Issue                        | palette, current branch view, merge request menu; when `gitlab.jira.url` is set |
+| Command                  | Title                                         | Where                                                                           |
+| ------------------------ | --------------------------------------------- | ------------------------------------------------------------------------------- |
+| `gl.mergeRequestActions` | GitLab: Merge Request Actions…                | palette, sidebar, review diff, side-by-side diff, Overview                      |
+| `gl.updateMrBranch`      | GitLab: Fetch and Update Merge Request Branch | merge request from the same project in the sidebar                              |
+| `gl.openJiraIssue`       | GitLab: Open Jira Issue                       | palette, current branch view, merge request menu; when `gitlab.jira.url` is set |
 
 - **Merge Request Actions…** without a merge request uses the focused side-by-side diff or
   Overview, then the current branch's merge request.
-- **Open Changed File in Side-by-Side View** opens one file in the side-by-side diff whatever
-  `gitlab.mergeRequestDiff.viewer` says.
 - **Fetch and Update Merge Request Branch** fetches the source branch and moves the local branch
   to it, asking before it drops local commits.
 - **Open Jira Issue** opens the Jira key of the current branch or its merge request.
@@ -309,11 +304,6 @@ Upstream's commands keep their names; type `GitLab:` in the command palette to l
 ## Extension Settings
 
 ### Merge request diff
-
-- `gitlab.mergeRequestDiff.viewer`, default `"native"`
-
-  What opens when you select a changed file of a merge request in the sidebar: `native`, VS
-  Code's diff editor, or `sideBySide`, the [side-by-side diff](#side-by-side-diff).
 
 - `gitlab.mergeRequestDiff.showLocalChangeButtons`, default `false`
 

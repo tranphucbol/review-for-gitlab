@@ -36,12 +36,14 @@ import {
   CodeRange,
   DiffAction,
   DiffFileModel,
+  DiffLocation,
   DiffSide,
   FromWebviewMessage,
   TokenRule,
   ToWebviewMessage,
 } from './messages';
 import { mapSourceRange } from './source_lines';
+import { expectPlainReviewEditor } from './review_tab_redirect';
 
 /** Two versions of the merge request compared, see docs/plans/013. */
 export interface MrDiffComparison {
@@ -196,6 +198,11 @@ export class MrDiffPanel {
   #codeNavigation?: LocalCodeNavigation;
 
   #localStateTimer?: NodeJS.Timeout;
+
+  /** the webview has its file and discussions, so it can take a `reveal` */
+  #ready = false;
+
+  #pendingReveal?: DiffLocation;
 
   readonly #disposables: vscode.Disposable[] = [];
 
@@ -692,6 +699,8 @@ export class MrDiffPanel {
         await this.refreshKeybindings();
         await this.#sendFile();
         await Promise.all([this.refreshLocalState(), this.refreshDiscussions()]);
+        this.#ready = true;
+        if (this.#pendingReveal) await this.reveal(this.#pendingReveal);
         break;
       case 'refresh':
         await this.refresh();
@@ -831,11 +840,24 @@ export class MrDiffPanel {
       repositoryRoot,
       comparison && mrVersion,
     );
-    await showRange(side === 'old' ? baseFileUri : headFileUri, range);
+    const reviewUri = side === 'old' ? baseFileUri : headFileUri;
+    expectPlainReviewEditor(reviewUri);
+    await showRange(reviewUri, range);
     // resolves only when dismissed
     vscode.window.showInformationMessage(NO_LOCAL_SOURCE).then(undefined, handleError);
   }
 
+  /** Scrolls the view to `location`, once the webview has the file and its discussions. */
+  async reveal(location: DiffLocation): Promise<void> {
+    if (!this.#ready) {
+      this.#pendingReveal = location;
+      return;
+    }
+    this.#pendingReveal = undefined;
+    await this.#post({ command: 'reveal', ...location });
+  }
+
+  /** The fallback for a file the view can't show, binary or larger than `MAX_FILE_BYTES`. */
   async openNativeDiff(): Promise<void> {
     const { mr, mrVersion, file, repositoryRoot, comparison } = this.#target;
     const { baseFileUri, headFileUri } = getBaseAndHeadUri(

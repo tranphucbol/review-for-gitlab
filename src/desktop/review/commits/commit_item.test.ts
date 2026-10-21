@@ -1,4 +1,5 @@
 import { handleError } from '../../../common/errors/handle_error';
+import { USER_COMMANDS } from '../../command_names';
 import { FetchError } from '../../errors/fetch_error';
 import { getGitLabService } from '../../gitlab/get_gitlab_service';
 import { asMock } from '../../test_utils/as_mock';
@@ -106,7 +107,7 @@ describe('commit items', () => {
         commit: restCommit.id,
         scope: `parent1..${restCommit.id}`,
       });
-      expect(file.command?.arguments?.[2]).toBe('new_file.js (c0ffee0 · !2000)');
+      expect(file.command?.command).toBe(USER_COMMANDS.OPEN_MR_FILE_SIDE_BY_SIDE);
       expect(commitThreads.addThreadsFor).toHaveBeenCalledTimes(1);
     });
 

@@ -2,6 +2,7 @@
 
 **Status:** accepted - 2026-10-05
 **Status:** local file arrows amended by [007](007_local-change-buttons-are-off-until-turned-on.md) - 2026-10-05
+**Status:** opt-in superseded by [020](020_the-side-by-side-diff-replaces-the-native-diff.md) - 2026-10-21
 
 **Plan:** [docs/plans/002_side-by-side-mr-diff-view.md](../plans/002_side-by-side-mr-diff-view.md)
 records the detailed investigation and implementation path.
