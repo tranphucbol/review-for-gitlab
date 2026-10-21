@@ -36,6 +36,8 @@ from `src/desktop/` or `src/browser/` and calls no Node.js or browser API;
 - `src/desktop/review/side_by_side/` — the opt-in side-by-side diff: the panel
   controller, the panel that serves its webview, `messages.ts` (the whole
   host–webview contract), and the local hunk applier
+- `src/desktop/mentions/` — the people `@` suggests in a comment box,
+  participants first, then project members
 - `src/desktop/tree_view/` — the sidebar of issues and merge requests
 - `src/desktop/ci/`, `src/desktop/commands/`, `src/desktop/remotefs/` — pipeline
   views, command-palette commands, the `gitlab-remote://` file system
@@ -205,6 +207,12 @@ node scripts/release.mjs patch             # changelog, commit, tag, push after 
   body never gains a generated link, and code and existing links are never
   rewritten.
   [009](docs/decisions/009_jira-keys-link-to-a-configured-jira.md)
+
+- **People to mention come from `getMentionCandidates()` on the host.** Every
+  comment box asks it, the native one through a completion provider and the
+  webviews through a message; a failed read degrades to fewer people, never a
+  notification.
+  [018](docs/decisions/018_typing-at-suggests-people-from-the-issuable.md)
 
 - **No literal colours in webviews; use `--vscode-*` tokens with a fallback.**
   In `webviews/vue/` only `shared/styles/tokens.scss` reads `--vscode-*`; the

@@ -15,6 +15,7 @@ import { ProjectInRepository } from '../../gitlab/new_project';
 import { UnsupportedVersionError } from '../../errors/unsupported_version_error';
 import { UserFriendlyError } from '../../errors/user_friendly_error';
 import { getBaseAndHeadUri } from '../../tree_view/items/changed_file_item';
+import { getMentionCandidates } from '../../mentions/mention_candidates';
 import { makeHtmlLinksAbsolute } from '../../utils/make_html_links_absolute';
 import { mrProjectPath, toUploadError, uploadAttachments } from '../comment_attachment_provider';
 import { buildDiffPosition } from '../diff_position';
@@ -47,7 +48,10 @@ export interface MrDiffTarget {
 }
 
 /** what a successful `result` carries besides its `requestId` */
-type ResultContent = Pick<Extract<ToWebviewMessage, { command: 'result' }>, 'markdown' | 'html'>;
+type ResultContent = Pick<
+  Extract<ToWebviewMessage, { command: 'result' }>,
+  'markdown' | 'html' | 'mentions' | 'mentionsError'
+>;
 
 interface NavigationAnswer {
   locations?: CodeLocation[];
@@ -675,6 +679,20 @@ export class MrDiffPanel {
         await this.#respond(
           message.requestId,
           async () => ({ html: await this.#previewMarkdown(message.body) }),
+          false,
+        );
+        break;
+      case 'searchMentions':
+        await this.#respond(
+          message.requestId,
+          async () => {
+            const { mentions, error } = await getMentionCandidates(
+              gitlabService(),
+              mr,
+              message.query,
+            );
+            return { mentions, mentionsError: error };
+          },
           false,
         );
         break;

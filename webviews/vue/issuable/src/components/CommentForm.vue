@@ -1,6 +1,7 @@
 <script>
 import checkbox from 'markdown-it-checkbox';
 import MarkdownIt from 'markdown-it';
+import MentionDropdown from '@shared/components/MentionDropdown.vue';
 import { submitShortcut } from '@shared/utils/keyboard';
 import { SafeHtmlDirective } from '../directives/safe_html/safe_html';
 
@@ -27,6 +28,7 @@ const readAsBase64 = file =>
 const imagesOf = files => [...(files ?? [])].filter(file => file.type.startsWith('image/'));
 
 export default {
+  components: { MentionDropdown },
   directives: {
     SafeHtml: SafeHtmlDirective,
   },
@@ -55,6 +57,8 @@ export default {
       uploads: 0,
       /** resolvers of the uploads waiting for the host, by request id */
       pendingUploads: {},
+      /** resolvers of the mention searches waiting for the host, by request id */
+      pendingMentions: {},
     };
   },
   computed: {
@@ -166,6 +170,14 @@ export default {
         });
       });
     },
+    searchMentions(query) {
+      nextRequestId += 1;
+      const requestId = nextRequestId;
+      return new Promise(resolve => {
+        this.pendingMentions[requestId] = resolve;
+        window.vsCodeApi.postMessage({ command: 'searchMentions', requestId, query });
+      });
+    },
     async upload(image) {
       const name = image.name || 'image.png';
       if (image.size > MAX_IMAGE_BYTES) {
@@ -207,6 +219,10 @@ export default {
         delete this.pendingUploads[data.requestId];
         if (data.error) reject(new Error(data.error));
         else resolve(data.markdown);
+      } else if (data.type === 'mentionsFound' && this.pendingMentions[data.requestId]) {
+        const resolve = this.pendingMentions[data.requestId];
+        delete this.pendingMentions[data.requestId];
+        resolve({ mentions: data.mentions ?? [], error: data.error });
       }
     },
   },
@@ -260,6 +276,7 @@ export default {
         :aria-invalid="isFailed ? 'true' : undefined"
         :class="{ 'is-invalid': isFailed }"
       />
+      <mention-dropdown :target="() => $refs.textarea" :search="searchMentions" />
     </div>
     <div
       v-if="mode === 'preview'"

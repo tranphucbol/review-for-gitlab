@@ -5,6 +5,7 @@
 */
 
 import type { JiraLinkConfig } from '../../jira/jira_keys';
+import type { MentionCandidate } from '../../mentions/mention_candidates';
 
 export type DiffSide = 'old' | 'new';
 
@@ -177,6 +178,10 @@ export type ToWebviewMessage =
       html?: string;
       locations?: CodeLocation[];
       hover?: CodeHover;
+      /** the answer to `searchMentions`, participants first */
+      mentions?: MentionCandidate[];
+      /** why `mentions` is empty when nobody could be loaded; the box stays usable */
+      mentionsError?: string;
     }
   | { command: 'error'; message: string };
 
@@ -200,6 +205,8 @@ export type FromWebviewMessage =
   | { command: 'uploadImage'; requestId: number; name: string; contentType: string; base64: string }
   /** renders a draft in the merge request's project, as GitLab will show the saved comment */
   | { command: 'previewMarkdown'; requestId: number; body: string }
+  /** people to suggest for the `@mention` being typed in a comment box */
+  | { command: 'searchMentions'; requestId: number; query: string }
   | ({
       command: 'applyHunk';
       requestId: number;

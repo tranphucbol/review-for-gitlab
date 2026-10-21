@@ -39,6 +39,10 @@ interface RestMrUser {
   avatar_url: string | null;
 }
 
+interface RestParticipant extends RestMrUser {
+  state: string;
+}
+
 /**
  * A single merge request, `GET /projects/:id/merge_requests/:iid`. List items
  * lack `user`, `head_pipeline`, `diverged_commits_count` and `merge_error`.

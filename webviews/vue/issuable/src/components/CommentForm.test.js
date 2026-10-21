@@ -1,4 +1,4 @@
-import { vi, expect, it, describe } from 'vitest';
+import { afterEach, vi, expect, it, describe } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
 import CommentForm from './CommentForm.vue';
 
@@ -270,6 +270,75 @@ describe('CommentForm', () => {
       expect(uploadRequest()).toBeUndefined();
       expect(wrapper.find('.js-upload-error').text()).toBe(
         'The image big.png is larger than 10 MB.',
+      );
+    });
+  });
+
+  describe('mentioning someone', () => {
+    const typeMention = async () => {
+      const textarea = wrapper.find('textarea');
+      await textarea.setValue('@an');
+      textarea.element.setSelectionRange(3, 3);
+      await textarea.trigger('input');
+      vi.advanceTimersByTime(150);
+      await flushPromises();
+      return textarea;
+    };
+
+    const mentionRequest = () =>
+      window.vsCodeApi.postMessage.mock.calls
+        .map(([message]) => message)
+        .find(message => message.command === 'searchMentions');
+
+    const answer = async data => {
+      const event = new Event('message');
+      event.data = { type: 'mentionsFound', requestId: mentionRequest().requestId, ...data };
+      window.dispatchEvent(event);
+      await flushPromises();
+    };
+
+    beforeEach(async () => {
+      vi.useFakeTimers();
+      wrapper = mount(CommentForm, { propsData: { replyId: 'thread' }, attachTo: document.body });
+      await flushPromises();
+    });
+
+    afterEach(() => {
+      wrapper.unmount();
+      vi.useRealTimers();
+    });
+
+    it('asks the host and writes the chosen username into the note', async () => {
+      const textarea = await typeMention();
+      expect(mentionRequest()).toEqual({
+        command: 'searchMentions',
+        requestId: expect.any(Number),
+        query: 'an',
+      });
+      await answer({ mentions: [{ username: 'anna', name: 'Anna Smith', participant: true }] });
+
+      await textarea.trigger('keydown', { key: 'Enter' });
+      await flushPromises();
+
+      expect(wrapper.vm.note).toBe('@anna ');
+    });
+
+    it('closes the list on Escape without cancelling the reply', async () => {
+      const textarea = await typeMention();
+      await answer({ mentions: [{ username: 'anna', name: 'Anna Smith', participant: true }] });
+
+      await textarea.trigger('keydown', { key: 'Escape' });
+
+      expect(wrapper.emitted('cancel-edit')).toBeUndefined();
+      expect(document.body.querySelector('[role="listbox"]')).toBe(null);
+    });
+
+    it('shows why nobody could be suggested', async () => {
+      await typeMention();
+      await answer({ mentions: [], error: 'Could not load project members.' });
+
+      expect(document.body.querySelector('[role="listbox"]').textContent).toContain(
+        'Could not load project members.',
       );
     });
   });

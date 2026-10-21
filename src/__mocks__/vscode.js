@@ -71,6 +71,7 @@ module.exports = {
     registerImplementationProvider: jest.fn().mockReturnValue({ dispose: jest.fn() }),
     registerReferenceProvider: jest.fn().mockReturnValue({ dispose: jest.fn() }),
     registerHoverProvider: jest.fn().mockReturnValue({ dispose: jest.fn() }),
+    registerCompletionItemProvider: jest.fn().mockReturnValue({ dispose: jest.fn() }),
   },
   workspace: {
     openTextDocument: jest.fn(),
@@ -194,7 +195,15 @@ module.exports = {
     Workspace: 2,
     WorkspaceFolder: 3,
   },
-  CompletionItem: jest.fn(),
+  CompletionItem: jest.fn(function CompletionItem(label, kind) {
+    this.label = label;
+    this.kind = kind;
+  }),
+  CompletionList: function CompletionList(items, isIncomplete) {
+    this.items = items;
+    this.isIncomplete = isIncomplete;
+  },
+  CompletionItemKind: { User: 25 },
   CodeLens: jest.fn(),
   DocumentLink: jest.fn(),
   CodeAction: jest.fn(),

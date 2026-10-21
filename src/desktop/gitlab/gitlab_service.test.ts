@@ -6,7 +6,7 @@ import { DEFAULT_FETCH_RESPONSE } from '../../common/__mocks__/fetch_logged';
 import { CustomQueryType } from '../../common/gitlab/custom_query_type';
 import { CustomQuery } from '../../common/gitlab/custom_query';
 import { asMock } from '../test_utils/as_mock';
-import { externalStatus, mr, securityReportFinding } from '../test_utils/entities';
+import { externalStatus, issue, mr, securityReportFinding } from '../test_utils/entities';
 import { getExtensionConfiguration } from '../../common/utils/extension_configuration';
 import { getHttpAgentOptions } from './http/get_http_agent_options';
 import { testCredentials } from '../test_utils/test_credentials';
@@ -734,6 +734,28 @@ describe('gitlab_service', () => {
 
       expect(crossFetchCallArgument()).toBe(
         'https://gitlab.example.com/api/v4/projects/12817/users?search=ann&per_page=20',
+      );
+    });
+
+    it('lists more users of a project when asked to', async () => {
+      await service.getProjectUsers(12817, undefined, 100);
+
+      expect(crossFetchCallArgument()).toBe(
+        'https://gitlab.example.com/api/v4/projects/12817/users?per_page=100',
+      );
+    });
+
+    it('reads the participants of a merge request', async () => {
+      await service.getParticipants(mr);
+
+      expect(crossFetchCallArgument()).toBe(`${mrPath}/participants`);
+    });
+
+    it('reads the participants of an issue', async () => {
+      await service.getParticipants(issue);
+
+      expect(crossFetchCallArgument()).toBe(
+        `https://gitlab.example.com/api/v4/projects/${issue.project_id}/issues/${issue.iid}/participants`,
       );
     });
 

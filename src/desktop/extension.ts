@@ -37,6 +37,7 @@ import {
   retryFailedComment,
 } from './commands/mr_discussion_commands';
 import { registerCommentAttachmentProviders } from './review/comment_attachment_provider';
+import { registerCommentMentionProvider } from './review/comment_mention_provider';
 import { registerReviewLanguageFeatures } from './review/review_language_features';
 import { hasCommentsDecorationProvider } from './review/has_comments_decoration_provider';
 import { changeTypeDecorationProvider } from './review/change_type_decoration_provider';
@@ -277,6 +278,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   );
   registerCommands(context);
   registerCommentAttachmentProviders(context);
+  registerCommentMentionProvider(context);
   registerReviewLanguageFeatures(context);
   issuableController.init(context);
   mrDiffPanelController.init(context);
