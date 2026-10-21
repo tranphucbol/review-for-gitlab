@@ -40,6 +40,7 @@
         @dragover.prevent
         @drop.prevent="onDrop"
       ></textarea>
+      <mention-dropdown :target="() => $refs.textarea" :search="searchMentions" />
     </div>
     <div
       v-if="mode === 'preview'"
@@ -71,6 +72,7 @@
 </template>
 
 <script>
+import MentionDropdown from '@shared/components/MentionDropdown.vue';
 import { submitShortcut } from '@shared/utils/keyboard';
 import { SafeHtmlDirective } from '../../../issuable/src/directives/safe_html/safe_html';
 import { request } from '../vscode_bridge';
@@ -96,6 +98,7 @@ const imagesOf = files => [...(files ?? [])].filter(file => file.type.startsWith
 
 export default {
   name: 'CommentBox',
+  components: { MentionDropdown },
   directives: { SafeHtml: SafeHtmlDirective },
   props: {
     initialBody: {
@@ -226,6 +229,10 @@ export default {
       } finally {
         this.busy = false;
       }
+    },
+    async searchMentions(query) {
+      const { mentions, mentionsError } = await request('searchMentions', { query });
+      return { mentions, error: mentionsError };
     },
     onKeyDown(event) {
       if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {

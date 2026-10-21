@@ -870,11 +870,20 @@ export class GitLabService {
     );
   }
 
-  async getProjectUsers(projectId: number, search?: string): Promise<RestMrUser[]> {
+  async getProjectUsers(projectId: number, search?: string, perPage = 20): Promise<RestMrUser[]> {
     return this.fetch(
       `/projects/${projectId}/users`,
-      { search: search || undefined, per_page: 20 },
+      { search: search || undefined, per_page: perPage },
       'project users',
+    );
+  }
+
+  async getParticipants(issuable: RestIssuable): Promise<RestParticipant[]> {
+    const type = isMr(issuable) ? 'merge_requests' : 'issues';
+    return this.fetch(
+      `/projects/${issuable.project_id}/${type}/${issuable.iid}/participants`,
+      {},
+      'participants',
     );
   }
 

@@ -10,6 +10,7 @@ import { gitlabProjectRepository } from './gitlab/gitlab_project_repository';
 import { ProjectInRepository } from './gitlab/new_project';
 import { getGitLabService } from './gitlab/get_gitlab_service';
 import { getJiraLinkConfig } from './jira/jira_keys';
+import { getMentionCandidates } from './mentions/mention_candidates';
 import { UserFriendlyError } from './errors/user_friendly_error';
 import { toUploadError, uploadAttachments } from './review/comment_attachment_provider';
 import { WEBVIEW_WORKFLOW } from './constants';
@@ -231,6 +232,21 @@ class IssuableController implements RepositoryRootWebviewProvider {
             error: (e as Error).message,
           });
         }
+      }
+
+      // fork-only: @mention suggestions in an Overview comment, see docs/decisions/018
+      if (message.command === 'searchMentions') {
+        const { mentions, error } = await getMentionCandidates(
+          getGitLabService(projectInRepository),
+          panel.issuable ?? issuable,
+          String(message.query ?? ''),
+        );
+        await panel.webview.postMessage({
+          type: 'mentionsFound',
+          requestId: message.requestId,
+          mentions,
+          error,
+        });
       }
 
       if (message.command === 'reloadIssuable') {

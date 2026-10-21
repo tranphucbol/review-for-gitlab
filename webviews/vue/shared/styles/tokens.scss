@@ -117,6 +117,19 @@ body {
   --gl-hover-widget-fg: var(--vscode-editorHoverWidget-foreground, var(--gl-text));
   --gl-hover-widget-border: var(--vscode-editorHoverWidget-border, var(--gl-border));
 
+  // The @mention list in a comment box, drawn like the editor's suggest widget.
+  --gl-suggest-bg: var(--vscode-editorSuggestWidget-background, var(--gl-surface-raised));
+  --gl-suggest-fg: var(--vscode-editorSuggestWidget-foreground, var(--gl-text));
+  --gl-suggest-border: var(--vscode-editorSuggestWidget-border, var(--gl-border));
+  --gl-suggest-selected-bg: var(
+    --vscode-editorSuggestWidget-selectedBackground,
+    var(--vscode-list-activeSelectionBackground, var(--gl-hover))
+  );
+  --gl-suggest-selected-fg: var(
+    --vscode-editorSuggestWidget-selectedForeground,
+    var(--vscode-list-activeSelectionForeground, var(--gl-suggest-fg))
+  );
+
   // Tinted fills mix a state colour into transparency, so they follow the theme too.
   --gl-tint: 18%;
 

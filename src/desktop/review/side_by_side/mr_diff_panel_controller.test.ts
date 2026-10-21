@@ -9,6 +9,7 @@ import { gitlabProjectRepository } from '../../gitlab/gitlab_project_repository'
 import { GqlDiscussion } from '../../gitlab/graphql/get_discussions';
 import { UnsupportedVersionError } from '../../errors/unsupported_version_error';
 import { UserFriendlyError } from '../../errors/user_friendly_error';
+import { getMentionCandidates } from '../../mentions/mention_candidates';
 import { diffFile, mr, mrVersion, projectInRepository } from '../../test_utils/entities';
 import { MrDiffPanelController } from './mr_diff_panel_controller';
 import { FromWebviewMessage } from './messages';
@@ -22,6 +23,7 @@ jest.mock('../../../common/log');
 jest.mock('../../git/get_file_content');
 jest.mock('../../gitlab/get_gitlab_service');
 jest.mock('../../gitlab/gitlab_project_repository');
+jest.mock('../../mentions/mention_candidates');
 
 const encode = (text: string) => Buffer.from(text);
 
@@ -709,6 +711,37 @@ describe('MrDiffPanelController', () => {
 
       expect(postedMessages()).toEqual([
         { command: 'result', requestId: 6, error: "GitLab couldn't render the preview." },
+      ]);
+    });
+  });
+
+  describe('mention search', () => {
+    it('answers with the people found for the merge request', async () => {
+      const anna = { username: 'anna', name: 'Anna', participant: true };
+      jest.mocked(getMentionCandidates).mockResolvedValue({ mentions: [anna] });
+      await controller.open(target);
+      await sendToHost({ command: 'searchMentions', requestId: 7, query: 'an' });
+
+      expect(getMentionCandidates).toHaveBeenCalledWith(gitlabService, mr, 'an');
+      expect(postedMessages()).toEqual([
+        { command: 'result', requestId: 7, mentions: [anna], mentionsError: undefined },
+      ]);
+    });
+
+    it('passes on why nobody could be loaded without failing the request', async () => {
+      jest
+        .mocked(getMentionCandidates)
+        .mockResolvedValue({ mentions: [], error: 'Could not load project members.' });
+      await controller.open(target);
+      await sendToHost({ command: 'searchMentions', requestId: 8, query: 'an' });
+
+      expect(postedMessages()).toEqual([
+        {
+          command: 'result',
+          requestId: 8,
+          mentions: [],
+          mentionsError: 'Could not load project members.',
+        },
       ]);
     });
   });

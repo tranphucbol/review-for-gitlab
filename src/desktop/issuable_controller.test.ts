@@ -8,6 +8,7 @@ import { issue, mr, projectInRepository } from './test_utils/entities';
 import { waitForWebview } from '../common/utils/webviews/wait_for_webview';
 import { handleError } from '../common/errors/handle_error';
 import { issuableController, MR_OVERVIEW_ACTIVE_CONTEXT } from './issuable_controller';
+import { getMentionCandidates } from './mentions/mention_candidates';
 
 jest.mock('../common/utils/webviews/prepare_webview_source', () => ({
   prepareWebviewSource: jest.fn().mockResolvedValue('preparedWebviewSource'),
@@ -18,6 +19,7 @@ jest.mock('../common/utils/webviews/wait_for_webview', () => ({
 jest.mock('../common/errors/handle_error');
 jest.mock('./gitlab/get_gitlab_service');
 jest.mock('./gitlab/gitlab_project_repository');
+jest.mock('./mentions/mention_candidates');
 
 describe('issuableController', () => {
   let gitlabService: GitLabService;
@@ -453,6 +455,55 @@ describe('issuableController', () => {
         requestId: 3,
         error: 'Images can be attached only to merge request comments.',
       });
+    });
+  });
+
+  describe('suggesting people to mention', () => {
+    const send = async (message: unknown) => {
+      const [[handler]] = jest.mocked(panels[0].webview.onDidReceiveMessage).mock.calls;
+      await handler(message);
+    };
+
+    it.each`
+      name               | issuable
+      ${'merge request'} | ${mr}
+      ${'issue'}         | ${issue}
+    `('answers with the people found for the $name', async ({ issuable }) => {
+      const anna = { username: 'anna', name: 'Anna', participant: true };
+      jest.mocked(getMentionCandidates).mockResolvedValue({ mentions: [anna] });
+      await issuableController.open(issuable, '/repo');
+
+      await send({ command: 'searchMentions', requestId: 4, query: 'an' });
+
+      // an open merge request carries its refreshed details
+      expect(getMentionCandidates).toHaveBeenCalledWith(
+        gitlabService,
+        expect.objectContaining({ id: issuable.id, project_id: issuable.project_id }),
+        'an',
+      );
+      expect(panels[0].webview.postMessage).toHaveBeenCalledWith({
+        type: 'mentionsFound',
+        requestId: 4,
+        mentions: [anna],
+        error: undefined,
+      });
+    });
+
+    it('passes on why nobody could be loaded', async () => {
+      jest
+        .mocked(getMentionCandidates)
+        .mockResolvedValue({ mentions: [], error: 'Could not load project members.' });
+      await issuableController.open(mr, '/repo');
+
+      await send({ command: 'searchMentions', requestId: 5, query: 'an' });
+
+      expect(panels[0].webview.postMessage).toHaveBeenCalledWith({
+        type: 'mentionsFound',
+        requestId: 5,
+        mentions: [],
+        error: 'Could not load project members.',
+      });
+      expect(handleError).not.toHaveBeenCalled();
     });
   });
 });
