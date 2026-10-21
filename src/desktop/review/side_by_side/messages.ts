@@ -9,6 +9,12 @@ import type { MentionCandidate } from '../../mentions/mention_candidates';
 
 export type DiffSide = 'old' | 'new';
 
+/** a 1-based line of one pane */
+export interface DiffLocation {
+  side: DiffSide;
+  line: number;
+}
+
 export interface DiffFileModel {
   oldPath: string;
   newPath: string;
@@ -160,6 +166,8 @@ export type ToWebviewMessage =
   | { command: 'keybindings'; keybindings: DiffKeybinding[] }
   /** a `gl.sideBySide*` command ran with this view active */
   | { command: 'runAction'; action: DiffAction }
+  /** scroll to a line, such as the one the Comments panel revealed; sent after `discussions` */
+  | ({ command: 'reveal' } & DiffLocation)
   | {
       command: 'discussions';
       discussions: DiffDiscussionModel[];

@@ -687,11 +687,6 @@
           "group": "inline"
         },
         {
-          "command": "gl.openMrFileSideBySide",
-          "when": "viewItem == changed-file-item",
-          "group": "inline"
-        },
-        {
           "command": "gl.checkoutMrBranch",
           "when": "view =~ /issuesAndMrs/ && viewItem =~ /mr-item-from-same-project/"
         },
@@ -864,11 +859,6 @@
           "group": "navigation@-99"
         },
         {
-          "command": "gl.openMrFileSideBySide",
-          "when": "resourceScheme == 'gl-review' && resourceFilename != '' && isInDiffEditor",
-          "group": "navigation@-98"
-        },
-        {
           "command": "gl.mergeRequestActions",
           "when": "resourceScheme == 'gl-review' && isInDiffEditor",
           "group": "navigation@-97"
@@ -993,16 +983,6 @@
           "type": "boolean",
           "default": false,
           "description": "Show notification in VS Code when the pipeline status changes"
-        },
-        "gitlab.mergeRequestDiff.viewer": {
-          "type": "string",
-          "enum": ["native", "sideBySide"],
-          "markdownEnumDescriptions": [
-            "VS Code's diff editor, with comments through the VS Code comments API.",
-            "A side-by-side webview with connector ribbons and inline discussions."
-          ],
-          "default": "native",
-          "markdownDescription": "The view that opens when you select a changed file of a merge request in the sidebar. **GitLab: Open Changed File in Side-by-Side View** opens one file in the side-by-side view whatever this is set to."
         },
         "gitlab.mergeRequestDiff.showLocalChangeButtons": {
           "type": "boolean",

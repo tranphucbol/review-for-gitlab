@@ -33,9 +33,10 @@ from `src/desktop/` or `src/browser/` and calls no Node.js or browser API;
   comments and threads, the paste/drop provider that uploads images typed
   into a comment box, and the providers that lend a diff the local file's
   code navigation
-- `src/desktop/review/side_by_side/` — the opt-in side-by-side diff: the panel
+- `src/desktop/review/side_by_side/` — the side-by-side diff: the panel
   controller, the panel that serves its webview, `messages.ts` (the whole
-  host–webview contract), and the local hunk applier
+  host–webview contract), the local hunk applier, and the redirect that turns
+  a Comments panel click into this view
 - `src/desktop/mentions/` — the people `@` suggests in a comment box,
   participants first, then project members
 - `src/desktop/tree_view/` — the sidebar of issues and merge requests
@@ -191,15 +192,20 @@ node scripts/release.mjs patch             # changelog, commit, tag, push after 
   `createMultipartFormBody()` is the one place that writes a boundary.
   [003](docs/decisions/003_pasted-images-upload-to-the-merge-request-project.md)
 
-- **The side-by-side diff is opt-in and leaves the native review alone.**
-  `gitlab.mergeRequestDiff.viewer` defaults to `native`; the webview gets no
-  tokens, does every write through `GitLabService` on the host, and shares
+- **The side-by-side diff replaces the native diff and leaves the native review
+  code alone.** Every changed file opens in it; `vscode.diff` stays only for
+  media and for files the view can't show, and a plain `gl-review://` tab, such
+  as the Comments panel opens, is redirected to it unless
+  `expectPlainReviewEditor()` announced it. The native comment threads are
+  still created, so the Comments panel lists them. The webview gets no tokens,
+  does every write through `GitLabService` on the host, and shares
   `buildDiffPosition()` and `uploadAttachments()` with the native review rather
   than copying them. A local file is changed only when
   `gitlab.mergeRequestDiff.showLocalChangeButtons` is on, and only by an
   unsaved `WorkspaceEdit` after its content is checked.
   [006](docs/decisions/006_side-by-side-diff-is-an-opt-in-webview.md),
-  [007](docs/decisions/007_local-change-buttons-are-off-until-turned-on.md)
+  [007](docs/decisions/007_local-change-buttons-are-off-until-turned-on.md),
+  [020](docs/decisions/020_the-side-by-side-diff-replaces-the-native-diff.md)
 
 - **A comparison of two merge request versions is read-only except where the
   position is known.** The "reviewed" record stays in `globalState` and moves

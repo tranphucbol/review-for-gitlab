@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { USER_COMMANDS, VS_COMMANDS } from '../../command_names';
 import {
   ADDED,
@@ -87,27 +86,8 @@ describe('ChangedFileItem', () => {
     });
   });
 
-  describe('diff viewer setting', () => {
-    const useViewer = (viewer?: string) =>
-      jest.mocked(vscode.workspace.getConfiguration).mockReturnValue({
-        viewer,
-      } as unknown as vscode.WorkspaceConfiguration);
-
-    afterEach(() => {
-      jest
-        .mocked(vscode.workspace.getConfiguration)
-        .mockReturnValue({} as vscode.WorkspaceConfiguration);
-    });
-
-    it('opens the native diff by default', () => {
-      useViewer(undefined);
-      const item = new ChangedFileItem(mr, mrVersion, diffFile, '/repo', () => false);
-
-      expect(item.command?.command).toBe(VS_COMMANDS.DIFF);
-    });
-
-    it('opens the side-by-side view when the setting asks for it', () => {
-      useViewer('sideBySide');
+  describe('show changes', () => {
+    it('opens the side-by-side view', () => {
       const item = new ChangedFileItem(mr, mrVersion, diffFile, '/repo', () => false);
 
       expect(item.command?.command).toBe(USER_COMMANDS.OPEN_MR_FILE_SIDE_BY_SIDE);
@@ -115,7 +95,6 @@ describe('ChangedFileItem', () => {
     });
 
     it('keeps opening a new image file, which has no diff', () => {
-      useViewer('sideBySide');
       const image = { ...diffFile, renamed_file: false, new_file: true, new_path: 'new.png' };
       const item = new ChangedFileItem(mr, mrVersion, image, '/repo', () => false);
 

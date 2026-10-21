@@ -77,6 +77,8 @@ const hostCodeNavigation = {
 
 const GUTTER_WIDTH = 44;
 
+const REVEAL_SETTLE_MS = 150;
+
 export default {
   name: 'DiffLayout',
   components: { CodePane, ConnectorGutter },
@@ -111,7 +113,7 @@ export default {
       default: null,
     },
   },
-  emits: ['add-comment', 'comment-refused', 'go-to-source', 'failed'],
+  emits: ['add-comment', 'comment-refused', 'go-to-source', 'failed', 'ready'],
   data() {
     return {
       viewState: null,
@@ -198,7 +200,10 @@ export default {
     this.stopWatchingTheme = watchThemeChanges(() => this.diffView.refreshTheme());
     this.stopWatchingFont = onEditorFontChange(() => this.diffView.refreshFont());
     this.syncThreads();
-    if (this.blocks.length > 0) this.$nextTick(() => this.diffView.revealBlock(this.blocks[0].id));
+    this.$nextTick(() => {
+      if (this.blocks.length > 0) this.diffView.revealBlock(this.blocks[0].id);
+      this.$emit('ready');
+    });
   },
   beforeUnmount() {
     this.stopWatchingTheme?.();
@@ -250,6 +255,12 @@ export default {
     },
     revealBlock(blockId) {
       this.diffView?.revealBlock(blockId);
+    },
+    revealLine(side, line) {
+      if (!this.diffView) return;
+      this.diffView.revealLine(side, line);
+      // the thread cards above the line take their height a moment later
+      setTimeout(() => this.diffView?.revealLine(side, line), REVEAL_SETTLE_MS);
     },
     focusPane(side) {
       this.diffView?.editors[side].focus();

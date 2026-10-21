@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import { posix as path } from 'path';
 import { isEmptyFileUri, toReviewUri } from '../../review/review_uri';
 import { USER_COMMANDS, VS_COMMANDS } from '../../command_names';
-import { getMergeRequestDiffViewer } from '../../review/side_by_side/merge_request_diff_viewer';
 import {
   ADDED,
   DELETED,
@@ -124,7 +123,9 @@ export class ChangedFileItem extends vscode.TreeItem {
         command: VS_COMMANDS.OPEN,
         arguments: [headIsEmpty ? this.baseFileUri : this.headFileUri],
       };
-    } else if (getMergeRequestDiffViewer() === 'sideBySide') {
+    } else if (!looksLikeMedia(uris.headFileUri.path)) {
+      // fork-only: the side-by-side view replaces the native diff, which stays for media the
+      // view cannot show; see docs/decisions/020
       this.command = {
         title: 'Show changes',
         command: USER_COMMANDS.OPEN_MR_FILE_SIDE_BY_SIDE,

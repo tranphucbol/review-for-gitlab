@@ -29,6 +29,13 @@ module.exports = {
     this.supportThemeIcons = supportThemeIcons;
   },
   Uri,
+  TabInputText: function TabInputText(uri) {
+    this.uri = uri;
+  },
+  TabInputTextDiff: function TabInputTextDiff(original, modified) {
+    this.original = original;
+    this.modified = modified;
+  },
   authentication: {
     getSession: jest.fn(),
   },
@@ -56,7 +63,11 @@ module.exports = {
     showTextDocument: jest.fn(),
     tabGroups: {
       activeTabGroup: {},
+      all: [],
+      onDidChangeTabs: jest.fn().mockReturnValue({ dispose: jest.fn() }),
+      close: jest.fn(),
     },
+    visibleTextEditors: [],
     createTextEditorDecorationType: jest.fn(),
   },
   commands: {

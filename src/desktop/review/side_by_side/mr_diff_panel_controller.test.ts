@@ -146,6 +146,29 @@ describe('MrDiffPanelController', () => {
     );
   });
 
+  describe('a line to reveal', () => {
+    it('is sent after the discussions once the webview is ready', async () => {
+      await controller.open(target, { side: 'new', line: 4 });
+      expect(postedMessages()).toEqual([]);
+
+      await sendToHost({ command: 'appReady' });
+
+      const commands = postedMessages().map(m => m.command);
+      expect(commands.indexOf('reveal')).toBeGreaterThan(commands.indexOf('discussions'));
+      expect(postedMessages()).toContainEqual({ command: 'reveal', side: 'new', line: 4 });
+    });
+
+    it('is sent at once to a panel that is open already', async () => {
+      await controller.open(target);
+      await sendToHost({ command: 'appReady' });
+      jest.mocked(panel.webview.postMessage).mockClear();
+
+      await controller.open(target, { side: 'old', line: 2 });
+
+      expect(postedMessages()).toEqual([{ command: 'reveal', side: 'old', line: 2 }]);
+    });
+  });
+
   it('sends the syntax colours of the theme before the file, and again on request', async () => {
     await controller.open(target);
     await sendToHost({ command: 'appReady' });
