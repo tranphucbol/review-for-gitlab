@@ -1,3 +1,29 @@
+## [0.0.5](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v0.0.4...v0.0.5) (2026-10-21)
+
+Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
+GitLab instances older than 15.5.
+
+
+### Bug Fixes
+
+* restore Go to Source in the side-by-side diff's context menu ([94bccd3](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/94bccd3e34a99b991882f82b14cfbbc78c54c6c4))
+* **side-by-side:** hide Go to Source between lines ([9d85e23](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/9d85e2368fc475269687ab7c74da1d8d3d57ae84))
+* **side-by-side:** match source lines across long changed files ([f646933](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/f646933ba80d867a4759f0a904aed0a24c220234))
+
+
+### Features
+
+* **overview:** reload an overview from its item in the sidebar ([f3fe3fc](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/f3fe3fcb044ce1f9337bed4ccbdb9b0d5db869bc))
+* **overview:** reload the overview from a button and its context menu ([73e1a25](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/73e1a25aba17ea755bdb43de9406263bd6b25d66))
+* **overview:** show the sidebar reload as an inline icon ([ec16cea](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/ec16cea7a73ae7187df522cfb141116a25a7588a))
+* **review:** review a merge request commit by commit ([f11b9ae](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/f11b9ae70499bee885fc24f2a0dc555c1015658d))
+* **review:** show the changes since your last review ([e82a087](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/e82a08782074176c917884f079b1a3f4a543d8a6))
+* **side-by-side:** follow vs code keybindings in the diff panes ([476abfc](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/476abfcf4e0942023118713cb82cd8147d32f93c))
+* **side-by-side:** go to source from the diff panes ([8671e54](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/8671e543b2d5ea4ed3cf28da310d252c8bbcbacb))
+* suggest people to mention when typing @ in a comment ([ac900ca](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/ac900cae0011596fe8946cea627ac2ed127258b1))
+
+
+
 ## [0.0.4](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v0.0.3...v0.0.4) (2026-10-18)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
