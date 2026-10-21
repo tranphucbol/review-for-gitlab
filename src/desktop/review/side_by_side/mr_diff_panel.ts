@@ -16,6 +16,7 @@ import { UnsupportedVersionError } from '../../errors/unsupported_version_error'
 import { UserFriendlyError } from '../../errors/user_friendly_error';
 import { getBaseAndHeadUri } from '../../tree_view/items/changed_file_item';
 import { getMentionCandidates } from '../../mentions/mention_candidates';
+import { diffTitleSuffix, getScope, isReadOnlyVersion } from '../commits/commit_versions';
 import { makeHtmlLinksAbsolute } from '../../utils/make_html_links_absolute';
 import { findFileInDiffs } from '../../utils/find_file_in_diffs';
 import { READ_ONLY_VERSION_MESSAGE } from '../versions/mr_version_comparison';
@@ -267,6 +268,8 @@ export class MrDiffPanel {
   /** The file in the latest version of the merge request, if that is not the version shown. */
   async #newerTarget(): Promise<MrDiffTarget | undefined> {
     const { mr, file } = this.#target;
+    // a commit never changes, and its view must not turn into the merge request's
+    if (getScope(this.#target.mrVersion)) return undefined;
     const { mrVersion } = await mrCache.reloadMr(mr, this.#projectInRepository);
     if (isSameVersion(this.#target.mrVersion, mrVersion)) return undefined;
     // a comparison keeps its two versions; only where new comments go changes
@@ -578,7 +581,7 @@ export class MrDiffPanel {
         discussions: comparison
           ? toComparisonDiscussions(discussions, comparison.version, file)
           : toDiffDiscussions(discussions, mrVersion, file),
-        canComment,
+        canComment: canComment && !isReadOnlyVersion(mrVersion),
       };
     } catch (e) {
       if (e instanceof UnsupportedVersionError) {
@@ -638,6 +641,12 @@ export class MrDiffPanel {
       throw new UserFriendlyError(
         "GitLab didn't return a diff for this file because it is too large, so it doesn't accept new comments on it.",
         new Error(`Empty diff for ${file.new_path}`),
+      );
+    }
+    if (isReadOnlyVersion(mrVersion)) {
+      throw new UserFriendlyError(
+        "This commit has no parent, so GitLab can't place a comment on it. Comment on the full merge request diff.",
+        new Error(`No parent for ${mrVersion.head_commit_sha}`),
       );
     }
     await getGitLabService(this.#projectInRepository).createDiffNote(
@@ -841,7 +850,7 @@ export class MrDiffPanel {
       VS_COMMANDS.DIFF,
       baseFileUri,
       headFileUri,
-      `${path.basename(file.new_path)} (!${mr.iid}${suffix})`,
+      `${path.basename(file.new_path)} (${diffTitleSuffix(mr, mrVersion)}${suffix})`,
     );
   }
 

@@ -15,6 +15,7 @@ import { MrDiffPanelController } from './mr_diff_panel_controller';
 import { FromWebviewMessage } from './messages';
 import { MAX_FILE_BYTES } from './mr_diff_panel';
 import { MAX_IMAGE_BYTES } from '../comment_attachment_provider';
+import { toCommitVersion } from '../commits/commit_versions';
 
 jest.mock('../../../common/utils/webviews/prepare_webview_source', () => ({
   prepareWebviewSource: jest.fn().mockResolvedValue('preparedWebviewSource'),
@@ -283,6 +284,34 @@ describe('MrDiffPanelController', () => {
         mr.project_id,
       );
       expect(commandsAfterLastInit()).toEqual(['discussions', 'localState']);
+    });
+
+    describe('a commit of the merge request', () => {
+      const commitTarget = {
+        ...target,
+        mrVersion: toCommitVersion('parent1', 'newer-head', newerVersion.diffs, mrVersion.id),
+        file: newerVersion.diffs[0],
+      };
+
+      it('opens beside the merge request view of the same file, titled with the commit', async () => {
+        await controller.open(target);
+        await controller.open(commitTarget);
+
+        expect(vscode.window.createWebviewPanel).toHaveBeenCalledTimes(2);
+        expect(jest.mocked(vscode.window.createWebviewPanel).mock.calls[1][1]).toBe(
+          'new_file.js (newer-h · !2000) ↔',
+        );
+      });
+
+      it('stays on the commit on refresh', async () => {
+        jest.mocked(gitlabService.getMrDiff).mockResolvedValue(mrVersion);
+        await controller.open(commitTarget);
+        await sendToHost({ command: 'refresh' });
+
+        expect(gitlabService.getMrDiff).not.toHaveBeenCalled();
+        expect(inits()).toEqual([]);
+        expect(gitlabService.getDiscussions).toHaveBeenCalled();
+      });
     });
 
     it('posts only the latest version when an older one finishes loading last', async () => {
@@ -588,6 +617,24 @@ describe('MrDiffPanelController', () => {
       expect(gitlabService.createDiffNote).not.toHaveBeenCalled();
       expect(postedMessages()).toEqual([
         { command: 'result', requestId: 1, error: expect.stringContaining('too large') },
+      ]);
+    });
+
+    it('refuses a new thread on a commit without a parent', async () => {
+      const rootCommit = toCommitVersion(undefined, 'root', [diffFile], mrVersion.id);
+      await controller.open({ ...target, mrVersion: rootCommit });
+      await sendToHost({
+        command: 'createThread',
+        requestId: 1,
+        generation: 1,
+        side: 'new',
+        line: 2,
+        body: 'hi',
+      });
+
+      expect(gitlabService.createDiffNote).not.toHaveBeenCalled();
+      expect(postedMessages()).toEqual([
+        { command: 'result', requestId: 1, error: expect.stringContaining('no parent') },
       ]);
     });
 

@@ -18,6 +18,14 @@ describe('review_uri.ts', () => {
         'gl-review:///review?{"commit":"abcdef","exists":"1","mrId":2345,"projectId":1234,"repositoryRoot":"path/to/workspace"}',
       );
     });
+
+    it('adds the scope of a commit only when there is one', () => {
+      const result = toReviewUri({ ...reviewUriParams, scope: 'parent..abcdef' });
+
+      expect(result.toString()).toEqual(
+        'gl-review:///review?{"commit":"abcdef","exists":"1","mrId":2345,"projectId":1234,"repositoryRoot":"path/to/workspace","scope":"parent..abcdef"}',
+      );
+    });
   });
 
   describe('fromReviewUri', () => {
@@ -25,6 +33,12 @@ describe('review_uri.ts', () => {
       const result = fromReviewUri(toReviewUri(reviewUriParams));
 
       expect(result).toEqual(reviewUriParams);
+    });
+
+    it('reads the scope back', () => {
+      const params = { ...reviewUriParams, scope: 'parent..abcdef' };
+
+      expect(fromReviewUri(toReviewUri(params))).toEqual(params);
     });
   });
 

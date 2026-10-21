@@ -104,6 +104,25 @@ interface RestMrVersion {
   base_commit_sha: string;
   start_commit_sha: string;
   diffs: RestDiffFile[];
+  /** fork-only: the version detail lists the merge request's commits, newest first */
+  commits?: RestCommit[];
+}
+
+/** `parent_ids` is always empty in a merge request's commit list on GitLab 13.12 */
+interface RestCommit {
+  id: string;
+  short_id: string;
+  title: string;
+  message: string;
+  author_name: string;
+  authored_date: string;
+  created_at: string;
+  parent_ids?: string[];
+  web_url?: string;
+}
+
+interface RestCommitDetail extends RestCommit {
+  parent_ids: string[];
 }
 
 /** An entry of `GET /projects/:id/merge_requests/:iid/versions`, without its diffs */

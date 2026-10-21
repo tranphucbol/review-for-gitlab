@@ -15,6 +15,8 @@ import { ChangedFolderItem } from './changed_folder_item';
 import { ChangedFileItem, getBaseAndHeadUri } from './changed_file_item';
 import { asMock } from '../../test_utils/as_mock';
 import { getGitLabService } from '../../gitlab/get_gitlab_service';
+import { CommitsItem } from '../../review/commits/commits_item';
+import { FetchError } from '../../errors/fetch_error';
 
 jest.mock('../../gitlab/get_gitlab_service');
 
@@ -33,6 +35,7 @@ describe('MrItemModel', () => {
     gitLabService = {
       getDiscussions: jest.fn().mockResolvedValue([discussionOnDiff, multipleNotes]),
       getMrDiff: jest.fn().mockResolvedValue({ diffs: [] }),
+      getMrCommits: jest.fn().mockResolvedValue([]),
       canUserCommentOnMr: jest.fn(async () => canUserCommentOnMr),
     };
     asMock(getGitLabService).mockReturnValue(gitLabService);
@@ -129,16 +132,79 @@ describe('MrItemModel', () => {
   it('should return changed file items as children', async () => {
     gitLabService.getMrDiff = jest.fn().mockResolvedValue(mrVersion);
     await setSidebarViewState(SidebarViewState.ListView);
-    const [, changedItem] = await item.getChildren();
+    const [, , changedItem] = await item.getChildren();
     expect(changedItem.resourceUri?.path).toBe('.deleted.yml');
     expect(changedItem.resourceUri?.query).toMatch(`${CHANGE_TYPE_QUERY_KEY}=deleted`);
     expect(changedItem.resourceUri?.query).toMatch(`${HAS_COMMENTS_QUERY_KEY}=false`);
   });
 
+  it('lists the commits of the version after the overview', async () => {
+    gitLabService.getMrDiff = jest.fn().mockResolvedValue(mrVersion);
+    const [, commitsItem] = await item.getChildren();
+    expect(commitsItem).toBeInstanceOf(CommitsItem);
+    expect(commitsItem.label).toBe('Commits (4)');
+  });
+
+  it('leaves the commits out when GitLab has no commit list', async () => {
+    gitLabService.getMrDiff = jest.fn().mockResolvedValue({ ...mrVersion, commits: undefined });
+    gitLabService.getMrCommits = jest
+      .fn()
+      .mockRejectedValue(new FetchError({ status: 404 } as Response, 'MR commits'));
+    const children = await item.getChildren();
+    expect(children.some(c => c instanceof CommitsItem)).toBe(false);
+  });
+
+  const discussionOnCommit = (headSha: string) => {
+    const [note] = discussionOnDiff.notes.nodes;
+    return {
+      ...discussionOnDiff,
+      notes: {
+        ...discussionOnDiff.notes,
+        nodes: [
+          {
+            ...note,
+            position: {
+              ...note.position,
+              oldLine: null,
+              newLine: 5,
+              diffRefs: { ...note.position.diffRefs, headSha },
+            },
+          },
+        ],
+      },
+    };
+  };
+
+  it('keeps a discussion left on an earlier commit for that commit', async () => {
+    const onEarlierCommit = discussionOnCommit(mrVersion.commits[1].id);
+    gitLabService.getMrDiff = jest.fn().mockResolvedValue(mrVersion);
+    gitLabService.getDiscussions = jest.fn().mockResolvedValue([discussionOnDiff, onEarlierCommit]);
+
+    await item.getChildren();
+
+    expect(createCommentThreadMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("leaves a discussion on an older version's head where a comparison shows it", async () => {
+    const olderHead = mrVersion.commits[1].id;
+    gitLabService.getMrDiff = jest.fn().mockResolvedValue({ ...mrVersion, id: 9999 });
+    gitLabService.getMrVersions = jest.fn().mockResolvedValue([
+      { ...mrVersion, id: 9999, state: 'collected', created_at: '' },
+      { ...mrVersion, id: 9998, head_commit_sha: olderHead, state: 'collected', created_at: '' },
+    ]);
+    gitLabService.getDiscussions = jest
+      .fn()
+      .mockResolvedValue([discussionOnDiff, discussionOnCommit(olderHead)]);
+
+    await item.getChildren();
+
+    expect(createCommentThreadMock).toHaveBeenCalledTimes(2);
+  });
+
   it('should return changed file items in tree view', async () => {
     gitLabService.getMrDiff = jest.fn().mockResolvedValue(mrVersion);
     await setSidebarViewState(SidebarViewState.TreeView);
-    const [, folderItem, fileItem] = await item.getChildren();
+    const [, , folderItem, fileItem] = await item.getChildren();
 
     expect(folderItem).toBeInstanceOf(ChangedFolderItem);
     expect(folderItem.label).toBe('src');

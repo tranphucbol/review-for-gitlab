@@ -4,7 +4,7 @@ import { REVIEW_URI_SCHEME } from '../constants';
 import { fromReviewUri } from '../review/review_uri';
 import { removeLeadingSlash } from '../utils/remove_leading_slash';
 import { gitlabProjectRepository } from '../gitlab/gitlab_project_repository';
-import { mrCache } from '../gitlab/mr_cache';
+import { getCachedMrForReviewUri } from '../review/commits/commit_versions';
 import { ChangedFileItem } from '../tree_view/items/changed_file_item';
 import { mrDiffPanelController } from '../review/side_by_side/mr_diff_panel_controller';
 import { mrVersionComparisons, toDiffComparison } from '../review/versions/mr_version_comparison';
@@ -35,7 +35,7 @@ const openFromReviewUri = async (uri: vscode.Uri, baseUri?: vscode.Uri): Promise
   const params = fromReviewUri(uri);
   assert(params.path);
   const projectInRepository = gitlabProjectRepository.getProjectOrFail(params.repositoryRoot);
-  const cachedMr = mrCache.getMr(params.mrId, projectInRepository);
+  const cachedMr = getCachedMrForReviewUri(params, projectInRepository);
   assert(cachedMr, 'The merge request is not loaded. Refresh the side panel and try again.');
   const comparison = findComparison(
     cachedMr.mrVersion,

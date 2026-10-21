@@ -11,6 +11,8 @@ export interface ReviewParams {
   repositoryRoot: string;
   projectId: number;
   mrId: number;
+  // fork-only: `parentSha..sha` when the file belongs to one commit's diff, see docs/plans/014
+  scope?: string;
 }
 
 export function toReviewUri({
@@ -21,8 +23,17 @@ export function toReviewUri({
   repositoryRoot,
   projectId,
   mrId,
+  scope,
 }: ReviewParams): Uri {
-  const query = { commit, change, exists: exists ? '1' : '', repositoryRoot, projectId, mrId };
+  const query = {
+    commit,
+    change,
+    exists: exists ? '1' : '',
+    repositoryRoot,
+    projectId,
+    mrId,
+    scope,
+  };
   return Uri.file(path).with({
     scheme: REVIEW_URI_SCHEME,
     query: jsonStringifyWithSortedKeys(query),
@@ -30,7 +41,7 @@ export function toReviewUri({
 }
 
 export function fromReviewUri(uri: Uri): ReviewParams {
-  const { commit, change, exists, repositoryRoot, projectId, mrId } = JSON.parse(uri.query);
+  const { commit, change, exists, repositoryRoot, projectId, mrId, scope } = JSON.parse(uri.query);
   return {
     path: uri.path,
     exists: !!exists,
@@ -39,6 +50,7 @@ export function fromReviewUri(uri: Uri): ReviewParams {
     repositoryRoot,
     projectId,
     mrId,
+    scope,
   };
 }
 

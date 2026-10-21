@@ -6,18 +6,25 @@ import { prepareWebviewSource } from '../../../common/utils/webviews/prepare_web
 import { RepositoryRootWebviewProvider } from '../../commands/run_with_valid_project';
 import { WEBVIEW_MR_DIFF } from '../../constants';
 import { initDiffKeybindings } from './diff_keybindings';
+import { diffTitleSuffix, getScope } from '../commits/commit_versions';
 import { DiffAction } from './messages';
 import { MrDiffPanel, MrDiffTarget } from './mr_diff_panel';
 
-const panelTitle = ({ mr, file, comparison }: MrDiffTarget) =>
-  `${path.basename(file.new_path)} (!${mr.iid}${comparison ? ` ${comparison.label}` : ''}) ↔`;
+const panelTitle = ({ mr, mrVersion, file, comparison }: MrDiffTarget) =>
+  `${path.basename(file.new_path)} (${diffTitleSuffix(mr, mrVersion)}${
+    comparison ? ` ${comparison.label}` : ''
+  }) ↔`;
 
-/** one view per file of a merge request, and one per file of each comparison of its versions */
-const panelKey = ({ repositoryRoot, mr, file, comparison }: MrDiffTarget) => {
+/**
+ * one view per file of a merge request, one per file of each comparison of its versions, and
+ * one per file of each of its commits
+ */
+const panelKey = ({ repositoryRoot, mr, mrVersion, file, comparison }: MrDiffTarget) => {
   const versions = comparison
     ? `:${comparison.version.base_commit_sha}..${comparison.version.head_commit_sha}`
     : '';
-  return `${repositoryRoot}:${mr.id}:${file.new_path}${versions}`;
+  const scope = getScope(mrVersion);
+  return `${repositoryRoot}:${mr.id}:${file.new_path}${versions}${scope ? `:${scope}` : ''}`;
 };
 
 export class MrDiffPanelController implements RepositoryRootWebviewProvider {

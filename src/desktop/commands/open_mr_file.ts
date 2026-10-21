@@ -6,7 +6,7 @@ import { VS_COMMANDS } from '../command_names';
 import { fromReviewUri, isEmptyFileUri } from '../review/review_uri';
 import { removeLeadingSlash } from '../utils/remove_leading_slash';
 import { gitlabProjectRepository } from '../gitlab/gitlab_project_repository';
-import { mrCache } from '../gitlab/mr_cache';
+import { getCachedMrForReviewUri } from '../review/commits/commit_versions';
 import { ChangedFileItem } from '../tree_view/items/changed_file_item';
 
 /** returns true if file exists, false if it doesn't */
@@ -27,7 +27,7 @@ const openMrFileFromUri = async (uri: vscode.Uri): Promise<void> => {
   const params = fromReviewUri(uri);
   assert(params.path);
   const projectInRepository = gitlabProjectRepository.getProjectOrFail(params.repositoryRoot);
-  const cachedMr = mrCache.getMr(params.mrId, projectInRepository);
+  const cachedMr = getCachedMrForReviewUri(params, projectInRepository);
   assert(cachedMr);
   const diff = findDiffWithPath(cachedMr.mrVersion.diffs, removeLeadingSlash(params.path));
   assert(diff, 'Extension did not find the file in the MR, please refresh the side panel.');

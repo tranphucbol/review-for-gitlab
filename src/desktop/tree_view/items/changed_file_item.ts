@@ -11,6 +11,7 @@ import {
   CHANGE_TYPE_QUERY_KEY,
   HAS_COMMENTS_QUERY_KEY,
 } from '../../constants';
+import { diffTitleSuffix, getScope } from '../../review/commits/commit_versions';
 
 export type ChangeType = typeof ADDED | typeof DELETED | typeof RENAMED | typeof MODIFIED;
 export type HasCommentsFn = (reviewUri: vscode.Uri) => boolean;
@@ -66,6 +67,7 @@ export const getBaseAndHeadUri = (
     repositoryRoot: repositoryPath,
     projectId: mr.project_id,
     mrId: mr.id,
+    scope: getScope(mrVersion),
   };
   const baseFileUri = toReviewUri({
     ...commonParams,
@@ -135,7 +137,7 @@ export class ChangedFileItem extends vscode.TreeItem {
         arguments: [
           this.baseFileUri,
           this.headFileUri,
-          `${path.basename(file.new_path)} (!${mr.iid})`,
+          `${path.basename(file.new_path)} (${diffTitleSuffix(mr, mrVersion)})`,
         ],
       };
     }
