@@ -467,11 +467,25 @@ export class GitLabService {
 
   // This method has to use REST API till https://gitlab.com/gitlab-org/gitlab/-/issues/280803 gets done
   async getMrDiff(mr: RestMr): Promise<RestMrVersion> {
+    const versions = await this.getMrVersions(mr);
+    return this.getMrVersion(mr, versions[0].id);
+  }
+
+  // fork-only: every version of a merge request, newest first, see docs/plans/013
+  async getMrVersions(mr: RestMr): Promise<RestMrVersionSummary[]> {
     const versionsPath = `/projects/${mr.project_id}/merge_requests/${mr.iid}/versions`;
-    const versions = await this.fetch<RestMrVersion[]>(versionsPath, {}, 'MR versions');
-    const lastVersion = versions[0];
-    const lastVersionPath = `/projects/${mr.project_id}/merge_requests/${mr.iid}/versions/${lastVersion.id}`;
-    return this.fetch(lastVersionPath, {}, 'MR diff');
+    return this.fetch<RestMrVersionSummary[]>(versionsPath, {}, 'MR versions');
+  }
+
+  async getMrVersion(mr: RestMr, versionId: number): Promise<RestMrVersion> {
+    const versionPath = `/projects/${mr.project_id}/merge_requests/${mr.iid}/versions/${versionId}`;
+    return this.fetch(versionPath, {}, 'MR diff');
+  }
+
+  // fork-only: the diff between two commits, as the changes between two merge request versions
+  async compareCommits(projectId: number, from: string, to: string): Promise<RestCompare> {
+    const comparePath = `/projects/${projectId}/repository/compare`;
+    return this.fetch<RestCompare>(comparePath, { from, to, straight: true }, 'comparison');
   }
 
   async getFileContent(

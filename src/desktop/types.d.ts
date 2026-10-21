@@ -106,6 +106,17 @@ interface RestMrVersion {
   diffs: RestDiffFile[];
 }
 
+/** An entry of `GET /projects/:id/merge_requests/:iid/versions`, without its diffs */
+interface RestMrVersionSummary {
+  id: number;
+  head_commit_sha: string;
+  base_commit_sha: string;
+  start_commit_sha: string;
+  created_at: string;
+  /** `collected`, or `without_files` / `overflow` when the version's diffs are incomplete */
+  state: string;
+}
+
 interface RestDiffFile {
   new_path: string;
   old_path: string;
@@ -113,6 +124,12 @@ interface RestDiffFile {
   new_file: boolean;
   renamed_file: boolean;
   diff: string;
+}
+
+/** Response of `GET /projects/:id/repository/compare`, the fields the extension reads */
+interface RestCompare {
+  diffs: RestDiffFile[];
+  compare_timeout: boolean;
 }
 
 interface RestVulnerability {

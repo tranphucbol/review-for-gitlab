@@ -1,6 +1,8 @@
 import assert from 'assert';
 import * as vscode from 'vscode';
 import { FAILED_COMMENT_CONTEXT } from '../constants';
+import { UserFriendlyError } from '../errors/user_friendly_error';
+import { READ_ONLY_VERSION_MESSAGE } from '../review/versions/mr_version_comparison';
 import { getGitLabService } from '../gitlab/get_gitlab_service';
 import { gitlabProjectRepository } from '../gitlab/gitlab_project_repository';
 import { mrCache } from '../gitlab/mr_cache';
@@ -22,6 +24,13 @@ const createNewComment = async (
   assert(cachedMr);
   const { mr, mrVersion } = cachedMr;
   const isOld = commit === mrVersion.base_commit_sha;
+  // fork-only: a pane of an older version, opened to compare versions, is read-only
+  if (!isOld && commit !== mrVersion.head_commit_sha) {
+    throw new UserFriendlyError(
+      READ_ONLY_VERSION_MESSAGE,
+      new Error(`${commit} is not the head of the latest version`),
+    );
+  }
   const diff = findFileInDiffs(mrVersion.diffs, isOld ? { oldPath: path } : { newPath: path });
   assert(diff);
   if (diff.diff === '')

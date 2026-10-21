@@ -6,7 +6,13 @@ import { DEFAULT_FETCH_RESPONSE } from '../../common/__mocks__/fetch_logged';
 import { CustomQueryType } from '../../common/gitlab/custom_query_type';
 import { CustomQuery } from '../../common/gitlab/custom_query';
 import { asMock } from '../test_utils/as_mock';
-import { externalStatus, issue, mr, securityReportFinding } from '../test_utils/entities';
+import {
+  externalStatus,
+  issue,
+  mr,
+  mrVersion,
+  securityReportFinding,
+} from '../test_utils/entities';
 import { getExtensionConfiguration } from '../../common/utils/extension_configuration';
 import { getHttpAgentOptions } from './http/get_http_agent_options';
 import { testCredentials } from '../test_utils/test_credentials';
@@ -642,6 +648,45 @@ describe('gitlab_service', () => {
       await expect(
         service.validateVersion(TEST_FEATURE_NAME, featureVersion),
       ).resolves.toBeUndefined();
+    });
+  });
+
+  describe('merge request versions', () => {
+    const projectPath = `https://gitlab.example.com/api/v4/projects/${mr.project_id}`;
+    const mrPath = `${projectPath}/merge_requests/${mr.iid}`;
+    const fetchedUrls = () => (fetch as jest.Mock).mock.calls.map(([url]) => url);
+
+    it('reads the latest version for the diff', async () => {
+      asMock(fetch)
+        .mockResolvedValueOnce(crossFetchResponse([{ id: 7 }, { id: 6 }]))
+        .mockResolvedValueOnce(crossFetchResponse(mrVersion));
+
+      expect(await service.getMrDiff(mr)).toEqual(mrVersion);
+      expect(fetchedUrls()).toEqual([`${mrPath}/versions`, `${mrPath}/versions/7`]);
+    });
+
+    it('lists the versions', async () => {
+      asMock(fetch).mockResolvedValue(crossFetchResponse([{ id: 7 }]));
+
+      expect(await service.getMrVersions(mr)).toEqual([{ id: 7 }]);
+      expect(fetchedUrls()).toEqual([`${mrPath}/versions`]);
+    });
+
+    it('reads one version', async () => {
+      asMock(fetch).mockResolvedValue(crossFetchResponse(mrVersion));
+
+      expect(await service.getMrVersion(mr, 6)).toEqual(mrVersion);
+      expect(fetchedUrls()).toEqual([`${mrPath}/versions/6`]);
+    });
+
+    it('compares two commits straight', async () => {
+      asMock(fetch).mockResolvedValue(crossFetchResponse({ diffs: [], compare_timeout: false }));
+
+      await service.compareCommits(mr.project_id, 'abc', 'def');
+
+      expect(fetchedUrls()).toEqual([
+        `${projectPath}/repository/compare?from=abc&to=def&straight=true`,
+      ]);
     });
   });
 

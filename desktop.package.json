@@ -261,6 +261,24 @@
         "icon": "$(sync)"
       },
       {
+        "command": "gl.markMrAsReviewed",
+        "title": "Mark as Reviewed",
+        "category": "GitLab",
+        "icon": "$(check-all)"
+      },
+      {
+        "command": "gl.compareMrVersions",
+        "title": "Compare Merge Request Versions…",
+        "category": "GitLab",
+        "icon": "$(git-compare)"
+      },
+      {
+        "command": "gl.clearMrVersionComparison",
+        "title": "Clear Version Comparison",
+        "category": "GitLab",
+        "icon": "$(close)"
+      },
+      {
         "command": "gl.openJiraIssue",
         "title": "Open Jira Issue",
         "category": "GitLab",
@@ -541,6 +559,18 @@
           "when": "activeWebviewPanelId == 'glWorkflow'"
         },
         {
+          "command": "gl.markMrAsReviewed",
+          "when": "gitlab:validState"
+        },
+        {
+          "command": "gl.compareMrVersions",
+          "when": "gitlab:validState"
+        },
+        {
+          "command": "gl.clearMrVersionComparison",
+          "when": "false"
+        },
+        {
           "command": "gl.openJiraIssue",
           "when": "gitlab:validState && config.gitlab.jira.url"
         },
@@ -688,6 +718,21 @@
           "group": "inline"
         },
         {
+          "command": "gl.markMrAsReviewed",
+          "when": "view =~ /issuesAndMrs/ && viewItem =~ /mr-item-from-/",
+          "group": "1_versions@1"
+        },
+        {
+          "command": "gl.compareMrVersions",
+          "when": "view =~ /issuesAndMrs/ && viewItem =~ /mr-item-from-/",
+          "group": "1_versions@2"
+        },
+        {
+          "command": "gl.clearMrVersionComparison",
+          "when": "viewItem == mr-version-comparison-picked",
+          "group": "inline"
+        },
+        {
           "command": "gl.openInGitLab",
           "when": "viewItem =~ /web-openable/"
         },
@@ -827,6 +872,16 @@
           "command": "gl.mergeRequestActions",
           "when": "activeWebviewPanelId == 'gitlab.mergeRequestDiff'",
           "group": "navigation@-97"
+        },
+        {
+          "command": "gl.markMrAsReviewed",
+          "when": "resourceScheme == 'gl-review' && isInDiffEditor || activeWebviewPanelId == 'gitlab.mergeRequestDiff'",
+          "group": "1_versions@1"
+        },
+        {
+          "command": "gl.compareMrVersions",
+          "when": "resourceScheme == 'gl-review' && isInDiffEditor || activeWebviewPanelId == 'gitlab.mergeRequestDiff'",
+          "group": "1_versions@2"
         },
         {
           "command": "gl.mergeRequestActions",

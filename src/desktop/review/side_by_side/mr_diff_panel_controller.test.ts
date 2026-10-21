@@ -605,6 +605,105 @@ describe('MrDiffPanelController', () => {
     });
   });
 
+  describe('a comparison of two versions', () => {
+    const comparedVersion: RestMrVersion = {
+      ...mrVersion,
+      base_commit_sha: 'older-head',
+      start_commit_sha: 'older-head',
+      diffs: [diffFile],
+    };
+    const comparison = { version: comparedVersion, label: 'v2 → v5', rebased: true };
+    const comparing = { ...target, comparison };
+    const createThread = (side: 'old' | 'new') =>
+      sendToHost({
+        command: 'createThread',
+        requestId: 1,
+        generation: 1,
+        side,
+        line: 2,
+        body: 'hi',
+      });
+
+    it('opens its own panel, named after the versions', async () => {
+      const latest = await controller.open(target);
+      const compared = await controller.open(comparing);
+
+      expect(compared).not.toBe(latest);
+      expect(vscode.window.createWebviewPanel).toHaveBeenLastCalledWith(
+        expect.anything(),
+        'new_file.js (!2000 v2 → v5) ↔',
+        vscode.ViewColumn.Active,
+        expect.anything(),
+      );
+    });
+
+    it('reads the two heads and says what it compares', async () => {
+      await controller.open(comparing);
+      await sendToHost({ command: 'appReady' });
+
+      expect(getFileContent).toHaveBeenCalledWith(expect.anything(), 'old_file.js', 'older-head');
+      expect(postedMessages().find(m => m.command === 'init')).toMatchObject({
+        file: {
+          comparison: { label: 'v2 → v5', rebased: true },
+          commentableNewLines: [1, 2, 3, 4, 5, 6, 7],
+        },
+      });
+    });
+
+    it('turns the local change buttons off', async () => {
+      jest
+        .mocked(vscode.workspace.getConfiguration)
+        .mockReturnValue(
+          createFakePartial<vscode.WorkspaceConfiguration>({ showLocalChangeButtons: true }),
+        );
+      await controller.open(comparing);
+      await sendToHost({ command: 'appReady' });
+
+      expect(postedMessages().filter(m => m.command === 'localState')).toEqual([
+        expect.objectContaining({ enabled: false }),
+      ]);
+    });
+
+    it('places a new comment on the latest version', async () => {
+      await controller.open(comparing);
+      await createThread('new');
+
+      expect(gitlabService.createDiffNote).toHaveBeenCalledWith(
+        mr.id,
+        'hi',
+        expect.objectContaining({
+          newLine: 2,
+          baseSha: mrVersion.base_commit_sha,
+          headSha: mrVersion.head_commit_sha,
+        }),
+      );
+    });
+
+    it('refuses a new comment on the older version', async () => {
+      await controller.open(comparing);
+      await createThread('old');
+
+      expect(gitlabService.createDiffNote).not.toHaveBeenCalled();
+      expect(postedMessages()).toEqual([
+        { command: 'result', requestId: 1, error: expect.stringContaining('read-only') },
+      ]);
+    });
+
+    it('refuses every new comment when the newer version is not the latest', async () => {
+      await controller.open({
+        ...target,
+        comparison: { ...comparison, version: { ...comparedVersion, head_commit_sha: 'v4-head' } },
+      });
+      await sendToHost({ command: 'appReady' });
+      await createThread('new');
+
+      expect(postedMessages().find(m => m.command === 'init')).toMatchObject({
+        file: { commentableNewLines: [] },
+      });
+      expect(gitlabService.createDiffNote).not.toHaveBeenCalled();
+    });
+  });
+
   describe('image upload', () => {
     it('uploads the image to the merge request project and answers with its markdown', async () => {
       await controller.open(target);

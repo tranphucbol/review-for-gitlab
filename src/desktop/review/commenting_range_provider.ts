@@ -29,6 +29,8 @@ export class CommentingRangeProvider implements vscode.CommentingRangeProvider {
       const endOfRange = lastLineEmpty(document) ? document.lineCount - 2 : document.lineCount - 1;
       return [new vscode.Range(new vscode.Position(0, 0), new vscode.Position(endOfRange, 0))];
     }
+    // fork-only: a pane of an older version, opened to compare versions, is read-only
+    if (params.commit !== this.mrVersion.head_commit_sha) return [];
     const result = getAddedLinesForFile(this.mrVersion, params.path);
     return result.map(
       l => new vscode.Range(new vscode.Position(l - 1, 0), new vscode.Position(l - 1, 0)),

@@ -77,4 +77,23 @@ describe('CommentingRangeProvider', () => {
     // VS Code indexes lines starting with zero
     expect(ranges.map(r => r.start.line)).toEqual([0, 1, 2]);
   });
+
+  it('returns no ranges for the head of an older version, opened to compare versions', () => {
+    commentingRangeProvider = new CommentingRangeProvider(mr, {
+      ...mrVersion,
+      diffs: [{ ...diffFile, diff: threeNewLinesHunk }],
+    });
+    const olderHeadUri = toReviewUri({
+      ...commonUriParams,
+      commit: 'older-head',
+      path: diffFile.new_path,
+      exists: true,
+    });
+
+    const ranges = commentingRangeProvider.provideCommentingRanges({
+      uri: olderHeadUri,
+    } as vscode.TextDocument);
+
+    expect(ranges).toEqual([]);
+  });
 });

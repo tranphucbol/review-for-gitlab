@@ -53,6 +53,12 @@ import { applySnippetPatch } from './commands/apply_snippet_patch';
 import { openMrFile } from './commands/open_mr_file';
 import { openMrFileSideBySide } from './commands/open_mr_file_side_by_side';
 import { mrDiffPanelController } from './review/side_by_side/mr_diff_panel_controller';
+import {
+  clearMrVersionComparison,
+  compareMrVersions,
+  markMrAsReviewed,
+} from './review/versions/mr_version_commands';
+import { reviewedVersionStore } from './review/versions/reviewed_version_store';
 import { affectsEditorFont } from './review/side_by_side/editor_font';
 import { JIRA_CONFIG_SECTION } from './jira/jira_keys';
 import { openJiraIssue } from './jira/open_jira_issue';
@@ -164,6 +170,9 @@ const registerCommands = (context: vscode.ExtensionContext) => {
     [USER_COMMANDS.UPDATE_MR_BRANCH]: updateMrBranch,
     [USER_COMMANDS.MERGE_REQUEST_ACTIONS]: mergeRequestActions,
     [USER_COMMANDS.RELOAD_OVERVIEW]: reloadOverview,
+    [USER_COMMANDS.MARK_MR_AS_REVIEWED]: markMrAsReviewed,
+    [USER_COMMANDS.COMPARE_MR_VERSIONS]: compareMrVersions,
+    [USER_COMMANDS.CLEAR_MR_VERSION_COMPARISON]: clearMrVersionComparison,
     [USER_COMMANDS.OPEN_JIRA_ISSUE]: openJiraIssue,
     [USER_COMMANDS.OPEN_IN_GITLAB]: openInGitLab,
     [USER_COMMANDS.COPY_LINK_TO_CLIPBOARD]: copyLinkToClipboard,
@@ -282,6 +291,7 @@ export const activate = async (context: vscode.ExtensionContext) => {
   registerReviewLanguageFeatures(context);
   issuableController.init(context);
   mrDiffPanelController.init(context);
+  reviewedVersionStore.init(context.globalState);
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration(async e => {
       // changed files pick the command for the configured diff viewer when they render

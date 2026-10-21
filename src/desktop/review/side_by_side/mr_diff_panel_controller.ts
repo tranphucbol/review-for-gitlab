@@ -9,8 +9,16 @@ import { initDiffKeybindings } from './diff_keybindings';
 import { DiffAction } from './messages';
 import { MrDiffPanel, MrDiffTarget } from './mr_diff_panel';
 
-const panelTitle = ({ mr, file }: MrDiffTarget) =>
-  `${path.basename(file.new_path)} (!${mr.iid}) ↔`;
+const panelTitle = ({ mr, file, comparison }: MrDiffTarget) =>
+  `${path.basename(file.new_path)} (!${mr.iid}${comparison ? ` ${comparison.label}` : ''}) ↔`;
+
+/** one view per file of a merge request, and one per file of each comparison of its versions */
+const panelKey = ({ repositoryRoot, mr, file, comparison }: MrDiffTarget) => {
+  const versions = comparison
+    ? `:${comparison.version.base_commit_sha}..${comparison.version.head_commit_sha}`
+    : '';
+  return `${repositoryRoot}:${mr.id}:${file.new_path}${versions}`;
+};
 
 export class MrDiffPanelController implements RepositoryRootWebviewProvider {
   #context?: vscode.ExtensionContext;
@@ -24,7 +32,7 @@ export class MrDiffPanelController implements RepositoryRootWebviewProvider {
 
   async open(target: MrDiffTarget): Promise<vscode.WebviewPanel> {
     assert(this.#context);
-    const key = `${target.repositoryRoot}:${target.mr.id}:${target.file.new_path}`;
+    const key = panelKey(target);
     const existing = this.#panels.get(key);
     if (existing) {
       existing.panel.reveal();
