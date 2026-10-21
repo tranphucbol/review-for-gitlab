@@ -850,6 +850,11 @@
           "command": "gl.sideBySideGoToSourceFromMenu",
           "when": "webviewId == 'gitlab.mergeRequestDiff' && webviewSection == 'diffPane'",
           "group": "navigation@1"
+        },
+        {
+          "command": "gl.reloadOverview",
+          "when": "webviewId == 'glWorkflow'",
+          "group": "navigation"
         }
       ],
       "editor/title": [
@@ -901,13 +906,6 @@
         {
           "command": "gl.scrollToBottom",
           "when": "resourceScheme == 'gl-job-log'",
-          "group": "navigation"
-        }
-      ],
-      "webview/context": [
-        {
-          "command": "gl.reloadOverview",
-          "when": "webviewId == 'glWorkflow'",
           "group": "navigation"
         }
       ]
