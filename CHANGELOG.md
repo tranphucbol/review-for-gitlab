@@ -1,3 +1,15 @@
+## [0.0.6](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v0.0.5...v0.0.6) (2026-10-21)
+
+Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
+GitLab instances older than 15.5.
+
+
+### Features
+
+* **review:** open changed files and Comments panel threads in the side-by-side diff ([cba2bda](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/cba2bda7bbff7b7c41b1100f2f9eb2f0d36a5fd6))
+
+
+
 ## [0.0.5](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v0.0.4...v0.0.5) (2026-10-21)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
