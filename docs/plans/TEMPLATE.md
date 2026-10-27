@@ -141,7 +141,7 @@ Put compatibility spikes and high-risk assumptions before broad implementation.
 ### Build and static checks
 
 ```bash
-node --version         # must be v18.17.0
+node --version         # must be v24.22.1
 npm run lint
 npm run test:unit
 npm run package

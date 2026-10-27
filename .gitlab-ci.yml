@@ -23,7 +23,7 @@ workflow:
     - if: $CI_COMMIT_TAG
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
-image: node:18-slim
+image: node:24-slim
 
 stages:
   - test
@@ -222,7 +222,6 @@ publish:
 # identity that trusts this project's protected tags. See docs/decisions/015.
 publish-marketplace:
   stage: publish
-  image: node:22-slim
   rules:
     - if: '$CI_COMMIT_TAG =~ /^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/'
   needs:

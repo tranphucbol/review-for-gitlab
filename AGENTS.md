@@ -105,7 +105,8 @@ backfill records for code the fork did not write.
 
 ## Commands
 
-**Node 18.17.0** (`.tool-versions`), matching `node:18-slim` in CI.
+**Node 24.22.1** (`.tool-versions`), matching `node:24-slim` in CI. That is the
+toolchain's Node; the extension runs on VS Code's own, Node 18 in 1.82.
 
 ```sh
 npm ci
@@ -248,6 +249,13 @@ node scripts/release.mjs patch             # changelog, commit, tag, push after 
   `chunkFileNames` and turns `modulePreload` off, since a preload path is
   absolute and a webview cannot resolve it.
   [011](docs/decisions/011_mermaid-renders-lazily-in-the-overview.md)
+
+- **The toolchain's Node is not the extension's.** Builds and tests run on
+  Node 24; the bundle runs in VS Code 1.82's Node 18. esbuild's
+  `--target=node16.13`, `tsconfig.json`'s `ES2019` and `@types/node@13` keep
+  the source to what that runtime has; raising them is a decision about which
+  VS Code the fork supports, not a toolchain upgrade.
+  [021](docs/decisions/021_the-toolchain-runs-on-node-24.md)
 
 - **Stay close to upstream.** Prefer the smallest change in upstream's file
   over a parallel copy of it, keep upstream's naming and structure, and keep

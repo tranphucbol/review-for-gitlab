@@ -25,7 +25,7 @@ cost real time once.
 ## Quick start
 
 ```sh
-source ~/.nvm/nvm.sh && nvm use 18.17.0 >/dev/null   # every shell, every layer
+source ~/.nvm/nvm.sh && nvm use 24.22.1 >/dev/null   # every shell, every layer
 npm run lint && npm run test:unit                     # layer 1
 npm run test:integration                              # layer 2, about 3 minutes
 node .agents/skills/local-testing/scripts/go/run_go.js  # layer 3, after layer 2 built dist-desktop/

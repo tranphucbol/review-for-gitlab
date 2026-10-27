@@ -17,7 +17,7 @@ Use the next number: `<current package.json version>-beta.<N+1>`.
 ## Build
 
 ```sh
-source ~/.nvm/nvm.sh && nvm use 18.17.0 >/dev/null
+source ~/.nvm/nvm.sh && nvm use 24.22.1 >/dev/null
 npm pkg set version=3.101.3-beta.3     # changes only the version line
 npm run package                        # dist-desktop/jetbrain-gitlab-3.101.3-beta.3.vsix
 git checkout package.json              # the beta version is never committed
