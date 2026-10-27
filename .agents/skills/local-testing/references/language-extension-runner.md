@@ -24,7 +24,7 @@ its own.
 ## Run
 
 ```sh
-source ~/.nvm/nvm.sh && nvm use 18.17.0 >/dev/null
+source ~/.nvm/nvm.sh && nvm use 24.22.1 >/dev/null
 npm run prepare:test:integration
 node .agents/skills/local-testing/scripts/go/run_go.js
 ```

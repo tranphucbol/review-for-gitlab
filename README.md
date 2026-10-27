@@ -395,7 +395,7 @@ See [CHANGELOG.md](CHANGELOG.md).
 ## Development
 
 ```sh
-npm ci                    # Node 18.17.0; run it in webviews/vue and webviews/vue2 too
+npm ci                    # Node 24.22.1; run it in webviews/vue and webviews/vue2 too
 npm run watch:desktop     # esbuild watch into dist-desktop/
 npm run test:unit         # jest over src/
 npm run lint              # eslint, prettier and both webview lints

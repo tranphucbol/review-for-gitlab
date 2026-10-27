@@ -2,11 +2,11 @@
 
 ## Toolchain
 
-Node 18.17.0 (`.tool-versions`), the same as `node:18-slim` in CI. Start every
+Node 24.22.1 (`.tool-versions`), the same as `node:24-slim` in CI. Start every
 shell command with:
 
 ```sh
-source ~/.nvm/nvm.sh && nvm use 18.17.0 >/dev/null && <command>
+source ~/.nvm/nvm.sh && nvm use 24.22.1 >/dev/null && <command>
 ```
 
 Run `npm ci` in the root, `webviews/vue` and `webviews/vue2` once; `npm run lint`
