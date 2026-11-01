@@ -1,4 +1,4 @@
-# [0.1.0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v0.0.7...v0.1.0) (2026-11-01)
+# [0.1.0](https://github.com/tranphucbol/review-for-gitlab/compare/v0.0.7...v0.1.0) (2026-11-01)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
 GitLab instances older than 15.5.
@@ -13,14 +13,14 @@ keep their names, so they carry over.
 
 
 
-## [0.0.7](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v0.0.6...v0.0.7) (2026-10-27)
+## [0.0.7](https://github.com/tranphucbol/review-for-gitlab/compare/v0.0.6...v0.0.7) (2026-10-27)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
 GitLab instances older than 15.5.
 
 
 
-## [0.0.6](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v0.0.5...v0.0.6) (2026-10-21)
+## [0.0.6](https://github.com/tranphucbol/review-for-gitlab/compare/v0.0.5...v0.0.6) (2026-10-21)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
 GitLab instances older than 15.5.
@@ -28,11 +28,11 @@ GitLab instances older than 15.5.
 
 ### Features
 
-* **review:** open changed files and Comments panel threads in the side-by-side diff ([cba2bda](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/cba2bda7bbff7b7c41b1100f2f9eb2f0d36a5fd6))
+* **review:** open changed files and Comments panel threads in the side-by-side diff ([cba2bda](https://github.com/tranphucbol/review-for-gitlab/commit/cba2bda7bbff7b7c41b1100f2f9eb2f0d36a5fd6))
 
 
 
-## [0.0.5](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v0.0.4...v0.0.5) (2026-10-21)
+## [0.0.5](https://github.com/tranphucbol/review-for-gitlab/compare/v0.0.4...v0.0.5) (2026-10-21)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
 GitLab instances older than 15.5.
@@ -40,39 +40,39 @@ GitLab instances older than 15.5.
 
 ### Bug Fixes
 
-* restore Go to Source in the side-by-side diff's context menu ([94bccd3](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/94bccd3e34a99b991882f82b14cfbbc78c54c6c4))
-* **side-by-side:** hide Go to Source between lines ([9d85e23](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/9d85e2368fc475269687ab7c74da1d8d3d57ae84))
-* **side-by-side:** match source lines across long changed files ([f646933](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/f646933ba80d867a4759f0a904aed0a24c220234))
+* restore Go to Source in the side-by-side diff's context menu ([94bccd3](https://github.com/tranphucbol/review-for-gitlab/commit/94bccd3e34a99b991882f82b14cfbbc78c54c6c4))
+* **side-by-side:** hide Go to Source between lines ([9d85e23](https://github.com/tranphucbol/review-for-gitlab/commit/9d85e2368fc475269687ab7c74da1d8d3d57ae84))
+* **side-by-side:** match source lines across long changed files ([f646933](https://github.com/tranphucbol/review-for-gitlab/commit/f646933ba80d867a4759f0a904aed0a24c220234))
 
 
 ### Features
 
-* **overview:** reload an overview from its item in the sidebar ([f3fe3fc](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/f3fe3fcb044ce1f9337bed4ccbdb9b0d5db869bc))
-* **overview:** reload the overview from a button and its context menu ([73e1a25](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/73e1a25aba17ea755bdb43de9406263bd6b25d66))
-* **overview:** show the sidebar reload as an inline icon ([ec16cea](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/ec16cea7a73ae7187df522cfb141116a25a7588a))
-* **review:** review a merge request commit by commit ([f11b9ae](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/f11b9ae70499bee885fc24f2a0dc555c1015658d))
-* **review:** show the changes since your last review ([e82a087](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/e82a08782074176c917884f079b1a3f4a543d8a6))
-* **side-by-side:** follow vs code keybindings in the diff panes ([476abfc](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/476abfcf4e0942023118713cb82cd8147d32f93c))
-* **side-by-side:** go to source from the diff panes ([8671e54](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/8671e543b2d5ea4ed3cf28da310d252c8bbcbacb))
-* suggest people to mention when typing @ in a comment ([ac900ca](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/ac900cae0011596fe8946cea627ac2ed127258b1))
+* **overview:** reload an overview from its item in the sidebar ([f3fe3fc](https://github.com/tranphucbol/review-for-gitlab/commit/f3fe3fcb044ce1f9337bed4ccbdb9b0d5db869bc))
+* **overview:** reload the overview from a button and its context menu ([73e1a25](https://github.com/tranphucbol/review-for-gitlab/commit/73e1a25aba17ea755bdb43de9406263bd6b25d66))
+* **overview:** show the sidebar reload as an inline icon ([ec16cea](https://github.com/tranphucbol/review-for-gitlab/commit/ec16cea7a73ae7187df522cfb141116a25a7588a))
+* **review:** review a merge request commit by commit ([f11b9ae](https://github.com/tranphucbol/review-for-gitlab/commit/f11b9ae70499bee885fc24f2a0dc555c1015658d))
+* **review:** show the changes since your last review ([e82a087](https://github.com/tranphucbol/review-for-gitlab/commit/e82a08782074176c917884f079b1a3f4a543d8a6))
+* **side-by-side:** follow vs code keybindings in the diff panes ([476abfc](https://github.com/tranphucbol/review-for-gitlab/commit/476abfcf4e0942023118713cb82cd8147d32f93c))
+* **side-by-side:** go to source from the diff panes ([8671e54](https://github.com/tranphucbol/review-for-gitlab/commit/8671e543b2d5ea4ed3cf28da310d252c8bbcbacb))
+* suggest people to mention when typing @ in a comment ([ac900ca](https://github.com/tranphucbol/review-for-gitlab/commit/ac900cae0011596fe8946cea627ac2ed127258b1))
 
 
 
-## [0.0.4](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v0.0.3...v0.0.4) (2026-10-18)
-
-Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
-GitLab instances older than 15.5.
-
-
-
-## [0.0.3](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v0.0.2...v0.0.3) (2026-10-18)
+## [0.0.4](https://github.com/tranphucbol/review-for-gitlab/compare/v0.0.3...v0.0.4) (2026-10-18)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
 GitLab instances older than 15.5.
 
 
 
-## [0.0.2](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v0.0.1...v0.0.2) (2026-10-18)
+## [0.0.3](https://github.com/tranphucbol/review-for-gitlab/compare/v0.0.2...v0.0.3) (2026-10-18)
+
+Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
+GitLab instances older than 15.5.
+
+
+
+## [0.0.2](https://github.com/tranphucbol/review-for-gitlab/compare/v0.0.1...v0.0.2) (2026-10-18)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
 GitLab instances older than 15.5.
@@ -80,11 +80,11 @@ GitLab instances older than 15.5.
 
 ### Features
 
-* give the extension its own icon ([130af9c](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/130af9ceb8b1a81c8295fdf86e2a3e3248c33bd5))
+* give the extension its own icon ([130af9c](https://github.com/tranphucbol/review-for-gitlab/commit/130af9ceb8b1a81c8295fdf86e2a3e3248c33bd5))
 
 
 
-## [0.0.1](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.107.1...v0.0.1) (2026-10-18)
+## [0.0.1](https://github.com/tranphucbol/review-for-gitlab/compare/v3.107.1...v0.0.1) (2026-10-18)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
 GitLab instances older than 15.5.
@@ -92,12 +92,12 @@ GitLab instances older than 15.5.
 
 ### Bug Fixes
 
-* **release:** leave the 3.101.3-beta.0 tag out of the latest release too ([bea55a5](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/bea55a5ff4af5008a81533f45c4d67c6acaac230))
+* **release:** leave the 3.101.3-beta.0 tag out of the latest release too ([bea55a5](https://github.com/tranphucbol/review-for-gitlab/commit/bea55a5ff4af5008a81533f45c4d67c6acaac230))
 
 
 ### Features
 
-* publish to the Marketplace as tranphucbol.jetbrain-gitlab ([6b47d8a](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/6b47d8aa4bb6b17cbf8c63fcba26cabadaea6bcb))
+* publish to the Marketplace as tranphucbol.jetbrain-gitlab ([6b47d8a](https://github.com/tranphucbol/review-for-gitlab/commit/6b47d8aa4bb6b17cbf8c63fcba26cabadaea6bcb))
 
 
 ### BREAKING CHANGES
@@ -109,33 +109,14 @@ token.
 
 
 
-## [3.107.1](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.107.0...v3.107.1) (2026-10-18)
+## [3.107.1](https://github.com/tranphucbol/review-for-gitlab/compare/v3.107.0...v3.107.1) (2026-10-18)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
 GitLab instances older than 15.5.
 
 
 
-# [3.107.0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.106.0...v3.107.0) (2026-10-18)
-
-Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
-GitLab instances older than 15.5.
-
-
-### Bug Fixes
-
-* **review:** report failures and confirm actions the same way on every surface ([59f1c53](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/59f1c534e40d8cfcd2f778ac6a521e9ed099296f))
-
-
-### Features
-
-* **commands:** give the fork's commands and settings one style ([d534470](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/d534470bf7e0fccb5ec2ca1225fee1c51cb928c1))
-* **overview:** give the Overview composer preview, Escape and image paste ([d3b6566](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/d3b65662bba2622962332acf5dcd61b56cadfd59))
-* **webviews:** share the thread look between the Overview and the side-by-side diff ([a30f93a](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/a30f93a4b25227109fb8734bbbbf15efeec80121))
-
-
-
-# [3.106.0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.105.1...v3.106.0) (2026-10-17)
+# [3.107.0](https://github.com/tranphucbol/review-for-gitlab/compare/v3.106.0...v3.107.0) (2026-10-18)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
 GitLab instances older than 15.5.
@@ -143,30 +124,18 @@ GitLab instances older than 15.5.
 
 ### Bug Fixes
 
-* harden side-by-side diff, branch update and image uploads ([7025d87](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/7025d877dc1ac3cc0cef68880403d5c576b02d92))
-* **issuable:** render a reloaded note and description on the server again ([b204724](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/b204724f567a531811211f81d41dcb573acf8102))
-* **jira:** refresh the current branch view only after the extension state is ready ([6c10626](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/6c10626997c9eef863f8d347767315bea91aa73e))
-* **jira:** relink an open Overview when the Jira settings change ([c2ce056](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/c2ce056ec8aa76f434a5b796975e3cebeaa9cedc))
-* **mr-actions:** refresh views without waiting for the message to be dismissed ([2f7de61](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/2f7de61880f13cdaa67649cf096da197cbd37169))
-* **overview:** load merge request details so the sidebar shows the pipeline ([5ed69ed](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/5ed69ed52a3ff4889c654e8f882a81fb0963947e))
+* **review:** report failures and confirm actions the same way on every surface ([59f1c53](https://github.com/tranphucbol/review-for-gitlab/commit/59f1c534e40d8cfcd2f778ac6a521e9ed099296f))
 
 
 ### Features
 
-* **jira:** add gitlab.jira settings and the Jira key matcher ([cdbb8d6](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/cdbb8d6db3655658d2eb54dbed8acc2d182551af))
-* **jira:** link Jira keys in native review comments ([acee41e](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/acee41e2dd447964d81da8926a8dd333c85bd72f))
-* **jira:** link Jira keys in the issuable and side-by-side webviews ([62a1cb0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/62a1cb0f11050a9201468f1a85a82b3bc522396d))
-* **jira:** open the Jira issue of a branch or merge request ([db0fcf4](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/db0fcf46b7fee1870fc158e71d4aecf5ffc85f6a))
-* **mr-actions:** add merge request action methods to GitLabService ([c8c45a0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/c8c45a06c86472060bc306e53f27358efd0f69cf))
-* **mr-actions:** add the merge request actions quick pick ([9a7e590](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/9a7e590c3b3f54abaf54c154718dca17b94d5d4f))
-* **mr-actions:** edit reviewers, assignees and labels from the actions pick ([4721bb2](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/4721bb2c9165b6599d46fc4604f43a0e2302c125))
-* **mr-actions:** offer merge request actions from the Overview ([63cc437](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/63cc43773178b52fbd08e393238db05b5035b0c6))
-* **mr-actions:** offer merge request actions from the sidebar, review diffs and side-by-side view ([e8de0a9](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/e8de0a9cc05cf22642b55449052836679e7bbf42))
-* **overview:** theme the Overview with VS Code tokens and render Mermaid diagrams ([042e0e6](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/042e0e612e659e0a9d2ea096344b4e003545275f))
+* **commands:** give the fork's commands and settings one style ([d534470](https://github.com/tranphucbol/review-for-gitlab/commit/d534470bf7e0fccb5ec2ca1225fee1c51cb928c1))
+* **overview:** give the Overview composer preview, Escape and image paste ([d3b6566](https://github.com/tranphucbol/review-for-gitlab/commit/d3b65662bba2622962332acf5dcd61b56cadfd59))
+* **webviews:** share the thread look between the Overview and the side-by-side diff ([a30f93a](https://github.com/tranphucbol/review-for-gitlab/commit/a30f93a4b25227109fb8734bbbbf15efeec80121))
 
 
 
-## [3.105.1](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.105.0...v3.105.1) (2026-10-13)
+# [3.106.0](https://github.com/tranphucbol/review-for-gitlab/compare/v3.105.1...v3.106.0) (2026-10-17)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
 GitLab instances older than 15.5.
@@ -174,11 +143,42 @@ GitLab instances older than 15.5.
 
 ### Bug Fixes
 
-* show the latest merge request version in the side-by-side diff ([6bf729f](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/6bf729f228fdd2dfe7b8211682180e08f2ea21d5))
+* harden side-by-side diff, branch update and image uploads ([7025d87](https://github.com/tranphucbol/review-for-gitlab/commit/7025d877dc1ac3cc0cef68880403d5c576b02d92))
+* **issuable:** render a reloaded note and description on the server again ([b204724](https://github.com/tranphucbol/review-for-gitlab/commit/b204724f567a531811211f81d41dcb573acf8102))
+* **jira:** refresh the current branch view only after the extension state is ready ([6c10626](https://github.com/tranphucbol/review-for-gitlab/commit/6c10626997c9eef863f8d347767315bea91aa73e))
+* **jira:** relink an open Overview when the Jira settings change ([c2ce056](https://github.com/tranphucbol/review-for-gitlab/commit/c2ce056ec8aa76f434a5b796975e3cebeaa9cedc))
+* **mr-actions:** refresh views without waiting for the message to be dismissed ([2f7de61](https://github.com/tranphucbol/review-for-gitlab/commit/2f7de61880f13cdaa67649cf096da197cbd37169))
+* **overview:** load merge request details so the sidebar shows the pipeline ([5ed69ed](https://github.com/tranphucbol/review-for-gitlab/commit/5ed69ed52a3ff4889c654e8f882a81fb0963947e))
+
+
+### Features
+
+* **jira:** add gitlab.jira settings and the Jira key matcher ([cdbb8d6](https://github.com/tranphucbol/review-for-gitlab/commit/cdbb8d6db3655658d2eb54dbed8acc2d182551af))
+* **jira:** link Jira keys in native review comments ([acee41e](https://github.com/tranphucbol/review-for-gitlab/commit/acee41e2dd447964d81da8926a8dd333c85bd72f))
+* **jira:** link Jira keys in the issuable and side-by-side webviews ([62a1cb0](https://github.com/tranphucbol/review-for-gitlab/commit/62a1cb0f11050a9201468f1a85a82b3bc522396d))
+* **jira:** open the Jira issue of a branch or merge request ([db0fcf4](https://github.com/tranphucbol/review-for-gitlab/commit/db0fcf46b7fee1870fc158e71d4aecf5ffc85f6a))
+* **mr-actions:** add merge request action methods to GitLabService ([c8c45a0](https://github.com/tranphucbol/review-for-gitlab/commit/c8c45a06c86472060bc306e53f27358efd0f69cf))
+* **mr-actions:** add the merge request actions quick pick ([9a7e590](https://github.com/tranphucbol/review-for-gitlab/commit/9a7e590c3b3f54abaf54c154718dca17b94d5d4f))
+* **mr-actions:** edit reviewers, assignees and labels from the actions pick ([4721bb2](https://github.com/tranphucbol/review-for-gitlab/commit/4721bb2c9165b6599d46fc4604f43a0e2302c125))
+* **mr-actions:** offer merge request actions from the Overview ([63cc437](https://github.com/tranphucbol/review-for-gitlab/commit/63cc43773178b52fbd08e393238db05b5035b0c6))
+* **mr-actions:** offer merge request actions from the sidebar, review diffs and side-by-side view ([e8de0a9](https://github.com/tranphucbol/review-for-gitlab/commit/e8de0a9cc05cf22642b55449052836679e7bbf42))
+* **overview:** theme the Overview with VS Code tokens and render Mermaid diagrams ([042e0e6](https://github.com/tranphucbol/review-for-gitlab/commit/042e0e612e659e0a9d2ea096344b4e003545275f))
 
 
 
-# [3.105.0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.104.0...v3.105.0) (2026-10-12)
+## [3.105.1](https://github.com/tranphucbol/review-for-gitlab/compare/v3.105.0...v3.105.1) (2026-10-13)
+
+Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
+GitLab instances older than 15.5.
+
+
+### Bug Fixes
+
+* show the latest merge request version in the side-by-side diff ([6bf729f](https://github.com/tranphucbol/review-for-gitlab/commit/6bf729f228fdd2dfe7b8211682180e08f2ea21d5))
+
+
+
+# [3.105.0](https://github.com/tranphucbol/review-for-gitlab/compare/v3.104.0...v3.105.0) (2026-10-12)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
 GitLab instances older than 15.5.
@@ -186,24 +186,11 @@ GitLab instances older than 15.5.
 
 ### Features
 
-* preview side-by-side diff comments as gitlab renders them ([72f96eb](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/72f96eb991c7be3aa1e6056faa8533ecd79aa62d))
+* preview side-by-side diff comments as gitlab renders them ([72f96eb](https://github.com/tranphucbol/review-for-gitlab/commit/72f96eb991c7be3aa1e6056faa8533ecd79aa62d))
 
 
 
-# [3.104.0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.103.0...v3.104.0) (2026-10-12)
-
-Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
-GitLab instances older than 15.5.
-
-
-### Features
-
-* add fetch and update merge request branch command ([17cddee](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/17cddee76040637e7c59443605b7604f07eb6c69))
-* highlight code blocks in side-by-side diff comments ([14e7d32](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/14e7d3259c8e9fccce5f7bb2c5569d6efdfaf626))
-
-
-
-# [3.103.0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.102.0...v3.103.0) (2026-10-07)
+# [3.104.0](https://github.com/tranphucbol/review-for-gitlab/compare/v3.103.0...v3.104.0) (2026-10-12)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
 GitLab instances older than 15.5.
@@ -211,23 +198,12 @@ GitLab instances older than 15.5.
 
 ### Features
 
-* show an added or deleted file as one pane in the side-by-side diff ([87d4ecd](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/87d4ecdea12b940fce1eda10e780c9f4e3eb1b98))
+* add fetch and update merge request branch command ([17cddee](https://github.com/tranphucbol/review-for-gitlab/commit/17cddee76040637e7c59443605b7604f07eb6c69))
+* highlight code blocks in side-by-side diff comments ([14e7d32](https://github.com/tranphucbol/review-for-gitlab/commit/14e7d3259c8e9fccce5f7bb2c5569d6efdfaf626))
 
 
 
-# [3.102.0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.101.3-beta.0...v3.102.0) (2026-10-06)
-
-Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
-GitLab instances older than 15.5.
-
-
-### Features
-
-* **review:** opt-in side-by-side merge request diff view ([6a25829](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/6a258299e7906a13a77898e61882a75829a6d97e))
-
-
-
-## [3.101.3-beta.0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.101.2...v3.101.3-beta.0) (2026-09-26)
+# [3.103.0](https://github.com/tranphucbol/review-for-gitlab/compare/v3.102.0...v3.103.0) (2026-10-07)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
 GitLab instances older than 15.5.
@@ -235,19 +211,43 @@ GitLab instances older than 15.5.
 
 ### Features
 
-* add GitLab comment image uploads ([80e18ce](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/80e18ce583ead0574394d9269104e79ee941225f))
-* **review:** borrow code navigation from identical local file ([fc4a32d](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/fc4a32d685d1b2e7ec67633cfa9033c86dd677ea))
+* show an added or deleted file as one pane in the side-by-side diff ([87d4ecd](https://github.com/tranphucbol/review-for-gitlab/commit/87d4ecdea12b940fce1eda10e780c9f4e3eb1b98))
 
 
 
-## [3.101.2](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v3.101.1...v3.101.2) (2026-09-13)
+# [3.102.0](https://github.com/tranphucbol/review-for-gitlab/compare/v3.101.3-beta.0...v3.102.0) (2026-10-06)
+
+Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
+GitLab instances older than 15.5.
+
+
+### Features
+
+* **review:** opt-in side-by-side merge request diff view ([6a25829](https://github.com/tranphucbol/review-for-gitlab/commit/6a258299e7906a13a77898e61882a75829a6d97e))
+
+
+
+## [3.101.3-beta.0](https://github.com/tranphucbol/review-for-gitlab/compare/v3.101.2...v3.101.3-beta.0) (2026-09-26)
+
+Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
+GitLab instances older than 15.5.
+
+
+### Features
+
+* add GitLab comment image uploads ([80e18ce](https://github.com/tranphucbol/review-for-gitlab/commit/80e18ce583ead0574394d9269104e79ee941225f))
+* **review:** borrow code navigation from identical local file ([fc4a32d](https://github.com/tranphucbol/review-for-gitlab/commit/fc4a32d685d1b2e7ec67633cfa9033c86dd677ea))
+
+
+
+## [3.101.2](https://github.com/tranphucbol/review-for-gitlab/compare/v3.101.1...v3.101.2) (2026-09-13)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
 GitLab instances older than 15.5.
 
 ### Bug Fixes
 
-* allow adding accounts on GitLab instances older than 15.5 ([c0439e2](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/commit/c0439e2c566f53d448f19be508e2900fb8428721))
+* allow adding accounts on GitLab instances older than 15.5 ([c0439e2](https://github.com/tranphucbol/review-for-gitlab/commit/c0439e2c566f53d448f19be508e2900fb8428721))
 
 
 
