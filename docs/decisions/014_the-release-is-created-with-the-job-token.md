@@ -1,6 +1,7 @@
 # 014 - The release is created with the job token
 
 **Status:** accepted - 2026-10-18
+**Status:** `CI_JOB_TOKEN` replaced by `GITHUB_TOKEN` by [023](023_the-fork-is-hosted-on-github.md) - 2026-11-01
 
 ## Context
 

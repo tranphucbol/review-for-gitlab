@@ -3,15 +3,15 @@
 A fork of GitLab Workflow, the GitLab extension for VS Code (TypeScript, built
 with esbuild, tested with Jest). Upstream is
 `gitlab.com/gitlab-org/gitlab-vscode-extension` (`upstream`); this fork lives at
-`gitlab.com/tranphucbol/vscode-jetbrain-gitlab` (`origin`).
+`github.com/tranphucbol/review-for-gitlab` (`origin`).
 
 The fork exists for one reason: the GitLab it talks to is **13.12**, and
 upstream assumes a much newer one. It is built from upstream `v3.101.1` and
 carries the changes that make the extension work against that instance —
-adding an account without `personal_access_tokens/self`, a pipeline that
-13.12 accepts — plus features the team wanted on top, such as pasting images
-into merge request comments. Everything else is upstream's code, and should
-stay recognisably so.
+adding an account without `personal_access_tokens/self`, merge request
+actions over 13.12's REST API — plus features the team wanted on top, such as
+pasting images into merge request comments. Everything else is upstream's
+code, and should stay recognisably so.
 
 ## Layout
 
@@ -58,8 +58,9 @@ from `src/desktop/` or `src/browser/` and calls no Node.js or browser API;
 - `test/integration/` — integration tests, run inside a downloaded VS Code
 - `scripts/` — the esbuild builds, packaging and workspace helpers behind the
   npm scripts
-- `.gitlab-ci.yml` — the fork's pipeline; its header comment says what was
-  dropped from upstream's and why
+- `.github/workflows/ci.yml` — the fork's pipeline on GitHub Actions: lint,
+  unit tests, the `.vsix`, the GitHub Release and the Marketplace. Upstream's
+  `.gitlab/` templates and `Dangerfile` stay as they came, unused
 - `docs/developer/`, `docs/user/` — upstream's documentation, kept as it came
 - `docs/decisions/` — the fork's append-only architectural rationale. Start at
   its [README](docs/decisions/README.md)
@@ -128,13 +129,14 @@ To run the extension, open the repository in VS Code and start **Run
 Extension** from `.vscode/launch.json`; its pre-launch task is the desktop
 watcher.
 
-CI runs `lint` and `test-unit` in parallel, then `package`, which keeps the
-`.vsix` and its checksum as an artifact for a year. A `vX.Y.Z` tag adds
-`publish`: the `.vsix` goes to this project's generic package registry and a
-GitLab Release links it. An `X.Y.Z` tag, not a prerelease, also adds
-`publish-marketplace`: the Visual Studio Marketplace as
+CI is GitHub Actions. On every pull request and push to `main` it runs `lint`
+and `test-unit` in parallel, then `package`, which keeps the `.vsix` and its
+checksum as a workflow artifact. A `vX.Y.Z` tag adds `publish`: a GitHub
+Release carries the `.vsix` and its checksum as assets. An `X.Y.Z` tag, not a
+prerelease, also adds `publish-marketplace`: the Visual Studio Marketplace as
 `tranphucbol.review-for-gitlab`, signed in through a federated Azure identity
-with no stored secret. Nothing goes to Open VSX.
+in the `marketplace` environment with no stored secret. Nothing goes to Open
+VSX.
 
 ```sh
 node scripts/release.mjs patch --dry-run   # or minor, major, prerelease --pre beta, X.Y.Z
@@ -168,11 +170,13 @@ node scripts/release.mjs patch             # changelog, commit, tag, push after 
   re-read the merge request, and let the error propagate only if that fails.
   [008](docs/decisions/008_merge-request-actions-are-one-quick-pick-over-rest.md)
 
-- **The pipeline runs only what this instance can run.** No `Jobs/*.latest`
-  templates, no `include: project` from gitlab.com, no runner tags. A job that
-  needs gitlab.com infrastructure or credentials the fork does not have is left
-  out, not left failing.
-  [002](docs/decisions/002_the-pipeline-runs-only-what-this-instance-can.md)
+- **The pipeline runs only what the fork can run.** It is
+  `.github/workflows/ci.yml`; upstream's GitLab CI is not carried. A job that
+  needs upstream's infrastructure or credentials the fork does not have is left
+  out, not left failing. The only credential is the Marketplace's, and it is an
+  Azure federated identity scoped to the `marketplace` environment.
+  [002](docs/decisions/002_the-pipeline-runs-only-what-this-instance-can.md),
+  [023](docs/decisions/023_the-fork-is-hosted-on-github.md)
 
 - **VS Code API newer than `engines.vscode` is declared locally and
   feature-detected.** The extension compiles against `@types/vscode` 1.82, so
@@ -269,14 +273,16 @@ node scripts/release.mjs patch             # changelog, commit, tag, push after 
 - **A fork release says it is one.** `npm version` bumps `package.json` and
   writes the `CHANGELOG.md` entry; `scripts/release.mjs` points any upstream
   link in it at the fork's own project, repeats the "Fork release" paragraph,
-  and tags `vX.Y.Z` on the default branch; the tag pipeline publishes the
-  `.vsix` and creates the Release with `CI_JOB_TOKEN` alone, and publishes an
-  `X.Y.Z` to the Marketplace. The Marketplace line started at 0.0.1; the tags
-  v3.101.1 to v3.107.1 belong to the old ID and are not the latest release.
+  and tags `vX.Y.Z` on the default branch; the tag's workflow run creates the
+  GitHub Release with the `.vsix` attached using `GITHUB_TOKEN` alone, and
+  publishes an `X.Y.Z` to the Marketplace. Only an admin can create, move or
+  delete a `v*` tag. The Marketplace line started at 0.0.1; the tags v3.101.1
+  to v3.107.1 belong to the old ID and are not the latest release.
   [005](docs/decisions/005_a-release-tag-publishes-the-vsix-as-a-generic-package.md),
   [014](docs/decisions/014_the-release-is-created-with-the-job-token.md),
   [015](docs/decisions/015_the-extension-is-published-to-the-marketplace.md),
-  [016](docs/decisions/016_the-marketplace-extension-starts-at-0-0-1.md)
+  [016](docs/decisions/016_the-marketplace-extension-starts-at-0-0-1.md),
+  [023](docs/decisions/023_the-fork-is-hosted-on-github.md)
 
 - **The extension is `tranphucbol.review-for-gitlab`, "Review for GitLab".**
   Code that looks itself up with `vscode.extensions.getExtension()` or builds a

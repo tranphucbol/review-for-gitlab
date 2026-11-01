@@ -34,7 +34,7 @@ for VS Code.
 ## Install
 
 - [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=tranphucbol.review-for-gitlab)
-- A `.vsix` from the [releases](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/-/releases)
+- A `.vsix` from the [releases](https://github.com/tranphucbol/review-for-gitlab/releases)
   of this project
 
 Or run `ext install tranphucbol.review-for-gitlab` from the command palette quick open
@@ -393,7 +393,7 @@ Upstream's commands keep their names; type `GitLab:` in the command palette to l
   precedence over `GITLAB_WORKFLOW_TOKEN`.
 
 Report a problem in this project's
-[issues](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/-/issues), not upstream's.
+[issues](https://github.com/tranphucbol/review-for-gitlab/issues), not upstream's.
 
 ## Release Notes
 
@@ -417,8 +417,8 @@ Debug" view. [AGENTS.md](AGENTS.md) describes the layout and the rules a change 
 Created by [Fatih Acet](https://gitlab.com/fatihacet) as GitLab Workflow and developed by
 [GitLab](https://gitlab.com/gitlab-org/gitlab-vscode-extension) and its
 [contributors](CONTRIBUTORS.md). This fork is maintained by
-[tranphucbol](https://gitlab.com/tranphucbol).
+[tranphucbol](https://github.com/tranphucbol).
 
 If you find it useful, a rating on the
 [Marketplace](https://marketplace.visualstudio.com/items?itemName=tranphucbol.review-for-gitlab&ssr=false#review-details)
-or a star on [GitLab](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab) is appreciated.
+or a star on [GitHub](https://github.com/tranphucbol/review-for-gitlab) is appreciated.

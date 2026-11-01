@@ -3,6 +3,7 @@
 **Status:** accepted - 2026-09-26
 **Status:** release token replaced by `CI_JOB_TOKEN` by [014](014_the-release-is-created-with-the-job-token.md) - 2026-10-18
 **Status:** Marketplace publishing added by [015](015_the-extension-is-published-to-the-marketplace.md) - 2026-10-18
+**Status:** generic package and GitLab Release replaced by a GitHub Release by [023](023_the-fork-is-hosted-on-github.md) - 2026-11-01
 
 ## Context
 

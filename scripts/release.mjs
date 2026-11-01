@@ -1,6 +1,6 @@
 // Cuts a fork release: bumps the version, writes the CHANGELOG.md entry with
 // this fork's links, commits it, tags vX.Y.Z and pushes both to origin. The
-// tag pipeline then publishes the VSIX. See docs/decisions/005.
+// tag's workflow run then publishes the VSIX. See docs/decisions/005 and 023.
 //
 //   node scripts/release.mjs patch|minor|major|prerelease|<X.Y.Z> [--pre beta] [--dry-run] [--yes]
 import { readFile, writeFile } from 'node:fs/promises';
@@ -157,8 +157,8 @@ const main = async () => {
     await run('git', ['tag', '-d', tag], { cwd: root });
     fail(`push failed; deleted the local tag ${tag}, the release commit is still on ${BRANCH}`);
   }
-  console.log(`Pushed ${tag}. Pipeline: ${forkUrl}/-/pipelines?scope=tags`);
-  console.log(`Release: ${forkUrl}/-/releases/${tag}`);
+  console.log(`Pushed ${tag}. Workflow: ${forkUrl}/actions/workflows/ci.yml?query=branch%3A${tag}`);
+  console.log(`Release: ${forkUrl}/releases/tag/${tag}`);
 };
 
 main().catch(e => fail(e.message));

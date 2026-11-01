@@ -2,6 +2,7 @@
 
 **Status:** accepted - 2026-10-18
 **Status:** `CI_GIT_TOKEN` made unnecessary by [014](014_the-release-is-created-with-the-job-token.md) - 2026-10-18
+**Status:** superseded by [023](023_the-fork-is-hosted-on-github.md) - 2026-11-01
 
 ## Context
 

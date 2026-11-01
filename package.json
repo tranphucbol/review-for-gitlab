@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab"
+    "url": "https://github.com/tranphucbol/review-for-gitlab"
   },
   "engines": {
     "vscode": "^1.82.0"
@@ -29,7 +29,7 @@
     "onStartupFinished"
   ],
   "bugs": {
-    "url": "https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/-/issues"
+    "url": "https://github.com/tranphucbol/review-for-gitlab/issues"
   },
   "galleryBanner": {
     "color": "#1B1D24",

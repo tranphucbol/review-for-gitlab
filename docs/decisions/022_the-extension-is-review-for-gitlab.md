@@ -1,6 +1,7 @@
 # 022 - The extension is Review for GitLab
 
 **Status:** accepted - 2026-11-01
+**Status:** project links moved to GitHub by [023](023_the-fork-is-hosted-on-github.md) - 2026-11-01
 
 ## Context
 

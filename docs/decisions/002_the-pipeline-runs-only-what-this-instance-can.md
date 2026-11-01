@@ -2,6 +2,7 @@
 
 **Status:** accepted - 2026-09-13
 **Status:** Marketplace publishing added by [015](015_the-extension-is-published-to-the-marketplace.md) - 2026-10-18
+**Status:** pipeline ported to GitHub Actions by [023](023_the-fork-is-hosted-on-github.md) - 2026-11-01
 
 ## Context
 

@@ -1,0 +1,274 @@
+# Fork-local workflow, ported from the .gitlab-ci.yml the fork ran while it was
+# hosted on gitlab.com (docs/decisions/023).
+#
+# It keeps what that pipeline kept: lint, unit tests and the VSIX build - the
+# three things that actually guard this fork. Upstream's security scanning,
+# docs linting, commit linting, integration tests and Open VSX publishing stay
+# dropped (docs/decisions/002).
+#
+# A release tag (vX.Y.Z, see scripts/release.mjs) also creates a GitHub Release
+# with the VSIX and its checksum attached (docs/decisions/005), and an X.Y.Z tag
+# publishes the VSIX to the Visual Studio Marketplace as
+# tranphucbol.review-for-gitlab (docs/decisions/015, docs/decisions/022).
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      check-publishing:
+        description: Check that the marketplace environment may publish as tranphucbol
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+env:
+  PACKAGE_NAME: review-for-gitlab
+  PUBLISHER: tranphucbol
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .tool-versions
+      # npm run lint recurses into the webviews
+      - run: npm ci
+      - run: npm ci
+        working-directory: webviews/vue
+      - run: npm ci
+        working-directory: webviews/vue2
+      # npm install rewrites package.json formatting; revert so prettier --check
+      # sees the committed state rather than npm's version of it
+      - run: git checkout .
+      - run: npm run lint
+
+  test-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .tool-versions
+      - run: npm ci
+      - run: npm run test:unit -- --coverage
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: unit-test-report
+          path: reports/unit.xml
+          if-no-files-found: ignore
+
+  package:
+    needs: [lint, test-unit]
+    runs-on: ubuntu-latest
+    outputs:
+      release: ${{ steps.tag.outputs.release }}
+      marketplace: ${{ steps.tag.outputs.marketplace }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .tool-versions
+      # A tag publishes the VSIX under its own name, so the two must agree. Only
+      # a semantic-version tag is released, and the Marketplace accepts X.Y.Z
+      # and nothing else.
+      - name: Check the tag
+        id: tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [ "$GITHUB_REF_NAME" != "v$VERSION" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match package.json version $VERSION"
+            exit 1
+          fi
+          CORE='^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)'
+          PRE='(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$'
+          if [[ "$GITHUB_REF_NAME" =~ ${CORE}${PRE} ]]; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          fi
+          if [[ "$GITHUB_REF_NAME" =~ ${CORE}$ ]]; then
+            echo "marketplace=true" >> "$GITHUB_OUTPUT"
+          fi
+      - run: npm ci
+      - run: npm run package
+      - name: Write the checksum
+        working-directory: dist-desktop
+        run: |
+          for VSIX in *.vsix; do sha256sum "$VSIX" > "$VSIX.sha256"; done
+          sha256sum -c *.vsix.sha256
+      - uses: actions/upload-artifact@v7
+        with:
+          name: vsix
+          path: |
+            dist-desktop/*.vsix
+            dist-desktop/*.vsix.sha256
+          if-no-files-found: error
+
+  # Release assets are kept as published: a re-run accepts an asset that is
+  # already there only when it is byte-for-byte this build's.
+  publish:
+    needs: package
+    if: needs.package.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      # the release notes fall back to git log since the previous tag
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v8
+        with:
+          name: vsix
+          path: dist-desktop
+      - name: Write the release notes
+        run: |
+          set -eu
+          VERSION="${GITHUB_REF_NAME#v}"
+          PREV_TAG=$(git describe --tags --abbrev=0 --match 'v[0-9]*.[0-9]*.[0-9]*' "${GITHUB_REF_NAME}^" 2>/dev/null || true)
+          if [ -n "$PREV_TAG" ]; then
+            git log --no-merges --pretty='* %s' "${PREV_TAG}..${GITHUB_REF_NAME}" > git-log-notes.txt
+          else
+            git log --no-merges --pretty='* %s' "${GITHUB_REF_NAME}" > git-log-notes.txt
+          fi
+          # The CHANGELOG.md entry is the fork release's notes (AGENTS.md: a fork
+          # release says it is one); git log covers a tag cut without one.
+          VERSION="$VERSION" DOWNLOAD_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}" node -e '
+            const fs = require("fs");
+            const env = process.env;
+            const escaped = env.VERSION.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            const lines = fs.readFileSync("CHANGELOG.md", "utf8").split("\n");
+            const start = lines.findIndex(line => new RegExp(`^#{1,2} \\[${escaped}\\]`).test(line));
+            let notes = "";
+            if (start >= 0) {
+              const rest = lines.slice(start + 1);
+              const end = rest.findIndex(line => /^#{1,2} \[?\d/.test(line));
+              notes = (end >= 0 ? rest.slice(0, end) : rest).join("\n").trim();
+            } else {
+              console.log(`CHANGELOG.md has no entry for ${env.VERSION}; using git log`);
+            }
+            notes = notes || fs.readFileSync("git-log-notes.txt", "utf8").trim() || "* no changes recorded";
+            const vsix = `${env.PACKAGE_NAME}-${env.VERSION}.vsix`;
+            const marketplace = /^\d+\.\d+\.\d+$/.test(env.VERSION)
+              ? [
+                  `From the Visual Studio Marketplace: run \`ext install ${env.PUBLISHER}.${env.PACKAGE_NAME}\` from the command palette quick open. Or download the \`.vsix\`:`,
+                ]
+              : ["This prerelease is not on the Visual Studio Marketplace. Download the `.vsix`:"];
+            const install = [
+              "### Install",
+              "",
+              ...marketplace,
+              "",
+              "```sh",
+              `curl --fail --location --remote-name "${env.DOWNLOAD_URL}/${vsix}"`,
+              `curl --fail --location --remote-name "${env.DOWNLOAD_URL}/${vsix}.sha256"`,
+              `shasum -a 256 -c ${vsix}.sha256`,
+              `code --install-extension ${vsix} --force`,
+              "```",
+              "",
+              "Then run **Developer: Reload Window** in VS Code.",
+            ];
+            fs.writeFileSync("release-notes.md", [notes, "", ...install].join("\n"));
+          '
+      - name: Create the release
+        run: |
+          set -eu
+          VSIX_PATH="dist-desktop/${PACKAGE_NAME}-${GITHUB_REF_NAME#v}.vsix"
+          if [ ! -f "$VSIX_PATH" ]; then
+            echo "::error::$VSIX_PATH was not built"
+            ls dist-desktop
+            exit 1
+          fi
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            echo "Release ${GITHUB_REF_NAME} already exists; checking its assets"
+            mkdir -p remote
+            for FILE_PATH in "$VSIX_PATH" "$VSIX_PATH.sha256"; do
+              FILE_NAME=$(basename "$FILE_PATH")
+              if gh release download "$GITHUB_REF_NAME" --pattern "$FILE_NAME" --dir remote 2> /dev/null; then
+                cmp -s "remote/$FILE_NAME" "$FILE_PATH" || {
+                  echo "::error::release asset ${FILE_NAME} already exists and differs from this build"
+                  exit 1
+                }
+                echo "Release asset ${FILE_NAME} already exists with the same content"
+              else
+                echo "Uploading ${FILE_NAME}"
+                gh release upload "$GITHUB_REF_NAME" "$FILE_PATH"
+              fi
+            done
+          else
+            echo "Creating release ${GITHUB_REF_NAME}"
+            PRERELEASE=""
+            case "$GITHUB_REF_NAME" in *-*) PRERELEASE="--prerelease" ;; esac
+            gh release create "$GITHUB_REF_NAME" "$VSIX_PATH" "$VSIX_PATH.sha256" \
+              --verify-tag --title "$GITHUB_REF_NAME" --notes-file release-notes.md $PRERELEASE
+          fi
+          echo "Done: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${GITHUB_REF_NAME}"
+
+  # There is no stored publishing secret: the job signs in to Azure as a
+  # managed identity that trusts this repository's marketplace environment,
+  # which only main and v* tags may deploy to. See docs/decisions/023.
+  publish-marketplace:
+    needs: package
+    if: needs.package.outputs.marketplace == 'true'
+    runs-on: ubuntu-latest
+    environment: marketplace
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .tool-versions
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .tool-versions
+      - uses: actions/download-artifact@v8
+        with:
+          name: vsix
+          path: dist-desktop
+      # AZURE_CLIENT_ID and AZURE_TENANT_ID are secrets of the marketplace environment
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          allow-no-subscriptions: true
+      - run: npx --yes @vscode/vsce@3 publish --azure-credential --packagePath "dist-desktop/${PACKAGE_NAME}-${GITHUB_REF_NAME#v}.vsix" --skip-duplicate
+
+  check-publishing:
+    if: github.event_name == 'workflow_dispatch' && inputs.check-publishing
+    runs-on: ubuntu-latest
+    environment: marketplace
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .tool-versions
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .tool-versions
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          allow-no-subscriptions: true
+      - run: npx --yes @vscode/vsce@3 verify-pat --azure-credential "$PUBLISHER"
