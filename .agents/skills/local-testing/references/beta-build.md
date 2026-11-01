@@ -9,7 +9,7 @@ treats it as newer than what they have installed.
 Ask the user which beta they have installed, or read it from their VS Code:
 
 ```sh
-code --list-extensions --show-versions | grep -i jetbrain-gitlab   # e.g. tranphucbol.jetbrain-gitlab@3.101.3-beta.2
+code --list-extensions --show-versions | grep -i review-for-gitlab   # e.g. tranphucbol.review-for-gitlab@3.101.3-beta.2
 ```
 
 Use the next number: `<current package.json version>-beta.<N+1>`.
@@ -19,9 +19,9 @@ Use the next number: `<current package.json version>-beta.<N+1>`.
 ```sh
 source ~/.nvm/nvm.sh && nvm use 24.22.1 >/dev/null
 npm pkg set version=3.101.3-beta.3     # changes only the version line
-npm run package                        # dist-desktop/jetbrain-gitlab-3.101.3-beta.3.vsix
+npm run package                        # dist-desktop/review-for-gitlab-3.101.3-beta.3.vsix
 git checkout package.json              # the beta version is never committed
-cp dist-desktop/jetbrain-gitlab-3.101.3-beta.3.vsix ~/Downloads/
+cp dist-desktop/review-for-gitlab-3.101.3-beta.3.vsix ~/Downloads/
 git status --short                     # package.json must not be listed
 ```
 
@@ -31,7 +31,7 @@ Copy the `.vsix` out before anything else builds: every build empties
 ## Check the file before handing it over
 
 ```sh
-V=~/Downloads/jetbrain-gitlab-3.101.3-beta.3.vsix
+V=~/Downloads/review-for-gitlab-3.101.3-beta.3.vsix
 unzip -p "$V" extension/package.json | grep '"version"'
 unzip -p "$V" extension/extension.js | grep -c '<a string only the new code has>'
 ```
@@ -41,7 +41,7 @@ The count must be at least 1; for review code navigation, for example,
 
 ## Tell the user
 
-- Install: `code --install-extension ~/Downloads/jetbrain-gitlab-<version>.vsix --force`,
+- Install: `code --install-extension ~/Downloads/review-for-gitlab-<version>.vsix --force`,
   then run **Developer: Reload Window**.
 - What to try, step by step, and what they should see.
 - How to report a problem: turn on the `gitlab.debug` setting, reproduce, and

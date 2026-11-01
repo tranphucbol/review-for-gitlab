@@ -2,6 +2,8 @@
 
 **Status:** accepted - 2026-10-18
 
+**Status:** extension ID superseded by [022](022_the-extension-is-review-for-gitlab.md) - 2026-11-01
+
 ## Context
 
 Until now a release reached users only as a `.vsix` in this project's generic

@@ -85,9 +85,10 @@ Each of these cost real time once. Symptom first, then the fix.
 - **`test_workspace (no GitLab project)` in the GitLab sidebar.** The
   repository root contains layer 2's `test_workspace/` git repository. Ignore
   it.
-- **Builds up to 3.107.1 are `GitLab.gitlab-workflow`.** Uninstall that before
-  installing a newer one, which is `tranphucbol.jetbrain-gitlab`; both at once
-  register the same commands and views.
+- **Builds up to 3.107.1 are `GitLab.gitlab-workflow`, and 0.0.1 to 0.0.7
+  are `tranphucbol.jetbrain-gitlab`.** Uninstall those before installing a
+  newer one, which is `tranphucbol.review-for-gitlab`; two at once register the
+  same commands and views.
 - **`screencapture` fails.** macOS needs a screen-recording permission; use
   `playwright-cli screenshot`, which needs none. Its images are at twice the
   CSS pixel size.

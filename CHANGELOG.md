@@ -1,3 +1,15 @@
+## Unreleased
+
+### BREAKING CHANGES
+
+* the extension is renamed from Jetbrain GitLab (tranphucbol.jetbrain-gitlab) to
+Review for GitLab, with the new ID tranphucbol.review-for-gitlab. The old ID is no
+longer published and gets no updates: uninstall it and install
+tranphucbol.review-for-gitlab. The gitlab.* settings, command IDs and keybindings
+keep their names, so they carry over.
+
+
+
 ## [0.0.7](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v0.0.6...v0.0.7) (2026-10-27)
 
 Fork release, not published by GitLab. Built from upstream v3.101.1 for use against

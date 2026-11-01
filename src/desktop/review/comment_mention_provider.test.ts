@@ -14,7 +14,7 @@ jest.mock('../mentions/mention_candidates');
 const commentUri = new Uri({
   scheme: 'comment',
   authority: 'gitlab-mr-gitlab-org/gitlab!1',
-  path: '/tranphucbol.jetbrain-gitlab/commentinput-1.md',
+  path: '/tranphucbol.review-for-gitlab/commentinput-1.md',
   query: '',
   fragment: '',
 });

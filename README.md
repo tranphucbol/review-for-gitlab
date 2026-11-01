@@ -1,13 +1,17 @@
 <p align="center">
-  <img src="src/assets/logo.png" alt="Jetbrain GitLab logo" width="128">
+  <img src="src/assets/logo.png" alt="Review for GitLab logo" width="128">
 </p>
 
-# Jetbrain GitLab
+# Review for GitLab
 
-GitLab Workflow for GitLab 13.12: issues, merge requests and pipelines in VS Code, on an instance
-older than upstream supports, with a side-by-side merge request diff modelled on JetBrains IDEs.
-A fork of [GitLab Workflow](https://gitlab.com/gitlab-org/gitlab-vscode-extension), not
-maintained or endorsed by GitLab.
+Review merge requests on a self-hosted GitLab 13.x from VS Code, in a side-by-side diff, and work
+with its issues and pipelines on an instance older than upstream supports. A fork of
+[GitLab Workflow](https://gitlab.com/gitlab-org/gitlab-vscode-extension), the GitLab extension
+for VS Code.
+
+> This is an unofficial extension. It is not affiliated with, maintained or endorsed by GitLab
+> Inc. or JetBrains s.r.o. GitLab is a trademark of GitLab Inc.; JetBrains is a trademark of
+> JetBrains s.r.o.
 
 ![Side-by-side merge request diff](docs/assets/fork/side-by-side-diff.gif)
 
@@ -29,12 +33,15 @@ maintained or endorsed by GitLab.
 
 ## Install
 
-- [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=tranphucbol.jetbrain-gitlab)
+- [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=tranphucbol.review-for-gitlab)
 - A `.vsix` from the [releases](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/-/releases)
   of this project
 
-Or run `ext install tranphucbol.jetbrain-gitlab` from the command palette quick open
+Or run `ext install tranphucbol.review-for-gitlab` from the command palette quick open
 (`cmd + p` / `ctrl + p`). It needs VS Code 1.82 or later.
+
+> Installed it as `tranphucbol.jetbrain-gitlab`? That ID is no longer published. Uninstall it and
+> install `tranphucbol.review-for-gitlab`; your `gitlab.*` settings carry over.
 
 > Coming from `GitLab.gitlab-workflow`? This extension is a fork of it and keeps the same
 > `gitlab.*` settings and command IDs, so your settings carry over. Uninstall or disable GitLab
@@ -103,7 +110,7 @@ line. VS Code's diff editor opens only for images and for files the side-by-side
 ### Side-by-side diff
 
 Selecting a changed file in the sidebar, or a discussion in the **Comments** panel, opens a view
-that shows both versions next to each other the way JetBrains IDEs do.
+that shows both versions next to each other.
 
 - **Ribbons and alignment**: the changes are joined by ribbons across the gutter, and hatched
   filler keeps both sides on the same row. **Align both sides** in the toolbar turns the filler
@@ -413,5 +420,5 @@ Created by [Fatih Acet](https://gitlab.com/fatihacet) as GitLab Workflow and dev
 [tranphucbol](https://gitlab.com/tranphucbol).
 
 If you find it useful, a rating on the
-[Marketplace](https://marketplace.visualstudio.com/items?itemName=tranphucbol.jetbrain-gitlab&ssr=false#review-details)
+[Marketplace](https://marketplace.visualstudio.com/items?itemName=tranphucbol.review-for-gitlab&ssr=false#review-details)
 or a star on [GitLab](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab) is appreciated.
