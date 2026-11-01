@@ -26,7 +26,7 @@ const fakeOAuthService = (urlString: string): string => {
   );
   assert.strictEqual(
     params.get('redirect_uri'),
-    'vscode://tranphucbol.jetbrain-gitlab/authentication',
+    'vscode://tranphucbol.review-for-gitlab/authentication',
   );
   assert.strictEqual(params.get('response_type'), 'code');
   assert.strictEqual(params.get('scope'), 'api');

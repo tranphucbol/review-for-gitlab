@@ -16,8 +16,8 @@ const UPSTREAM_URL = 'https://gitlab.com/gitlab-org/gitlab-vscode-extension';
 const RELEASE_FILES = ['package.json', 'package-lock.json', 'CHANGELOG.md'];
 const BUMPS = ['major', 'minor', 'patch', 'prerelease'];
 // Tags of the builds that still carried upstream's GitLab.gitlab-workflow ID.
-// tranphucbol.jetbrain-gitlab starts its own line at 0.0.1, so they are not
-// the latest release. See docs/decisions/016.
+// The Marketplace extension starts its own line at 0.0.1, so they are not
+// the latest release. See docs/decisions/016 and 022.
 const LEGACY_VERSIONS = '>=3.101.1 <=3.107.1';
 
 const fail = message => {

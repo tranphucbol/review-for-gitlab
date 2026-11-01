@@ -15,7 +15,8 @@
 # A release tag (vX.Y.Z, see scripts/release.mjs) also publishes the VSIX and
 # its checksum to this project's generic package registry and creates a GitLab
 # Release that links them (docs/decisions/005), and publishes the VSIX to the
-# Visual Studio Marketplace as tranphucbol.jetbrain-gitlab (docs/decisions/015).
+# Visual Studio Marketplace as tranphucbol.review-for-gitlab (docs/decisions/015,
+# docs/decisions/022).
 
 workflow:
   rules:
@@ -31,7 +32,7 @@ stages:
   - publish
 
 variables:
-  PACKAGE_NAME: jetbrain-gitlab
+  PACKAGE_NAME: review-for-gitlab
   PACKAGE_REGISTRY_URL: '${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}'
 
 # git is needed by npm ci (git-backed dependencies) and by the lint job.

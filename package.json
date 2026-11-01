@@ -1,7 +1,7 @@
 {
-  "name": "jetbrain-gitlab",
-  "displayName": "Jetbrain GitLab",
-  "description": "A fork of GitLab Workflow for older GitLab instances (13.12), with a side-by-side merge request diff.",
+  "name": "review-for-gitlab",
+  "displayName": "Review for GitLab",
+  "description": "Unofficial merge request review for self-hosted GitLab 13.x, with a side-by-side diff. Not affiliated with GitLab Inc. or JetBrains s.r.o.",
   "version": "0.0.7",
   "publisher": "tranphucbol",
   "license": "MIT",

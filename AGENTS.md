@@ -133,7 +133,7 @@ CI runs `lint` and `test-unit` in parallel, then `package`, which keeps the
 `publish`: the `.vsix` goes to this project's generic package registry and a
 GitLab Release links it. An `X.Y.Z` tag, not a prerelease, also adds
 `publish-marketplace`: the Visual Studio Marketplace as
-`tranphucbol.jetbrain-gitlab`, signed in through a federated Azure identity
+`tranphucbol.review-for-gitlab`, signed in through a federated Azure identity
 with no stored secret. Nothing goes to Open VSX.
 
 ```sh
@@ -278,8 +278,12 @@ node scripts/release.mjs patch             # changelog, commit, tag, push after 
   [015](docs/decisions/015_the-extension-is-published-to-the-marketplace.md),
   [016](docs/decisions/016_the-marketplace-extension-starts-at-0-0-1.md)
 
-- **The extension is `tranphucbol.jetbrain-gitlab`.** Code that looks itself
-  up with `vscode.extensions.getExtension()` or builds a `vscode://` URI uses
-  that ID, not upstream's `GitLab.gitlab-workflow`; commands, views and
-  `gitlab.*` settings keep upstream's names.
-  [015](docs/decisions/015_the-extension-is-published-to-the-marketplace.md)
+- **The extension is `tranphucbol.review-for-gitlab`, "Review for GitLab".**
+  Code that looks itself up with `vscode.extensions.getExtension()` or builds a
+  `vscode://` URI uses that ID, not upstream's `GitLab.gitlab-workflow` or the
+  retired `tranphucbol.jetbrain-gitlab`; commands, views and `gitlab.*`
+  settings keep upstream's names. The name, description and README use no
+  third-party brand except to credit upstream and to say the extension is not
+  affiliated with GitLab Inc. or JetBrains s.r.o.
+  [015](docs/decisions/015_the-extension-is-published-to-the-marketplace.md),
+  [022](docs/decisions/022_the-extension-is-review-for-gitlab.md)
