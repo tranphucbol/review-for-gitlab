@@ -2,7 +2,7 @@
   "name": "review-for-gitlab",
   "displayName": "Review for GitLab",
   "description": "Unofficial merge request review for self-hosted GitLab 13.x, with a side-by-side diff. Not affiliated with GitLab Inc. or JetBrains s.r.o.",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "publisher": "tranphucbol",
   "license": "MIT",
   "repository": {

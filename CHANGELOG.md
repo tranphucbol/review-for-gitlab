@@ -1,4 +1,7 @@
-## Unreleased
+# [0.1.0](https://gitlab.com/tranphucbol/vscode-jetbrain-gitlab/compare/v0.0.7...v0.1.0) (2026-11-01)
+
+Fork release, not published by GitLab. Built from upstream v3.101.1 for use against
+GitLab instances older than 15.5.
 
 ### BREAKING CHANGES
 
