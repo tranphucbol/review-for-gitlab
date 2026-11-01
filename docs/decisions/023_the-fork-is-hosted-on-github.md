@@ -35,6 +35,7 @@ The decision is constrained by:
 | `git ls-remote --tags` on the old project against the local tags            | 19 fork tags, `v0.0.1` to `v0.1.0` and `v3.101.1` to `v3.107.1`, same commits locally   | Only those tags were pushed; upstream's `v4.x` tags stay off the new project    |
 | `gh api repos/tranphucbol/review-for-gitlab/actions/oidc/customization/sub` | `use_immutable_subject: true`                                                           | The Azure federated credential names the owner and repository IDs, not the name |
 | `tranphucbol/vscode-search-everywhere` release workflow                     | `azure/login@v2` in a `marketplace` environment, then `vsce publish --azure-credential` | The same shape publishes this extension; no new Azure resource is needed        |
+| First pull request run of `.github/workflows/ci.yml`                        | `lint`, `test-unit` and `package` passed on `ubuntu-latest`, Node from `.tool-versions` | The GitLab pipeline's jobs run unchanged on GitHub's hosted runners             |
 
 ## Decision
 
