@@ -161,6 +161,14 @@ body {
   content: '\eb35';
 }
 
+.gl-diff-icon-edit::before {
+  content: '\ea73';
+}
+
+.gl-diff-icon-trash::before {
+  content: '\ea81';
+}
+
 .gl-diff-icon-small {
   font-size: 14px;
   line-height: 14px;
@@ -540,7 +548,7 @@ body {
 
 .gl-diff-note-actions {
   display: flex;
-  gap: var(--gl-space-1);
+  gap: 2px;
   margin-left: auto;
 }
 

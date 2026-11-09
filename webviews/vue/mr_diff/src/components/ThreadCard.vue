@@ -60,22 +60,24 @@
             <button
               v-if="note.canEdit && editingId !== note.id"
               type="button"
-              class="gl-diff-button gl-diff-button-text"
+              class="gl-diff-button gl-diff-icon-button"
               :disabled="busy"
+              title="Edit"
               :aria-label="`Edit comment by ${note.authorName}`"
               @click="editingId = note.id"
             >
-              Edit
+              <span class="gl-diff-icon gl-diff-icon-edit" aria-hidden="true"></span>
             </button>
             <button
               v-if="note.canDelete && confirmingId !== note.id"
               type="button"
-              class="gl-diff-button gl-diff-button-text"
+              class="gl-diff-button gl-diff-icon-button"
               :disabled="busy"
+              title="Delete"
               :aria-label="`Delete comment by ${note.authorName}`"
               @click="confirmingId = note.id"
             >
-              Delete
+              <span class="gl-diff-icon gl-diff-icon-trash" aria-hidden="true"></span>
             </button>
           </span>
         </div>
