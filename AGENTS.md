@@ -56,6 +56,9 @@ from `src/desktop/` or `src/browser/` and calls no Node.js or browser API;
   (alias `@shared`) holds the tokens, mixins, Markdown styles, date helpers and
   components the Overview and the side-by-side diff both use
 - `test/integration/` — integration tests, run inside a downloaded VS Code
+- `test/docker/` — the headless box: a Linux container with a virtual display
+  that runs those tests, and real VS Code for end-to-end checks, off the
+  user's screen; `scripts/headless.mjs` is its host-side runner
 - `scripts/` — the esbuild builds, packaging and workspace helpers behind the
   npm scripts
 - `.github/workflows/ci.yml` — the fork's pipeline on GitHub Actions: lint,
@@ -119,7 +122,16 @@ npm run autofix           # eslint --fix and prettier --write
 npm run build:desktop     # one-off build into dist-desktop/
 npm run package           # build, then the .vsix in dist-desktop/
 npm run test:integration  # builds, then runs VS Code; slow, not in CI
+npm run test:integration:headless  # the same in the headless box (Docker)
+npm run test:go:headless  # the real-language-extension runner in the box
 ```
+
+Load the `local-testing` skill (`.agents/skills/local-testing/`) before running
+any test that starts VS Code. Agents and plan sessions run those in the
+headless box, a Linux container under Xvfb on the host's architecture, so no
+window takes the user's screen, keyboard or clipboard; the host commands stay
+for macOS-only checks and for a person who wants to watch. The box needs Docker
+and copies the checkout, so it never writes to it.
 
 `npm run lint` recurses into `webviews/vue` and `webviews/vue2`, so run
 `npm ci` in both once before it. Prettier checks every `*.md`, including this
@@ -266,6 +278,13 @@ node scripts/release.mjs patch             # changelog, commit, tag, push after 
   the source to what that runtime has; raising them is a decision about which
   VS Code the fork supports, not a toolchain upgrade.
   [021](docs/decisions/021_the-toolchain-runs-on-node-24.md)
+
+- **Agents run VS Code in the headless box, not on the user's screen.**
+  Integration tests, the language-extension runner and end-to-end checks go
+  through `scripts/headless.mjs`; the host is for macOS-only behaviour or when
+  the user asks to watch. A VS Code download is native to the machine
+  (`@vscode/test-electron`), never an emulated x64 build.
+  [025](docs/decisions/025_live-tests-run-in-a-headless-linux-box.md)
 
 - **Stay close to upstream.** Prefer the smallest change in upstream's file
   over a parallel copy of it, keep upstream's naming and structure, and keep

@@ -9,7 +9,7 @@ its own.
 ## Files
 
 - `scripts/go/run_go.js` - builds the Go workspace, installs the extension,
-  launches VS Code through `vscode-test`'s `runTests`.
+  launches VS Code through `@vscode/test-electron`'s `runTests`.
 - `scripts/go/suite/index.js` - mocha entry; reuses
   `dist-desktop/test/integration/test_infrastructure/initialize_test_environment`
   so the fake account and extension activation match layer 2.
@@ -22,6 +22,12 @@ its own.
   (or a finished `npm run test:integration`).
 
 ## Run
+
+```sh
+npm run test:go:headless    # agents: in the headless box, with Go and gopls built in
+```
+
+On the host, where VS Code opens on your screen:
 
 ```sh
 source ~/.nvm/nvm.sh && nvm use 24.22.1 >/dev/null

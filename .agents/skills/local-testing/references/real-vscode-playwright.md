@@ -6,9 +6,13 @@ the real GitLab 13.12 instance. VS Code is an Electron app, so starting it with
 workbench through its accessibility tree. The agent reads a snapshot, decides,
 acts, reads again; no coordinates are hard-coded.
 
-Run it on the installed VS Code (`/Applications/Visual Studio Code.app`) and on
-the oldest supported one (`.vscode-test/vscode-darwin-1.84.2/Visual Studio Code.app`,
-downloaded by layer 2).
+Agents run it in the headless box by default (see
+[headless-box.md](headless-box.md#layer-4-in-the-box)): the same playwright-cli
+steps, attached to a VS Code that draws on a virtual display instead of the
+user's screen. Run it on the current stable VS Code and on the oldest supported
+one, 1.84.2. On the host, those are `/Applications/Visual Studio Code.app` and
+`.vscode-test/vscode-darwin-arm64-1.84.2/Visual Studio Code.app`, downloaded by
+layer 2; the steps below are the host's.
 
 ## Before you start
 

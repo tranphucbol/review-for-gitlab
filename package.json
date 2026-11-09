@@ -242,6 +242,8 @@
     "test:unit": "jest",
     "prepare:test:integration": "npm run build:desktop && cp -R node_modules dist-desktop/ && npm run build:deps && node scripts/create_test_workspace.mjs",
     "test:integration": "npm run prepare:test:integration && node ./dist-desktop/test/runTest.js",
+    "test:integration:headless": "node scripts/headless.mjs integration",
+    "test:go:headless": "node scripts/headless.mjs go",
     "prettier-package-json": "prettier --write package.json",
     "prettier": "prettier --write '**/*.{js,ts,mjs,vue,json,md}'",
     "autofix": "npm run clean && eslint --fix . && npm run prettier && cd webviews/vue && npm run autofix",
@@ -265,6 +267,7 @@
     "@types/ws": "^8.5.10",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
+    "@vscode/test-electron": "^2.5.2",
     "@vscode/test-web": "^0.0.51",
     "conventional-changelog-cli": "^4.1.0",
     "esbuild": "^0.19.12",
@@ -287,7 +290,6 @@
     "ts-jest": "^29.1.2",
     "typescript": "^5.3.3",
     "vsce": "^2.15.0",
-    "vscode-test": "^1.6.1",
     "webfont": "^11.2.26"
   },
   "dependencies": {
