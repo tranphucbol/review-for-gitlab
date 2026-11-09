@@ -15,6 +15,7 @@ const toNoteModel = (note: GqlTextDiffNote): DiffNoteModel => ({
   bodyHtml: note.bodyHtml,
   canEdit: note.userPermissions.adminNote,
   canDelete: note.userPermissions.adminNote,
+  canReact: Boolean(note.userPermissions.awardEmoji),
 });
 
 const toDiscussionModel = (

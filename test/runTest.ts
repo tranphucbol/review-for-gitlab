@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import * as path from 'path';
-import { runTests } from 'vscode-test';
+import { runTests } from '@vscode/test-electron';
 
 const TEST_WORKSPACE_DIR = path.resolve(__dirname, '../../test_workspace');
 

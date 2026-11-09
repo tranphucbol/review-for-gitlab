@@ -38,6 +38,7 @@ export const noteDetailsFragment = gql`
       resolveNote
       adminNote
       createNote
+      awardEmoji
     }
     ...position
   }
@@ -115,6 +116,7 @@ interface GqlNotePermissions {
   resolveNote: boolean;
   adminNote: boolean;
   createNote: boolean;
+  awardEmoji?: boolean;
 }
 
 export interface GqlGenericNote<T extends GqlBasePosition | null> {

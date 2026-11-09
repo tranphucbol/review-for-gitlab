@@ -30,16 +30,20 @@ rejects ranges that are not its `Range`, which is why the file has its own
 ## Layer 2: integration tests
 
 ```sh
-npm run test:integration
+npm run test:integration:headless   # agents: in the headless box, off the screen
+npm run test:integration            # on the host; VS Code opens in front of you
 ```
 
-What it does (`package.json:244-245`):
+The headless box is described in [headless-box.md](headless-box.md). What
+either one does (`package.json:244-245`):
 
 1. `build:desktop` compiles with `tsc` and bundles `dist-desktop/extension.js`.
 2. Copies `node_modules` into `dist-desktop/`.
 3. `scripts/create_test_workspace.mjs` creates `test_workspace/`, a git repo with
    a GitLab remote and one empty commit.
-4. `test/runTest.ts:15-16` downloads VS Code 1.84.2 into `.vscode-test/` and runs
+4. `test/runTest.ts` uses `@vscode/test-electron` to download VS Code 1.84.2 for
+   the machine's own architecture (`.vscode-test/vscode-darwin-arm64-1.84.2/` on
+   Apple silicon, `vscode-linux-arm64-1.84.2/` in the box) and runs
    it with `--disable-extensions --disable-workspace-trust test_workspace`.
    Built-in extensions, including TypeScript, still run.
 

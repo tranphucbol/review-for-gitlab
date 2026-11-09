@@ -50,4 +50,65 @@ describe('Note', () => {
       expect(firstSuggestedLine.text()).toBe('function anotherFunction1(): void{');
     });
   });
+
+  describe('reactions', () => {
+    const EYES = { name: 'eyes', emoji: '👀', count: 2, users: ['Alice'], mine: true };
+    let reactions;
+
+    const mountNote = (noteable, groups = []) => {
+      reactions = {
+        groupsOf: vi.fn().mockReturnValue(groups),
+        toggle: vi.fn(),
+        loadEmojis: vi.fn().mockResolvedValue({ emojis: [] }),
+      };
+      wrapper = mount(Note, {
+        props: { noteable },
+        global: { stubs: { TimeAgo: true }, provide: { reactions } },
+      });
+    };
+
+    const reactable = { ...noteOnDiffWithSuggestion, userPermissions: { awardEmoji: true } };
+
+    it('shows nothing without the store', () => {
+      wrapper = mount(Note, {
+        props: { noteable: reactable },
+        global: { stubs: { TimeAgo: true } },
+      });
+
+      expect(wrapper.find('.js-add-reaction').exists()).toBe(false);
+      expect(wrapper.find('.js-reactions').exists()).toBe(false);
+    });
+
+    it('offers to react in the header when there are no reactions', () => {
+      mountNote(reactable);
+
+      expect(reactions.groupsOf).toHaveBeenCalledWith(reactable.id);
+      expect(wrapper.find('.js-add-reaction').exists()).toBe(true);
+      expect(wrapper.find('.js-reactions').exists()).toBe(false);
+    });
+
+    it('shows the reactions under the body and toggles one', async () => {
+      mountNote(reactable, [EYES]);
+
+      const pill = wrapper.find('.js-reactions .gl-reaction');
+      expect(pill.text()).toBe('👀2');
+      expect(pill.attributes('aria-pressed')).toBe('true');
+      expect(pill.attributes('title')).toBe('You and Alice reacted with :eyes:');
+      expect(wrapper.find('.js-add-reaction').exists()).toBe(false);
+
+      await pill.trigger('click');
+
+      expect(reactions.toggle).toHaveBeenCalledWith(reactable.id, 'eyes', false, '👀');
+    });
+
+    it('shows the reactions read-only without permission, and none on a system note', () => {
+      mountNote({ ...reactable, userPermissions: { awardEmoji: false } }, [EYES]);
+
+      expect(wrapper.find('.gl-reaction').attributes('aria-disabled')).toBe('true');
+      expect(wrapper.find('.gl-reaction-add').exists()).toBe(false);
+
+      mountNote({ ...reactable, system: true });
+      expect(wrapper.find('.js-add-reaction').exists()).toBe(false);
+    });
+  });
 });

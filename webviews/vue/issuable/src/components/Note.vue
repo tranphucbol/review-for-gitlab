@@ -1,6 +1,8 @@
 <script>
 import UserAvatar from '@shared/components/UserAvatar.vue';
 import TimeAgo from '@shared/components/TimeAgo.vue';
+import ReactionBar from '@shared/components/ReactionBar.vue';
+import AddReactionButton from '@shared/components/AddReactionButton.vue';
 import CodiconIcon from './CodiconIcon.vue';
 import { SafeHtmlDirective } from '../directives/safe_html/safe_html';
 
@@ -20,14 +22,29 @@ export default {
       default: false,
     },
   },
+  inject: {
+    reactions: { default: null },
+  },
   components: {
     UserAvatar,
     TimeAgo,
     CodiconIcon,
+    ReactionBar,
+    AddReactionButton,
   },
   computed: {
     author() {
       return this.noteable.author;
+    },
+    reactionGroups() {
+      return this.reactions?.groupsOf(this.noteable.id) ?? [];
+    },
+    canReact() {
+      return (
+        Boolean(this.reactions) &&
+        !this.noteable.system &&
+        Boolean(this.noteable.userPermissions?.awardEmoji)
+      );
     },
     avatarSize() {
       return this.isReply ? 16 : 20;
@@ -54,6 +71,9 @@ export default {
         wrapper.append(header, suggestionEl);
       });
     },
+    toggleReaction({ name, on, emoji }) {
+      this.reactions.toggle(this.noteable.id, name, on, emoji);
+    },
   },
 };
 </script>
@@ -65,6 +85,14 @@ export default {
       <span class="note-header__separator">·</span>
       <time-ago :date="noteable.createdAt" class="note-header__date" />
       <slot name="header" />
+      <add-reaction-button
+        v-if="canReact && !reactionGroups.length"
+        class="note-header__react js-add-reaction"
+        :load-emojis="reactions.loadEmojis"
+        @pick="entry => toggleReaction({ name: entry.name, on: true, emoji: entry.emoji })"
+      >
+        <codicon-icon name="reactions" />
+      </add-reaction-button>
       <a
         v-if="noteable.url"
         :href="noteable.url"
@@ -78,6 +106,16 @@ export default {
     <div class="note-body">
       <div class="body gl-markdown" v-safe-html="noteable.bodyHtml" />
     </div>
+    <reaction-bar
+      v-if="reactionGroups.length"
+      class="js-reactions"
+      :reactions="reactionGroups"
+      :can-react="canReact"
+      :load-emojis="reactions.loadEmojis"
+      @toggle="toggleReaction"
+    >
+      <template #add-icon><codicon-icon name="reactions" /></template>
+    </reaction-bar>
   </li>
 </template>
 
@@ -103,12 +141,27 @@ export default {
       color: var(--gl-text-muted);
     }
 
+    &__react,
+    &__open {
+      opacity: 0;
+    }
+
+    &__react,
     &__open {
       margin-left: auto;
-      opacity: 0;
+    }
+
+    &__react + .note-header__open {
+      margin-left: 0;
+    }
+
+    &__react.gl-reaction-add-open {
+      opacity: 1;
     }
   }
 
+  &:hover .note-header__react,
+  &:focus-within .note-header__react,
   &:hover .note-header__open,
   &:focus-within .note-header__open {
     opacity: 1;

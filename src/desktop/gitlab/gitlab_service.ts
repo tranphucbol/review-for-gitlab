@@ -52,6 +52,11 @@ import { GqlSecurityReportFinding } from './graphql/get_security_finding';
 import { currentUserRequest } from '../../common/gitlab/api/get_current_user';
 import { connectToCable } from '../../common/gitlab/api/action_cable';
 import { createMultipartFormBody } from './create_multipart_form_body';
+import {
+  awardEmojiAddMutation,
+  awardEmojiRemoveMutation,
+  AwardEmojiMutationResult,
+} from './graphql/award_emoji';
 
 interface CreateNoteResult {
   createNote: {
@@ -915,6 +920,42 @@ export class GitLabService {
       {},
       'participants',
     );
+  }
+
+  async getNoteAwardEmoji(issuable: RestIssuable, noteRestId: number): Promise<RestAwardEmoji[]> {
+    const type = isMr(issuable) ? 'merge_requests' : 'issues';
+    return this.fetchAllPages(
+      `/projects/${issuable.project_id}/${type}/${issuable.iid}/notes/${noteRestId}/award_emoji`,
+      { per_page: 100 },
+      'reactions',
+    );
+  }
+
+  async setNoteAwardEmoji(noteGqlId: string, name: string, on: boolean): Promise<void> {
+    let errors: string[];
+    try {
+      const result = await this.graphqlRequest<AwardEmojiMutationResult>(
+        on ? awardEmojiAddMutation : awardEmojiRemoveMutation,
+        { awardableId: noteGqlId, name },
+      );
+      errors = (on ? result.awardEmojiAdd?.errors : result.awardEmojiRemove?.errors) ?? [];
+    } catch (e) {
+      throw new UserFriendlyError(`Couldn't ${on ? 'add' : 'remove'} the reaction.`, e);
+    }
+    if (errors.length > 0) {
+      throw new UserFriendlyError(
+        `Couldn't ${on ? 'add' : 'remove'} the reaction.`,
+        new Error(errors.join(', ')),
+      );
+    }
+  }
+
+  /** The instance's emoji list, the static file its web UI loads, outside `/api/v4`. */
+  async getEmojiMap(): Promise<Record<string, RestEmojiEntry>> {
+    const { instanceUrl } = await this.getCredentials();
+    const response = await this.crossFetch(`${instanceUrl}/-/emojis/1/emojis.json`);
+    await handleFetchError(response, 'emoji list');
+    return response.json() as Promise<Record<string, RestEmojiEntry>>;
   }
 
   async getProjectLabels(projectId: number, search?: string): Promise<RestLabel[]> {

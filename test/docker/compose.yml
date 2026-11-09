@@ -1,0 +1,33 @@
+# The headless box (docs/decisions/025). Run it through scripts/headless.mjs, not by hand: the
+# runner passes NODE_VERSION, the command and, for a real VS Code, the port, the .vsix and the
+# folder to open.
+name: review-for-gitlab-box
+
+services:
+  box:
+    build:
+      context: .
+      args:
+        NODE_VERSION:
+    image: review-for-gitlab-box:local
+    working_dir: /work
+    shm_size: 1gb
+    init: true
+    environment:
+      HEADLESS_BOX: '1'
+    volumes:
+      - ../..:/src:ro
+      - node-modules:/work/node_modules
+      - node-modules-vue:/work/webviews/vue/node_modules
+      - node-modules-vue2:/work/webviews/vue2/node_modules
+      - node-modules-commit-lint:/work/scripts/commit-lint/node_modules
+      - vscode-test:/work/.vscode-test
+      - npm-cache:/root/.npm
+
+volumes:
+  node-modules:
+  node-modules-vue:
+  node-modules-vue2:
+  node-modules-commit-lint:
+  vscode-test:
+  npm-cache:

@@ -16,6 +16,7 @@ import { UnsupportedVersionError } from '../../errors/unsupported_version_error'
 import { UserFriendlyError } from '../../errors/user_friendly_error';
 import { getBaseAndHeadUri } from '../../tree_view/items/changed_file_item';
 import { getMentionCandidates } from '../../mentions/mention_candidates';
+import { getEmojiList, readReactions, setReaction } from '../../reactions/note_reactions';
 import { diffTitleSuffix, getScope, isReadOnlyVersion } from '../commits/commit_versions';
 import { makeHtmlLinksAbsolute } from '../../utils/make_html_links_absolute';
 import { findFileInDiffs } from '../../utils/find_file_in_diffs';
@@ -35,6 +36,7 @@ import {
   CodeLocation,
   CodeRange,
   DiffAction,
+  DiffDiscussionModel,
   DiffFileModel,
   DiffLocation,
   DiffSide,
@@ -83,7 +85,7 @@ const COMPARING_VERSIONS = 'Not available while comparing versions.';
 /** what a successful `result` carries besides its `requestId` */
 type ResultContent = Pick<
   Extract<ToWebviewMessage, { command: 'result' }>,
-  'markdown' | 'html' | 'mentions' | 'mentionsError'
+  'markdown' | 'html' | 'mentions' | 'mentionsError' | 'reactions' | 'emojis'
 >;
 
 interface NavigationAnswer {
@@ -604,7 +606,31 @@ export class MrDiffPanel {
         };
       }
     }
-    if (request === this.#discussionsRequest) await this.#post(message);
+    if (request !== this.#discussionsRequest) return;
+    await this.#post(message);
+    if (message.command === 'discussions' && message.discussions.length > 0) {
+      // not awaited: a write's `result` doesn't wait for one request per note
+      this.#postReactions(request, message.discussions).catch(() => undefined);
+    }
+  }
+
+  /**
+   * Sends the reactions on the notes just sent, so the comments never wait for one request
+   * per note. Any failure leaves the notes without reactions, quietly.
+   */
+  async #postReactions(request: number, discussions: DiffDiscussionModel[]): Promise<void> {
+    try {
+      const reactions = await readReactions(
+        getGitLabService(this.#projectInRepository),
+        this.#target.mr,
+        discussions.flatMap(d => d.notes.map(note => note.id)),
+        this.#projectInRepository.account,
+      );
+      if (request === this.#discussionsRequest)
+        await this.#post({ command: 'reactions', reactions });
+    } catch (e) {
+      log.warn('Failed to load the reactions for the side-by-side diff.', e as Error);
+    }
   }
 
   /**
@@ -764,6 +790,34 @@ export class MrDiffPanel {
             return { mentions, mentionsError: error };
           },
           false,
+        );
+        break;
+      // fork-only: reactions on comments, see docs/decisions/024
+      case 'setReaction':
+        await this.#respond(
+          message.requestId,
+          async () => ({
+            reactions: await setReaction(
+              gitlabService(),
+              mr,
+              message.noteId,
+              message.name,
+              message.on,
+              this.#projectInRepository.account,
+            ),
+          }),
+          false,
+          // the pill is put back as it was, so the user needs to be told why
+          e => handleError(e as Error),
+        );
+        break;
+      case 'loadEmojis':
+        await this.#respond(
+          message.requestId,
+          async () => ({ emojis: await getEmojiList(gitlabService()) }),
+          false,
+          // the picker falls back to the common emoji and says so
+          () => undefined,
         );
         break;
       case 'applyHunk': {

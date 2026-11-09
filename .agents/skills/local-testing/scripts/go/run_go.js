@@ -10,7 +10,7 @@ const {
   downloadAndUnzipVSCode,
   resolveCliPathFromVSCodeExecutablePath,
   runTests,
-} = require('vscode-test');
+} = require('@vscode/test-electron');
 const {
   REMOTE,
   DEFAULT_VS_CODE_SETTINGS,

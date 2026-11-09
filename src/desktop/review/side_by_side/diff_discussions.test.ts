@@ -49,9 +49,29 @@ describe('toDiffDiscussions', () => {
           bodyHtml: noteOnDiff.bodyHtml,
           canEdit: true,
           canDelete: true,
+          // the fixture predates the `awardEmoji` permission
+          canReact: false,
         },
       ],
     });
+  });
+
+  it('lets the user react when the note allows it', () => {
+    const discussion = {
+      ...textDiscussion,
+      notes: {
+        nodes: [
+          {
+            ...noteOnDiff,
+            userPermissions: { ...noteOnDiff.userPermissions, awardEmoji: true },
+          },
+        ],
+      },
+    } as GqlDiscussion;
+
+    const [model] = toDiffDiscussions([discussion], version, file);
+
+    expect(model.notes[0].canReact).toBe(true);
   });
 
   it('places a discussion on a new line on the head side', () => {

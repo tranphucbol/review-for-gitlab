@@ -29,6 +29,10 @@ Each of these cost real time once. Symptom first, then the fix.
 
 ## Integration tests (layer 2)
 
+- **"You are running an emulated version of Visual Studio Code".** An x64
+  build under Rosetta. The retired `vscode-test` package always downloaded
+  `darwin` (x64) builds; `@vscode/test-electron` picks the machine's own
+  architecture. Delete a leftover `.vscode-test/vscode-darwin-1.84.2/`.
 - **A `.ts` fixture passed without the change.** The built-in TypeScript
   extension runs despite `--disable-extensions` and answers for in-memory
   documents such as `gl-review:` itself. It proves nothing about gopls or

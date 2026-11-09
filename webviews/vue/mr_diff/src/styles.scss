@@ -157,6 +157,10 @@ body {
   content: '\eba4';
 }
 
+.gl-diff-icon-reactions::before {
+  content: '\eb35';
+}
+
 .gl-diff-icon-small {
   font-size: 14px;
   line-height: 14px;
@@ -542,6 +546,17 @@ body {
 
 .gl-diff-note-body {
   margin-top: var(--gl-space-1);
+}
+
+/* as in the Overview: the first reaction is offered on hover, the rest in the reaction bar */
+.gl-diff-note-react {
+  opacity: 0;
+}
+
+.gl-diff-note:hover .gl-diff-note-react,
+.gl-diff-note:focus-within .gl-diff-note-react,
+.gl-diff-note-react.gl-reaction-add-open {
+  opacity: 1;
 }
 
 .gl-diff-confirm {

@@ -168,6 +168,7 @@ import CommentBox from './components/CommentBox.vue';
 import HunkActions from './components/HunkActions.vue';
 import ThreadCard from './components/ThreadCard.vue';
 import { onMessage, post, request } from './vscode_bridge';
+import { setReactions } from './reactions';
 import { parseUnifiedDiff } from './model/unified_diff_parser.ts';
 import { computeLineBlocks, splitLines } from './model/line_alignment.ts';
 import { setTokenRules } from './view/token_theme.ts';
@@ -301,6 +302,7 @@ export default {
       if (message?.command === 'init') this.init(message.file, message.aligned, message.generation);
       if (message?.command === 'error') this.fatalError = message.message;
       if (message?.command === 'discussions') this.setDiscussions(message);
+      if (message?.command === 'reactions') setReactions(message.reactions ?? {});
       if (message?.command === 'localState') this.localState = message;
       if (message?.command === 'reveal') {
         this.pendingReveal = { side: message.side, line: message.line };

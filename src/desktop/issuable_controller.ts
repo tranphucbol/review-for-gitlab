@@ -11,6 +11,12 @@ import { ProjectInRepository } from './gitlab/new_project';
 import { getGitLabService } from './gitlab/get_gitlab_service';
 import { getJiraLinkConfig } from './jira/jira_keys';
 import { getMentionCandidates } from './mentions/mention_candidates';
+import {
+  getEmojiList,
+  getReactableNoteIds,
+  readReactions,
+  setReaction,
+} from './reactions/note_reactions';
 import { UserFriendlyError } from './errors/user_friendly_error';
 import { toUploadError, uploadAttachments } from './review/comment_attachment_provider';
 import { WEBVIEW_WORKFLOW } from './constants';
@@ -23,6 +29,8 @@ export type IssuableWebviewPanel = vscode.WebviewPanel & {
   issuable?: RestIssuable;
   /** The reload in flight, so a second request joins it instead of reading twice. */
   reloading?: Promise<void>;
+  /** Counts reaction reads, so the answer to an older read does not overwrite a newer one. */
+  reactionsRead?: number;
 };
 
 /** True while the active Overview shows a merge request; it shows the merge request actions button. */
@@ -77,6 +85,40 @@ const uploadOverviewImage = async (
   }
 };
 
+// fork-only: reactions on comments, see docs/decisions/024
+// the comments are already on the page; the reactions follow and never fail it
+const postReactions = async (
+  panel: IssuableWebviewPanel,
+  issuable: RestIssuable,
+  discussions: object[],
+) => {
+  const read = (panel.reactionsRead ?? 0) + 1;
+  // eslint-disable-next-line no-param-reassign
+  panel.reactionsRead = read;
+  try {
+    const projectInRepository = gitlabProjectRepository.getProjectOrFail(panel.repositoryRoot!);
+    const reactions = await readReactions(
+      getGitLabService(projectInRepository),
+      issuable,
+      getReactableNoteIds(discussions),
+      projectInRepository.account,
+    );
+    if (panel.reactionsRead !== read) return;
+    await panel.webview.postMessage({ type: 'reactions', reactions });
+  } catch (e) {
+    log.warn('Could not show the reactions in the Overview.', e as Error);
+  }
+};
+
+const postIssuableFetch = async (
+  panel: IssuableWebviewPanel,
+  issuable: RestIssuable,
+  discussions: object[],
+) => {
+  await panel.webview.postMessage({ type: 'issuableFetch', issuable, discussions });
+  postReactions(panel, issuable, discussions).catch(() => undefined);
+};
+
 async function initPanelIfActive(
   panel: IssuableWebviewPanel,
   issuable: RestIssuable,
@@ -98,11 +140,7 @@ async function initPanelIfActive(
 
   await waitPromise;
   await postJiraLinks(panel);
-  await panel.webview.postMessage({
-    type: 'issuableFetch',
-    issuable: details,
-    discussions: discussionsAndLabels,
-  });
+  await postIssuableFetch(panel, details, discussionsAndLabels);
 }
 
 // fork-only: the Overview's Reload, see docs/decisions/017
@@ -125,7 +163,7 @@ const readAndPostIssuable = async (panel: IssuableWebviewPanel, gitlabService: G
     // eslint-disable-next-line no-param-reassign
     panel.issuable = issuable;
     // the webview is already initialized: it sent `appReady` once, when it loaded
-    await panel.webview.postMessage({ type: 'issuableFetch', issuable, discussions });
+    await postIssuableFetch(panel, issuable, discussions);
     ok = true;
   } catch (e) {
     handleError(e);
@@ -202,11 +240,7 @@ class IssuableController implements RepositoryRootWebviewProvider {
           const gitlabService = getGitLabService(projectInRepository);
           await gitlabService.createNote(issuable, message.note, message.replyId);
           const discussionsAndLabels = await gitlabService.getDiscussionsAndLabelEvents(issuable);
-          await panel.webview.postMessage({
-            type: 'issuableFetch',
-            issuable: panel.issuable ?? issuable,
-            discussions: discussionsAndLabels,
-          });
+          await postIssuableFetch(panel, panel.issuable ?? issuable, discussionsAndLabels);
           await panel.webview.postMessage({ type: 'noteSaved' });
         } catch (e) {
           log.error('Failed to submit note to the API.', e);
@@ -247,6 +281,43 @@ class IssuableController implements RepositoryRootWebviewProvider {
           mentions,
           error,
         });
+      }
+
+      // fork-only: reactions on comments, see docs/decisions/024
+      if (message.command === 'setReaction') {
+        const { requestId, noteId, name, on } = message;
+        try {
+          const reactions = await setReaction(
+            getGitLabService(projectInRepository),
+            panel.issuable ?? issuable,
+            String(noteId),
+            String(name),
+            Boolean(on),
+            projectInRepository.account,
+          );
+          await panel.webview.postMessage({ type: 'reactionSet', requestId, noteId, reactions });
+        } catch (e) {
+          handleError(e as Error);
+          await panel.webview.postMessage({ type: 'reactionSet', requestId, noteId, error: true });
+        }
+      }
+
+      if (message.command === 'loadEmojis') {
+        try {
+          const emojis = await getEmojiList(getGitLabService(projectInRepository));
+          await panel.webview.postMessage({
+            type: 'emojisLoaded',
+            requestId: message.requestId,
+            emojis,
+          });
+        } catch (e) {
+          log.warn('Could not read the emoji list of the GitLab instance.', e as Error);
+          await panel.webview.postMessage({
+            type: 'emojisLoaded',
+            requestId: message.requestId,
+            error: true,
+          });
+        }
       }
 
       if (message.command === 'reloadIssuable') {
