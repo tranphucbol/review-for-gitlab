@@ -10,6 +10,7 @@ import { GqlDiscussion } from '../../gitlab/graphql/get_discussions';
 import { UnsupportedVersionError } from '../../errors/unsupported_version_error';
 import { UserFriendlyError } from '../../errors/user_friendly_error';
 import { getMentionCandidates } from '../../mentions/mention_candidates';
+import { getEmojiList, readReactions, setReaction } from '../../reactions/note_reactions';
 import { diffFile, mr, mrVersion, projectInRepository } from '../../test_utils/entities';
 import { MrDiffPanelController } from './mr_diff_panel_controller';
 import { FromWebviewMessage } from './messages';
@@ -25,6 +26,7 @@ jest.mock('../../git/get_file_content');
 jest.mock('../../gitlab/get_gitlab_service');
 jest.mock('../../gitlab/gitlab_project_repository');
 jest.mock('../../mentions/mention_candidates');
+jest.mock('../../reactions/note_reactions');
 
 const encode = (text: string) => Buffer.from(text);
 
@@ -89,6 +91,8 @@ describe('MrDiffPanelController', () => {
       .mocked(vscode.workspace.onDidCloseTextDocument)
       .mockReturnValue({ dispose: jest.fn() } as vscode.Disposable);
     jest.mocked(vscode.workspace.fs.readFile).mockRejectedValue(new Error('ENOENT'));
+    // most tests are not about reactions; the read never answers unless a test says so
+    jest.mocked(readReactions).mockReturnValue(new Promise(() => {}));
     controller = new MrDiffPanelController();
     controller.init(createExtensionContext());
   });
@@ -912,6 +916,178 @@ describe('MrDiffPanelController', () => {
           mentionsError: 'Could not load project members.',
         },
       ]);
+    });
+  });
+
+  describe('reactions', () => {
+    const eyes = { name: 'eyes', emoji: '👀', count: 1, users: [], mine: true };
+    const discussionWithNotes = (...ids: string[]) =>
+      ({
+        replyId: 'discussion-1',
+        resolvable: false,
+        resolved: false,
+        notes: {
+          nodes: ids.map(id => ({
+            id,
+            system: false,
+            author: { name: 'Ann', username: 'ann', avatarUrl: null },
+            createdAt: '2026-01-01T00:00:00Z',
+            body: 'body',
+            bodyHtml: '<p>body</p>',
+            userPermissions: {
+              resolveNote: true,
+              adminNote: false,
+              createNote: true,
+              awardEmoji: true,
+            },
+            position: {
+              positionType: 'text',
+              diffRefs: {
+                baseSha: mrVersion.base_commit_sha,
+                headSha: mrVersion.head_commit_sha,
+                startSha: mrVersion.start_commit_sha,
+              },
+              oldPath: diffFile.old_path,
+              newPath: diffFile.new_path,
+              oldLine: null,
+              newLine: 3,
+            },
+          })),
+        },
+      }) as unknown as GqlDiscussion;
+
+    it('sends the reactions on the notes of this file after the discussions', async () => {
+      jest
+        .mocked(gitlabService.getDiscussions)
+        .mockResolvedValue([discussionWithNotes('note-1', 'note-2')]);
+      jest.mocked(readReactions).mockResolvedValue({ 'note-1': [eyes] });
+      await controller.open(target);
+      await sendToHost({ command: 'refresh' });
+      await new Promise(process.nextTick);
+
+      expect(readReactions).toHaveBeenCalledWith(
+        gitlabService,
+        mr,
+        ['note-1', 'note-2'],
+        projectInRepository.account,
+      );
+      expect(postedMessages()).toEqual([
+        expect.objectContaining({
+          command: 'discussions',
+          discussions: [
+            expect.objectContaining({
+              notes: [
+                expect.objectContaining({ id: 'note-1', canReact: true }),
+                expect.objectContaining({ id: 'note-2', canReact: true }),
+              ],
+            }),
+          ],
+        }),
+        { command: 'reactions', reactions: { 'note-1': [eyes] } },
+      ]);
+    });
+
+    it('reads nothing when the file has no discussions', async () => {
+      await controller.open(target);
+      await sendToHost({ command: 'refresh' });
+      await new Promise(process.nextTick);
+
+      expect(readReactions).not.toHaveBeenCalled();
+    });
+
+    it('drops reactions read for discussions sent before newer ones', async () => {
+      jest.mocked(gitlabService.getDiscussions).mockResolvedValue([discussionWithNotes('note-1')]);
+      let answerFirst: (reactions: Record<string, (typeof eyes)[]>) => void = () => {};
+      jest
+        .mocked(readReactions)
+        .mockReturnValueOnce(
+          new Promise(resolve => {
+            answerFirst = resolve;
+          }),
+        )
+        .mockResolvedValueOnce({});
+      await controller.open(target);
+      await sendToHost({ command: 'refresh' });
+      await sendToHost({ command: 'refresh' });
+      answerFirst({ 'note-1': [eyes] });
+      await new Promise(process.nextTick);
+
+      expect(postedMessages().filter(m => m.command === 'reactions')).toEqual([
+        { command: 'reactions', reactions: {} },
+      ]);
+    });
+
+    it('leaves the notes without reactions when they cannot be read', async () => {
+      jest.mocked(gitlabService.getDiscussions).mockResolvedValue([discussionWithNotes('note-1')]);
+      jest.mocked(readReactions).mockRejectedValue(new Error('500'));
+      await controller.open(target);
+      await sendToHost({ command: 'refresh' });
+      await new Promise(process.nextTick);
+
+      expect(postedMessages().map(m => m.command)).toEqual(['discussions']);
+      expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
+    });
+
+    it("answers a reaction with the note's reactions, without reloading the discussions", async () => {
+      jest.mocked(setReaction).mockResolvedValue([eyes]);
+      await controller.open(target);
+      await sendToHost({
+        command: 'setReaction',
+        requestId: 3,
+        noteId: 'note-1',
+        name: 'eyes',
+        on: true,
+      });
+
+      expect(setReaction).toHaveBeenCalledWith(
+        gitlabService,
+        mr,
+        'note-1',
+        'eyes',
+        true,
+        projectInRepository.account,
+      );
+      expect(gitlabService.getDiscussions).not.toHaveBeenCalled();
+      expect(postedMessages()).toEqual([{ command: 'result', requestId: 3, reactions: [eyes] }]);
+    });
+
+    it('tells the user when GitLab refuses a reaction', async () => {
+      jest
+        .mocked(setReaction)
+        .mockRejectedValue(new UserFriendlyError("Couldn't add the reaction.", new Error('500')));
+      await controller.open(target);
+      await sendToHost({
+        command: 'setReaction',
+        requestId: 4,
+        noteId: 'note-1',
+        name: 'eyes',
+        on: true,
+      });
+
+      expect(postedMessages()).toEqual([
+        { command: 'result', requestId: 4, error: "Couldn't add the reaction." },
+      ]);
+      expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
+        "Couldn't add the reaction.",
+        'Show Logs',
+      );
+    });
+
+    it('answers with the emoji list, and quietly with an error when it cannot be read', async () => {
+      const thumbsup = { name: 'thumbsup', emoji: '👍', description: '', category: 'people' };
+      jest
+        .mocked(getEmojiList)
+        .mockResolvedValueOnce([thumbsup])
+        .mockRejectedValueOnce(new Error('404'));
+      await controller.open(target);
+      await sendToHost({ command: 'loadEmojis', requestId: 5 });
+      await sendToHost({ command: 'loadEmojis', requestId: 6 });
+
+      expect(postedMessages()).toEqual([
+        { command: 'result', requestId: 5, emojis: [thumbsup] },
+        { command: 'result', requestId: 6, error: expect.any(String) },
+      ]);
+      expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
     });
   });
 

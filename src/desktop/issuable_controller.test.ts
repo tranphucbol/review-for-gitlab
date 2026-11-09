@@ -9,6 +9,13 @@ import { waitForWebview } from '../common/utils/webviews/wait_for_webview';
 import { handleError } from '../common/errors/handle_error';
 import { issuableController, MR_OVERVIEW_ACTIVE_CONTEXT } from './issuable_controller';
 import { getMentionCandidates } from './mentions/mention_candidates';
+import {
+  getEmojiList,
+  NoteReactions,
+  readReactions,
+  setReaction,
+} from './reactions/note_reactions';
+import { UserFriendlyError } from './errors/user_friendly_error';
 
 jest.mock('../common/utils/webviews/prepare_webview_source', () => ({
   prepareWebviewSource: jest.fn().mockResolvedValue('preparedWebviewSource'),
@@ -20,6 +27,13 @@ jest.mock('../common/errors/handle_error');
 jest.mock('./gitlab/get_gitlab_service');
 jest.mock('./gitlab/gitlab_project_repository');
 jest.mock('./mentions/mention_candidates');
+jest.mock('./reactions/note_reactions', () => ({
+  ...jest.requireActual('./reactions/note_reactions'),
+  // by default the reactions never arrive, so the other tests see only what they post
+  readReactions: jest.fn(() => new Promise(() => {})),
+  setReaction: jest.fn(),
+  getEmojiList: jest.fn(),
+}));
 
 describe('issuableController', () => {
   let gitlabService: GitLabService;
@@ -502,6 +516,156 @@ describe('issuableController', () => {
         requestId: 5,
         mentions: [],
         error: 'Could not load project members.',
+      });
+      expect(handleError).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('reactions', () => {
+    type Note = Awaited<ReturnType<GitLabService['getDiscussionsAndLabelEvents']>>[number];
+    const thumbsup = { name: 'thumbsup', emoji: '👍', count: 1, users: ['Anna'], mine: false };
+
+    const send = async (message: unknown) => {
+      const [[handler]] = jest.mocked(panels[0].webview.onDidReceiveMessage).mock.calls;
+      await handler(message);
+    };
+
+    const flush = () =>
+      new Promise(resolve => {
+        setImmediate(resolve);
+      });
+
+    beforeEach(() => {
+      jest.mocked(handleError).mockClear();
+      jest.mocked(readReactions).mockClear();
+    });
+
+    it("reads the user notes' reactions after the comments are posted", async () => {
+      const discussions = [
+        { notes: { nodes: [{ id: 'gid://gitlab/Note/1', system: false }] } },
+        { notes: { nodes: [{ id: 'gid://gitlab/Note/2', system: true }] } },
+        { label: {}, body: 'added', created_at: '2026-01-01' },
+      ] as unknown as Note[];
+      jest.mocked(gitlabService.getDiscussionsAndLabelEvents).mockResolvedValue(discussions);
+      jest.mocked(readReactions).mockResolvedValue({ 'gid://gitlab/Note/1': [thumbsup] });
+
+      await issuableController.open(mr, '/repo');
+      await flush();
+
+      expect(readReactions).toHaveBeenCalledWith(
+        gitlabService,
+        expect.objectContaining({ id: mr.id }),
+        ['gid://gitlab/Note/1'],
+        projectInRepository.account,
+      );
+      const types = jest.mocked(panels[0].webview.postMessage).mock.calls.map(([m]) => m.type);
+      expect(types.indexOf('reactions')).toBeGreaterThan(types.indexOf('issuableFetch'));
+      expect(panels[0].webview.postMessage).toHaveBeenCalledWith({
+        type: 'reactions',
+        reactions: { 'gid://gitlab/Note/1': [thumbsup] },
+      });
+    });
+
+    it('drops the answer to an older read', async () => {
+      let resolveFirst: (value: NoteReactions) => void = () => {};
+      jest
+        .mocked(readReactions)
+        .mockImplementationOnce(
+          () =>
+            new Promise(resolve => {
+              resolveFirst = resolve;
+            }),
+        )
+        .mockResolvedValueOnce({ newer: [] });
+      await issuableController.open(mr, '/repo');
+
+      await send({ command: 'reloadIssuable' });
+      resolveFirst({ older: [] });
+      await flush();
+
+      const reactions = jest
+        .mocked(panels[0].webview.postMessage)
+        .mock.calls.map(([m]) => m)
+        .filter(m => m.type === 'reactions');
+      expect(reactions).toEqual([{ type: 'reactions', reactions: { newer: [] } }]);
+    });
+
+    it('shows the comments without reactions when they cannot be read', async () => {
+      jest.mocked(readReactions).mockRejectedValue(new Error('offline'));
+
+      await issuableController.open(mr, '/repo');
+      await flush();
+
+      expect(panels[0].webview.postMessage).not.toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'reactions' }),
+      );
+      expect(handleError).not.toHaveBeenCalled();
+    });
+
+    it("answers a reaction with the note's reactions", async () => {
+      jest.mocked(setReaction).mockResolvedValue([thumbsup]);
+      await issuableController.open(mr, '/repo');
+
+      await send({
+        command: 'setReaction',
+        requestId: 6,
+        noteId: 'gid://gitlab/Note/1',
+        name: 'thumbsup',
+        on: true,
+      });
+
+      expect(setReaction).toHaveBeenCalledWith(
+        gitlabService,
+        expect.objectContaining({ id: mr.id }),
+        'gid://gitlab/Note/1',
+        'thumbsup',
+        true,
+        projectInRepository.account,
+      );
+      expect(panels[0].webview.postMessage).toHaveBeenCalledWith({
+        type: 'reactionSet',
+        requestId: 6,
+        noteId: 'gid://gitlab/Note/1',
+        reactions: [thumbsup],
+      });
+    });
+
+    it('reports a refused reaction and tells the page to put it back', async () => {
+      const error = new UserFriendlyError("Couldn't add the reaction.", new Error('refused'));
+      jest.mocked(setReaction).mockRejectedValue(error);
+      await issuableController.open(mr, '/repo');
+
+      await send({ command: 'setReaction', requestId: 7, noteId: 'n', name: 'x', on: true });
+
+      expect(handleError).toHaveBeenCalledWith(error);
+      expect(panels[0].webview.postMessage).toHaveBeenCalledWith({
+        type: 'reactionSet',
+        requestId: 7,
+        noteId: 'n',
+        error: true,
+      });
+    });
+
+    it('answers with the emoji list, or quietly without it', async () => {
+      const rocket = { name: 'rocket', emoji: '🚀', description: 'rocket', category: 'travel' };
+      jest
+        .mocked(getEmojiList)
+        .mockResolvedValueOnce([rocket])
+        .mockRejectedValueOnce(new Error('302'));
+      await issuableController.open(mr, '/repo');
+
+      await send({ command: 'loadEmojis', requestId: 8 });
+      await send({ command: 'loadEmojis', requestId: 9 });
+
+      expect(panels[0].webview.postMessage).toHaveBeenCalledWith({
+        type: 'emojisLoaded',
+        requestId: 8,
+        emojis: [rocket],
+      });
+      expect(panels[0].webview.postMessage).toHaveBeenCalledWith({
+        type: 'emojisLoaded',
+        requestId: 9,
+        error: true,
       });
       expect(handleError).not.toHaveBeenCalled();
     });

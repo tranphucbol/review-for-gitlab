@@ -6,6 +6,7 @@
 
 import type { JiraLinkConfig } from '../../jira/jira_keys';
 import type { MentionCandidate } from '../../mentions/mention_candidates';
+import type { EmojiEntry, NoteReactions, ReactionGroup } from '../../reactions/note_reactions';
 
 export type DiffSide = 'old' | 'new';
 
@@ -50,6 +51,8 @@ export interface DiffNoteModel {
   bodyHtml: string;
   canEdit: boolean;
   canDelete: boolean;
+  /** the user may add and remove reactions on the note */
+  canReact: boolean;
 }
 
 export interface DiffDiscussionModel {
@@ -176,6 +179,11 @@ export type ToWebviewMessage =
       error?: string;
     }
   /**
+   * the reactions on the notes of `discussions`, by note ID, sent after them; a note missing
+   * from it has none that could be read
+   */
+  | { command: 'reactions'; reactions: NoteReactions }
+  /**
    * Which arrows the gutter shows: `base` (→, copy head lines into the local file),
    * `head` (←, put base lines back) or none, with the reason. With `enabled` false the user
    * has not turned the buttons on, and the view shows nothing about the local file.
@@ -200,6 +208,10 @@ export type ToWebviewMessage =
       mentions?: MentionCandidate[];
       /** why `mentions` is empty when nobody could be loaded; the box stays usable */
       mentionsError?: string;
+      /** the answer to `setReaction`: the note's reactions as GitLab now has them */
+      reactions?: ReactionGroup[];
+      /** the answer to `loadEmojis`: every emoji a reaction can be chosen from */
+      emojis?: EmojiEntry[];
     }
   | { command: 'error'; message: string };
 
@@ -225,6 +237,9 @@ export type FromWebviewMessage =
   | { command: 'previewMarkdown'; requestId: number; body: string }
   /** people to suggest for the `@mention` being typed in a comment box */
   | { command: 'searchMentions'; requestId: number; query: string }
+  /** adds (`on`) or removes the user's reaction `name` on a note */
+  | { command: 'setReaction'; requestId: number; noteId: string; name: string; on: boolean }
+  | { command: 'loadEmojis'; requestId: number }
   | ({
       command: 'applyHunk';
       requestId: number;

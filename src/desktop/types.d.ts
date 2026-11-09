@@ -43,6 +43,20 @@ interface RestParticipant extends RestMrUser {
   state: string;
 }
 
+/** One reaction, `GET /projects/:id/{issues|merge_requests}/:iid/notes/:note_id/award_emoji`. */
+interface RestAwardEmoji {
+  id: number;
+  name: string;
+  user: RestMrUser;
+}
+
+/** One entry of the instance's `/-/emojis/1/emojis.json`, keyed by emoji name. */
+interface RestEmojiEntry {
+  c: string; // category
+  e: string; // the character
+  d: string; // description
+}
+
 /**
  * A single merge request, `GET /projects/:id/merge_requests/:iid`. List items
  * lack `user`, `head_pipeline`, `diverged_commits_count` and `merge_error`.

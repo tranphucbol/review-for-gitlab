@@ -49,6 +49,14 @@
           <span class="gl-diff-note-meta" aria-hidden="true">·</span>
           <time-ago :date="note.createdAt" class="gl-diff-note-meta" />
           <span class="gl-diff-note-actions">
+            <add-reaction-button
+              v-if="note.canReact && !reactionsOf(note.id).length"
+              class="gl-diff-note-react"
+              :load-emojis="loadEmojis"
+              @pick="entry => toggleReaction(note, entry.name, true, entry.emoji)"
+            >
+              <span class="gl-diff-icon gl-diff-icon-reactions" aria-hidden="true"></span>
+            </add-reaction-button>
             <button
               v-if="note.canEdit && editingId !== note.id"
               type="button"
@@ -105,6 +113,17 @@
           @cancel="editingId = null"
         />
         <div v-else v-safe-html="note.bodyHtml" class="gl-diff-note-body gl-markdown"></div>
+        <reaction-bar
+          v-if="reactionsOf(note.id).length"
+          :reactions="reactionsOf(note.id)"
+          :can-react="note.canReact"
+          :load-emojis="loadEmojis"
+          @toggle="({ name, on, emoji }) => toggleReaction(note, name, on, emoji)"
+        >
+          <template #add-icon>
+            <span class="gl-diff-icon gl-diff-icon-reactions" aria-hidden="true"></span>
+          </template>
+        </reaction-bar>
       </article>
       <p v-if="error" class="gl-diff-alert" role="alert">{{ error }}</p>
       <comment-box
@@ -126,16 +145,19 @@
 </template>
 
 <script>
+import AddReactionButton from '@shared/components/AddReactionButton.vue';
+import ReactionBar from '@shared/components/ReactionBar.vue';
 import ResolvedBadge from '@shared/components/ResolvedBadge.vue';
 import TimeAgo from '@shared/components/TimeAgo.vue';
 import UserAvatar from '@shared/components/UserAvatar.vue';
 import CommentBox from './CommentBox.vue';
 import { SafeHtmlDirective } from '../../../issuable/src/directives/safe_html/safe_html';
 import { request } from '../vscode_bridge';
+import { loadEmojis, reactionsOf, toggleReaction } from '../reactions';
 
 export default {
   name: 'ThreadCard',
-  components: { CommentBox, ResolvedBadge, TimeAgo, UserAvatar },
+  components: { AddReactionButton, CommentBox, ReactionBar, ResolvedBadge, TimeAgo, UserAvatar },
   directives: { SafeHtml: SafeHtmlDirective },
   props: {
     discussion: {
@@ -178,6 +200,11 @@ export default {
     this.codeBlocks?.stop();
   },
   methods: {
+    loadEmojis,
+    reactionsOf,
+    toggleReaction(note, name, on, emoji) {
+      return toggleReaction(note.id, name, on, emoji);
+    },
     authorOf(note) {
       return { name: note.authorName, username: note.authorUsername, avatarUrl: note.avatarUrl };
     },

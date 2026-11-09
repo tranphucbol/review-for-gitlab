@@ -39,6 +39,7 @@ import milestone from '@vscode/codicons/src/icons/milestone.svg?raw';
 import pass from '@vscode/codicons/src/icons/pass.svg?raw';
 import person from '@vscode/codicons/src/icons/person.svg?raw';
 import pinned from '@vscode/codicons/src/icons/pinned.svg?raw';
+import reactions from '@vscode/codicons/src/icons/reactions.svg?raw';
 import sync from '@vscode/codicons/src/icons/sync.svg?raw';
 import tag from '@vscode/codicons/src/icons/tag.svg?raw';
 import tasklist from '@vscode/codicons/src/icons/tasklist.svg?raw';
@@ -80,6 +81,7 @@ export default {
   pass,
   person,
   pinned,
+  reactions,
   sync,
   tag,
   tasklist,

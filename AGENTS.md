@@ -234,6 +234,12 @@ node scripts/release.mjs patch             # changelog, commit, tag, push after 
   notification.
   [018](docs/decisions/018_typing-at-suggests-people-from-the-issuable.md)
 
+- **Reactions are read after the comments render, one REST read per note.**
+  13.12's GraphQL `Note` has no `awardEmoji`; reads run six at a time and fail
+  quietly, writes go through `awardEmojiAdd`/`awardEmojiRemove` by name, and the
+  emoji list is the instance's `/-/emojis/1/emojis.json`, never a bundled copy.
+  [024](docs/decisions/024_reactions-on-comments-are-read-per-note-over-rest.md)
+
 - **No literal colours in webviews; use `--vscode-*` tokens with a fallback.**
   In `webviews/vue/` only `shared/styles/tokens.scss` reads `--vscode-*`; the
   Overview and the side-by-side diff use its `--gl-*` tokens, and a concept both

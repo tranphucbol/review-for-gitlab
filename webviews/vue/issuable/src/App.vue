@@ -5,11 +5,15 @@ import IssuableSidebar from './components/IssuableSidebar.vue';
 import IssuableDiscussions from './components/IssuableDiscussions.vue';
 import CommentForm from './components/CommentForm.vue';
 import { setJiraLinkConfig } from './utils/jira_links';
+import createReactionStore from './reactions';
 
 const vscode = acquireVsCodeApi();
 
 export default {
   name: 'App',
+  provide() {
+    return { reactions: this.reactions };
+  },
   data() {
     return {
       isLoading: false,
@@ -25,11 +29,15 @@ export default {
     IssuableDiscussions,
     CommentForm,
   },
+  beforeCreate() {
+    this.reactions = createReactionStore(vscode);
+  },
   created() {
     window.vsCodeApi = vscode;
     this.isLoading = true;
 
     window.addEventListener('message', event => {
+      this.reactions.onMessage(event.data);
       if (event.data.type === 'jiraLinks') setJiraLinkConfig(event.data.config);
       if (event.data.type === 'issuableFetch') {
         this.issuable = event.data.issuable;
